@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+*.log
+.DS_Store
+*.orig.*
+# native
+/ios
+/android
+# secrets
+.env
+.env.local
+.expo-export-check/

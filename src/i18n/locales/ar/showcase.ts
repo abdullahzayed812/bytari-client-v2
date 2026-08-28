@@ -1,0 +1,30 @@
+export default {
+  title: 'نظام التصميم',
+  subtitle: 'شاشة تطوير داخلية للتحقق البصري — ليست ميزة إنتاجية.',
+  sections: {
+    typography: 'الطباعة',
+    colors: 'الألوان',
+    buttons: 'الأزرار',
+    inputs: 'الحقول',
+    cards: 'البطاقات',
+    badges: 'الشارات',
+    avatars: 'الصور الرمزية',
+    banners: 'اللافتات',
+    feedback: 'حالات الواجهة',
+    overlays: 'النوافذ المنبثقة',
+  },
+  sample: {
+    paragraph:
+      'الرعاية البيطرية الحديثة تبدأ من متابعة دقيقة لصحة حيوانك، وتواصل مباشر مع الأطباء المعتمدين.',
+    buttonPrimary: 'حجز موعد',
+    buttonSecondary: 'عرض التفاصيل',
+    inputLabel: 'اسم الحيوان',
+    inputPlaceholder: 'مثال: لولو',
+    bannerTitle: 'استشارة بيطرية فورية',
+    bannerBody: 'تحدث مع طبيب بيطري معتمد خلال دقائق.',
+    emptyTitle: 'لا توجد عناصر',
+    errorTitle: 'تعذّر تحميل البيانات',
+    openModal: 'فتح نافذة',
+    openSheet: 'فتح لوحة سفلية',
+  },
+};

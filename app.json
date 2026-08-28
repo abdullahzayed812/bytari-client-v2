@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Bytari",
+    "slug": "bytari-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "bytari",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "primaryColor": "#0BAA55",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bytari.mobile",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
+    },
+    "android": {
+      "package": "com.bytari.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-localization",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "resizeMode": "contain"
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "environment": "development"
+    }
+  }
+}
