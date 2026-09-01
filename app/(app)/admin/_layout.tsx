@@ -1,23 +1,23 @@
 import { Redirect, Stack } from 'expo-router';
 
 import { Loading } from '@/components/feedback';
-import { useAuth, useCapabilities } from '@/hooks';
+import { useManagementAccess } from '@/features/management';
+import { useAuth } from '@/hooks';
 import { useTheme } from '@/theme';
 
 /**
- * Internal Control Centre group (Admin + System Supervisor).
+ * Internal Management group (Admin + System Supervisor) — navigation guard (§24).
  *
- * Access is gated here on the authoritative `/auth/me` capability snapshot — but
- * this is UX routing, not security: every admin/supervisor API the screens will
- * call is independently authorised by the backend.
+ * Gated on the authoritative `/auth/me` snapshot. This is UX routing, not
+ * security: every management API is independently authorised by the backend.
  */
-export default function AdminLayout() {
+export default function ManagementLayout() {
   const theme = useTheme();
-  const { isRestoring } = useAuth();
-  const { canAccessControlCentre, isReady } = useCapabilities();
+  const { isBootstrapping } = useAuth();
+  const { canAccess, isResolving } = useManagementAccess();
 
-  if (isRestoring || !isReady) return <Loading fill />;
-  if (!canAccessControlCentre) return <Redirect href="/(app)/(tabs)" />;
+  if (isBootstrapping || isResolving) return <Loading fill />;
+  if (!canAccess) return <Redirect href="/(app)/(tabs)" />;
 
   return (
     <Stack

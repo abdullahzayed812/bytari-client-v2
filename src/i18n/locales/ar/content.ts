@@ -1,0 +1,79 @@
+export default {
+  common: {
+    loadingMore: 'جارٍ التحميل…',
+  },
+  type: {
+    ARTICLE: 'مقال',
+    BOOK: 'كتاب',
+    MAGAZINE: 'مجلة',
+  },
+  home: {
+    title: 'المعرفة',
+    browse: {
+      ARTICLE: 'المقالات',
+      BOOK: 'الكتب',
+      MAGAZINE: 'المجلات',
+    },
+    latestLabel: 'أحدث المحتوى',
+    resultsLabel: 'النتائج',
+  },
+  list: {
+    title: {
+      ARTICLE: 'المقالات',
+      BOOK: 'الكتب',
+      MAGAZINE: 'المجلات',
+    },
+    empty: {
+      ARTICLE: 'لا توجد مقالات متاحة حاليًا',
+      BOOK: 'لا توجد كتب متاحة حاليًا',
+      MAGAZINE: 'لا توجد مجلات متاحة حاليًا',
+    },
+    emptyAll: 'لا يوجد محتوى متاح حاليًا',
+    emptyFiltered: 'لا توجد نتائج',
+    emptyFilteredHint: 'جرّب تعديل كلمة البحث أو التصنيف.',
+    emptyHint: 'سيظهر هنا المحتوى المنشور من فريق المحتوى.',
+    count: '{{count}} عنصر',
+  },
+  search: {
+    placeholder: 'ابحث في المحتوى…',
+    empty: 'لا توجد نتائج',
+  },
+  filters: {
+    allTypes: 'كل الأنواع',
+    allCategories: 'كل التصنيفات',
+  },
+  card: {
+    openLabel: 'فتح {{title}}',
+    by: 'بقلم {{author}}',
+  },
+  detail: {
+    title: 'تفاصيل المحتوى',
+    notFoundTitle: 'المحتوى غير متاح',
+    notFoundBody: 'قد يكون هذا المحتوى غير منشور، أو تمت أرشفته أو حذفه، أو أن المُعرّف غير صحيح.',
+    backToContent: 'العودة إلى المعرفة',
+    coverAlt: 'غلاف {{title}}',
+    publishedOn: 'نُشر في {{date}}',
+    filesTitle: 'الملفات',
+    noContent: 'لا يوجد نص أو ملفات لعرضها في هذا العنصر.',
+    linksTitle: 'روابط وردت في النص',
+    openLink: 'فتح الرابط {{url}}',
+    linkOpenFailed: 'تعذّر فتح الرابط.',
+  },
+  file: {
+    title: 'ملف المحتوى',
+    openLabel: 'فتح {{name}}',
+    notPreviewable: 'غير قابل للعرض داخل التطبيق',
+    notFoundTitle: 'الملف غير متاح',
+    notFoundBody: 'قد يكون هذا الملف محذوفًا، أو لا يتبع هذا المحتوى، أو أن المحتوى غير منشور.',
+    viewableHint: 'سيُفتح هذا الملف في عارض النظام (المتصفح أو قارئ PDF).',
+    notViewableHint: 'لا يمكن عرض هذه الصيغة داخل التطبيق؛ يمكنك فتحها في تطبيق خارجي.',
+    expiryHint: 'رابط الفتح مؤقت وصالح لبضع دقائق فقط.',
+    openCta: 'فتح الملف',
+    openExternalCta: 'فتح في تطبيق خارجي',
+    openFailed: 'تعذّر فتح الملف.',
+  },
+  errors: {
+    notFound: 'المحتوى المطلوب غير موجود.',
+    forbidden: 'لا تملك صلاحية الوصول إلى هذا المحتوى.',
+  },
+};

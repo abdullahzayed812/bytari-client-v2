@@ -27,7 +27,7 @@ export function useAppBootstrap(): BootstrapState {
   const prefsHydrated = usePreferencesStore((s) => s.hasHydrated);
   const language = usePreferencesStore((s) => s.language);
   const authStatus = useAuthStore((s) => s.status);
-  const bootstrapAuth = useAuthStore((s) => s.bootstrap);
+  const initializeAuth = useAuthStore((s) => s.initialize);
 
   // i18n + direction — after preferences hydrate so the persisted language wins.
   useEffect(() => {
@@ -38,10 +38,10 @@ export function useAppBootstrap(): BootstrapState {
     setI18nReady(true);
   }, [prefsHydrated, language, i18nReady]);
 
-  // Auth session restore.
+  // Auth session restore. The store guards against re-entry, so calling once is enough.
   useEffect(() => {
-    if (authStatus === 'idle') void bootstrapAuth();
-  }, [authStatus, bootstrapAuth]);
+    void initializeAuth();
+  }, [initializeAuth]);
 
   useEffect(() => {
     if (fontError) log.warn('font load error', { message: fontError.message });
@@ -51,8 +51,7 @@ export function useAppBootstrap(): BootstrapState {
     (fontsLoaded || Boolean(fontError)) &&
     prefsHydrated &&
     i18nReady &&
-    authStatus !== 'idle' &&
-    authStatus !== 'restoring';
+    authStatus !== 'bootstrapping';
 
   useEffect(() => {
     if (ready) log.info('bootstrap complete', { authStatus });

@@ -1,1 +1,1 @@
-export { fullName, initialsOf, formatDate, truncate } from './format';
+export { fullName, initialsOf, formatDate, truncate, formatBytes } from './format';

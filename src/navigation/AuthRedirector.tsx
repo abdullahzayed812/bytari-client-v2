@@ -4,19 +4,21 @@ import { useEffect } from 'react';
 import { useAuth } from '@/hooks';
 
 /**
- * The single authentication routing seam.
+ * The single authentication routing seam (§11, §24).
  *
- * - Unauthenticated + inside `(app)` → send to sign-in.
- * - Authenticated + inside `(auth)` → send to the app home.
+ * - Unauthenticated inside `(app)`  → send to the auth flow.
+ * - Authenticated inside `(auth)`   → send to the app.
+ * - During `bootstrapping`          → do nothing (the splash is shown; avoids
+ *                                     redirect races and login/app flicker).
  *
  * Nothing else in the tree performs auth redirects. Renders nothing.
  */
 export function AuthRedirector() {
-  const { isAuthenticated, isRestoring } = useAuth();
+  const { isAuthenticated, isBootstrapping } = useAuth();
   const segments = useSegments();
 
   useEffect(() => {
-    if (isRestoring) return;
+    if (isBootstrapping) return;
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
@@ -26,7 +28,7 @@ export function AuthRedirector() {
     } else if (isAuthenticated && (inAuthGroup || group === undefined)) {
       router.replace('/(app)/(tabs)');
     }
-  }, [isAuthenticated, isRestoring, segments]);
+  }, [isAuthenticated, isBootstrapping, segments]);
 
   return null;
 }

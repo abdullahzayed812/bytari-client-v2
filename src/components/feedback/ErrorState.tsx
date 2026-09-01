@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Icon } from '@/components/content/Icon';
 import { Text } from '@/components/typography';
+import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 
@@ -15,29 +17,17 @@ export interface ErrorStateProps {
 }
 
 /**
- * Renders a user-safe error message. Backend/internal details (stack traces,
- * SQL, 500 bodies) are deliberately not surfaced — only the friendly `message`
- * from the API envelope or a generic fallback, plus the `requestId` for support.
+ * Renders a user-safe, localised (Arabic) error message. Backend/internal
+ * details (stack traces, SQL, 500 bodies, raw messages) are never surfaced —
+ * only the mapped message from `apiErrorMessage`, plus the `requestId` for
+ * support.
  */
-function friendlyMessage(error: unknown): { message: string; requestId?: string } {
-  if (error instanceof ApiError) {
-    if (error.isNetworkError) {
-      return { message: 'Unable to reach the server. Check your connection and try again.' };
-    }
-    if (error.status >= 500) {
-      return {
-        message: 'The server had a problem completing your request. Please try again shortly.',
-        requestId: error.requestId,
-      };
-    }
-    return { message: error.message, requestId: error.requestId };
-  }
-  return { message: 'Something went wrong. Please try again.' };
-}
-
-export function ErrorState({ error, title, onRetry, retryLabel = 'Retry' }: ErrorStateProps) {
+export function ErrorState({ error, title, onRetry, retryLabel }: ErrorStateProps) {
   const theme = useTheme();
-  const { message, requestId } = friendlyMessage(error);
+  const { t } = useTranslation('errors');
+
+  const message = apiErrorMessage(error);
+  const requestId = error instanceof ApiError ? error.requestId : undefined;
 
   return (
     <View
@@ -61,19 +51,19 @@ export function ErrorState({ error, title, onRetry, retryLabel = 'Retry' }: Erro
         <Icon name="alert-circle-outline" size="iconXl" color="danger" />
       </View>
       <Text variant="title" weight="medium" center>
-        {title ?? 'Something went wrong'}
+        {title ?? t('title')}
       </Text>
       <Text variant="body" color="textMuted" center>
         {message}
       </Text>
       {requestId ? (
         <Text variant="overline" color="textMuted">
-          Ref: {requestId}
+          {t('ref')}: {requestId}
         </Text>
       ) : null}
       {onRetry ? (
         <View style={{ marginTop: theme.spacing.sm }}>
-          <Button label={retryLabel} leftIcon="refresh" onPress={onRetry} />
+          <Button label={retryLabel ?? t('retry')} leftIcon="refresh" onPress={onRetry} />
         </View>
       ) : null}
     </View>

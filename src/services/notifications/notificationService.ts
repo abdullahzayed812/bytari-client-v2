@@ -91,8 +91,15 @@ export const notificationService = {
     }
   },
 
-  /** Register (or refresh) this device with the backend. Ownership is derived from the JWT. */
-  async registerDevice(token: DevicePushToken): Promise<void> {
+  /**
+   * Register (or refresh) this device with the backend. Ownership is derived
+   * from the JWT — the payload never carries a `userId` (the backend schema is
+   * `strict()` and rejects one). Re-registering the same token moves it to the
+   * current user and clears any revocation, so account-switch on one physical
+   * device is safe. Returns the backend device row id (needed to unregister on
+   * logout), or `null` if the backend is unreachable / not ready.
+   */
+  async registerDevice(token: DevicePushToken): Promise<string | null> {
     const payload: RegisterDeviceInput = {
       token: token.token,
       platform: token.platform,
@@ -100,12 +107,13 @@ export const notificationService = {
       appVersion: Constants.expoConfig?.version ?? undefined,
     };
     try {
-      await apiClient.post('/notifications/devices', payload);
+      const device = await apiClient.post<{ id: string }>('/notifications/devices', payload);
       log.info('device registered for push');
+      return device?.id ?? null;
     } catch (error) {
       if (isApiError(error) && error.status === 404) {
         log.info('device registration endpoint unavailable — skipping (backend not ready)');
-        return;
+        return null;
       }
       throw error;
     }

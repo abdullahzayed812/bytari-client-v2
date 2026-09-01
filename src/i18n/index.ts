@@ -12,7 +12,28 @@ import { en } from './locales/en';
 const log = createLogger('i18n');
 
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-export const NAMESPACES = ['common', 'nav', 'errors', 'showcase'] as const;
+export const NAMESPACES = [
+  'common',
+  'nav',
+  'errors',
+  'auth',
+  'admin',
+  'pets',
+  'veterinarian',
+  'organizations',
+  'orgAnimals',
+  'medical',
+  'farm',
+  'publications',
+  'store',
+  'content',
+  'chat',
+  'users',
+  'support',
+  'notifications',
+  'showcase',
+  'registration',
+] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 
 const resources: Record<AppLanguage, TranslationResources> = { ar, en };

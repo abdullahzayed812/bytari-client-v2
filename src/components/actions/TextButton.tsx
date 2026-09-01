@@ -9,10 +9,18 @@ export interface TextButtonProps extends Omit<PressableProps, 'style' | 'childre
   tone?: 'primary' | 'muted' | 'danger';
   icon?: IconName;
   disabled?: boolean;
+  underline?: boolean;
 }
 
 /** Low-emphasis inline action (links, "see all", form secondary actions). */
-export function TextButton({ label, tone = 'primary', icon, disabled, ...rest }: TextButtonProps) {
+export function TextButton({
+  label,
+  tone = 'primary',
+  icon,
+  disabled,
+  underline,
+  ...rest
+}: TextButtonProps) {
   const theme = useTheme();
   const color =
     tone === 'danger'
@@ -41,7 +49,10 @@ export function TextButton({ label, tone = 'primary', icon, disabled, ...rest }:
       {...rest}
     >
       {icon ? <Icon name={icon} size="iconSm" style={{ color }} /> : null}
-      <Text variant="label" style={{ color }}>
+      <Text
+        variant="label"
+        style={[{ color }, underline && { textDecorationLine: 'underline' }]}
+      >
         {label}
       </Text>
     </Pressable>

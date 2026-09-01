@@ -6,9 +6,15 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback } from 'react';
 import { View } from 'react-native';
 
-import { Loading } from '@/components/feedback';
+import { AppSplash } from '@/components/feedback';
 import { AuthRedirector } from '@/navigation/AuthRedirector';
-import { AppProviders, RealtimeGate, useAppBootstrap } from '@/providers';
+import {
+  AppProviders,
+  NotificationsGate,
+  RealtimeGate,
+  SessionCacheGate,
+  useAppBootstrap,
+} from '@/providers';
 import { useTheme } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
@@ -23,8 +29,8 @@ function RootNavigator() {
 
   if (!ready) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }} onLayout={onLayout}>
-        <Loading fill label="…" />
+      <View style={{ flex: 1 }} onLayout={onLayout}>
+        <AppSplash />
       </View>
     );
   }
@@ -32,7 +38,9 @@ function RootNavigator() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }} onLayout={onLayout}>
       <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
+      <SessionCacheGate />
       <RealtimeGate />
+      <NotificationsGate />
       <AuthRedirector />
       <Stack
         screenOptions={{

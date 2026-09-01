@@ -1,4 +1,5 @@
 export { Loading, type LoadingProps } from './Loading';
+export { AppSplash } from './AppSplash';
 export { Skeleton, SkeletonText, type SkeletonProps } from './Skeleton';
 export { EmptyState, type EmptyStateProps } from './EmptyState';
 export { ErrorState, type ErrorStateProps } from './ErrorState';

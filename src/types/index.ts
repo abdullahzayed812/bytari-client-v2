@@ -3,14 +3,16 @@
  * `features/<feature>/types.ts`.
  */
 export type {
-  AuthUser,
+  User,
+  User as AuthUser,
   AuthTokens,
+  AuthStatus,
   SessionSnapshot,
   RoleKey,
   SupervisorDomain,
   UserStatus,
   VeterinarianStatus,
-} from '@/services/auth';
+} from '@/features/auth';
 export type { PageMeta, ApiSuccess, ApiErrorDetail } from '@/services/api';
 export type { AppMode } from '@/store';
 export type { AppLanguage } from '@/i18n';

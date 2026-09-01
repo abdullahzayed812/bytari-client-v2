@@ -1,8 +1,2 @@
-import { useTranslation } from 'react-i18next';
-
-import { PlaceholderScreen } from '@/navigation/PlaceholderScreen';
-
-export default function AnimalsTab() {
-  const { t } = useTranslation('nav');
-  return <PlaceholderScreen title={t('tabs.animals')} icon="paw-outline" />;
-}
+/** Animals tab → My Pets (pets feature). Detail / create / edit live in the /pets stack. */
+export { default } from '@/features/pets/screens/MyPetsScreen';

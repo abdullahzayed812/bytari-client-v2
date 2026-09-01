@@ -1,20 +1,28 @@
-export { authService, type AuthService } from './authService';
+/**
+ * @deprecated Compatibility shim. Authentication moved to `@/features/auth` in
+ * Mobile Phase 2. New code should import from `@/features/auth` directly.
+ */
 export {
-  saveTokens,
-  loadTokens,
-  clearTokens,
+  authApi,
+  authApi as authService,
+  tokenStorage,
   isAccessTokenNearExpiry,
-  type StoredTokens,
-} from './tokenStorage';
+  useAuthStore,
+  selectIsAuthenticated,
+  selectSession,
+} from '@/features/auth';
+
 export type {
+  AuthStatus,
   AuthResult,
   AuthTokens,
-  AuthUser,
   LoginInput,
   RegisterInput,
   RoleKey,
   SessionSnapshot,
   SupervisorDomain,
+  User,
+  User as AuthUser,
   UserStatus,
   VeterinarianStatus,
-} from './types';
+} from '@/features/auth';

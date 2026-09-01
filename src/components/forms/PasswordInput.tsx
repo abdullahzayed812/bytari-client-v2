@@ -5,9 +5,13 @@ import { IconButton } from '@/components/actions';
 
 import { Input, type InputProps } from './Input';
 
-export type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'rightSlot'>;
+export type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'leftIcon' | 'leftSlot'>;
 
-/** Text field with a masked value and a show/hide toggle. */
+/**
+ * Text field with a masked value and a show/hide toggle. The eye glyph is the
+ * field's only icon (doubles as the "this is a password" affordance) — no
+ * separate lock icon, matching the reference design.
+ */
 export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
   function PasswordInput(props, ref) {
     const [visible, setVisible] = useState(false);
@@ -18,8 +22,7 @@ export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(
         autoCapitalize="none"
         autoCorrect={false}
         textContentType="password"
-        leftIcon="lock-closed-outline"
-        rightSlot={
+        leftSlot={
           <IconButton
             icon={visible ? 'eye-off-outline' : 'eye-outline'}
             size="sm"

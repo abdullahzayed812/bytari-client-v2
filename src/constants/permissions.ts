@@ -14,23 +14,29 @@ export const Permission = {
   USER_CREATE: 'user.create',
   USER_UPDATE: 'user.update',
   USER_DELETE: 'user.delete',
-  USER_STATUS_MANAGE: 'user.status.manage',
+  USER_SUSPEND: 'user.suspend',
+  USER_ACTIVATE: 'user.activate',
+  USER_DEACTIVATE: 'user.deactivate',
   // roles / permissions
   ROLE_READ: 'role.read',
   ROLE_ASSIGN: 'role.assign',
   PERMISSION_READ: 'permission.read',
   PERMISSION_ASSIGN: 'permission.assign',
   // veterinarian approval
-  VETERINARIAN_APPLICATION_READ: 'veterinarian.application.read',
-  VETERINARIAN_APPLICATION_DECIDE: 'veterinarian.application.decide',
-  // supervisors
+  VETERINARIAN_READ: 'veterinarian.read',
+  VETERINARIAN_APPROVE: 'veterinarian.approve',
+  VETERINARIAN_REJECT: 'veterinarian.reject',
+  // system supervisors
   SUPERVISOR_READ: 'supervisor.read',
   SUPERVISOR_ASSIGN: 'supervisor.assign',
+  SUPERVISOR_REMOVE: 'supervisor.remove',
   // audit
   AUDIT_READ: 'audit.read',
   // organizations (admin surface)
   ORGANIZATION_ADMIN_READ: 'organization.admin.read',
-  ORGANIZATION_ADMIN_DECIDE: 'organization.admin.decide',
+  ORGANIZATION_ADMIN_APPROVE: 'organization.admin.approve',
+  ORGANIZATION_ADMIN_STATUS: 'organization.admin.status',
+  ORGANIZATION_ADMIN_MANAGE: 'organization.admin.manage',
   // notifications (admin broadcast)
   NOTIFICATION_ADMIN_SEND: 'notification.admin.send',
 } as const;

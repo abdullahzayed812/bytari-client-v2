@@ -1,6 +1,7 @@
 export default {
   appName: 'بيطري',
   tagline: 'منصة الرعاية البيطرية',
+  comingSoon: 'هذه الميزة ستتوفر قريباً.',
   actions: {
     continue: 'متابعة',
     cancel: 'إلغاء',
@@ -29,5 +30,21 @@ export default {
   greeting: {
     hello: 'أهلاً بك',
     welcome: 'مرحباً بك في بيطري',
+  },
+  media: {
+    addImage: 'إضافة صورة',
+    changeImage: 'تغيير الصورة',
+    addFile: 'إرفاق ملف',
+    camera: 'التقاط صورة',
+    library: 'اختيار من المعرض',
+    document: 'اختيار ملف',
+    remove: 'إزالة',
+    retry: 'إعادة المحاولة',
+    uploading: 'جارٍ الرفع…',
+    uploadFailed: 'فشل الرفع',
+    permissionTitle: 'الإذن مطلوب',
+    permissionBody: 'يرجى منح الإذن من إعدادات الجهاز للمتابعة.',
+    tooLarge: 'حجم الملف كبير جداً.',
+    unsupported: 'نوع الملف غير مدعوم.',
   },
 };

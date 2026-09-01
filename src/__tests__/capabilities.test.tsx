@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react-native';
 
 import { useCapabilities } from '@/hooks/useCapabilities';
-import { useAuthStore } from '@/store/authStore';
-import type { SessionSnapshot } from '@/services/auth';
+import { useAuthStore } from '@/features/auth/store';
+import type { SessionSnapshot } from '@/features/auth/types';
 
 function setSession(partial: Partial<SessionSnapshot>): void {
   const base: SessionSnapshot = {

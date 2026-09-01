@@ -62,8 +62,10 @@ describe('design system components render with the theme', () => {
         }
       />,
     );
+    // raw backend message is never shown; a localised message + the ref id are
     expect(screen.queryByText('stack trace leak')).toBeNull();
-    expect(screen.getByText(/Ref: req_9/)).toBeOnTheScreen();
+    expect(screen.getByText(/req_9/)).toBeOnTheScreen();
+    expect(screen.getByText('حدثت مشكلة في الخادم. يرجى المحاولة بعد قليل.')).toBeOnTheScreen();
   });
 
   it('renders a TextButton', () => {

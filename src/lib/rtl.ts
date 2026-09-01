@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { I18nManager, Platform } from 'react-native';
 
 import { createLogger } from './logger';
@@ -19,6 +20,15 @@ import { createLogger } from './logger';
  */
 const log = createLogger('rtl');
 
+/**
+ * Expo Go (SDK 53+, new architecture) cannot apply a native `I18nManager`
+ * direction change: `forceRTL()` never sticks, so `I18nManager.isRTL` stays
+ * `false` and every launch re-detects a "direction changed", reloading the app
+ * forever — which wedges it on the splash screen. RTL needs a development build.
+ */
+export const isExpoGo =
+  Constants.executionEnvironment === 'storeClient' || Constants.appOwnership === 'expo';
+
 export const RTL_LANGUAGES = new Set(['ar', 'he', 'fa', 'ur']);
 
 export function isRtlLanguage(language: string): boolean {
@@ -37,6 +47,16 @@ export function applyDirectionForLanguage(language: string): DirectionResult {
 
   if (I18nManager.isRTL === shouldBeRTL) {
     return { changed: false, isRTL: shouldBeRTL };
+  }
+
+  if (isExpoGo) {
+    // `forceRTL` is a no-op here; pretend nothing changed so bootstrap proceeds
+    // and the app renders (LTR) instead of reload-looping on the splash screen.
+    log.warn('RTL layout needs a development build — Expo Go renders LTR', {
+      language,
+      shouldBeRTL,
+    });
+    return { changed: false, isRTL: I18nManager.isRTL };
   }
 
   I18nManager.forceRTL(shouldBeRTL);

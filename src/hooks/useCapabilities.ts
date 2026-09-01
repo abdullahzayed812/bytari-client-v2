@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { PermissionKey } from '@/constants/permissions';
-import type { RoleKey, SupervisorDomain } from '@/services/auth';
+import type { RoleKey, SupervisorDomain } from '@/features/auth/types';
 import { useAuthStore } from '@/store';
 
 /**
@@ -24,7 +24,9 @@ export interface Capabilities {
   canAll: (permissions: PermissionKey[]) => boolean;
   hasRole: (role: RoleKey) => boolean;
   isSupervisorOf: (domain: SupervisorDomain) => boolean;
-  /** Has access to the internal control centre (admin OR any supervisor domain). */
+  /** Has access to the internal management area (admin OR any supervisor domain). */
+  canAccessManagementArea: boolean;
+  /** @deprecated alias of {@link canAccessManagementArea}. */
   canAccessControlCentre: boolean;
   /** May switch the app into Veterinarian Mode (approved vet or admin). */
   canEnterVeterinarianMode: boolean;
@@ -56,6 +58,7 @@ export function useCapabilities(): Capabilities {
       canAll: (list) => list.every(can),
       hasRole: (role) => roles.includes(role),
       isSupervisorOf: (domain) => isAdmin || supervisorDomains.includes(domain),
+      canAccessManagementArea: isAdmin || supervisorDomains.length > 0,
       canAccessControlCentre: isAdmin || supervisorDomains.length > 0,
       canEnterVeterinarianMode: isAdmin || isApprovedVeterinarian,
     };

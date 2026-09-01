@@ -2,7 +2,7 @@ import { I18nManager } from 'react-native';
 
 import { DEFAULT_LANGUAGE } from '@/constants/config';
 
-import { isRtlLanguage } from './rtl';
+import { isExpoGo, isRtlLanguage } from './rtl';
 
 /**
  * Synchronous, run-once side effect executed as the very first import in the
@@ -14,7 +14,7 @@ import { isRtlLanguage } from './rtl';
  * native reload; that path is handled explicitly in the UI.
  */
 I18nManager.allowRTL(true);
-if (isRtlLanguage(DEFAULT_LANGUAGE) && !I18nManager.isRTL) {
+if (!isExpoGo && isRtlLanguage(DEFAULT_LANGUAGE) && !I18nManager.isRTL) {
   I18nManager.forceRTL(true);
 }
 

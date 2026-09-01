@@ -1,0 +1,29 @@
+import { useMutation, type UseMutationResult } from '@tanstack/react-query';
+
+import { useAuthStore } from '../store';
+import type { LoginInput, RegisterInput } from '../types';
+
+/**
+ * Thin React Query wrappers over the store's auth actions so screens get
+ * `isPending` / `error` / `reset` ergonomically (§18, §23). The store remains
+ * the single source of session truth; these do not cache anything.
+ */
+export function useLoginMutation(): UseMutationResult<void, unknown, LoginInput> {
+  const login = useAuthStore((s) => s.login);
+  return useMutation({ mutationKey: ['auth', 'login'], mutationFn: login });
+}
+
+export function useRegisterMutation(): UseMutationResult<void, unknown, RegisterInput> {
+  const register = useAuthStore((s) => s.register);
+  return useMutation({ mutationKey: ['auth', 'register'], mutationFn: register });
+}
+
+export function useLogoutMutation(): UseMutationResult<void, unknown, void> {
+  const logout = useAuthStore((s) => s.logout);
+  return useMutation({ mutationKey: ['auth', 'logout'], mutationFn: () => logout() });
+}
+
+export function useLogoutAllMutation(): UseMutationResult<void, unknown, void> {
+  const logoutAll = useAuthStore((s) => s.logoutAll);
+  return useMutation({ mutationKey: ['auth', 'logout-all'], mutationFn: () => logoutAll() });
+}

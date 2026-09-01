@@ -1,0 +1,106 @@
+import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-query';
+import { useMemo } from 'react';
+
+import { AppConfig } from '@/constants/config';
+import { ApiError } from '@/services/api';
+
+import { publicationKeys, publicationsApi } from '../api';
+import type { AnimalPublication, Paginated, PublicPublication, PublicationKind } from '../types';
+
+/** The authenticated public browse for one kind (APPROVED publications only). */
+export function usePublicPublications(
+  kind: PublicationKind | null | undefined,
+  params: { pageSize?: number; enabled?: boolean } = {},
+) {
+  const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+
+  const query = useInfiniteQuery<
+    Paginated<PublicPublication>,
+    unknown,
+    InfiniteData<Paginated<PublicPublication>>,
+    ReturnType<typeof publicationKeys.publicList>,
+    number
+  >({
+    queryKey: publicationKeys.publicList((kind ?? 'ADOPTION') as PublicationKind),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      publicationsApi.listPublic(pageParam, pageSize, kind as PublicationKind),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled: Boolean(kind) && (params.enabled ?? true),
+    staleTime: 15_000,
+  });
+
+  const publications = useMemo<PublicPublication[]>(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
+  const total = query.data?.pages[0]?.meta.total ?? 0;
+
+  return { ...query, publications, total };
+}
+
+/** One APPROVED publication (public detail). `404` for anything non-approved. */
+export function usePublicPublication(
+  publicationId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<PublicPublication, ApiError>({
+    queryKey: publicationKeys.publicDetail(publicationId ?? 'unknown'),
+    queryFn: () => publicationsApi.getPublic(publicationId as string),
+    enabled: Boolean(publicationId) && (options.enabled ?? true),
+    retry: (count, error) =>
+      !(error instanceof ApiError && (error.status === 404 || error.status === 403)) && count < 2,
+  });
+}
+
+/**
+ * One animal's own publications (every status). Requires the caller to be the
+ * animal's current owner (or ADMIN / ANIMAL supervisor) — a non-owner hits `404`.
+ */
+export function useAnimalPublications(
+  animalId: string | undefined,
+  params: { pageSize?: number; enabled?: boolean } = {},
+) {
+  const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+
+  const query = useInfiniteQuery<
+    Paginated<AnimalPublication>,
+    unknown,
+    InfiniteData<Paginated<AnimalPublication>>,
+    ReturnType<typeof publicationKeys.animalList>,
+    number
+  >({
+    queryKey: publicationKeys.animalList(animalId ?? 'unknown'),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      publicationsApi.listForAnimal(animalId as string, pageParam, pageSize),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled: Boolean(animalId) && (params.enabled ?? true),
+    staleTime: 15_000,
+  });
+
+  const publications = useMemo<AnimalPublication[]>(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
+  const total = query.data?.pages[0]?.meta.total ?? 0;
+
+  return { ...query, publications, total };
+}
+
+/** One of an animal's own publications — the owner view, with status + rejection reason. */
+export function useAnimalPublication(
+  animalId: string | undefined,
+  publicationId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<AnimalPublication, ApiError>({
+    queryKey: publicationKeys.animalDetail(animalId ?? 'unknown', publicationId ?? 'unknown'),
+    queryFn: () => publicationsApi.getForAnimal(animalId as string, publicationId as string),
+    enabled: Boolean(animalId) && Boolean(publicationId) && (options.enabled ?? true),
+    retry: (count, error) =>
+      !(error instanceof ApiError && (error.status === 404 || error.status === 403)) && count < 2,
+  });
+}

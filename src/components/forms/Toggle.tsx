@@ -92,7 +92,7 @@ export function Radio({ label, description, checked, disabled, onChange }: Optio
           />
         ) : null}
       </View>
-      <View style={{ flex: 1, rowGap: 2 }}>
+      <View style={{ rowGap: 2 }}>
         <Text variant="bodyMedium">{label}</Text>
         {description ? <Caption>{description}</Caption> : null}
       </View>

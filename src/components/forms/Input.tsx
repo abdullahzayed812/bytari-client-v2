@@ -11,6 +11,8 @@ export interface InputProps extends Omit<TextInputProps, 'style' | 'placeholderT
   hint?: string;
   error?: string;
   leftIcon?: IconName;
+  /** Interactive content in the leading icon slot (e.g. a password show/hide toggle). Takes precedence over `leftIcon`. */
+  leftSlot?: React.ReactNode;
   rightSlot?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
   required?: boolean;
@@ -18,7 +20,19 @@ export interface InputProps extends Omit<TextInputProps, 'style' | 'placeholderT
 
 /** Themed text field. Base for `PasswordInput` / `SearchInput`. RTL-aware alignment. */
 export const Input = forwardRef<TextInput, InputProps>(function Input(
-  { label, hint, error, leftIcon, rightSlot, containerStyle, required, onFocus, onBlur, ...rest },
+  {
+    label,
+    hint,
+    error,
+    leftIcon,
+    leftSlot,
+    rightSlot,
+    containerStyle,
+    required,
+    onFocus,
+    onBlur,
+    ...rest
+  },
   ref,
 ) {
   const theme = useTheme();
@@ -51,7 +65,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
           backgroundColor: theme.colors.surface,
         }}
       >
-        {leftIcon ? <Icon name={leftIcon} size="iconSm" color="textMuted" /> : null}
+        {leftSlot ?? (leftIcon ? <Icon name={leftIcon} size="iconSm" color="textMuted" /> : null)}
         <TextInput
           ref={ref}
           placeholderTextColor={theme.colors.textMuted}
