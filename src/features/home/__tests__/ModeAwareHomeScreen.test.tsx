@@ -59,7 +59,7 @@ describe('ModeAwareHomeScreen — APP MODE ≠ ROLE; Pet Owner features never re
     seed('APPROVED');
     useAppModeStore.setState({ activeMode: 'owner' });
     renderWithProviders(<ModeAwareHomeScreen />);
-    await waitFor(() => expect(screen.getByText('حيواناتي')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('أرسل استشارتك وسنجيبك فوراً')).toBeOnTheScreen());
   });
 
   it('veterinarian mode renders the Veterinarian Home', async () => {
@@ -74,6 +74,6 @@ describe('ModeAwareHomeScreen — APP MODE ≠ ROLE; Pet Owner features never re
     useAppModeStore.setState({ activeMode: 'veterinarian' });
     renderWithProviders(<ModeAwareHomeScreen />);
     // useAppMode() self-corrects to owner → Pet Owner Home
-    await waitFor(() => expect(screen.getByText('حيواناتي')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('أرسل استشارتك وسنجيبك فوراً')).toBeOnTheScreen());
   });
 });

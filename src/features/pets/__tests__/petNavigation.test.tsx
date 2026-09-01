@@ -36,14 +36,14 @@ describe('pet navigation (§27)', () => {
   });
   afterAll(() => jest.restoreAllMocks());
 
-  it('Home → My Pets (view all)', async () => {
+  it('Home → My Pets (Sections → Pet animals card)', async () => {
     list.mockResolvedValue({
       items: [pet],
       meta: { page: 1, pageSize: 3, total: 1, totalPages: 1 },
     });
     renderWithProviders(<HomeScreen />);
-    await waitFor(() => expect(screen.getByText('عرض الكل')).toBeOnTheScreen());
-    fireEvent.press(screen.getByRole('button', { name: 'عرض الكل' }));
+    const petsCard = await screen.findByLabelText('الحيوانات الأليفة');
+    fireEvent.press(petsCard);
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets');
   });
 

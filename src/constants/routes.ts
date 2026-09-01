@@ -72,6 +72,9 @@ export const Routes = {
   veterinarianJoinFarm: '/(app)/veterinarian/join-farm',
   organizations: '/(app)/organizations',
   organizationsCreate: '/(app)/organizations/create',
+  organizationsDiscover: '/(app)/organizations/discover',
+  organizationDiscoverDetail: (organizationId: string) =>
+    `/(app)/organizations/discover/${organizationId}` as const,
   organizationDetail: (organizationId: string) => `/(app)/organizations/${organizationId}` as const,
   organizationEdit: (organizationId: string) =>
     `/(app)/organizations/${organizationId}/edit` as const,

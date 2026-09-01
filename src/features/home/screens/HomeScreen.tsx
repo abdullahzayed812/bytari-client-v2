@@ -1,288 +1,223 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
-import { Badge, Card, Icon } from '@/components/content';
+import { Card, Icon, type IconName } from '@/components/content';
+import { EmptyState, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
-import { Caption, Heading, Text } from '@/components/typography';
+import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useConversations } from '@/features/chat/hooks';
-import { useUnreadCount } from '@/features/notifications/hooks';
-import { PetCard, PetCardSkeleton, usePets } from '@/features/pets';
-import { useAppMode, useAuth } from '@/hooks';
-import { useAppHeaderGreeting } from '@/navigation/useAppHeaderGreeting';
+import { ClinicCard, useDiscoverOrganizations } from '@/features/organizations';
+import { ThreadCard, ThreadCardSkeleton, useMyThreads } from '@/features/support';
 import { useTheme } from '@/theme';
 
-import { HomeSectionHeader } from '../components/HomeSectionHeader';
+import { HomeAdsCarousel, HomeHeader, HomeSectionHeader } from '../components';
 
 const PREVIEW_COUNT = 3;
+const CLINIC_CARD_WIDTH = 220;
+
+interface CategoryCardProps {
+  icon: IconName;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+  flex?: number;
+}
+
+function CategoryCard({ icon, title, subtitle, onPress, flex }: CategoryCardProps) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      onPress={onPress}
+      style={({ pressed }) => [
+        {
+          flex,
+          padding: theme.spacing.lg,
+          borderRadius: theme.radius.xl,
+          backgroundColor: theme.colors.surfaceAccent,
+          rowGap: theme.spacing.md,
+        },
+        pressed && { opacity: 0.85 },
+      ]}
+    >
+      <Row justify="space-between" align="flex-start">
+        <View
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: theme.radius.md,
+            backgroundColor: theme.colors.surface,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name={icon} size="iconMd" color="primary" />
+        </View>
+        <Icon name="chevron-forward" directional size="iconSm" color="primary" />
+      </Row>
+      <View style={{ rowGap: 2 }}>
+        <Text variant="bodyStrong">{title}</Text>
+        <Caption>{subtitle}</Caption>
+      </View>
+    </Pressable>
+  );
+}
 
 /**
- * Pet Owner Home (§3). Real data for the "My Pets" summary; every other section
- * that belongs to a later phase is a clean disabled / "coming soon" placeholder.
- * Works in Veterinarian mode too — pet data is owner-scoped by the backend
- * regardless of role.
+ * Pet Owner Home — matches the reference design: header (avatar/greeting +
+ * search/notifications/chat), the admin-curated ad carousel, a "send a
+ * consultation now" CTA, a preview of the caller's own consultations, nearby
+ * clinics, and a static "Sections" grid. Sections that used to live here
+ * inline (notifications, chat, my-pets preview, community, knowledge,
+ * services hub) are all still reachable — via the header icons or the
+ * Services tab — just no longer duplicated on Home.
  */
 export default function HomeScreen() {
   const theme = useTheme();
-  const { t } = useTranslation('pets');
-  const { t: tn } = useTranslation('notifications');
-  const { t: tch } = useTranslation('chat');
-  const { t: tc } = useTranslation('common');
-  const { t: tp } = useTranslation('publications');
-  const { t: tk } = useTranslation('content');
+  const { t } = useTranslation('home');
   const { t: ts } = useTranslation('support');
-  const { t: tnav } = useTranslation('nav');
-  const greeting = useAppHeaderGreeting();
-  const { user } = useAuth();
-  const { activeMode } = useAppMode();
+  const { t: torg } = useTranslation('organizations');
+  const { t: tc } = useTranslation('common');
+  const toast = useToast();
 
-  const pets = usePets({ pageSize: PREVIEW_COUNT });
-  const preview = pets.pets.slice(0, PREVIEW_COUNT);
-  const { data: unread = 0 } = useUnreadCount();
-  const { unreadTotal: chatUnread } = useConversations({ pageSize: 20 });
+  const consultations = useMyThreads('CONSULTATION', { pageSize: PREVIEW_COUNT });
+  const consultationPreview = consultations.threads.slice(0, PREVIEW_COUNT);
+  const clinics = useDiscoverOrganizations({ type: 'CLINIC', pageSize: 10 });
+
+  const comingSoon = () => toast.show({ message: tc('comingSoon'), tone: 'info' });
 
   return (
     <ScrollScreen>
       <Section spacing="xl">
-        <Row justify="space-between" align="flex-start">
-          <View style={{ flex: 1 }}>
-            <Caption>{greeting}</Caption>
-            <Heading level={2} numberOfLines={1}>
-              {user ? `${user.firstName} ${user.lastName}`.trim() : tc('appName')}
-            </Heading>
-          </View>
-          <View
-            style={{
-              paddingHorizontal: theme.spacing.md,
-              paddingVertical: theme.spacing.xs,
-              borderRadius: theme.radius.pill,
-              backgroundColor: theme.colors.surfaceAccent,
-            }}
-          >
-            <Text variant="overline" color="primary">
-              {activeMode === 'veterinarian' ? tc('mode.veterinarian') : tc('mode.owner')}
-            </Text>
-          </View>
-        </Row>
+        <HomeHeader />
       </Section>
 
-      {/* Notifications inbox (Phase 15). */}
       <Section spacing="xl">
-        <Card
-          variant="outlined"
-          padding="lg"
-          onPress={() => router.push(Routes.notifications)}
-          accessibilityLabel={
-            unread > 0 ? tn('bell.a11yWithCount', { count: unread }) : tn('bell.a11y')
-          }
-        >
-          <Row gap="md">
+        <HomeAdsCarousel />
+      </Section>
+
+      {/* Send a consultation now. */}
+      <Section spacing="xl">
+        <Card variant="outlined" padding="lg">
+          <Row gap="lg" align="center">
             <View
               style={{
-                width: 40,
-                height: 40,
-                borderRadius: theme.radius.md,
-                backgroundColor: theme.colors.surfaceMuted,
+                width: 56,
+                height: 56,
+                borderRadius: theme.radius.pill,
+                backgroundColor: theme.colors.surfaceAccent,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Icon name="notifications-outline" size="iconMd" color="primary" />
+              <Icon name="chatbubbles-outline" size="iconLg" color="primary" />
             </View>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyMedium">{tn('home.title')}</Text>
-              <Caption>
-                {unread > 0 ? tn('home.unread', { count: unread }) : tn('home.hint')}
-              </Caption>
+            <View style={{ flex: 1, rowGap: 2 }}>
+              <Text variant="bodyStrong">{ts('home.ctaTitle')}</Text>
+              <Caption>{ts('home.ctaSubtitle')}</Caption>
             </View>
-            {unread > 0 ? (
-              <Badge label={unread > 99 ? '99+' : String(unread)} tone="danger" size="sm" />
-            ) : (
-              <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
-            )}
           </Row>
-        </Card>
-      </Section>
-
-      {/* Chat — Pet Owner ↔ Clinic / Farm. */}
-      <Section spacing="xl">
-        <Card
-          variant="outlined"
-          padding="lg"
-          onPress={() => router.push(Routes.chat)}
-          accessibilityLabel={
-            chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')
-          }
-        >
-          <Row gap="md">
-            <View
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: theme.radius.md,
-                backgroundColor: theme.colors.surfaceMuted,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+          <View style={{ marginTop: theme.spacing.lg }}>
+            <Card
+              variant="flat"
+              padding="md"
+              style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.lg }}
+              onPress={() => router.push(Routes.supportCreate('consultations'))}
+              accessibilityLabel={ts('home.ctaButton')}
             >
-              <Icon name="chatbubbles-outline" size="iconMd" color="primary" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyMedium">{tch('home.title')}</Text>
-              <Caption>
-                {chatUnread > 0 ? tch('home.unread', { count: chatUnread }) : tch('home.hint')}
-              </Caption>
-            </View>
-            {chatUnread > 0 ? (
-              <Badge label={chatUnread > 99 ? '99+' : String(chatUnread)} tone="danger" size="sm" />
-            ) : (
-              <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
-            )}
-          </Row>
+              <Row justify="center" gap="sm">
+                <Text variant="bodyMedium" style={{ color: theme.colors.onPrimary }}>
+                  {ts('home.ctaButton')}
+                </Text>
+                <Icon name="send" size="iconSm" color="onPrimary" directional />
+              </Row>
+            </Card>
+          </View>
         </Card>
       </Section>
 
-      {/* My Pets summary — real data. */}
+      {/* Previous consultations. */}
       <Section spacing="xl">
         <HomeSectionHeader
-          title={t('home.myPetsTitle')}
-          actionLabel={pets.pets.length > 0 ? t('home.viewAll') : undefined}
-          onAction={() => router.push(Routes.pets)}
+          title={ts('home.previousTitle')}
+          actionLabel={consultationPreview.length > 0 ? ts('home.viewAll') : undefined}
+          onAction={() => router.push(Routes.support('consultations'))}
         />
-
-        {pets.isLoading ? (
+        {consultations.isLoading ? (
           <View style={{ rowGap: theme.spacing.md }}>
-            <PetCardSkeleton />
-            <PetCardSkeleton />
+            <ThreadCardSkeleton />
           </View>
-        ) : preview.length === 0 ? (
-          <Card variant="accent" onPress={() => router.push(Routes.petsCreate)}>
-            <Row gap="md">
-              <Icon name="add-circle-outline" size="iconLg" color="primary" />
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyMedium">{t('home.addPet')}</Text>
-                <Caption>{t('home.emptyHint')}</Caption>
-              </View>
-            </Row>
-          </Card>
+        ) : consultationPreview.length === 0 ? (
+          <EmptyState icon="chatbubbles-outline" title={ts('home.emptyTitle')} message={ts('home.emptyMessage')} />
         ) : (
           <View style={{ rowGap: theme.spacing.md }}>
-            {preview.map((pet) => (
-              <PetCard
-                key={pet.id}
-                pet={pet}
-                onPress={() => router.push(Routes.petDetail(pet.id))}
+            {consultationPreview.map((thread) => (
+              <ThreadCard
+                key={thread.id}
+                thread={thread}
+                onPress={() => router.push(Routes.supportThread('consultations', thread.id))}
               />
             ))}
           </View>
         )}
       </Section>
 
-      {/* Animal community — Adoption / Mating / Lost (Phase 8). */}
+      {/* Available clinics. */}
       <Section spacing="xl">
-        <HomeSectionHeader title={tp('home.communityTitle')} />
-        <View style={{ rowGap: theme.spacing.sm }}>
-          {(
-            [
-              { slug: 'adoption', icon: 'heart-outline', label: tp('home.communityAdoption') },
-              {
-                slug: 'mating',
-                icon: 'male-female-outline',
-                label: tp('home.communityMating'),
-              },
-              { slug: 'lost', icon: 'search-outline', label: tp('home.communityLost') },
-            ] as const
-          ).map((item) => (
-            <Card
-              key={item.slug}
-              variant="outlined"
-              padding="md"
-              onPress={() => router.push(Routes.publications(item.slug))}
-              accessibilityLabel={item.label}
-            >
-              <Row gap="md">
-                <Icon name={item.icon} size="iconMd" color="primary" />
-                <Text variant="bodyMedium" style={{ flex: 1 }}>
-                  {item.label}
-                </Text>
-                <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
-              </Row>
-            </Card>
-          ))}
-        </View>
+        <HomeSectionHeader
+          title={torg('home.clinicsTitle')}
+          actionLabel={clinics.organizations.length > 0 ? torg('home.viewAll') : undefined}
+          onAction={() => router.push(Routes.organizationsDiscover)}
+        />
+        {clinics.organizations.length === 0 && !clinics.isLoading ? (
+          <EmptyState icon="medkit-outline" title={torg('home.emptyTitle')} />
+        ) : (
+          <FlatList
+            data={clinics.organizations}
+            keyExtractor={(o) => o.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+            renderItem={({ item }) => (
+              <ClinicCard
+                organization={item}
+                width={CLINIC_CARD_WIDTH}
+                onPress={() => router.push(Routes.organizationDiscoverDetail(item.id))}
+              />
+            )}
+          />
+        )}
       </Section>
 
-      {/* Content & Knowledge (Phase 11). */}
-      <Section spacing="xl">
-        <HomeSectionHeader title={tk('home.title')} />
-        <Card
-          variant="outlined"
-          padding="md"
-          onPress={() => router.push(Routes.contentHome)}
-          accessibilityLabel={tk('home.title')}
-        >
-          <Row gap="md">
-            <Icon name="library-outline" size="iconMd" color="primary" />
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyMedium">{tk('home.title')}</Text>
-              <Caption>{tk('home.latestLabel')}</Caption>
-            </View>
-            <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
-          </Row>
-        </Card>
-      </Section>
-
-      {/* Consultations & Inquiries (Phase 13). */}
-      <Section spacing="xl">
-        <HomeSectionHeader title={ts('home.sectionTitle')} />
-        <View style={{ rowGap: theme.spacing.sm }}>
-          {(
-            [
-              {
-                slug: 'consultations',
-                icon: 'chatbubbles-outline',
-                label: ts('home.consultations'),
-              },
-              { slug: 'inquiries', icon: 'help-buoy-outline', label: ts('home.inquiries') },
-            ] as const
-          ).map((item) => (
-            <Card
-              key={item.slug}
-              variant="outlined"
-              padding="md"
-              onPress={() => router.push(Routes.support(item.slug))}
-              accessibilityLabel={item.label}
-            >
-              <Row gap="md">
-                <Icon name={item.icon} size="iconMd" color="primary" />
-                <Text variant="bodyMedium" style={{ flex: 1 }}>
-                  {item.label}
-                </Text>
-                <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
-              </Row>
-            </Card>
-          ))}
-        </View>
-      </Section>
-
-      {/* Services hub — one tap to everything else. */}
+      {/* Sections. */}
       <Section spacing="giant">
-        <Card
-          variant="outlined"
-          padding="md"
-          onPress={() => router.push(Routes.services)}
-          accessibilityLabel={tnav('services.title')}
-        >
-          <Row gap="md">
-            <Icon name="grid-outline" size="iconMd" color="primary" />
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyMedium">{tnav('services.title')}</Text>
-              <Caption>{tnav('services.subtitle')}</Caption>
-            </View>
-            <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
+        <HomeSectionHeader title={t('categories.title')} />
+        <View style={{ rowGap: theme.spacing.md }}>
+          <Row gap="md" align="stretch">
+            <CategoryCard
+              flex={1}
+              icon="paw"
+              title={t('categories.pets.title')}
+              subtitle={t('categories.pets.subtitle')}
+              onPress={() => router.push(Routes.pets)}
+            />
+            <CategoryCard
+              flex={1}
+              icon="leaf-outline"
+              title={t('categories.livestock.title')}
+              subtitle={t('categories.livestock.subtitle')}
+              onPress={comingSoon}
+            />
           </Row>
-        </Card>
+          <CategoryCard
+            icon="egg-outline"
+            title={t('categories.poultry.title')}
+            subtitle={t('categories.poultry.subtitle')}
+            onPress={comingSoon}
+          />
+        </View>
       </Section>
     </ScrollScreen>
   );

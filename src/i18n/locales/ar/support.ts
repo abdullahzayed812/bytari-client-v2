@@ -112,6 +112,13 @@ export default {
     inquiries: 'الاستفسارات',
     manageConsultations: 'إدارة الاستشارات',
     manageInquiries: 'إدارة الاستفسارات',
+    ctaTitle: 'أرسل استشارتك وسنجيبك فوراً',
+    ctaSubtitle: 'لدينا طاقم طبي متخصص',
+    ctaButton: 'إرسال استشارة',
+    previousTitle: 'استشاراتك السابقة',
+    viewAll: 'عرض الكل',
+    emptyTitle: 'لا توجد استشارات',
+    emptyMessage: 'عند إرسال استشارة ستظهر هنا',
   },
   ai: {
     title: 'الردود الآلية',

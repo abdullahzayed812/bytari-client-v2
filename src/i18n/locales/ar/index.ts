@@ -5,6 +5,7 @@ import common from './common';
 import content from './content';
 import errors from './errors';
 import farm from './farm';
+import home from './home';
 import medical from './medical';
 import nav from './nav';
 import notifications from './notifications';
@@ -26,6 +27,7 @@ export const ar = {
   auth,
   admin,
   pets,
+  home,
   veterinarian,
   organizations,
   orgAnimals,

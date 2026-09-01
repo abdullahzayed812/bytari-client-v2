@@ -1,4 +1,4 @@
-import type { MemberListFilter } from '../types';
+import type { MemberListFilter, OrganizationType } from '../types';
 
 /**
  * Centralised organization query keys (§14 — no raw key arrays elsewhere,
@@ -24,4 +24,13 @@ export const orgKeys = {
     [...orgKeys.members(organizationId), filter] as const,
   supervisors: (organizationId: string) =>
     [...orgKeys.detail(organizationId), 'supervisors'] as const,
+  discoverLists: () => [...orgKeys.all, 'discover'] as const,
+  discoverList: (filter: {
+    type?: OrganizationType;
+    search?: string;
+    sort?: string;
+    near?: { lat: number; lng: number };
+  }) => [...orgKeys.discoverLists(), filter] as const,
+  publicDetail: (organizationId: string) =>
+    [...orgKeys.all, 'discover-detail', organizationId] as const,
 };

@@ -19,6 +19,7 @@ export const NAMESPACES = [
   'auth',
   'admin',
   'pets',
+  'home',
   'veterinarian',
   'organizations',
   'orgAnimals',

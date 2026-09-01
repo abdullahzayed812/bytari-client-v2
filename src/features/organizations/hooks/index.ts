@@ -1,5 +1,7 @@
 export { useOrganizations } from './useOrganizations';
 export { useOrganization } from './useOrganization';
+export { useDiscoverOrganizations } from './useDiscoverOrganizations';
+export { usePublicOrganization } from './usePublicOrganization';
 export {
   useOrganizationMembers,
   type UseOrganizationMembersParams,

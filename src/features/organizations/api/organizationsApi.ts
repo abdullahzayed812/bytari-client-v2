@@ -5,14 +5,17 @@ import type {
   AddMemberInput,
   AssignSupervisorInput,
   CreateOrganizationInput,
+  DiscoverSort,
   MemberListFilter,
   MyOrganization,
   OrganizationDetail,
   OrganizationMember,
   OrganizationSupervisor,
+  OrganizationType,
   OrganizationWithDetails,
   Organization,
   Paginated,
+  PublicOrganization,
   UpdateMemberInput,
   UpdateOrganizationInput,
   UpdateSupervisorInput,
@@ -26,6 +29,8 @@ import type {
  *
  *   POST   /organizations                              → create (201)
  *   GET    /organizations?page&pageSize                → the caller's memberships
+ *   GET    /organizations/discover?type&search&sort&lat&lng&page&pageSize → ACTIVE orgs, any user
+ *   GET    /organizations/discover/:id                  → single ACTIVE org, any user
  *   GET    /organizations/:id                          → detail + myRole
  *   PATCH  /organizations/:id                          → update profile
  *   POST   /organizations/:id/leave                    → leave (owner rejected)
@@ -69,6 +74,42 @@ export const organizationsApi = {
 
   get(organizationId: string): Promise<OrganizationDetail> {
     return apiClient.get<OrganizationDetail>(`/organizations/${organizationId}`);
+  },
+
+  /**
+   * `GET /organizations/discover` — any authenticated user, ACTIVE orgs only.
+   * `sort: 'nearest'` requires `near` (both `lat` and `lng`) — the backend
+   * computes and orders by real distance; this client never estimates it.
+   */
+  async discover(filter: {
+    page: number;
+    pageSize: number;
+    type?: OrganizationType;
+    search?: string;
+    sort?: DiscoverSort;
+    near?: { lat: number; lng: number };
+  }): Promise<Paginated<PublicOrganization>> {
+    const envelope = await apiClient.requestEnvelope<PublicOrganization[]>({
+      method: 'GET',
+      url: '/organizations/discover',
+      params: {
+        page: filter.page,
+        pageSize: filter.pageSize,
+        type: filter.type,
+        search: filter.search,
+        sort: filter.sort,
+        lat: filter.near?.lat,
+        lng: filter.near?.lng,
+      },
+    });
+    return {
+      items: envelope.data,
+      meta: readMeta(envelope.meta, filter.page, filter.pageSize, envelope.data.length),
+    };
+  },
+
+  getPublic(organizationId: string): Promise<PublicOrganization> {
+    return apiClient.get<PublicOrganization>(`/organizations/discover/${organizationId}`);
   },
 
   create(input: CreateOrganizationInput): Promise<OrganizationWithDetails> {

@@ -1,4 +1,6 @@
 export { default as MyOrganizationsScreen } from './MyOrganizationsScreen';
+export { default as DiscoverClinicsScreen } from './DiscoverClinicsScreen';
+export { default as ClinicDetailScreen } from './ClinicDetailScreen';
 export { default as CreateOrganizationScreen } from './CreateOrganizationScreen';
 export { default as OrganizationDetailsScreen } from './OrganizationDetailsScreen';
 export { default as OrganizationEditScreen } from './OrganizationEditScreen';

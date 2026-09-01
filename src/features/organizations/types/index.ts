@@ -58,7 +58,20 @@ export interface Organization {
   updatedAt: string;
 }
 
-export interface OrganizationDetails {
+/**
+ * Directory profile fields — CLINIC / VETERINARY_OFFICE / VETERINARY_STORE
+ * only. `logoUrl` is server-resolved (public R2 URL or a signed fallback) —
+ * the client never builds it.
+ */
+export interface OrganizationProfile {
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string | null;
+  logoUrl?: string | null;
+}
+
+export interface OrganizationDetails extends OrganizationProfile {
   /** FARM organizations only. */
   joinCode?: string;
 }
@@ -66,6 +79,26 @@ export interface OrganizationDetails {
 export interface OrganizationWithDetails extends Organization {
   details: OrganizationDetails;
 }
+
+/**
+ * `GET /organizations/discover` / `GET /organizations/discover/:id` — any
+ * authenticated user, not just members (e.g. the Pet Owner Home "Available
+ * clinics" section / `DiscoverClinicsScreen`). ACTIVE organizations only;
+ * deliberately narrower than {@link Organization} — no owner id / decision
+ * metadata. `address`/`latitude`/`longitude`/`phone`/`logoUrl` are `null` for
+ * FARM and for CLINIC/OFFICE/STORE organizations that haven't filled them in
+ * yet. `distanceKm` is only set when the list was fetched with `sort=nearest`.
+ */
+export interface PublicOrganization extends OrganizationProfile {
+  id: string;
+  type: OrganizationType;
+  name: string;
+  description: string | null;
+  distanceKm: number | null;
+  createdAt: string;
+}
+
+export type DiscoverSort = 'default' | 'nearest';
 
 /** `GET /organizations` list item — an {@link Organization} plus the caller's role. */
 export interface MyOrganization extends Organization {

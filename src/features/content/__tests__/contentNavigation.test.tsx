@@ -1,7 +1,7 @@
 import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
 import { petsApi } from '@/features/pets';
-import HomeScreen from '@/features/home/screens/HomeScreen';
+import ServicesHubScreen from '@/features/hub/screens/ServicesHubScreen';
 import MyPetsScreen from '@/features/pets/screens/MyPetsScreen';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
@@ -61,10 +61,10 @@ describe('Phase 11 content navigation + Pet Owner coexistence', () => {
     expect(Routes.contentFile('c1', 'f1')).toBe('/(app)/content/item/c1/files/f1');
   });
 
-  it('Pet Owner Home shows the Knowledge entry and navigates to it', async () => {
-    renderWithProviders(<HomeScreen />);
-    await waitFor(() => expect(screen.getAllByText('المعرفة').length).toBeGreaterThan(0));
-    fireEvent.press(screen.getByLabelText('المعرفة'));
+  it('Services hub shows the Knowledge entry and navigates to it', async () => {
+    renderWithProviders(<ServicesHubScreen />);
+    await waitFor(() => expect(screen.getAllByText('المكتبة المعرفية').length).toBeGreaterThan(0));
+    fireEvent.press(screen.getByLabelText('المكتبة المعرفية'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/content');
   });
 

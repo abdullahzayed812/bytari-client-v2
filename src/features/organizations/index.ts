@@ -11,6 +11,8 @@ export { organizationsApi, orgKeys, type OrganizationsApi } from './api';
 export {
   useOrganizations,
   useOrganization,
+  useDiscoverOrganizations,
+  usePublicOrganization,
   useOrganizationMembers,
   useOrganizationSupervisors,
   useCreateOrganization,
@@ -27,6 +29,7 @@ export {
 export {
   OrganizationCard,
   OrganizationCardSkeleton,
+  ClinicCard,
   OrganizationTypeBadge,
   OrganizationStatusBadge,
   MemberRow,
@@ -39,6 +42,8 @@ export {
 } from './components';
 export {
   MyOrganizationsScreen,
+  DiscoverClinicsScreen,
+  ClinicDetailScreen,
   CreateOrganizationScreen,
   OrganizationDetailsScreen,
   OrganizationEditScreen,

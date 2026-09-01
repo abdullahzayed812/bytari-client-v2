@@ -2,6 +2,7 @@ export { OrganizationTypeBadge } from './OrganizationTypeBadge';
 export { OrganizationStatusBadge } from './OrganizationStatusBadge';
 export { OrganizationCard, type OrganizationCardProps } from './OrganizationCard';
 export { OrganizationCardSkeleton } from './OrganizationCardSkeleton';
+export { ClinicCard, type ClinicCardProps } from './ClinicCard';
 export { MemberRow, type MemberRowProps } from './MemberRow';
 export { SupervisorRow, type SupervisorRowProps } from './SupervisorRow';
 export { PermissionSelector, type PermissionSelectorProps } from './PermissionSelector';

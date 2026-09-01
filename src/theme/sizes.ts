@@ -19,7 +19,8 @@ export const sizes = {
   avatarXl: 96,
 
   tabBarHeight: 64,
-  tabBarHomeButton: 60,
+  tabBarChip: 44,
+  tabBarHomeButton: 64,
   headerHeight: 56,
 
   bannerHeight: 168,

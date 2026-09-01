@@ -276,6 +276,30 @@ export const en: TranslationResources = {
       qaStore: 'Store',
     },
   },
+  home: {
+    header: {
+      searchA11y: 'Search',
+    },
+    ads: {
+      a11y: 'Ad: {{title}}',
+    },
+    categories: {
+      title: 'Sections',
+      pets: {
+        title: 'Pet animals',
+        subtitle: 'Files, follow-up',
+      },
+      livestock: {
+        title: 'Sheep & cattle',
+        subtitle: 'Files, follow-up',
+      },
+      poultry: {
+        title: 'Poultry & birds',
+        subtitle: 'Tips & services',
+      },
+      comingSoon: 'This section is still under development.',
+    },
+  },
   veterinarian: {
     title: 'Veterinarian mode',
     modeChip: 'Veterinarian mode',
@@ -338,6 +362,31 @@ export const en: TranslationResources = {
   organizations: {
     common: {
       cancel: 'Cancel',
+    },
+    home: {
+      clinicsTitle: 'Available clinics',
+      viewAll: 'View all',
+      viewDetails: 'View details',
+      emptyTitle: 'No clinics available right now',
+    },
+    discover: {
+      title: 'Veterinary clinics',
+      subtitle: 'Browse all available veterinary clinics',
+      searchPlaceholder: 'Search for a veterinary clinic...',
+      filter: 'Filter',
+      nearest: 'Nearest',
+      all: 'All',
+      verifiedA11y: 'Verified clinic',
+      distanceKm: '{{value}} km',
+      loadingMore: 'Loading more…',
+      empty: 'No clinics available right now',
+      emptySearch: 'No clinics match your search',
+      emptyNearest: 'No clinics near you right now',
+      locationPermissionDenied: 'Bytari needs location access to show the nearest clinics.',
+      locationUnavailable: 'Location services are turned off on this device.',
+      locationError: 'Could not determine your location — please try again.',
+      detailTitle: 'About this clinic',
+      notFound: 'This clinic is not available right now.',
     },
     type: {
       CLINIC: 'Clinic',
@@ -1427,6 +1476,13 @@ export const en: TranslationResources = {
       inquiries: 'Inquiries',
       manageConsultations: 'Consultation management',
       manageInquiries: 'Inquiry management',
+      ctaTitle: 'Send your consultation and we will reply right away',
+      ctaSubtitle: 'Our specialised medical team is ready to help',
+      ctaButton: 'Send a consultation',
+      previousTitle: 'Your previous consultations',
+      viewAll: 'View all',
+      emptyTitle: 'No consultations yet',
+      emptyMessage: 'Once you send a consultation, it will appear here',
     },
     ai: {
       title: 'Automatic replies',

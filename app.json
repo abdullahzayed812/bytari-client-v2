@@ -42,6 +42,12 @@
         }
       ],
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "يستخدم بيطري موقعك لعرض أقرب العيادات البيطرية إليك."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#FFFFFF",

@@ -77,9 +77,12 @@ export interface ColorTokens {
 
   /** Bottom-nav specifics from the reference design. */
   tabBarBackground: string;
+  tabBarChipBackground: string;
   tabBarActive: string;
   tabBarInactive: string;
-  tabBarHomeButton: string;
+  tabBarHomeButtonFrom: string;
+  tabBarHomeButtonTo: string;
+  tabBarHomeButtonRing: string;
   onTabBarHomeButton: string;
 
   overlay: string;
@@ -118,10 +121,13 @@ export const lightColors: ColorTokens = {
   info: palette.blue500,
   infoSoft: palette.blue50,
 
-  tabBarBackground: palette.white,
+  tabBarBackground: palette.gray50,
+  tabBarChipBackground: palette.white,
   tabBarActive: palette.green500,
   tabBarInactive: palette.gray400,
-  tabBarHomeButton: palette.green500,
+  tabBarHomeButtonFrom: palette.green400,
+  tabBarHomeButtonTo: palette.green600,
+  tabBarHomeButtonRing: palette.gray50,
   onTabBarHomeButton: palette.white,
 
   overlay: 'rgba(20, 23, 22, 0.45)',
@@ -162,9 +168,12 @@ export const darkColors: ColorTokens = {
   infoSoft: '#0C2438',
 
   tabBarBackground: palette.gray800,
+  tabBarChipBackground: palette.gray700,
   tabBarActive: palette.green400,
   tabBarInactive: palette.gray500,
-  tabBarHomeButton: palette.green400,
+  tabBarHomeButtonFrom: palette.green300,
+  tabBarHomeButtonTo: palette.green500,
+  tabBarHomeButtonRing: palette.gray800,
   onTabBarHomeButton: palette.gray900,
 
   overlay: 'rgba(0, 0, 0, 0.6)',

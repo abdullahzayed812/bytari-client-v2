@@ -75,12 +75,11 @@ describe('kind helpers', () => {
   });
 });
 
-describe('Pet Owner Home — Phase 13 coexists with existing sections', () => {
-  it('renders the Consultations & Inquiries entry alongside My Pets', async () => {
+describe('Pet Owner Home — consultation CTA + previous consultations', () => {
+  it('renders the "send a consultation" CTA and the previous-consultations section', async () => {
     renderWithProviders(<HomeScreen />);
-    expect(await screen.findByText('الاستشارات والاستفسارات')).toBeOnTheScreen();
-    // existing "My Pets" section still renders (empty-state add prompt)
-    expect(await screen.findByText('إضافة حيوان')).toBeOnTheScreen();
+    expect(await screen.findByText('أرسل استشارتك وسنجيبك فوراً')).toBeOnTheScreen();
+    expect(await screen.findByText('استشاراتك السابقة')).toBeOnTheScreen();
   });
 });
 

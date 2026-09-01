@@ -57,25 +57,20 @@ describe('notifications route', () => {
 });
 
 describe('Pet Owner Home — notifications entry', () => {
-  it('shows the unread count and navigates to the inbox, alongside an intact My Pets section', async () => {
+  it('shows the unread badge on the header bell icon and navigates to the inbox', async () => {
     jest.spyOn(notificationsApi, 'unreadCount').mockResolvedValue(4);
 
     renderWithProviders(<HomeScreen />);
 
-    // unread badge from GET /notifications/unread-count
-    expect(await screen.findByText('4 غير مقروءة')).toBeOnTheScreen();
-    // existing section still renders
-    expect(await screen.findByText('إضافة حيوان')).toBeOnTheScreen();
-
-    fireEvent.press(screen.getByLabelText('الإشعارات، 4 غير مقروءة'));
+    // unread badge from GET /notifications/unread-count reflected in the a11y label
+    const bell = await screen.findByLabelText('الإشعارات، 4 غير مقروءة');
+    fireEvent.press(bell);
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/notifications');
   });
 
-  it('falls back to the hint text when there are no unread notifications', async () => {
+  it('falls back to the plain label when there are no unread notifications', async () => {
     jest.spyOn(notificationsApi, 'unreadCount').mockResolvedValue(0);
     renderWithProviders(<HomeScreen />);
-    await waitFor(() =>
-      expect(screen.getByText('التنبيهات المتعلقة بحسابك واستشاراتك ومؤسساتك.')).toBeOnTheScreen(),
-    );
+    await waitFor(() => expect(screen.getByLabelText('الإشعارات')).toBeOnTheScreen());
   });
 });
