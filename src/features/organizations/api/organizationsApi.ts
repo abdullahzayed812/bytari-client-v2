@@ -10,12 +10,15 @@ import type {
   MyOrganization,
   OrganizationDetail,
   OrganizationMember,
+  OrganizationReview,
   OrganizationSupervisor,
   OrganizationType,
   OrganizationWithDetails,
   Organization,
   Paginated,
   PublicOrganization,
+  PublicOrganizationDetail,
+  SubmitReviewInput,
   UpdateMemberInput,
   UpdateOrganizationInput,
   UpdateSupervisorInput,
@@ -108,8 +111,23 @@ export const organizationsApi = {
     };
   },
 
-  getPublic(organizationId: string): Promise<PublicOrganization> {
-    return apiClient.get<PublicOrganization>(`/organizations/discover/${organizationId}`);
+  /** Clinic Details screen — profile + veterinarians + the viewer's follow/rating state. */
+  getPublic(organizationId: string): Promise<PublicOrganizationDetail> {
+    return apiClient.get<PublicOrganizationDetail>(`/organizations/discover/${organizationId}`);
+  },
+
+  // --- engagement: follow + reviews ------------------------------
+
+  follow(organizationId: string): Promise<{ success: boolean }> {
+    return apiClient.post<{ success: boolean }>(`/organizations/${organizationId}/follow`);
+  },
+
+  unfollow(organizationId: string): Promise<{ success: boolean }> {
+    return apiClient.delete<{ success: boolean }>(`/organizations/${organizationId}/follow`);
+  },
+
+  submitReview(organizationId: string, input: SubmitReviewInput): Promise<OrganizationReview> {
+    return apiClient.post<OrganizationReview>(`/organizations/${organizationId}/reviews`, input);
   },
 
   create(input: CreateOrganizationInput): Promise<OrganizationWithDetails> {

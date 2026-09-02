@@ -15,7 +15,8 @@ import { useTheme } from '@/theme';
 import { PublicationForm } from '../components';
 import { publicationKindFromSlug } from '../constants';
 import { useCreatePublication } from '../hooks';
-import { publicationErrorMessage, type PublicationFormValues } from '../validation/schemas';
+import type { CreatePublicationInput } from '../types';
+import { publicationErrorMessage } from '../validation/schemas';
 
 /**
  * Route `/pets/[petId]/publish/[kind]` — publish an owned animal as Lost / for
@@ -65,27 +66,24 @@ export default function PublishAnimalScreen() {
     );
   }
 
-  const onSubmit = (values: PublicationFormValues) => {
+  const onSubmit = (input: CreatePublicationInput) => {
     if (inFlight.current || create.isPending) return;
     inFlight.current = true;
     setFormError(null);
     setServerFields({});
-    create.mutate(
-      { kind, note: values.note?.trim() ? values.note.trim() : undefined },
-      {
-        onSuccess: () => {
-          toast.show({ tone: 'success', message: t('form.success') });
-          router.back();
-        },
-        onError: (error) => {
-          setServerFields(fieldErrors(error));
-          setFormError(publicationErrorMessage(error, t));
-        },
-        onSettled: () => {
-          inFlight.current = false;
-        },
+    create.mutate(input, {
+      onSuccess: () => {
+        toast.show({ tone: 'success', message: t('form.success') });
+        router.back();
       },
-    );
+      onError: (error) => {
+        setServerFields(fieldErrors(error));
+        setFormError(publicationErrorMessage(error, t));
+      },
+      onSettled: () => {
+        inFlight.current = false;
+      },
+    });
   };
 
   return (

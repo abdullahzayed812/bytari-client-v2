@@ -1,3 +1,4 @@
+import { chatApi } from '@/features/chat';
 import { renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, setSearchParams } from '@/test-utils/routerMock';
 
@@ -21,8 +22,32 @@ const publicPub: PublicPublication = {
   id: 'p1',
   kind: 'ADOPTION',
   note: 'قط أليف ومدرّب',
+  extraNotes: null,
   publishedAt: '2026-02-01T10:00:00.000Z',
-  animal: { id: 'a1', name: 'ميمي', species: 'CAT', breed: 'شيرازي' },
+  contactName: 'صاحب الحيوان',
+  contactPhone: '07701234567',
+  city: 'الرياض',
+  healthStatus: 'GOOD',
+  vaccinationStatus: 'COMPLETE',
+  isSterilized: true,
+  lostDate: null,
+  lostTime: null,
+  lostGovernorate: null,
+  lostDistrict: null,
+  lostLocationDetail: null,
+  healthNotes: null,
+  animal: {
+    id: 'a1',
+    name: 'ميمي',
+    species: 'CAT',
+    breed: 'شيرازي',
+    sex: 'FEMALE',
+    dateOfBirth: null,
+    color: 'أبيض',
+    distinguishingFeatures: null,
+    ageEstimate: 'ONE_TO_3_YEARS',
+    galleryUrls: [],
+  },
 };
 
 const ownerPub = (over: Partial<AnimalPublication> = {}): AnimalPublication => ({
@@ -35,23 +60,46 @@ const ownerPub = (over: Partial<AnimalPublication> = {}): AnimalPublication => (
   reviewedByUserId: null,
   reviewedAt: null,
   rejectionReason: null,
+  contactName: 'صاحب الحيوان',
+  contactPhone: '07701234567',
+  city: null,
+  extraNotes: null,
+  healthStatus: null,
+  vaccinationStatus: null,
+  isSterilized: null,
+  lostDate: '2026-01-01',
+  lostTime: null,
+  lostGovernorate: 'بغداد',
+  lostDistrict: 'الكرادة',
+  lostLocationDetail: null,
+  healthNotes: null,
   createdAt: '2026-02-01T10:00:00.000Z',
   updatedAt: '2026-02-01T10:00:00.000Z',
   ...over,
 });
 
-describe('PublicationDetailScreen — PUBLIC view (§5, §23)', () => {
-  it('shows the animal info + note, and states that contact details are not shared', async () => {
+describe('PublicationDetailScreen — PUBLIC view', () => {
+  it('shows the animal info + note + real contact details (explicit per-listing, not account PII)', async () => {
     setSearchParams({ kind: 'adoption', publicationId: 'p1' });
     getPublic.mockResolvedValue(publicPub);
     renderWithProviders(<PublicationDetailScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
     expect(getForAnimal).not.toHaveBeenCalled();
     expect(screen.getByText('قط أليف ومدرّب')).toBeOnTheScreen();
-    expect(screen.getByText('معلومات التواصل غير متاحة')).toBeOnTheScreen();
+    expect(screen.getByText('صاحب الحيوان')).toBeOnTheScreen();
+    expect(screen.getByText('07701234567')).toBeOnTheScreen();
     // the public view never renders an approval status
     expect(screen.queryByText('قيد المراجعة')).toBeNull();
     expect(screen.queryByText('تمت الموافقة')).toBeNull();
+  });
+
+  it('shows the ADOPTION request action, not the LOST sighting-report action', async () => {
+    setSearchParams({ kind: 'adoption', publicationId: 'p1' });
+    getPublic.mockResolvedValue(publicPub);
+    renderWithProviders(<PublicationDetailScreen />);
+    await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
+    expect(screen.getByText('طلب التبني')).toBeOnTheScreen();
+    expect(screen.queryByText('ابلاغ عن مشاهدة')).toBeNull();
   });
 
   it('a non-APPROVED / unknown id → plain not-found state (no leak)', async () => {
@@ -66,7 +114,7 @@ describe('PublicationDetailScreen — PUBLIC view (§5, §23)', () => {
   });
 });
 
-describe('PublicationDetailScreen — OWNER view (§8, §21, §23)', () => {
+describe('PublicationDetailScreen — OWNER view ("My Listings", from PetDetailsScreen)', () => {
   it('shows the approval status and, for a REJECTED listing, the reason', async () => {
     setSearchParams({ petId: 'a1', publicationId: 'p1' });
     getForAnimal.mockResolvedValue(
@@ -89,5 +137,42 @@ describe('PublicationDetailScreen — OWNER view (§8, §21, §23)', () => {
       ).toBeOnTheScreen(),
     );
     expect(screen.queryByText('سبب الرفض')).toBeNull();
+  });
+});
+
+describe('PublicationDetailScreen — interactions ("طلب" / "ابلاغ عن مشاهدة")', () => {
+  it('shows the "ابلاغ عن مشاهدة" action for a LOST listing, not the request action', async () => {
+    const lostPub: PublicPublication = {
+      ...publicPub,
+      kind: 'LOST',
+      city: null,
+      healthStatus: null,
+      vaccinationStatus: null,
+      isSterilized: null,
+      lostDate: '2026-01-01',
+      lostGovernorate: 'بغداد',
+      lostDistrict: 'الكرادة',
+    };
+    setSearchParams({ kind: 'lost', publicationId: 'p1' });
+    getPublic.mockResolvedValue(lostPub);
+    renderWithProviders(<PublicationDetailScreen />);
+    await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
+    expect(screen.getByText('ابلاغ عن مشاهدة')).toBeOnTheScreen();
+    expect(screen.queryByText('طلب التبني')).toBeNull();
+  });
+});
+
+// Kept from the pre-Phase-8-extension suite: chat is unrelated to publications
+// (there is no P2P chat here — "contact owner" is a plain `tel:` action), this
+// spy just proves the screen never imports/uses it.
+describe('no coupling to chat', () => {
+  it('chatApi.start is never called from the detail screen', async () => {
+    const start = jest.spyOn(chatApi, 'start');
+    setSearchParams({ kind: 'adoption', publicationId: 'p1' });
+    getPublic.mockResolvedValue(publicPub);
+    renderWithProviders(<PublicationDetailScreen />);
+    await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
+    expect(start).not.toHaveBeenCalled();
+    start.mockRestore();
   });
 });

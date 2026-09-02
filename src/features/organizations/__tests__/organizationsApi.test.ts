@@ -116,4 +116,28 @@ describe('organizationsApi — endpoint wrappers (mirror the backend routes exac
     await organizationsApi.removeSupervisor('o1', 's1');
     expect(del).toHaveBeenCalledWith('/organizations/o1/supervisors/s1');
   });
+
+  it('getPublic → GET /organizations/discover/:id (Clinic Details)', async () => {
+    get.mockResolvedValueOnce({ id: 'o1', veterinarians: [], engagement: {} });
+    await organizationsApi.getPublic('o1');
+    expect(get).toHaveBeenCalledWith('/organizations/discover/o1');
+  });
+
+  it('follow → POST /organizations/:id/follow', async () => {
+    post.mockResolvedValueOnce({ success: true });
+    await organizationsApi.follow('o1');
+    expect(post).toHaveBeenCalledWith('/organizations/o1/follow');
+  });
+
+  it('unfollow → DELETE /organizations/:id/follow', async () => {
+    del.mockResolvedValueOnce({ success: true });
+    await organizationsApi.unfollow('o1');
+    expect(del).toHaveBeenCalledWith('/organizations/o1/follow');
+  });
+
+  it('submitReview → POST /organizations/:id/reviews', async () => {
+    post.mockResolvedValueOnce({ id: 'r1', rating: 5 });
+    await organizationsApi.submitReview('o1', { rating: 5, comment: 'Great' });
+    expect(post).toHaveBeenCalledWith('/organizations/o1/reviews', { rating: 5, comment: 'Great' });
+  });
 });

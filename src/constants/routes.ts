@@ -19,6 +19,8 @@ export const Routes = {
 
   // Pets (Mobile Phase 3)
   pets: '/(app)/pets',
+  /** Pet Owner discovery landing — banner + own-pet profiles + community entry cards. */
+  petsLanding: '/(app)/pets/landing',
   petsCreate: '/(app)/pets/create',
   petDetail: (petId: string) => `/(app)/pets/${petId}` as const,
   petEdit: (petId: string) => `/(app)/pets/${petId}/edit` as const,
@@ -38,6 +40,8 @@ export const Routes = {
 
   // Animal community — Adoption / Mating / Lost (Mobile Phase 8)
   publications: (kind: 'adoption' | 'mating' | 'lost') => `/(app)/publications/${kind}` as const,
+  publicationsCreate: (kind: 'adoption' | 'mating' | 'lost') =>
+    `/(app)/publications/${kind}/create` as const,
   publicationDetail: (kind: 'adoption' | 'mating' | 'lost', publicationId: string) =>
     `/(app)/publications/${kind}/${publicationId}` as const,
   petPublish: (petId: string, kind: 'adoption' | 'mating' | 'lost') =>
@@ -51,6 +55,10 @@ export const Routes = {
   contentItem: (contentId: string) => `/(app)/content/item/${contentId}` as const,
   contentFile: (contentId: string, fileId: string) =>
     `/(app)/content/item/${contentId}/files/${fileId}` as const,
+
+  // Tips — أفضل النصائح (structured care advice from the content module)
+  tips: '/(app)/tips',
+  tip: (tipId: string) => `/(app)/tips/${tipId}` as const,
 
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',

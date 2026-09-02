@@ -1,24 +1,102 @@
 import { i18n } from '@/i18n';
 import { ApiError } from '@/services/api';
 
-import { buildPublicationSchema, publicationErrorMessage } from '../validation/schemas';
+import {
+  buildAnimalProfileSchema,
+  buildListingSchema,
+  listingValuesToInput,
+  publicationErrorMessage,
+} from '../validation/schemas';
 
 const t = i18n.getFixedT('ar', 'publications');
 
-describe('buildPublicationSchema — the backend model has only an optional note', () => {
-  const schema = buildPublicationSchema(t);
+const validLost = {
+  contactName: 'Test Contact',
+  contactPhone: '07701234567',
+  lostDate: '2026-01-01',
+  lostGovernorate: 'Baghdad',
+  lostDistrict: 'Karrada',
+};
 
-  it('accepts an empty note', () => {
-    expect(schema.safeParse({ note: '' }).success).toBe(true);
-    expect(schema.safeParse({}).success).toBe(true);
+const validAdoption = {
+  note: 'Friendly and playful',
+  contactName: 'Test Contact',
+  contactPhone: '07701234567',
+  city: 'Baghdad',
+  healthStatus: 'GOOD',
+  vaccinationStatus: 'COMPLETE',
+  isSterilized: 'false',
+};
+
+describe('buildListingSchema — LOST requires when/where; ADOPTION/MATING require city + status', () => {
+  it('LOST: accepts a fully valid body', () => {
+    const schema = buildListingSchema(t, 'LOST');
+    expect(schema.safeParse(validLost).success).toBe(true);
   });
 
-  it('accepts a normal note', () => {
-    expect(schema.safeParse({ note: 'friendly, house-trained' }).success).toBe(true);
+  it('LOST: rejects a missing lostDate / governorate / district', () => {
+    const schema = buildListingSchema(t, 'LOST');
+    expect(schema.safeParse({ ...validLost, lostDate: undefined }).success).toBe(false);
+    expect(schema.safeParse({ ...validLost, lostGovernorate: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...validLost, lostDistrict: '' }).success).toBe(false);
   });
 
-  it('rejects a note over 2000 characters', () => {
-    expect(schema.safeParse({ note: 'x'.repeat(2001) }).success).toBe(false);
+  it('LOST: contact name / phone are required', () => {
+    const schema = buildListingSchema(t, 'LOST');
+    expect(schema.safeParse({ ...validLost, contactName: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...validLost, contactPhone: '' }).success).toBe(false);
+  });
+
+  it('ADOPTION: accepts a fully valid body', () => {
+    const schema = buildListingSchema(t, 'ADOPTION');
+    expect(schema.safeParse(validAdoption).success).toBe(true);
+  });
+
+  it('ADOPTION: requires note (description), city, health/vaccination status, sterilized', () => {
+    const schema = buildListingSchema(t, 'ADOPTION');
+    expect(schema.safeParse({ ...validAdoption, note: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...validAdoption, city: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...validAdoption, healthStatus: undefined }).success).toBe(false);
+    expect(schema.safeParse({ ...validAdoption, isSterilized: undefined }).success).toBe(false);
+  });
+
+  it('MATING: accepts a body without note/isSterilized', () => {
+    const schema = buildListingSchema(t, 'MATING');
+    const { note: _note, isSterilized: _s, ...rest } = validAdoption;
+    void _note;
+    void _s;
+    expect(schema.safeParse(rest).success).toBe(true);
+  });
+});
+
+describe('buildAnimalProfileSchema', () => {
+  it('requires species and sex', () => {
+    const schema = buildAnimalProfileSchema(t);
+    expect(schema.safeParse({ species: 'DOG', sex: 'MALE' }).success).toBe(true);
+    expect(schema.safeParse({ species: '', sex: 'MALE' }).success).toBe(false);
+    expect(schema.safeParse({ species: 'DOG', sex: '' }).success).toBe(false);
+  });
+});
+
+describe('listingValuesToInput', () => {
+  it('maps LOST form values to the exact CreatePublicationInput shape', () => {
+    expect(listingValuesToInput('LOST', validLost)).toEqual({
+      kind: 'LOST',
+      note: undefined,
+      contactName: 'Test Contact',
+      contactPhone: '07701234567',
+      lostDate: '2026-01-01',
+      lostTime: undefined,
+      lostGovernorate: 'Baghdad',
+      lostDistrict: 'Karrada',
+      lostLocationDetail: undefined,
+      healthNotes: undefined,
+    });
+  });
+
+  it('maps ADOPTION form values, converting isSterilized string to boolean', () => {
+    const input = listingValuesToInput('ADOPTION', validAdoption);
+    expect(input).toMatchObject({ kind: 'ADOPTION', isSterilized: false, city: 'Baghdad' });
   });
 });
 

@@ -7,12 +7,17 @@ import { ApiError } from '@/services/api';
 import { publicationKeys, publicationsApi } from '../api';
 import type { AnimalPublication, Paginated, PublicPublication, PublicationKind } from '../types';
 
-/** The authenticated public browse for one kind (APPROVED publications only). */
+/**
+ * The authenticated public browse for one kind — APPROVED publications from
+ * ALL users, never scoped to the caller (this is a directory, not "my
+ * listings"). `search` matches the animal's name.
+ */
 export function usePublicPublications(
   kind: PublicationKind | null | undefined,
-  params: { pageSize?: number; enabled?: boolean } = {},
+  params: { species?: string; search?: string; pageSize?: number; enabled?: boolean } = {},
 ) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+  const filter = { species: params.species, search: params.search };
 
   const query = useInfiniteQuery<
     Paginated<PublicPublication>,
@@ -21,10 +26,10 @@ export function usePublicPublications(
     ReturnType<typeof publicationKeys.publicList>,
     number
   >({
-    queryKey: publicationKeys.publicList((kind ?? 'ADOPTION') as PublicationKind),
+    queryKey: publicationKeys.publicList((kind ?? 'ADOPTION') as PublicationKind, filter),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      publicationsApi.listPublic(pageParam, pageSize, kind as PublicationKind),
+      publicationsApi.listPublic(pageParam, pageSize, { kind: kind as PublicationKind, ...filter }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: Boolean(kind) && (params.enabled ?? true),
@@ -55,8 +60,9 @@ export function usePublicPublication(
 }
 
 /**
- * One animal's own publications (every status). Requires the caller to be the
- * animal's current owner (or ADMIN / ANIMAL supervisor) — a non-owner hits `404`.
+ * One animal's own publications (every status — "My Listings"). Requires the
+ * caller to be the animal's current owner (or ADMIN / ANIMAL supervisor) — a
+ * non-owner hits `404`.
  */
 export function useAnimalPublications(
   animalId: string | undefined,

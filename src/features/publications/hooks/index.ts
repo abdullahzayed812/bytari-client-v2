@@ -4,4 +4,4 @@ export {
   useAnimalPublications,
   useAnimalPublication,
 } from './usePublications';
-export { useCreatePublication } from './usePublicationMutations';
+export { useCreatePublication, useCreatePublicationInteraction } from './usePublicationMutations';

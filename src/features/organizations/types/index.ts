@@ -60,8 +60,8 @@ export interface Organization {
 
 /**
  * Directory profile fields — CLINIC / VETERINARY_OFFICE / VETERINARY_STORE
- * only. `logoUrl` is server-resolved (public R2 URL or a signed fallback) —
- * the client never builds it.
+ * only. `logoUrl` / `galleryUrls` are server-resolved (public R2 URL or a
+ * signed fallback) — the client never builds them.
  */
 export interface OrganizationProfile {
   address?: string | null;
@@ -69,6 +69,14 @@ export interface OrganizationProfile {
   longitude?: number | null;
   phone?: string | null;
   logoUrl?: string | null;
+  workingHours?: string | null;
+  services?: string[];
+  email?: string | null;
+  whatsapp?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  tiktokUrl?: string | null;
+  galleryUrls?: string[];
 }
 
 export interface OrganizationDetails extends OrganizationProfile {
@@ -99,6 +107,41 @@ export interface PublicOrganization extends OrganizationProfile {
 }
 
 export type DiscoverSort = 'default' | 'nearest';
+
+/** `GET /organizations/discover/:id` — public profile + veterinarians + the viewer's engagement. */
+export interface PublicVeterinarian {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface OrganizationEngagementSummary {
+  isFollowing: boolean;
+  followersCount: number;
+  /** Average rating rounded to 1 decimal, `null` when there are no reviews yet. */
+  rating: number | null;
+  reviewsCount: number;
+}
+
+export interface PublicOrganizationDetail extends PublicOrganization {
+  veterinarians: PublicVeterinarian[];
+  engagement: OrganizationEngagementSummary;
+}
+
+export interface OrganizationReview {
+  id: string;
+  organizationId: string;
+  userId: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubmitReviewInput {
+  rating: number;
+  comment?: string | null;
+}
 
 /** `GET /organizations` list item — an {@link Organization} plus the caller's role. */
 export interface MyOrganization extends Organization {
@@ -149,6 +192,17 @@ export interface CreateOrganizationInput {
 export interface UpdateOrganizationInput {
   name?: string;
   description?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  workingHours?: string | null;
+  services?: string[];
+  email?: string | null;
+  whatsapp?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  tiktokUrl?: string | null;
 }
 
 export interface AddMemberInput {

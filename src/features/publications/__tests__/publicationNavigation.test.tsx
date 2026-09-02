@@ -69,6 +69,7 @@ describe('Phase 8 navigation (§30) + Pet Owner coexistence', () => {
 
   it('route builders are deep-link-safe absolute paths', () => {
     expect(Routes.publications('adoption')).toBe('/(app)/publications/adoption');
+    expect(Routes.publicationsCreate('adoption')).toBe('/(app)/publications/adoption/create');
     expect(Routes.publicationDetail('lost', 'p1')).toBe('/(app)/publications/lost/p1');
     expect(Routes.petPublish('a1', 'mating')).toBe('/(app)/pets/a1/publish/mating');
     expect(Routes.petPublication('a1', 'p1')).toBe('/(app)/pets/a1/publications/p1');
@@ -109,11 +110,24 @@ describe('Phase 8 navigation (§30) + Pet Owner coexistence', () => {
           animalId: 'p1',
           kind: 'ADOPTION',
           status: 'PENDING',
-          note: null,
+          note: 'وصف',
           createdByUserId: 'owner1',
           reviewedByUserId: null,
           reviewedAt: null,
           rejectionReason: null,
+          contactName: 'Test Contact',
+          contactPhone: '07701234567',
+          city: 'الرياض',
+          extraNotes: null,
+          healthStatus: 'GOOD',
+          vaccinationStatus: 'COMPLETE',
+          isSterilized: false,
+          lostDate: null,
+          lostTime: null,
+          lostGovernorate: null,
+          lostDistrict: null,
+          lostLocationDetail: null,
+          healthNotes: null,
           createdAt: '2026-02-01T00:00:00.000Z',
           updatedAt: '2026-02-01T00:00:00.000Z',
         },

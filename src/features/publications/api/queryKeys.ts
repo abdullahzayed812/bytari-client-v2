@@ -15,7 +15,8 @@ export const publicationKeys = {
   all: ['publications'] as const,
 
   public: () => [...publicationKeys.all, 'public'] as const,
-  publicList: (kind: PublicationKind) => [...publicationKeys.public(), 'list', { kind }] as const,
+  publicList: (kind: PublicationKind, filter: { species?: string; search?: string } = {}) =>
+    [...publicationKeys.public(), 'list', { kind, ...filter }] as const,
   publicDetail: (publicationId: string) =>
     [...publicationKeys.public(), 'detail', publicationId] as const,
 

@@ -11,12 +11,36 @@ const pub = (over: Partial<PublicPublication> = {}): PublicPublication => ({
   id: 'p1',
   kind: 'ADOPTION',
   note: 'قط أليف',
+  extraNotes: null,
   publishedAt: '2026-02-01T10:00:00.000Z',
-  animal: { id: 'a1', name: 'ميمي', species: 'CAT', breed: null },
+  contactName: 'صاحب الحيوان',
+  contactPhone: '07701234567',
+  city: 'الرياض',
+  healthStatus: 'GOOD',
+  vaccinationStatus: 'COMPLETE',
+  isSterilized: false,
+  lostDate: null,
+  lostTime: null,
+  lostGovernorate: null,
+  lostDistrict: null,
+  lostLocationDetail: null,
+  healthNotes: null,
+  animal: {
+    id: 'a1',
+    name: 'ميمي',
+    species: 'CAT',
+    breed: null,
+    sex: 'FEMALE',
+    dateOfBirth: null,
+    color: null,
+    distinguishingFeatures: null,
+    ageEstimate: 'ONE_TO_3_YEARS',
+    galleryUrls: [],
+  },
   ...over,
 });
 
-describe('PublicationsBrowseScreen (§4, §26, §27, §37)', () => {
+describe("PublicationsBrowseScreen — grid list of ALL users' APPROVED listings for one kind", () => {
   const list = jest.spyOn(publicationsApi, 'listPublic');
 
   beforeEach(() => {
@@ -33,7 +57,7 @@ describe('PublicationsBrowseScreen (§4, §26, §27, §37)', () => {
     });
     renderWithProviders(<PublicationsBrowseScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
-    expect(list).toHaveBeenCalledWith(1, 20, 'ADOPTION');
+    expect(list).toHaveBeenCalledWith(1, 20, { kind: 'ADOPTION' });
   });
 
   it('shows the kind-specific empty state', async () => {
@@ -70,5 +94,14 @@ describe('PublicationsBrowseScreen (§4, §26, §27, §37)', () => {
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
     fireEvent.press(screen.getByRole('button', { name: /ميمي/ }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/publications/adoption/p1');
+  });
+
+  it('the "+ إضافة حيوان" button opens the create-animal screen for that kind', async () => {
+    setSearchParams({ kind: 'adoption' });
+    list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 } });
+    renderWithProviders(<PublicationsBrowseScreen />);
+    await waitFor(() => expect(screen.getByText('لا توجد حيوانات متاحة للتبني')).toBeOnTheScreen());
+    fireEvent.press(screen.getByLabelText('إضافة حيوان'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/publications/adoption/create');
   });
 });

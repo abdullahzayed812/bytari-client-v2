@@ -17,6 +17,7 @@ import registration from './registration';
 import showcase from './showcase';
 import store from './store';
 import support from './support';
+import tips from './tips';
 import users from './users';
 import veterinarian from './veterinarian';
 
@@ -36,6 +37,7 @@ export const ar = {
   publications,
   store,
   content,
+  tips,
   chat,
   users,
   support,

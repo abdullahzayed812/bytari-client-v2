@@ -38,6 +38,11 @@ const palette = {
   amber50: '#FBF3DD',
   blue500: '#2E7DD1',
   blue50: '#E8F1FB',
+
+  violet500: '#7C5CD6',
+  violet50: '#F0EBFB',
+  peach500: '#E5734B',
+  peach50: '#FCEAE1',
 } as const;
 
 export interface ColorTokens {
@@ -74,6 +79,19 @@ export interface ColorTokens {
   dangerSoft: string;
   info: string;
   infoSoft: string;
+
+  /**
+   * Feature-discovery card accents (Pets landing 2×2 grid). Each pair is a soft
+   * tinted card `Surface` and a saturated `Accent` for the title + action pip.
+   */
+  featureTipsSurface: string;
+  featureTipsAccent: string;
+  featureAdoptionSurface: string;
+  featureAdoptionAccent: string;
+  featureMatingSurface: string;
+  featureMatingAccent: string;
+  featureLostSurface: string;
+  featureLostAccent: string;
 
   /** Bottom-nav specifics from the reference design. */
   tabBarBackground: string;
@@ -121,6 +139,15 @@ export const lightColors: ColorTokens = {
   info: palette.blue500,
   infoSoft: palette.blue50,
 
+  featureTipsSurface: palette.green50,
+  featureTipsAccent: palette.green600,
+  featureAdoptionSurface: palette.blue50,
+  featureAdoptionAccent: palette.blue500,
+  featureMatingSurface: palette.violet50,
+  featureMatingAccent: palette.violet500,
+  featureLostSurface: palette.peach50,
+  featureLostAccent: palette.peach500,
+
   tabBarBackground: palette.gray50,
   tabBarChipBackground: palette.white,
   tabBarActive: palette.green500,
@@ -166,6 +193,15 @@ export const darkColors: ColorTokens = {
   dangerSoft: '#3A1214',
   info: palette.blue500,
   infoSoft: '#0C2438',
+
+  featureTipsSurface: '#0E2A1C',
+  featureTipsAccent: palette.green300,
+  featureAdoptionSurface: '#0C2438',
+  featureAdoptionAccent: '#7FB5EA',
+  featureMatingSurface: '#241B3D',
+  featureMatingAccent: '#B49BF0',
+  featureLostSurface: '#3A1E12',
+  featureLostAccent: '#F0A184',
 
   tabBarBackground: palette.gray800,
   tabBarChipBackground: palette.gray700,

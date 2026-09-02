@@ -27,6 +27,15 @@ export type PetSex = (typeof PET_SEXES)[number];
 export const PET_STATUSES = ['ACTIVE', 'DEACTIVATED'] as const;
 export type PetStatus = (typeof PET_STATUSES)[number];
 
+/** For when the exact `dateOfBirth` isn't known (e.g. a found / rescued animal). */
+export const PET_AGE_ESTIMATES = [
+  'UNDER_1_YEAR',
+  'ONE_TO_3_YEARS',
+  'THREE_TO_7_YEARS',
+  'OVER_7_YEARS',
+] as const;
+export type PetAgeEstimate = (typeof PET_AGE_ESTIMATES)[number];
+
 // --- DTO (list item, detail, create/update/deactivate response) --------
 export interface Pet {
   id: string;
@@ -42,6 +51,17 @@ export interface Pet {
   createdBy: string;
   /** Resolved current owner. Backend-derived — the client never sets it. */
   currentOwnerUserId: string | null;
+  /**
+   * The backend always returns these — optional here only so the many
+   * pre-existing `Pet` test fixtures across unrelated features don't all need
+   * updating; real responses always populate them (`galleryUrls` as `[]`, not
+   * `undefined`, when empty).
+   */
+  color?: string | null;
+  distinguishingFeatures?: string | null;
+  ageEstimate?: PetAgeEstimate | null;
+  /** Resolved R2 photo URLs — the client never builds them. */
+  galleryUrls?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +74,9 @@ export interface CreatePetInput {
   sex?: PetSex;
   dateOfBirth?: string | null;
   notes?: string | null;
+  color?: string | null;
+  distinguishingFeatures?: string | null;
+  ageEstimate?: PetAgeEstimate | null;
 }
 
 export interface UpdatePetInput {
@@ -63,6 +86,9 @@ export interface UpdatePetInput {
   sex?: PetSex;
   dateOfBirth?: string | null;
   notes?: string | null;
+  color?: string | null;
+  distinguishingFeatures?: string | null;
+  ageEstimate?: PetAgeEstimate | null;
 }
 
 // --- ownership (Phase 12) --------------------------------------------

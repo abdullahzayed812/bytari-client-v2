@@ -7,11 +7,12 @@ import { EmptyState, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { Advertisement } from '@/features/ads';
 import { ClinicCard, useDiscoverOrganizations } from '@/features/organizations';
 import { ThreadCard, ThreadCardSkeleton, useMyThreads } from '@/features/support';
 import { useTheme } from '@/theme';
 
-import { HomeAdsCarousel, HomeHeader, HomeSectionHeader } from '../components';
+import { HomeHeader, HomeSectionHeader } from '../components';
 
 const PREVIEW_COUNT = 3;
 const CLINIC_CARD_WIDTH = 220;
@@ -95,7 +96,7 @@ export default function HomeScreen() {
       </Section>
 
       <Section spacing="xl">
-        <HomeAdsCarousel />
+        <Advertisement placement="HOME" />
       </Section>
 
       {/* Send a consultation now. */}
@@ -150,7 +151,11 @@ export default function HomeScreen() {
             <ThreadCardSkeleton />
           </View>
         ) : consultationPreview.length === 0 ? (
-          <EmptyState icon="chatbubbles-outline" title={ts('home.emptyTitle')} message={ts('home.emptyMessage')} />
+          <EmptyState
+            icon="chatbubbles-outline"
+            title={ts('home.emptyTitle')}
+            message={ts('home.emptyMessage')}
+          />
         ) : (
           <View style={{ rowGap: theme.spacing.md }}>
             {consultationPreview.map((thread) => (
@@ -201,7 +206,7 @@ export default function HomeScreen() {
               icon="paw"
               title={t('categories.pets.title')}
               subtitle={t('categories.pets.subtitle')}
-              onPress={() => router.push(Routes.pets)}
+              onPress={() => router.push(Routes.petsLanding)}
             />
             <CategoryCard
               flex={1}

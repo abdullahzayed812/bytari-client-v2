@@ -37,6 +37,7 @@ export {
   PermissionSelector,
   OrganizationForm,
   OrgFormLayout,
+  ImageCarousel,
   type OrganizationCardProps,
   type OrganizationFormProps,
 } from './components';

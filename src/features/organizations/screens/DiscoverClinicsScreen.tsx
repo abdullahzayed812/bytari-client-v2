@@ -60,7 +60,10 @@ function FilterButton({ icon, label, active, loading, onPress }: FilterButtonPro
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={active ? theme.colors.onPrimary : theme.colors.primary} />
+        <ActivityIndicator
+          size="small"
+          color={active ? theme.colors.onPrimary : theme.colors.primary}
+        />
       ) : icon ? (
         <Icon name={icon} size="iconSm" color={active ? 'onPrimary' : 'textSecondary'} />
       ) : null}
@@ -158,7 +161,11 @@ export default function DiscoverClinicsScreen() {
             loading={location.isLoading}
             onPress={() => void selectNearest()}
           />
-          <FilterButton label={t('discover.all')} active={sort === 'default'} onPress={selectDefault} />
+          <FilterButton
+            label={t('discover.all')}
+            active={sort === 'default'}
+            onPress={selectDefault}
+          />
         </View>
       </View>
 

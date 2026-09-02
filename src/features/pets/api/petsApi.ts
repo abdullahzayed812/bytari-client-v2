@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   CreatePetInput,
@@ -83,6 +84,28 @@ export const petsApi = {
       toUserId: input.toUserId,
       reason: input.reason,
     });
+  },
+
+  // --- gallery (up to 8 photos) ---------------------------------------
+
+  requestGalleryUploadUrl(
+    petId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(`/animals/${petId}/gallery/upload-url`, input);
+  },
+
+  finalizeGalleryImage(
+    petId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<Pet> {
+    return apiClient.post<Pet>(`/animals/${petId}/gallery`, input);
+  },
+
+  removeGalleryImage(petId: string, storageKey: string): Promise<Pet> {
+    return apiClient.delete<Pet>(
+      `/animals/${petId}/gallery?storageKey=${encodeURIComponent(storageKey)}`,
+    );
   },
 };
 

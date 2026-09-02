@@ -6,26 +6,40 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Alert } from '@/components/feedback';
-import { FormField } from '@/components/forms';
-import { Caption } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import type { PublicationKind } from '../types';
-import { buildPublicationSchema, type PublicationFormValues } from '../validation/schemas';
+import type { CreatePublicationInput, PublicationKind } from '../types';
+import { buildListingSchema, listingValuesToInput } from '../validation/schemas';
+
+import { PublicationListingFieldsForm } from './PublicationListingFieldsForm';
 
 export interface PublicationFormProps {
   kind: PublicationKind;
   submitting: boolean;
   formError?: string | null;
   serverFields?: Record<string, string>;
-  onSubmit: (values: PublicationFormValues) => void;
+  onSubmit: (input: CreatePublicationInput) => void;
 }
 
+const EMPTY_DEFAULTS = {
+  note: '',
+  extraNotes: '',
+  contactName: '',
+  contactPhone: '',
+  city: '',
+  lostDate: '',
+  lostTime: '',
+  lostGovernorate: '',
+  lostDistrict: '',
+  lostLocationDetail: '',
+  healthNotes: '',
+};
+
 /**
- * The publish form. The backend model has ONLY an optional `note` — no location,
- * date, image or description fields exist, so there is nothing else to collect.
- * Always shows the "subject to review" notice (§7) — publication is never
- * immediate.
+ * The listing-fields-only form — used by `PublishAnimalScreen` (an already
+ * registered pet, so only the per-kind listing fields are collected; the
+ * animal profile is skipped). `CreatePublicationScreen` uses
+ * `PublicationListingFieldsForm` directly alongside `AnimalProfileFields`.
  */
 export function PublicationForm({
   kind,
@@ -36,13 +50,15 @@ export function PublicationForm({
 }: PublicationFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('publications');
-  const schema = useMemo(() => buildPublicationSchema(t), [t]);
+  const schema = useMemo(() => buildListingSchema(t, kind), [t, kind]);
 
-  const { control, handleSubmit } = useForm<PublicationFormValues>({
+  const { control, handleSubmit } = useForm<any>({
     resolver: zodResolver(schema),
-    defaultValues: { note: '' },
+    defaultValues: EMPTY_DEFAULTS,
     mode: 'onTouched',
   });
+
+  const submit = handleSubmit((values) => onSubmit(listingValuesToInput(kind, values)));
 
   return (
     <>
@@ -50,18 +66,7 @@ export function PublicationForm({
 
       {formError ? <Alert tone="danger" message={formError} /> : null}
 
-      <FormField
-        control={control}
-        name="note"
-        label={t(`form.noteLabel.${kind}`)}
-        placeholder={t(`form.notePlaceholder.${kind}`)}
-        hint={t('form.noteHint')}
-        multiline
-        numberOfLines={4}
-        serverError={serverFields.note}
-      />
-
-      <Caption>{t('form.mediaNote')}</Caption>
+      <PublicationListingFieldsForm kind={kind} control={control} serverFields={serverFields} />
 
       <View style={{ marginTop: theme.spacing.sm }}>
         <Button
@@ -69,7 +74,7 @@ export function PublicationForm({
           fullWidth
           loading={submitting}
           disabled={submitting}
-          onPress={handleSubmit(onSubmit)}
+          onPress={submit}
           accessibilityLabel={t(`form.submit.${kind}`)}
         />
       </View>

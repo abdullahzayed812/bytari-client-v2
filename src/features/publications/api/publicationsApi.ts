@@ -3,10 +3,12 @@ import type { PageMeta as ApiPageMeta } from '@/services/api';
 
 import type {
   AnimalPublication,
+  CreateInteractionInput,
   CreatePublicationInput,
   Paginated,
-  PublicPublication,
+  PublicationInteraction,
   PublicationKind,
+  PublicPublication,
 } from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
@@ -22,20 +24,18 @@ function readMeta(meta: unknown, page: number, pageSize: number, count: number):
 /**
  * Thin wrappers — 1:1 with
  * `server/src/modules/animals/presentation/publication.routes.ts`.
- * No endpoint is invented; there is no update / delete / close / mark-found
- * endpoint, and no cross-animal "my publications" endpoint (§9/§14/§20).
  */
 export const publicationsApi = {
-  // --- authenticated public browse (APPROVED only, no owner PII) ---
+  // --- public browse (APPROVED only, ALL users, never scoped to the caller) ---
   async listPublic(
     page: number,
     pageSize: number,
-    kind?: PublicationKind,
+    filter: { kind?: PublicationKind; species?: string; search?: string } = {},
   ): Promise<Paginated<PublicPublication>> {
     const envelope = await apiClient.requestEnvelope<PublicPublication[]>({
       method: 'GET',
       url: '/animal-publications',
-      params: { page, pageSize, kind },
+      params: { page, pageSize, kind: filter.kind, species: filter.species, search: filter.search },
     });
     return {
       items: envelope.data,
@@ -45,6 +45,17 @@ export const publicationsApi = {
 
   getPublic(publicationId: string): Promise<PublicPublication> {
     return apiClient.get<PublicPublication>(`/animal-publications/${publicationId}`);
+  },
+
+  /** "طلب التبني" / "طلب تزاوج" / "ابلاغ عن مشاهدة" — any user except the listing's own owner. */
+  createInteraction(
+    publicationId: string,
+    input: CreateInteractionInput,
+  ): Promise<PublicationInteraction> {
+    return apiClient.post<PublicationInteraction>(
+      `/animal-publications/${publicationId}/interactions`,
+      input,
+    );
   },
 
   // --- owner-facing (per animal, every status) ---
@@ -69,10 +80,7 @@ export const publicationsApi = {
   },
 
   create(animalId: string, input: CreatePublicationInput): Promise<AnimalPublication> {
-    return apiClient.post<AnimalPublication>(`/animals/${animalId}/publications`, {
-      kind: input.kind,
-      note: input.note,
-    });
+    return apiClient.post<AnimalPublication>(`/animals/${animalId}/publications`, input);
   },
 };
 

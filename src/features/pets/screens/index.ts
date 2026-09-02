@@ -1,3 +1,4 @@
+export { default as PetsLandingScreen } from './PetsLandingScreen';
 export { default as MyPetsScreen } from './MyPetsScreen';
 export { default as PetDetailsScreen } from './PetDetailsScreen';
 export { default as AddPetScreen } from './AddPetScreen';

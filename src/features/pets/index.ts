@@ -17,15 +17,20 @@ export {
 export {
   PetCard,
   PetCardSkeleton,
+  PetShowcaseCard,
+  FeatureCard,
   PetImage,
   PetForm,
   PetFormLayout,
   FutureSectionRow,
   type PetCardProps,
+  type PetShowcaseCardProps,
+  type FeatureCardProps,
   type PetFormProps,
   type PetImageProps,
 } from './components';
 export {
+  PetsLandingScreen,
   MyPetsScreen,
   PetDetailsScreen,
   AddPetScreen,
