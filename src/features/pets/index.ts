@@ -3,7 +3,15 @@
  * list · detail · create · edit · archive. Ownership is entirely backend-derived
  * and enforced. No medical / vaccination / adoption / mating / lost data.
  */
-export { petsApi, petKeys, type PetsApi } from './api';
+export {
+  petsApi,
+  petKeys,
+  transferRequestsApi,
+  transferRequestKeys,
+  type PetsApi,
+  type TransferRequestsApi,
+  type TransferRequestListPage,
+} from './api';
 export {
   usePets,
   usePet,
@@ -11,7 +19,12 @@ export {
   useUpdatePet,
   useDeactivatePet,
   usePetOwnershipHistory,
-  useTransferOwnership,
+  useSentTransferRequests,
+  useReceivedTransferRequests,
+  useCreateTransferRequest,
+  useAcceptTransferRequest,
+  useRejectTransferRequest,
+  useCancelTransferRequest,
   type UsePetsParams,
 } from './hooks';
 export {
@@ -35,17 +48,17 @@ export {
   PetDetailsScreen,
   AddPetScreen,
   EditPetScreen,
-  TransferOwnershipScreen,
   OwnershipHistoryScreen,
+  TransferRequestsScreen,
 } from './screens';
 export { petAge, SPECIES_ICON, SPECIES_OPTIONS, SEX_OPTIONS, type PetAge } from './constants';
 export {
   buildPetSchema,
   toCreateInput,
-  buildTransferSchema,
-  transferErrorMessage,
+  buildTransferRequestSchema,
+  transferRequestErrorMessage,
   type PetFormValues,
-  type TransferFormValues,
+  type TransferRequestFormValues,
 } from './validation/schemas';
 export type {
   Pet,
@@ -59,6 +72,8 @@ export type {
   PageMeta,
   OwnershipRecord,
   OwnerSummary,
-  TransferOwnershipInput,
+  TransferRequestStatus,
+  AnimalTransferRequest,
+  CreateTransferRequestInput,
 } from './types';
-export { PET_SPECIES, PET_SEXES, PET_STATUSES } from './types';
+export { PET_SPECIES, PET_SEXES, PET_STATUSES, TRANSFER_REQUEST_STATUSES } from './types';

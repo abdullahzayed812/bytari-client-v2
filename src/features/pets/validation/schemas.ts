@@ -72,36 +72,35 @@ export function toCreateInput(values: PetFormValues) {
   };
 }
 
-// --- ownership transfer (Phase 12) ---------------------------------
+// --- ownership transfer requests (request/acceptance) --------------
 //
-// Mirrors `transferOwnershipBodySchema` — `toUserId` is a UUID, `reason` is
-// optional free text ≤ 500. There is NO user directory search on the backend,
-// so the recipient is entered as a raw user id (the screen resolves it to a
-// name live via `GET /users/:id` before the confirmation step).
+// Mirrors `createTransferRequestBodySchema` — `toUserId` is a UUID, `reason`
+// is optional free text ≤ 500. There is NO user directory search on the
+// backend, so the recipient is entered as a raw user id.
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function buildTransferSchema(t: TFn) {
+export function buildTransferRequestSchema(t: TFn) {
   return z.object({
     toUserId: z
       .string()
       .trim()
-      .min(1, t('transfer.errors.recipientRequired'))
-      .regex(UUID_RE, t('transfer.errors.recipientInvalid')),
+      .min(1, t('transferRequests.errors.recipientRequired'))
+      .regex(UUID_RE, t('transferRequests.errors.recipientInvalid')),
     reason: z.string().trim().max(500, t('form.errors.tooLong')).optional().or(z.literal('')),
   });
 }
-export type TransferFormValues = z.infer<ReturnType<typeof buildTransferSchema>>;
+export type TransferRequestFormValues = z.infer<ReturnType<typeof buildTransferRequestSchema>>;
 
-/** Feature-specific mapping for transfer failures; never surfaces raw text. */
-export function transferErrorMessage(error: unknown, t: TFn): string {
+/** Feature-specific mapping for transfer-request failures; never surfaces raw text. */
+export function transferRequestErrorMessage(error: unknown, t: TFn): string {
   if (error instanceof ApiError) {
     const code = error.code as string;
-    if (code === 'ANIMAL_NOT_ACTIVE') return t('transfer.errors.animalNotActive');
-    if (code === 'INVALID_TRANSFER_TARGET') return t('transfer.errors.invalidTarget');
-    if (error.status === 404) return t('transfer.errors.recipientNotFound');
-    if (error.status === 409) return t('transfer.errors.conflict');
-    if (error.status === 403) return t('transfer.errors.notOwner');
+    if (code === 'TRANSFER_REQUEST_ALREADY_OPEN') return t('transferRequests.errors.alreadyOpen');
+    if (code === 'TRANSFER_REQUEST_NOT_PENDING') return t('transferRequests.errors.notPending');
+    if (code === 'ANIMAL_NOT_ACTIVE') return t('transferRequests.errors.animalNotActive');
+    if (code === 'INVALID_TRANSFER_TARGET') return t('transferRequests.errors.invalidTarget');
+    if (error.status === 404) return t('transferRequests.errors.recipientNotFound');
   }
   return apiErrorMessage(error);
 }

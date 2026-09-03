@@ -70,7 +70,7 @@ afterAll(() => {
 
 describe('Phase 12 navigation', () => {
   it('route builders are deep-link-safe absolute paths', () => {
-    expect(Routes.petTransfer('p1')).toBe('/(app)/pets/p1/transfer');
+    expect(Routes.petTransferRequests).toBe('/(app)/pets/transfer-requests');
     expect(Routes.petOwnership('p1')).toBe('/(app)/pets/p1/ownership');
     expect(Routes.petMedicalHistory('p1')).toBe('/(app)/pets/p1/medical-history');
     expect(Routes.orgAnimalMedicalHistory('o1', 'a1')).toBe(
@@ -86,7 +86,10 @@ describe('Phase 12 navigation', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/ownership');
 
     fireEvent.press(screen.getByRole('button', { name: 'نقل الملكية' }));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/transfer');
+    expect(routerMock.push).toHaveBeenCalledWith({
+      pathname: '/(app)/pets/transfer-requests',
+      params: { petId: 'p1' },
+    });
 
     fireEvent.press(screen.getByLabelText('السجل الطبي الكامل'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/medical-history');

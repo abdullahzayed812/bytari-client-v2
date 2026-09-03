@@ -12,6 +12,7 @@ import notifications from './notifications';
 import orgAnimals from './orgAnimals';
 import organizations from './organizations';
 import pets from './pets';
+import poultry from './poultry';
 import publications from './publications';
 import registration from './registration';
 import showcase from './showcase';
@@ -28,6 +29,7 @@ export const ar = {
   auth,
   admin,
   pets,
+  poultry,
   home,
   veterinarian,
   organizations,

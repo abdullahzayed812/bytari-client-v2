@@ -9,7 +9,17 @@
  * cattle / sheep operations (backend has no finalised API — §16). No chat /
  * realtime / notifications.
  */
-export { farmApi, poultryApi, farmKeys, poultryKeys, type FarmApi, type PoultryApi } from './api';
+export {
+  farmApi,
+  poultryApi,
+  poultryOpsApi,
+  farmKeys,
+  poultryKeys,
+  poultryOpsKeys,
+  type FarmApi,
+  type PoultryApi,
+  type PoultryOpsApi,
+} from './api';
 export {
   useFarmJoinCode,
   useRegenerateFarmJoinCode,
@@ -19,6 +29,16 @@ export {
   useCreatePoultryFlock,
   useUpdatePoultryFlock,
   useDeletePoultryFlock,
+  usePoultryFarms,
+  useFarmProfile,
+  useBatchSummary,
+  useWeeklySummary,
+  useDailyRecords,
+  useFarmExpenses,
+  useFarmExpenseSummary,
+  usePoultryCaseSummary,
+  useCreateFarmExpense,
+  useUpdateFarmProfile,
   type UsePoultryFlocksParams,
 } from './hooks';
 export {
@@ -26,14 +46,31 @@ export {
   PoultryCard,
   PoultryCardSkeleton,
   PoultryFlockForm,
+  AddFarmCard,
+  PoultryMarketCard,
+  PoultryFarmCard,
+  NewsCard,
+  FarmHeaderCard,
+  BatchSummaryCard,
+  DailyRecordCard,
+  DailyRecordEmptyCard,
+  WeeklySummaryCard,
+  FarmSectionCard,
+  FarmStaffRow,
   type PoultryCardProps,
   type PoultryFlockFormProps,
+  type PoultryFarmCardProps,
+  type FarmBirdStats,
 } from './components';
 export {
   JoinFarmScreen,
   PoultryFlocksScreen,
   PoultryFlockDetailScreen,
   PoultryFlockFormScreen,
+  PoultryFarmsLandingScreen,
+  FarmDetailsScreen,
+  PoultryMarketScreen,
+  FarmSectionPlaceholderScreen,
 } from './screens';
 export {
   FARM_ORG_TYPE,

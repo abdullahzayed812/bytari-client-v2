@@ -31,6 +31,7 @@ export default function AppLayout() {
     >
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="pets" />
+      <Stack.Screen name="poultry" />
       <Stack.Screen name="veterinarian" />
       <Stack.Screen name="organizations" />
       <Stack.Screen name="publications" />

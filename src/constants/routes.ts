@@ -26,8 +26,14 @@ export const Routes = {
   petEdit: (petId: string) => `/(app)/pets/${petId}/edit` as const,
 
   // Animal ownership (Mobile Phase 12)
-  petTransfer: (petId: string) => `/(app)/pets/${petId}/transfer` as const,
   petOwnership: (petId: string) => `/(app)/pets/${petId}/ownership` as const,
+  /**
+   * "My" transfer requests (sent/received) — the request/acceptance workflow
+   * is the only way to transfer ownership. Navigate with a `petId` param
+   * (`router.push({ pathname: Routes.petTransferRequests, params: { petId } })`)
+   * to open straight into "propose a transfer" for that pet, preselected.
+   */
+  petTransferRequests: '/(app)/pets/transfer-requests',
 
   // Pet Owner medical history — read-only (Mobile Phase 6)
   petMedicalRecords: (petId: string) => `/(app)/pets/${petId}/medical-records` as const,
@@ -59,6 +65,16 @@ export const Routes = {
   // Tips — أفضل النصائح (structured care advice from the content module)
   tips: '/(app)/tips',
   tip: (tipId: string) => `/(app)/tips/${tipId}` as const,
+
+  // Poultry Farms (Home → "الدواجن والطيور")
+  poultryFarms: '/(app)/poultry',
+  poultryMarket: '/(app)/poultry/market',
+  poultryFarmDetail: (organizationId: string) => `/(app)/poultry/${organizationId}` as const,
+  /** Farm Details management sub-pages (screens delivered with their own screenshots). */
+  poultryFarmSection: (
+    organizationId: string,
+    section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
+  ) => `/(app)/poultry/${organizationId}/sections/${section}` as const,
 
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',

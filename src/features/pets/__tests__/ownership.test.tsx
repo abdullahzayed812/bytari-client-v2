@@ -4,19 +4,17 @@ import { i18n } from '@/i18n';
 import { ApiError, apiClient } from '@/services/api';
 import { makeTestQueryClient, renderHookWithQuery } from '@/test-utils/render';
 
-import { petKeys, petsApi } from '../api';
-import { usePetOwnershipHistory, useTransferOwnership } from '../hooks';
-import { buildTransferSchema, transferErrorMessage } from '../validation/schemas';
+import { petsApi } from '../api';
+import { usePetOwnershipHistory } from '../hooks';
+import { buildTransferRequestSchema, transferRequestErrorMessage } from '../validation/schemas';
 
 const t = i18n.getFixedT('ar', 'pets');
 
 describe('petsApi ownership wrappers', () => {
   const get = jest.spyOn(apiClient, 'get');
-  const post = jest.spyOn(apiClient, 'post');
 
   beforeEach(() => {
     get.mockReset();
-    post.mockReset();
   });
   afterAll(() => jest.restoreAllMocks());
 
@@ -24,45 +22,6 @@ describe('petsApi ownership wrappers', () => {
     get.mockResolvedValueOnce([{ id: 'o1', isCurrent: true }]);
     await petsApi.ownershipHistory('p1');
     expect(get).toHaveBeenCalledWith('/animals/p1/ownership/history');
-  });
-
-  it('transferOwnership → POST /animals/:id/ownership/transfer with { toUserId, reason }', async () => {
-    post.mockResolvedValueOnce({ id: 'o2', isCurrent: true });
-    await petsApi.transferOwnership('p1', { toUserId: 'u2', reason: 'بيع' });
-    expect(post).toHaveBeenCalledWith('/animals/p1/ownership/transfer', {
-      toUserId: 'u2',
-      reason: 'بيع',
-    });
-  });
-});
-
-describe('useTransferOwnership', () => {
-  afterEach(() => jest.restoreAllMocks());
-
-  it('on success invalidates the pet lists, this pet detail, and its ownership history', async () => {
-    jest.spyOn(petsApi, 'transferOwnership').mockResolvedValueOnce({ id: 'o2' } as never);
-    const client = makeTestQueryClient();
-    const invalidate = jest.spyOn(client, 'invalidateQueries');
-    const { result } = renderHookWithQuery(() => useTransferOwnership('p1'), { client });
-
-    await result.current.mutateAsync({ toUserId: 'u2' });
-
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: petKeys.lists() });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: petKeys.detail('p1') });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: petKeys.ownership('p1') });
-  });
-
-  it('a 403 propagates as an ApiError (no optimistic change)', async () => {
-    jest
-      .spyOn(petsApi, 'transferOwnership')
-      .mockRejectedValueOnce(
-        new ApiError({ code: 'PERMISSION_DENIED', message: 'x', status: 403 }),
-      );
-    const { result } = renderHookWithQuery(() => useTransferOwnership('p1'), {
-      client: makeTestQueryClient(),
-    });
-    await expect(result.current.mutateAsync({ toUserId: 'u2' })).rejects.toBeInstanceOf(ApiError);
-    await waitFor(() => expect(result.current.isError).toBe(true));
   });
 });
 
@@ -81,8 +40,8 @@ describe('usePetOwnershipHistory', () => {
   });
 });
 
-describe('buildTransferSchema / transferErrorMessage', () => {
-  const schema = buildTransferSchema(t);
+describe('buildTransferRequestSchema / transferRequestErrorMessage', () => {
+  const schema = buildTransferRequestSchema(t);
 
   it('requires a UUID recipient', () => {
     expect(schema.safeParse({ toUserId: '' }).success).toBe(false);
@@ -94,21 +53,30 @@ describe('buildTransferSchema / transferErrorMessage', () => {
 
   it('maps the known backend codes; never surfaces raw text', () => {
     expect(
-      transferErrorMessage(
+      transferRequestErrorMessage(
         new ApiError({ code: 'ANIMAL_NOT_ACTIVE' as never, message: 'x', status: 409 }),
         t,
       ),
-    ).toBe(t('transfer.errors.animalNotActive'));
+    ).toBe(t('transferRequests.errors.animalNotActive'));
     expect(
-      transferErrorMessage(
+      transferRequestErrorMessage(
         new ApiError({ code: 'INVALID_TRANSFER_TARGET' as never, message: 'x', status: 400 }),
         t,
       ),
-    ).toBe(t('transfer.errors.invalidTarget'));
+    ).toBe(t('transferRequests.errors.invalidTarget'));
     expect(
-      transferErrorMessage(new ApiError({ code: 'NOT_FOUND', message: 'x', status: 404 }), t),
-    ).toBe(t('transfer.errors.recipientNotFound'));
-    const generic = transferErrorMessage(
+      transferRequestErrorMessage(
+        new ApiError({ code: 'TRANSFER_REQUEST_ALREADY_OPEN' as never, message: 'x', status: 409 }),
+        t,
+      ),
+    ).toBe(t('transferRequests.errors.alreadyOpen'));
+    expect(
+      transferRequestErrorMessage(
+        new ApiError({ code: 'NOT_FOUND', message: 'x', status: 404 }),
+        t,
+      ),
+    ).toBe(t('transferRequests.errors.recipientNotFound'));
+    const generic = transferRequestErrorMessage(
       new ApiError({ code: 'INTERNAL_ERROR', message: 'db boom', status: 500 }),
       t,
     );

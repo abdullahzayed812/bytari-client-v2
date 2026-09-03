@@ -110,6 +110,15 @@ describe('PetsLandingScreen', () => {
     expect(routerMock.back).toHaveBeenCalled();
   });
 
+  it('the transfer-requests button (under the ads banner) opens the sent/received requests screen', async () => {
+    list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 10, total: 0, totalPages: 1 } });
+    renderWithProviders(<PetsLandingScreen />);
+    await waitFor(() => expect(screen.getByText('لم تُضِف أي حيوان بعد')).toBeOnTheScreen());
+
+    fireEvent.press(screen.getByRole('button', { name: 'نقل الملكية' }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/transfer-requests');
+  });
+
   it('renders an error state with a retry action', async () => {
     const { ApiError } = jest.requireActual('@/services/api') as typeof import('@/services/api');
     list.mockRejectedValue(new ApiError({ code: 'INTERNAL_ERROR', message: 'x', status: 500 }));

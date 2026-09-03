@@ -31,7 +31,7 @@ export default function OwnershipHistoryScreen() {
           icon="lock-closed-outline"
           title={t('ownership.deniedTitle')}
           message={t('ownership.deniedBody')}
-          actionLabel={t('transfer.back')}
+          actionLabel={t('ownership.back')}
           onAction={() => router.back()}
         />
       </ScrollScreen>

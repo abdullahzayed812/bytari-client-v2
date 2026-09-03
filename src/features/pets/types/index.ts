@@ -119,12 +119,45 @@ export interface OwnershipRecord {
   transferReason: string | null;
 }
 
-/**
- * `POST /animals/:animalId/ownership/transfer`. The backend requires the caller
- * to be the current owner (or ADMIN); the recipient must be an ACTIVE user in
- * the system and not already the owner. There is NO request / acceptance step.
- */
-export interface TransferOwnershipInput {
+// --- ownership transfer requests (request/acceptance) ----------------
+//
+// Mirrors `server/src/modules/animals` `transfer-request.types.ts`. There is
+// no instant transfer — the current owner proposes a transfer, and the
+// recipient must ACCEPT before ownership actually moves; a REJECTED/CANCELLED
+// request never touches ownership. "My requests" splits into `sent` (I'm the
+// owner who proposed) and `received` (I'm the proposed new owner) via two
+// separate endpoints, never a single list filtered client-side.
+
+export const TRANSFER_REQUEST_STATUSES = ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED'] as const;
+export type TransferRequestStatus = (typeof TRANSFER_REQUEST_STATUSES)[number];
+
+export interface TransferRequestUserSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface TransferRequestAnimalSummary {
+  id: string;
+  name: string;
+  species: PetSpecies;
+  breed: string | null;
+}
+
+export interface AnimalTransferRequest {
+  id: string;
+  animal: TransferRequestAnimalSummary;
+  fromUser: TransferRequestUserSummary;
+  toUser: TransferRequestUserSummary;
+  status: TransferRequestStatus;
+  reason: string | null;
+  responseReason: string | null;
+  respondedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTransferRequestInput {
   toUserId: string;
   reason?: string;
 }

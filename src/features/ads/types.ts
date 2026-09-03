@@ -9,6 +9,7 @@
 export const AD_PLACEMENTS = [
   'HOME',
   'PETS',
+  'POULTRY_FARMS',
   'CLINICS',
   'VETERINARY_OFFICES',
   'VETERINARY_STORES',

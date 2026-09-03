@@ -220,7 +220,7 @@ export default function HomeScreen() {
             icon="egg-outline"
             title={t('categories.poultry.title')}
             subtitle={t('categories.poultry.subtitle')}
-            onPress={comingSoon}
+            onPress={() => router.push(Routes.poultryFarms)}
           />
         </View>
       </Section>

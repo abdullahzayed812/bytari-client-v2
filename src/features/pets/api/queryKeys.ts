@@ -22,3 +22,13 @@ export const petKeys = {
   /** Ownership history for one pet (Phase 12). */
   ownership: (petId: string) => [...petKeys.detail(petId), 'ownership'] as const,
 };
+
+/** Ownership transfer requests — "sent" and "received" are always separate lists. */
+export const transferRequestKeys = {
+  all: ['transfer-requests'] as const,
+  sent: (page: number, pageSize: number) =>
+    [...transferRequestKeys.all, 'sent', page, pageSize] as const,
+  received: (page: number, pageSize: number) =>
+    [...transferRequestKeys.all, 'received', page, pageSize] as const,
+  detail: (requestId: string) => [...transferRequestKeys.all, 'detail', requestId] as const,
+};

@@ -163,7 +163,12 @@ export default function PetDetailsScreen() {
                   label={t('detail.transferOwnership')}
                   variant="outline"
                   leftIcon="swap-horizontal-outline"
-                  onPress={() => router.push(Routes.petTransfer(pet.id))}
+                  onPress={() =>
+                    router.push({
+                      pathname: Routes.petTransferRequests,
+                      params: { petId: pet.id },
+                    })
+                  }
                 />
               ) : null}
             </View>

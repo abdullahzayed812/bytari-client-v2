@@ -32,6 +32,15 @@ export interface PoultryFlock {
   arrivalDate: string;
   status: PoultryFlockStatus;
   notes: string | null;
+  /** Per-farm sequential batch number ("الدفعة رقم N"). */
+  batchNumber: number | null;
+  /** Birds placed at the start of the batch — the mortality denominator. */
+  initialBirdCount: number | null;
+  /** Latest recorded average bird weight, grams. Backend `numeric` → string. */
+  averageWeightGrams: string | null;
+  /** Optional planned sale price, used for the profit estimate. `numeric` → string. */
+  targetPricePerKg: string | null;
+  expectedSaleDate: string | null;
   /** The farm member who registered the flock. UUID — no name-resolution endpoint. */
   createdByUserId: string | null;
   /** ISO datetime, set when the flock is CLOSED. */
@@ -47,6 +56,10 @@ export interface CreatePoultryFlockInput {
   birdCount: number;
   arrivalDate: string;
   notes?: string | null;
+  initialBirdCount?: number | null;
+  averageWeightGrams?: number | null;
+  targetPricePerKg?: number | null;
+  expectedSaleDate?: string | null;
 }
 
 export interface UpdatePoultryFlockInput {
@@ -56,6 +69,10 @@ export interface UpdatePoultryFlockInput {
   arrivalDate?: string;
   status?: PoultryFlockStatus;
   notes?: string | null;
+  initialBirdCount?: number | null;
+  averageWeightGrams?: number | null;
+  targetPricePerKg?: number | null;
+  expectedSaleDate?: string | null;
 }
 
 export interface JoinFarmInput {
@@ -80,3 +97,5 @@ export interface Paginated<T> {
   items: T[];
   meta: PageMeta;
 }
+
+export * from './poultryOps';

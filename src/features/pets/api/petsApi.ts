@@ -8,7 +8,6 @@ import type {
   Pet,
   PetListFilter,
   PetListPage,
-  TransferOwnershipInput,
   UpdatePetInput,
 } from '../types';
 
@@ -72,18 +71,6 @@ export const petsApi = {
    */
   ownershipHistory(petId: string): Promise<OwnershipRecord[]> {
     return apiClient.get<OwnershipRecord[]>(`/animals/${petId}/ownership/history`);
-  },
-
-  /**
-   * Transfer to another user. `POST /animals/:id/ownership/transfer` — the
-   * server verifies the caller is the current owner and the recipient is an
-   * ACTIVE user; returns the new current ownership record.
-   */
-  transferOwnership(petId: string, input: TransferOwnershipInput): Promise<OwnershipRecord> {
-    return apiClient.post<OwnershipRecord>(`/animals/${petId}/ownership/transfer`, {
-      toUserId: input.toUserId,
-      reason: input.reason,
-    });
   },
 
   // --- gallery (up to 8 photos) ---------------------------------------

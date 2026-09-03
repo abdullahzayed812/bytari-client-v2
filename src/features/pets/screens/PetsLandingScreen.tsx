@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
 import { EmptyState, ErrorState } from '@/components/feedback';
 import { Row, Section } from '@/components/layout';
@@ -52,6 +53,7 @@ export default function PetsLandingScreen() {
   const goHome = () => (router.canGoBack() ? router.back() : router.push(Routes.home));
   const goMyPets = () => router.push(Routes.pets);
   const goAddPet = () => router.push(Routes.petsCreate);
+  const goTransferRequests = () => router.push(Routes.petTransferRequests);
 
   const refreshing = (ads.isRefetching || pets.isRefetching) && !pets.isFetchingNextPage;
   const onRefresh = () => {
@@ -114,6 +116,18 @@ export default function PetsLandingScreen() {
         {/* Advertisement — admin-curated `GET /ads?placement=PETS` (banner or carousel). */}
         <Section spacing="xl">
           <Advertisement placement="PETS" />
+        </Section>
+
+        {/* Ownership transfer requests — sent + received. */}
+        <Section spacing="xl">
+          <Button
+            label={t('landing.transferRequestsA11y')}
+            variant="outline"
+            leftIcon="swap-horizontal-outline"
+            fullWidth
+            onPress={goTransferRequests}
+            accessibilityLabel={t('landing.transferRequestsA11y')}
+          />
         </Section>
 
         {/* My pet profiles → MyPetsScreen. */}

@@ -1,5 +1,13 @@
 export { usePets, type UsePetsParams } from './usePets';
 export { usePet } from './usePet';
 export { useCreatePet, useUpdatePet, useDeactivatePet } from './usePetMutations';
-export { usePetOwnershipHistory, useTransferOwnership } from './useOwnership';
+export { usePetOwnershipHistory } from './useOwnership';
 export { useAnimalGalleryPresignProvider } from './useAnimalGalleryPresignProvider';
+export {
+  useSentTransferRequests,
+  useReceivedTransferRequests,
+  useCreateTransferRequest,
+  useAcceptTransferRequest,
+  useRejectTransferRequest,
+  useCancelTransferRequest,
+} from './useTransferRequests';

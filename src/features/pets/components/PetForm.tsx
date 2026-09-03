@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Alert } from '@/components/feedback';
 import { FormField, Select } from '@/components/forms';
+import { Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import { SEX_OPTIONS, SPECIES_OPTIONS } from '../constants';
@@ -57,6 +58,10 @@ export function PetForm({
   return (
     <>
       {formError ? <Alert tone="danger" message={formError} /> : null}
+
+      <Text variant="caption" color="textMuted">
+        {t(mode === 'add' ? 'form.addSubtitle' : 'form.editSubtitle')}
+      </Text>
 
       <FormField
         control={control}
