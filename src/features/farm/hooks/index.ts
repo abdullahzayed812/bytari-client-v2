@@ -6,6 +6,7 @@ export {
   useDeletePoultryFlock,
 } from './usePoultryMutations';
 export { usePoultryFarms } from './usePoultryFarms';
+export { useCreatePoultryFarm, type CreatePoultryFarmVars } from './useCreatePoultryFarm';
 export {
   useFarmProfile,
   useBatchSummary,

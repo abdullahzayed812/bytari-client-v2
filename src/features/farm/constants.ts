@@ -42,3 +42,33 @@ export const FLOCK_STATUS_TONE: Record<PoultryFlockStatus, BadgeTone> = {
   ACTIVE: 'success',
   CLOSED: 'neutral',
 };
+
+/**
+ * Production type ("نوع الإنتاج") shown on the "Add Poultry Farm" form. Only the
+ * two types in the reference design are offered; the backend `FARM_CATEGORIES`
+ * enum is wider (MIXED / BREEDER / HATCHERY / OTHER) and stays valid.
+ */
+export const FARM_PRODUCTION_TYPES = ['BROILER', 'LAYER'] as const;
+export type FarmProductionType = (typeof FARM_PRODUCTION_TYPES)[number];
+
+/** Iraqi governorates for the "المحافظة" picker. Value === Arabic label. */
+export const IRAQ_GOVERNORATES: readonly string[] = [
+  'بغداد',
+  'البصرة',
+  'نينوى',
+  'أربيل',
+  'النجف',
+  'كربلاء',
+  'بابل',
+  'ذي قار',
+  'الأنبار',
+  'ديالى',
+  'كركوك',
+  'صلاح الدين',
+  'واسط',
+  'ميسان',
+  'المثنى',
+  'القادسية',
+  'دهوك',
+  'السليمانية',
+];

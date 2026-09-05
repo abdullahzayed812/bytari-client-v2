@@ -66,8 +66,13 @@ export const Routes = {
   tips: '/(app)/tips',
   tip: (tipId: string) => `/(app)/tips/${tipId}` as const,
 
+  // News — آخر الأخبار (general news items from the content module)
+  news: '/(app)/news',
+  newsDetail: (newsId: string) => `/(app)/news/${newsId}` as const,
+
   // Poultry Farms (Home → "الدواجن والطيور")
   poultryFarms: '/(app)/poultry',
+  poultryFarmCreate: '/(app)/poultry/create',
   poultryMarket: '/(app)/poultry/market',
   poultryFarmDetail: (organizationId: string) => `/(app)/poultry/${organizationId}` as const,
   /** Farm Details management sub-pages (screens delivered with their own screenshots). */

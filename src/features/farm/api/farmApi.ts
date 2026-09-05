@@ -1,7 +1,7 @@
-import type { OrganizationMember } from '@/features/organizations/types';
+import type { OrganizationMember, OrganizationWithDetails } from '@/features/organizations/types';
 import { apiClient } from '@/services/api';
 
-import type { FarmJoinCode, JoinFarmInput } from '../types';
+import type { CreatePoultryFarmInput, FarmJoinCode, JoinFarmInput } from '../types';
 
 /**
  * Farm-ID / join-code wrappers — 1:1 with
@@ -16,6 +16,16 @@ import type { FarmJoinCode, JoinFarmInput } from '../types';
  * invitation / acceptance / owner-approval step.
  */
 export const farmApi = {
+  /**
+   * `POST /organizations/farms` — the "Add Poultry Farm" form. The backend
+   * creates the FARM organization + `farm_details` + the caller's OWNER
+   * membership in one transaction and starts it PENDING (admin review). The
+   * client never creates an organization, picks a type, or assigns ownership.
+   */
+  createFarm(input: CreatePoultryFarmInput): Promise<OrganizationWithDetails> {
+    return apiClient.post<OrganizationWithDetails>('/organizations/farms', input);
+  },
+
   joinByCode(input: JoinFarmInput): Promise<OrganizationMember> {
     return apiClient.post<OrganizationMember>('/organizations/join', {
       joinCode: input.joinCode,

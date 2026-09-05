@@ -63,7 +63,6 @@ function toContentItem(raw: unknown): ContentItem {
     body: (r.body as string | null) ?? null,
     authorName: (r.authorName as string | null) ?? null,
     publishedAt: (r.publishedAt as string | null) ?? null,
-    coverImageUrl: (r.coverImageUrl as string | null) ?? null,
     categories,
     files,
     createdAt: String(r.createdAt ?? ''),

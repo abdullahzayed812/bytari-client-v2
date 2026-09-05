@@ -130,10 +130,16 @@ describe('FarmDetailsScreen', () => {
     } as never);
     getProfile.mockResolvedValue({
       imageUrl: null,
+      location: 'المنصورة',
+      governorate: 'بغداد',
       address: 'المنصورة - الدقهلية',
       capacity: 10000,
+      currentBirdCount: 8500,
       establishedOn: '2024-01-01',
       farmCategory: 'MIXED',
+      contactName: null,
+      contactPhone: null,
+      contactEmail: null,
     });
     listMembers.mockResolvedValue({
       items: [],

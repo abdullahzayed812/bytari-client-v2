@@ -8,6 +8,7 @@ import farm from './farm';
 import home from './home';
 import medical from './medical';
 import nav from './nav';
+import news from './news';
 import notifications from './notifications';
 import orgAnimals from './orgAnimals';
 import organizations from './organizations';
@@ -40,6 +41,7 @@ export const ar = {
   store,
   content,
   tips,
+  news,
   chat,
   users,
   support,

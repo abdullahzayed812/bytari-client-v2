@@ -6,3 +6,4 @@ export { default as PoultryFarmsLandingScreen } from './PoultryFarmsLandingScree
 export { default as FarmDetailsScreen } from './FarmDetailsScreen';
 export { default as PoultryMarketScreen } from './PoultryMarketScreen';
 export { default as FarmSectionPlaceholderScreen } from './FarmSectionPlaceholderScreen';
+export { default as PoultryFarmCreateScreen } from './PoultryFarmCreateScreen';

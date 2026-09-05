@@ -57,17 +57,44 @@ export type PoultryCaseStatus = (typeof POULTRY_CASE_STATUSES)[number];
 
 export interface FarmProfile {
   imageUrl: string | null;
+  location: string | null;
+  governorate: string | null;
   address: string | null;
   capacity: number | null;
+  currentBirdCount: number | null;
   establishedOn: string | null;
   farmCategory: FarmCategory | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
 }
 
 export interface UpdateFarmProfileInput {
+  location?: string | null;
+  governorate?: string | null;
   address?: string | null;
   capacity?: number | null;
+  currentBirdCount?: number | null;
   establishedOn?: string | null;
   farmCategory?: FarmCategory | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+}
+
+/** `POST /organizations/farms` body — the "Add Poultry Farm" form. */
+export interface CreatePoultryFarmInput {
+  name: string;
+  location: string;
+  governorate: string;
+  farmCategory: FarmCategory;
+  description?: string | null;
+  address?: string | null;
+  capacity?: number | null;
+  currentBirdCount?: number | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
 }
 
 // --- daily records -------------------------------------------

@@ -17,15 +17,15 @@ import { Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
-import { useContentList } from '@/features/content';
 import { HomeSectionHeader } from '@/features/home/components';
+import { NewsCard } from '@/features/news/components';
+import { useNews } from '@/features/news/hooks';
 import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { useTheme } from '@/theme';
 
 import {
   AddFarmCard,
-  NewsCard,
   PoultryCardSkeleton,
   PoultryFarmCard,
   PoultryMarketCard,
@@ -47,7 +47,7 @@ function birdStats(flocks: PoultryFlock[]): FarmBirdStats {
 }
 
 /** Poultry Farms landing (Home → "الدواجن والطيور"). Reuses the ad slot, the
- *  membership-scoped org list, and the existing content / tips feeds. */
+ *  membership-scoped org list, and the dedicated news / tips feeds. */
 export default function PoultryFarmsLandingScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -60,7 +60,7 @@ export default function PoultryFarmsLandingScreen() {
     pageSize: 100,
     enabled: Boolean(primaryFarm),
   });
-  const news = useContentList({ type: 'ARTICLE', pageSize: 6 });
+  const news = useNews({ pageSize: 6 });
   const tips = useTips({ pageSize: 6 });
 
   const stats = useMemo(
@@ -82,7 +82,7 @@ export default function PoultryFarmsLandingScreen() {
   };
 
   const goHome = (): void => (router.canGoBack() ? router.back() : router.push(Routes.home));
-  const goCreateFarm = (): void => router.push(Routes.organizationsCreate);
+  const goCreateFarm = (): void => router.push(Routes.poultryFarmCreate);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background, paddingTop: insets.top }}>
@@ -184,15 +184,15 @@ export default function PoultryFarmsLandingScreen() {
           <HomeSectionHeader
             title={t('landing.newsTitle')}
             actionLabel={t('landing.viewAll')}
-            onAction={() => router.push(Routes.contentType('articles'))}
+            onAction={() => router.push(Routes.news)}
           />
           {news.isLoading ? (
             <PoultryCardSkeleton />
-          ) : news.items.length === 0 ? (
+          ) : news.news.length === 0 ? (
             <EmptyState icon="newspaper-outline" title={t('common.error')} />
           ) : (
             <FlatList
-              data={news.items}
+              data={news.news}
               keyExtractor={(i) => i.id}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -201,7 +201,7 @@ export default function PoultryFarmsLandingScreen() {
                 <NewsCard
                   item={item}
                   width={newsWidth}
-                  onPress={() => router.push(Routes.contentItem(item.id))}
+                  onPress={() => router.push(Routes.newsDetail(item.id))}
                 />
               )}
             />

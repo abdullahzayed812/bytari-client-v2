@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   BatchSummary,
@@ -50,6 +51,18 @@ export const poultryOpsApi = {
   },
   updateFarmProfile(orgId: string, body: UpdateFarmProfileInput): Promise<FarmProfile> {
     return apiClient.patch<FarmProfile>(`${farmBase(orgId)}/profile`, body);
+  },
+  requestFarmImageUploadUrl(
+    orgId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(`${farmBase(orgId)}/profile/image/upload-url`, input);
+  },
+  registerFarmImage(
+    orgId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<FarmProfile> {
+    return apiClient.post<FarmProfile>(`${farmBase(orgId)}/profile/image`, input);
   },
 
   // --- batch + weekly summary -------------------------------

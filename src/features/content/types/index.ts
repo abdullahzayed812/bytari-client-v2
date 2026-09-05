@@ -65,8 +65,6 @@ export interface ContentItem {
   authorName: string | null;
   /** ISO datetime or null. */
   publishedAt: string | null;
-  /** Server-resolved URL of the COVER file (public or signed), or null. Never built client-side. */
-  coverImageUrl?: string | null;
   categories: ContentCategory[];
   files: ContentFile[];
   createdAt: string;

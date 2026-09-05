@@ -29,6 +29,7 @@ export const NAMESPACES = [
   'publications',
   'store',
   'content',
+  'news',
   'chat',
   'users',
   'support',
