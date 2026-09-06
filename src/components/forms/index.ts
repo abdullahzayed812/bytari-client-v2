@@ -9,3 +9,4 @@ export {
   type SegmentedControlProps,
   type SegmentedControlOption,
 } from './SegmentedControl';
+export { TileOptionGroup, type TileOptionGroupProps, type TileOption } from './TileOptionGroup';

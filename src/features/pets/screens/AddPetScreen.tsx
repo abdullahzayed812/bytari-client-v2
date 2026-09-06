@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/feedback';
 import { Routes } from '@/constants/routes';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 
 import { PetForm, PetFormLayout } from '../components';
+import { devPetDefaults } from '../data/devDefaults';
 import { useCreatePet } from '../hooks';
 import { toCreateInput, type PetFormValues } from '../validation/schemas';
 
@@ -43,6 +45,7 @@ export default function AddPetScreen() {
     <PetFormLayout title={t('form.addTitle')}>
       <PetForm
         mode="add"
+        defaultValues={devDataEnabled ? devPetDefaults() : undefined}
         submitting={create.isPending}
         formError={formError}
         serverFields={serverFields}

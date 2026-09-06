@@ -1,6 +1,7 @@
+import { FARM_ORG_TYPE, organizationIsFarm } from '@/features/farmShared';
 import { orgCapabilities } from '@/features/organizations';
 
-import { FARM_ORG_TYPE, birdTypeIcon, organizationIsFarm } from '../constants';
+import { birdTypeIcon } from '../constants';
 
 describe('farm feature — org-type rule + capability gates', () => {
   it('only FARM organizations carry farm behaviour', () => {

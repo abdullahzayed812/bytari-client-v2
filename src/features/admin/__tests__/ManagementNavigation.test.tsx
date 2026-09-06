@@ -16,6 +16,7 @@ function session(overrides: Partial<SessionSnapshot>): SessionSnapshot {
       phone: null,
       status: 'ACTIVE',
       veterinarianStatus: 'NOT_APPLIED',
+      traderStatus: 'NOT_REGISTERED' as const,
       createdAt: '',
       updatedAt: '',
     },
@@ -24,6 +25,7 @@ function session(overrides: Partial<SessionSnapshot>): SessionSnapshot {
     isAdmin: false,
     supervisorDomains: [],
     veterinarian: { status: 'NOT_APPLIED', approved: false },
+    trader: { status: 'NOT_REGISTERED', approved: false },
     ...overrides,
   };
 }

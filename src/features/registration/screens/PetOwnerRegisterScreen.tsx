@@ -14,6 +14,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { authErrorMessage, fieldErrors, useRegisterMutation } from '@/features/auth';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { CountrySelect, GenderRadioGroup, TermsAndConditionsModal } from '../components';
@@ -40,7 +41,7 @@ export default function PetOwnerRegisterScreen() {
     resolver: zodResolver(schema),
     // DEV-ONLY: pre-filled so the form doesn't need retyping on every test
     // run. Never covers the avatar — that needs a real uploaded image.
-    defaultValues: __DEV__
+    defaultValues: devDataEnabled
       ? devPetOwnerDefaults()
       : {
           firstName: '',

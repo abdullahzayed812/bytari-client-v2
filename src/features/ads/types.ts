@@ -16,6 +16,12 @@ export const AD_PLACEMENTS = [
   'CONSULTATIONS',
   'COURSES',
   'SEMINARS',
+  'POULTRY_MARKET',
+  'EGG_MARKET',
+  'EXCHANGE_RATES',
+  'TRADER_REGISTRATION',
+  'SHEEP_FARMS',
+  'CATTLE_FARMS',
 ] as const;
 export type AdPlacement = (typeof AD_PLACEMENTS)[number];
 

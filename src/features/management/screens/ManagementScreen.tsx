@@ -45,6 +45,36 @@ export default function ManagementScreen() {
       show: caps.isAdmin || caps.can('organization.admin.read'),
     },
     {
+      key: 'farms',
+      label: ta('farms.title'),
+      route: Routes.adminFarms,
+      show: caps.isAdmin || caps.can('organization.admin.read'),
+    },
+    {
+      key: 'traders',
+      label: ta('home.traders'),
+      route: Routes.adminTraderApplications,
+      show: caps.isAdmin || caps.can('trader.admin.read'),
+    },
+    {
+      key: 'marketOffers',
+      label: ta('home.marketOffers'),
+      route: Routes.adminMarketOffers('poultry'),
+      show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.offer.admin.read'),
+    },
+    {
+      key: 'poultryExchangeRates',
+      label: ta('home.poultryExchangeRates'),
+      route: Routes.poultryExchangeRatesEntry,
+      show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage'),
+    },
+    {
+      key: 'eggExchangeRates',
+      label: ta('home.eggExchangeRates'),
+      route: Routes.eggExchangeRatesEntry,
+      show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage'),
+    },
+    {
       key: 'supervisors',
       label: ta('home.supervisors'),
       route: Routes.adminSupervisors,

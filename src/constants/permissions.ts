@@ -39,6 +39,15 @@ export const Permission = {
   ORGANIZATION_ADMIN_MANAGE: 'organization.admin.manage',
   // notifications (admin broadcast)
   NOTIFICATION_ADMIN_SEND: 'notification.admin.send',
+  // trader registration (admin approval)
+  TRADER_ADMIN_READ: 'trader.admin.read',
+  TRADER_ADMIN_APPROVE: 'trader.admin.approve',
+  TRADER_ADMIN_REJECT: 'trader.admin.reject',
+  TRADER_ADMIN_SUSPEND: 'trader.admin.suspend',
+  // poultry/egg market offers + exchange rates (admin/specialist surface)
+  MARKET_OFFER_ADMIN_READ: 'market.offer.admin.read',
+  MARKET_OFFER_ADMIN_DELETE: 'market.offer.admin.delete',
+  MARKET_RATE_MANAGE: 'market.rate.manage',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission] | (string & {});

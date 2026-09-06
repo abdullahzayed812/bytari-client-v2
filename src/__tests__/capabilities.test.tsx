@@ -14,6 +14,7 @@ function setSession(partial: Partial<SessionSnapshot>): void {
       phone: null,
       status: 'ACTIVE',
       veterinarianStatus: 'NOT_APPLIED',
+      traderStatus: 'NOT_REGISTERED' as const,
       createdAt: '',
       updatedAt: '',
     },
@@ -22,6 +23,7 @@ function setSession(partial: Partial<SessionSnapshot>): void {
     isAdmin: false,
     supervisorDomains: [],
     veterinarian: { status: 'NOT_APPLIED', approved: false },
+    trader: { status: 'NOT_REGISTERED', approved: false },
   };
   useAuthStore.setState({ session: { ...base, ...partial } });
 }
@@ -58,6 +60,7 @@ describe('useCapabilities', () => {
     setSession({
       roles: ['PET_OWNER', 'VETERINARIAN'],
       veterinarian: { status: 'PENDING', approved: false },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     });
     const pending = renderHook(() => useCapabilities());
     expect(pending.result.current.canEnterVeterinarianMode).toBe(false);
@@ -65,6 +68,7 @@ describe('useCapabilities', () => {
     setSession({
       roles: ['PET_OWNER', 'VETERINARIAN'],
       veterinarian: { status: 'APPROVED', approved: true },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     });
     const approved = renderHook(() => useCapabilities());
     expect(approved.result.current.canEnterVeterinarianMode).toBe(true);

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, View } from 'react-native';
 
 import { Card, Icon, type IconName } from '@/components/content';
-import { EmptyState, useToast } from '@/components/feedback';
+import { EmptyState } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -80,14 +80,10 @@ export default function HomeScreen() {
   const { t } = useTranslation('home');
   const { t: ts } = useTranslation('support');
   const { t: torg } = useTranslation('organizations');
-  const { t: tc } = useTranslation('common');
-  const toast = useToast();
 
   const consultations = useMyThreads('CONSULTATION', { pageSize: PREVIEW_COUNT });
   const consultationPreview = consultations.threads.slice(0, PREVIEW_COUNT);
   const clinics = useDiscoverOrganizations({ type: 'CLINIC', pageSize: 10 });
-
-  const comingSoon = () => toast.show({ message: tc('comingSoon'), tone: 'info' });
 
   return (
     <ScrollScreen>
@@ -213,7 +209,7 @@ export default function HomeScreen() {
               icon="leaf-outline"
               title={t('categories.livestock.title')}
               subtitle={t('categories.livestock.subtitle')}
-              onPress={comingSoon}
+              onPress={() => router.push(Routes.sheepCattleFarms)}
             />
           </Row>
           <CategoryCard

@@ -26,9 +26,9 @@ import { useTheme } from '@/theme';
 
 import {
   AddFarmCard,
+  MarketNavCard,
   PoultryCardSkeleton,
   PoultryFarmCard,
-  PoultryMarketCard,
 } from '../components';
 import type { FarmBirdStats } from '../components';
 import { usePoultryFarms, usePoultryFlocks } from '../hooks';
@@ -144,7 +144,12 @@ export default function PoultryFarmsLandingScreen() {
         </Section>
 
         <Section spacing="xl">
-          <PoultryMarketCard onPress={() => router.push(Routes.poultryMarket)} />
+          <MarketNavCard
+            icon="trending-up-outline"
+            title={t('landing.marketTitle')}
+            subtitle={t('landing.marketSubtitle')}
+            onPress={() => router.push(Routes.marketHub)}
+          />
         </Section>
 
         <Section spacing="xl">
@@ -173,6 +178,7 @@ export default function PoultryFarmsLandingScreen() {
                   name={farm.name}
                   location={farm.description}
                   stats={farm.id === primaryFarm?.id ? stats : null}
+                  status={farm.status}
                   onPressDetails={() => router.push(Routes.poultryFarmDetail(farm.id))}
                 />
               ))}

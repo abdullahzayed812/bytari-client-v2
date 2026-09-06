@@ -3,14 +3,17 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ErrorState, Loading, useToast } from '@/components/feedback';
+import { farmErrorMessage } from '@/features/farmShared';
 import { OrgFormLayout } from '@/features/organizations';
 import { fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { ApiError } from '@/services/api';
 
 import { PoultryFlockForm } from '../components';
+import { devPoultryFlockDefaults } from '../data/devDefaults';
 import { useCreatePoultryFlock, usePoultryFlock, useUpdatePoultryFlock } from '../hooks';
 import type { CreatePoultryFlockInput, UpdatePoultryFlockInput } from '../types';
-import { farmErrorMessage, type PoultryFlockFormValues } from '../validation/schemas';
+import type { PoultryFlockFormValues } from '../validation/schemas';
 
 /**
  * Add / edit a poultry flock. `organizationId` comes from the route;
@@ -67,7 +70,9 @@ export default function PoultryFlockFormScreen() {
         arrivalDate: flock.arrivalDate,
         notes: flock.notes ?? '',
       }
-    : {};
+    : devDataEnabled
+      ? devPoultryFlockDefaults()
+      : {};
 
   const onSubmit = (values: PoultryFlockFormValues) => {
     if (inFlight.current || busy) return;

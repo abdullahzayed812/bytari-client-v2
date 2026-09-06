@@ -22,6 +22,7 @@ function seed(status: VeterinarianStatus) {
         phone: null,
         status: 'ACTIVE',
         veterinarianStatus: status,
+        traderStatus: 'NOT_REGISTERED' as const,
         createdAt: '',
         updatedAt: '',
       },
@@ -30,6 +31,7 @@ function seed(status: VeterinarianStatus) {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status, approved: status === 'APPROVED' },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

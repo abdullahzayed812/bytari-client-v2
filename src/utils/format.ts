@@ -25,6 +25,15 @@ export function formatDate(iso: string, locale: string = 'ar'): string {
   }).format(date);
 }
 
+/** `2026-08-28` → localised weekday name, e.g. "الأربعاء" / "Wednesday". */
+export function formatWeekday(iso: string, locale: string = 'ar'): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
+    weekday: 'long',
+  }).format(date);
+}
+
 export function truncate(value: string, max: number): string {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
 }

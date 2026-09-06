@@ -73,13 +73,64 @@ export const Routes = {
   // Poultry Farms (Home → "الدواجن والطيور")
   poultryFarms: '/(app)/poultry',
   poultryFarmCreate: '/(app)/poultry/create',
+  /** Market hub — gates to trader registration, or the 5 market/bourse/statistics entries. */
+  marketHub: '/(app)/poultry/market-hub',
   poultryMarket: '/(app)/poultry/market',
+  poultryMarketCreate: '/(app)/poultry/market/create',
+  poultryMarketOffer: (offerId: string) => `/(app)/poultry/market/${offerId}` as const,
+  eggMarket: '/(app)/poultry/egg-market',
+  eggMarketCreate: '/(app)/poultry/egg-market/create',
+  eggMarketOffer: (offerId: string) => `/(app)/poultry/egg-market/${offerId}` as const,
+  traderRegister: '/(app)/poultry/trader-register',
+  poultryExchangeRates: '/(app)/poultry/exchange-rates',
+  poultryExchangeRatesEntry: '/(app)/poultry/exchange-rates/entry',
+  eggExchangeRates: '/(app)/poultry/egg-exchange-rates',
+  eggExchangeRatesEntry: '/(app)/poultry/egg-exchange-rates/entry',
+  marketStatistics: '/(app)/poultry/statistics',
   poultryFarmDetail: (organizationId: string) => `/(app)/poultry/${organizationId}` as const,
+  /** Farm Settings — Info / Staff / Vets tabs (owner/admin only). */
+  farmSettings: (organizationId: string) => `/(app)/poultry/${organizationId}/settings` as const,
   /** Farm Details management sub-pages (screens delivered with their own screenshots). */
   poultryFarmSection: (
     organizationId: string,
     section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
   ) => `/(app)/poultry/${organizationId}/sections/${section}` as const,
+  /** One item's read-only detail view within a farm management section. */
+  poultryFarmSectionItem: (
+    organizationId: string,
+    section: 'treatments' | 'cases' | 'appointments' | 'expenses',
+    itemId: string,
+  ) => `/(app)/poultry/${organizationId}/sections/${section}/${itemId}` as const,
+  /** Farm owner requests a subscription renewal once EXPIRED. */
+  farmSubscriptionRenewal: (organizationId: string) =>
+    `/(app)/poultry/${organizationId}/subscription-renewal` as const,
+
+  // Sheep Farms & Cattle Farms (Home → "الأغنام والأبقار")
+  sheepCattleFarms: '/(app)/livestock',
+  sheepFarmCreate: '/(app)/livestock/sheep/create',
+  cattleFarmCreate: '/(app)/livestock/cattle/create',
+  sheepFarmDetail: (organizationId: string) => `/(app)/livestock/sheep/${organizationId}` as const,
+  cattleFarmDetail: (organizationId: string) => `/(app)/livestock/cattle/${organizationId}` as const,
+  sheepBatches: (organizationId: string) => `/(app)/livestock/sheep/${organizationId}/batches` as const,
+  sheepBatchCreate: (organizationId: string) => `/(app)/livestock/sheep/${organizationId}/batches/create` as const,
+  sheepBatchDetail: (organizationId: string, batchId: string) =>
+    `/(app)/livestock/sheep/${organizationId}/batches/${batchId}` as const,
+  sheepBatchEdit: (organizationId: string, batchId: string) =>
+    `/(app)/livestock/sheep/${organizationId}/batches/${batchId}/edit` as const,
+  cattleBatches: (organizationId: string) => `/(app)/livestock/cattle/${organizationId}/batches` as const,
+  cattleBatchCreate: (organizationId: string) => `/(app)/livestock/cattle/${organizationId}/batches/create` as const,
+  cattleBatchDetail: (organizationId: string, batchId: string) =>
+    `/(app)/livestock/cattle/${organizationId}/batches/${batchId}` as const,
+  cattleBatchEdit: (organizationId: string, batchId: string) =>
+    `/(app)/livestock/cattle/${organizationId}/batches/${batchId}/edit` as const,
+  sheepFarmSection: (
+    organizationId: string,
+    section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
+  ) => `/(app)/livestock/sheep/${organizationId}/sections/${section}` as const,
+  cattleFarmSection: (
+    organizationId: string,
+    section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
+  ) => `/(app)/livestock/cattle/${organizationId}/sections/${section}` as const,
 
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',
@@ -175,8 +226,15 @@ export const Routes = {
   adminOrganizations: '/(app)/admin/organizations',
   adminOrganization: (organizationId: string) =>
     `/(app)/admin/organizations/${organizationId}` as const,
+  /** Poultry Farms management (approval, subscription, renewal requests). */
+  adminFarms: '/(app)/admin/farms',
+  adminFarm: (organizationId: string) => `/(app)/admin/farms/${organizationId}` as const,
   adminSupervisors: '/(app)/admin/supervisors',
   adminAuditLogs: '/(app)/admin/audit-logs',
+  /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */
+  adminTraderApplications: '/(app)/admin/traders',
+  /** Market offer moderation — one screen parametrized by kind (poultry | egg). */
+  adminMarketOffers: (kind: 'poultry' | 'egg') => `/(app)/admin/market-offers/${kind}` as const,
 
   showcase: '/(app)/showcase',
 } as const;

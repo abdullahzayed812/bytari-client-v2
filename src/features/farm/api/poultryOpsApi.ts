@@ -1,21 +1,16 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
-import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   BatchSummary,
   CreateDailyRecordInput,
-  CreateFarmExpenseInput,
-  FarmAppointment,
-  FarmExpense,
-  FarmExpenseSummary,
-  FarmProfile,
+  CreateHealthEventInput,
+  CreatePoultryCaseInput,
   Paginated,
   PoultryCase,
   PoultryCaseSummary,
   PoultryDailyRecord,
   PoultryHealthEvent,
-  UpdateFarmProfileInput,
   WeeklySummary,
 } from '../types';
 
@@ -36,35 +31,16 @@ interface PageQuery {
 
 const flockBase = (orgId: string, flockId: string): string =>
   `/organizations/${orgId}/poultry/flocks/${flockId}`;
-const farmBase = (orgId: string): string => `/organizations/${orgId}/farm`;
 
 /**
  * Poultry Farm operations wrappers — 1:1 with
- * `server/src/modules/farms/presentation/poultry-ops.routes.ts`. Every path is
- * scoped to one FARM organization; batch / weekly summaries and every list are
- * derived from real backend data — no client-side estimation.
+ * `server/src/modules/farms/presentation/poultry-flock.routes.ts`. Every
+ * path is scoped to one FARM organization's poultry flock; batch / weekly
+ * summaries and every list are derived from real backend data — no
+ * client-side estimation. The generic (species-agnostic) farm-profile /
+ * expense / appointment wrappers live in `@/features/farmShared`'s `farmOpsApi`.
  */
 export const poultryOpsApi = {
-  // --- farm profile (Farm Details header) --------------------
-  getFarmProfile(orgId: string): Promise<FarmProfile> {
-    return apiClient.get<FarmProfile>(`${farmBase(orgId)}/profile`);
-  },
-  updateFarmProfile(orgId: string, body: UpdateFarmProfileInput): Promise<FarmProfile> {
-    return apiClient.patch<FarmProfile>(`${farmBase(orgId)}/profile`, body);
-  },
-  requestFarmImageUploadUrl(
-    orgId: string,
-    input: { filename: string; mimeType: string; size: number },
-  ): Promise<PresignedUpload> {
-    return apiClient.post<PresignedUpload>(`${farmBase(orgId)}/profile/image/upload-url`, input);
-  },
-  registerFarmImage(
-    orgId: string,
-    input: { storageKey: string; mimeType: string },
-  ): Promise<FarmProfile> {
-    return apiClient.post<FarmProfile>(`${farmBase(orgId)}/profile/image`, input);
-  },
-
   // --- batch + weekly summary -------------------------------
   batchSummary(orgId: string, flockId: string): Promise<BatchSummary> {
     return apiClient.get<BatchSummary>(`${flockBase(orgId, flockId)}/summary`);
@@ -100,28 +76,6 @@ export const poultryOpsApi = {
     return apiClient.post<PoultryDailyRecord>(`${flockBase(orgId, flockId)}/daily-records`, body);
   },
 
-  // --- expenses ------------------------------------------
-  async listExpenses(
-    orgId: string,
-    query: PageQuery & { category?: string; poultryFlockId?: string },
-  ): Promise<Paginated<FarmExpense>> {
-    const envelope = await apiClient.requestEnvelope<FarmExpense[]>({
-      method: 'GET',
-      url: `${farmBase(orgId)}/expenses`,
-      params: query,
-    });
-    return {
-      items: envelope.data,
-      meta: readMeta(envelope.meta, query.page, query.pageSize, envelope.data.length),
-    };
-  },
-  expenseSummary(orgId: string): Promise<FarmExpenseSummary> {
-    return apiClient.get<FarmExpenseSummary>(`${farmBase(orgId)}/expenses/summary`);
-  },
-  createExpense(orgId: string, body: CreateFarmExpenseInput): Promise<FarmExpense> {
-    return apiClient.post<FarmExpense>(`${farmBase(orgId)}/expenses`, body);
-  },
-
   // --- health events (treatments & vaccinations) -----------
   async listHealthEvents(
     orgId: string,
@@ -139,20 +93,17 @@ export const poultryOpsApi = {
     };
   },
 
-  // --- appointments -----------------------------------
-  async listAppointments(
+  createHealthEvent(
     orgId: string,
-    query: PageQuery & { category?: string; status?: string },
-  ): Promise<Paginated<FarmAppointment>> {
-    const envelope = await apiClient.requestEnvelope<FarmAppointment[]>({
-      method: 'GET',
-      url: `${farmBase(orgId)}/appointments`,
-      params: query,
-    });
-    return {
-      items: envelope.data,
-      meta: readMeta(envelope.meta, query.page, query.pageSize, envelope.data.length),
-    };
+    flockId: string,
+    body: CreateHealthEventInput,
+  ): Promise<PoultryHealthEvent> {
+    return apiClient.post<PoultryHealthEvent>(`${flockBase(orgId, flockId)}/health-events`, body);
+  },
+  getHealthEvent(orgId: string, flockId: string, eventId: string): Promise<PoultryHealthEvent> {
+    return apiClient.get<PoultryHealthEvent>(
+      `${flockBase(orgId, flockId)}/health-events/${eventId}`,
+    );
   },
 
   // --- individual cases ------------------------------
@@ -173,6 +124,16 @@ export const poultryOpsApi = {
   },
   caseSummary(orgId: string, flockId: string): Promise<PoultryCaseSummary> {
     return apiClient.get<PoultryCaseSummary>(`${flockBase(orgId, flockId)}/cases/summary`);
+  },
+  createCase(
+    orgId: string,
+    flockId: string,
+    body: CreatePoultryCaseInput,
+  ): Promise<PoultryCase> {
+    return apiClient.post<PoultryCase>(`${flockBase(orgId, flockId)}/cases`, body);
+  },
+  getCase(orgId: string, flockId: string, caseId: string): Promise<PoultryCase> {
+    return apiClient.get<PoultryCase>(`${flockBase(orgId, flockId)}/cases/${caseId}`);
   },
 };
 

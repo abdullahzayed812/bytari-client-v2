@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { OrgFormLayout } from '@/features/organizations';
 import { fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { ApiError } from '@/services/api';
 
 import { MedicalRecordForm } from '../components';
+import { devMedicalRecordDefaults } from '../data/devDefaults';
 import { useCreateMedicalRecord, useMedicalRecord, useUpdateMedicalRecord } from '../hooks';
 import type { MedicalRecordInput } from '../types';
 import { medicalErrorMessage, type MedicalRecordFormValues } from '../validation/schemas';
@@ -66,7 +68,9 @@ export default function MedicalRecordFormScreen() {
         treatment: record.treatment ?? '',
         notes: record.notes ?? '',
       }
-    : {};
+    : devDataEnabled
+      ? devMedicalRecordDefaults()
+      : {};
 
   const onSubmit = (values: MedicalRecordFormValues) => {
     if (inFlight.current || busy) return;

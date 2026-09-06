@@ -1,6 +1,7 @@
 import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
 import { organizationAnimalsApi } from '@/features/animals/api';
+import { farmApi } from '@/features/farmShared';
 import { organizationsApi } from '@/features/organizations';
 import OrganizationDetailsScreen from '@/features/organizations/screens/OrganizationDetailsScreen';
 import OrganizationMembersScreen from '@/features/organizations/screens/OrganizationMembersScreen';
@@ -8,8 +9,6 @@ import { petsApi } from '@/features/pets';
 import MyPetsScreen from '@/features/pets/screens/MyPetsScreen';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
-
-import { farmApi } from '../api';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -24,6 +23,7 @@ function seedOwner() {
         phone: null,
         status: 'ACTIVE',
         veterinarianStatus: 'APPROVED',
+        traderStatus: 'NOT_REGISTERED' as const,
         createdAt: '',
         updatedAt: '',
       },
@@ -32,6 +32,7 @@ function seedOwner() {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status: 'APPROVED', approved: true },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

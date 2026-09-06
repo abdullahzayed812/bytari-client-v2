@@ -20,6 +20,7 @@ import { BackButton } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays/BottomSheet';
 import { Caption, Heading, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -99,14 +100,23 @@ export default function TransferRequestsScreen() {
   const requestSchema = useMemo(() => buildTransferRequestSchema(t), [t]);
   const createForm = useForm<TransferRequestFormValues>({
     resolver: zodResolver(requestSchema),
-    defaultValues: { toUserId: '', reason: '' },
+    // DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
+    // `toUserId` is a real recipient's account id and can't be faked, so it's
+    // left blank even in dev.
+    defaultValues: {
+      toUserId: '',
+      reason: devDataEnabled ? 'رغبة في نقل ملكية الحيوان لصديق موثوق' : '',
+    },
     mode: 'onTouched',
   });
 
   const openCreate = (petId: string | null = null) => {
     setCreateAnimalId(petId);
     setCreateError(null);
-    createForm.reset({ toUserId: '', reason: '' });
+    createForm.reset({
+      toUserId: '',
+      reason: devDataEnabled ? 'رغبة في نقل ملكية الحيوان لصديق موثوق' : '',
+    });
     setShowCreate(true);
   };
 

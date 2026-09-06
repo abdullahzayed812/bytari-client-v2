@@ -17,14 +17,17 @@ import type {
   VeterinarianStatus,
 } from '@/features/auth/types';
 import type {
+  FarmSubscriptionStatus,
   Organization,
   OrganizationStatus,
   OrganizationType,
+  OrganizationWithDetails,
 } from '@/features/organizations/types';
 import type { PageMeta } from '@/services/api';
 
 export type { RoleKey, SupervisorDomain, UserStatus, VeterinarianStatus };
-export type { Organization, OrganizationStatus, OrganizationType };
+export type { Organization, OrganizationStatus, OrganizationType, OrganizationWithDetails };
+export type { FarmSubscriptionStatus };
 
 export interface Paginated<T> {
   items: T[];
@@ -118,6 +121,7 @@ export const SUPERVISOR_DOMAINS: readonly SupervisorDomain[] = [
   'CONTENT',
   'CONSULTATION',
   'INQUIRY',
+  'MARKET',
 ];
 export type SupervisorAssignmentStatus = 'ACTIVE' | 'INACTIVE';
 
@@ -166,4 +170,62 @@ export interface AuditListFilter {
   entityType?: string;
   entityId?: string;
   actorUserId?: string;
+}
+
+// --- Poultry Farms management (subscription + renewal requests) ----------
+// server/src/modules/organizations/infrastructure/farm-subscription-renewal.repository.ts
+// server/src/modules/farms/domain/farm-subscription.types.ts
+
+/** `GET /admin/organizations/farms` list item. */
+export interface AdminFarmListItem {
+  organizationId: string;
+  name: string;
+  status: OrganizationStatus;
+  decidedAt: string | null;
+  decisionReason: string | null;
+  createdAt: string;
+  ownerUserId: string;
+  ownerName: string;
+  subscriptionStartDate: string | null;
+  subscriptionEndDate: string | null;
+  /** Computed server-side — never computed by the app. */
+  subscriptionStatus: FarmSubscriptionStatus;
+  hasOpenRenewalRequest: boolean;
+  supervisors: { userId: string; name: string }[];
+}
+
+export interface AdminListFarmsFilter {
+  page: number;
+  pageSize: number;
+  status?: OrganizationStatus;
+  subscriptionStatus?: FarmSubscriptionStatus;
+}
+
+export const RENEWAL_REQUEST_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
+export type RenewalRequestStatus = (typeof RENEWAL_REQUEST_STATUSES)[number];
+
+export interface AdminFarmRenewalRequest {
+  id: string;
+  organizationId: string;
+  requestedByUserId: string;
+  status: RenewalRequestStatus;
+  note: string | null;
+  previousSubscriptionEndDate: string | null;
+  newSubscriptionStartDate: string | null;
+  newSubscriptionEndDate: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  decisionReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SetFarmSubscriptionInput {
+  startDate: string;
+  endDate: string;
+}
+
+export interface ApproveFarmRenewalInput {
+  startDate: string;
+  endDate: string;
 }

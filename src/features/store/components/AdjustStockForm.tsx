@@ -8,8 +8,10 @@ import { Button } from '@/components/actions';
 import { Alert } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { Caption } from '@/components/typography';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
+import { devAdjustStockDefaults } from '../data/devDefaults';
 import { buildAdjustStockSchema, type AdjustStockFormValues } from '../validation/schemas';
 
 export interface AdjustStockFormProps {
@@ -38,7 +40,8 @@ export function AdjustStockForm({
 
   const { control, handleSubmit } = useForm<AdjustStockFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { delta: '', reason: '' },
+    // DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
+    defaultValues: devDataEnabled ? devAdjustStockDefaults() : { delta: '', reason: '' },
     mode: 'onTouched',
   });
 

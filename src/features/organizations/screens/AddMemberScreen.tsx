@@ -15,14 +15,18 @@ import { useTheme } from '@/theme';
 import { OrgFormLayout } from '../components';
 import { useAddOrganizationMember } from '../hooks';
 import { ASSIGNABLE_MEMBER_ROLES, type AssignableMemberRole } from '../types';
-import { buildUserIdSchema } from '../validation/schemas';
+import {
+  buildMemberIdentifierSchema,
+  memberIdentifierToInput,
+  type MemberIdentifierFormValues,
+} from '../validation/schemas';
 
 /**
- * Route `/organizations/[organizationId]/members/add`. The backend contract is
- * `{ userId: uuid, role: 'VETERINARIAN' | 'STAFF' }` — there is no user-directory
- * / search endpoint in scope, so the member is identified by their user id. The
- * backend validates that the id resolves to an ACTIVE account (and, for a
- * VETERINARIAN role, an APPROVED veterinarian).
+ * Route `/organizations/[organizationId]/members/add`. The target is
+ * identified by either their email (must already belong to an existing
+ * account — resolved server-side) or their raw user id (UUID, when no email
+ * lookup is convenient). The backend validates that the resolved account is
+ * ACTIVE (and, for a VETERINARIAN role, an APPROVED veterinarian).
  */
 export default function AddMemberScreen() {
   const theme = useTheme();
@@ -31,10 +35,10 @@ export default function AddMemberScreen() {
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const add = useAddOrganizationMember(organizationId ?? '');
 
-  const schema = useMemo(() => buildUserIdSchema(t), [t]);
-  const { control, handleSubmit } = useForm<{ userId: string }>({
+  const schema = useMemo(() => buildMemberIdentifierSchema(t), [t]);
+  const { control, handleSubmit } = useForm<MemberIdentifierFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { userId: '' },
+    defaultValues: { identifier: '' },
     mode: 'onTouched',
   });
   const [role, setRole] = useState<AssignableMemberRole>('STAFF');
@@ -42,13 +46,13 @@ export default function AddMemberScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
 
-  const onSubmit = ({ userId }: { userId: string }) => {
+  const onSubmit = ({ identifier }: MemberIdentifierFormValues) => {
     if (inFlight.current || add.isPending) return;
     inFlight.current = true;
     setFormError(null);
     setServerFields({});
     add.mutate(
-      { userId: userId.trim(), role },
+      { ...memberIdentifierToInput(identifier), role },
       {
         onSuccess: () => {
           toast.show({ tone: 'success', message: t('members.addSuccess') });
@@ -71,14 +75,15 @@ export default function AddMemberScreen() {
 
       <FormField
         control={control}
-        name="userId"
-        label={t('members.userIdLabel')}
-        placeholder={t('members.userIdPlaceholder')}
+        name="identifier"
+        label={t('members.identifierLabel')}
+        placeholder={t('members.identifierPlaceholder')}
+        keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
-        serverError={serverFields.userId}
+        serverError={serverFields.identifier ?? serverFields.email ?? serverFields.userId}
       />
-      <Caption>{t('members.userIdHint')}</Caption>
+      <Caption>{t('members.identifierHint')}</Caption>
 
       <Select<AssignableMemberRole>
         label={t('members.roleLabel')}

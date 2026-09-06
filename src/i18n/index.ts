@@ -26,6 +26,8 @@ export const NAMESPACES = [
   'orgAnimals',
   'medical',
   'farm',
+  'poultryMarket',
+  'sheepCattleFarm',
   'publications',
   'store',
   'content',

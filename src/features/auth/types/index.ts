@@ -11,10 +11,19 @@ export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
 /** Backend `veterinarian_status` — `NOT_APPLIED` is the "never applied" state. */
 export type VeterinarianStatus = 'NOT_APPLIED' | 'PENDING' | 'APPROVED' | 'REJECTED';
 
+/** Backend `trader_status` (Poultry Markets module) — per-USER, no role component. */
+export type TraderStatus = 'NOT_REGISTERED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
+
 export type RoleKey = 'ADMIN' | 'MODERATOR' | 'PET_OWNER' | 'VETERINARIAN';
 
 export type SupervisorDomain =
-  'ANIMAL' | 'CLINIC' | 'STORE' | 'CONTENT' | 'CONSULTATION' | 'INQUIRY';
+  | 'ANIMAL'
+  | 'CLINIC'
+  | 'STORE'
+  | 'CONTENT'
+  | 'CONSULTATION'
+  | 'INQUIRY'
+  | 'MARKET';
 
 // --- user DTO ---------------------------------------------------------
 /**
@@ -29,6 +38,7 @@ export interface User {
   phone: string | null;
   status: UserStatus;
   veterinarianStatus: VeterinarianStatus;
+  traderStatus: TraderStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -95,6 +105,10 @@ export interface SessionSnapshot {
   supervisorDomains: SupervisorDomain[];
   veterinarian: {
     status: VeterinarianStatus;
+    approved: boolean;
+  };
+  trader: {
+    status: TraderStatus;
     approved: boolean;
   };
 }

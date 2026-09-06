@@ -1,10 +1,11 @@
 import { useAuthStore } from '@/features/auth/store';
+import { farmOpsApi } from '@/features/farmShared';
 import { organizationsApi } from '@/features/organizations';
 import { renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { poultryApi, poultryOpsApi } from '../api';
-import FarmDetailsScreen from '../screens/FarmDetailsScreen';
+import PoultryFarmDetailsScreen from '../screens/PoultryFarmDetailsScreen';
 import PoultryFarmsLandingScreen from '../screens/PoultryFarmsLandingScreen';
 import type { BatchSummary, PoultryFlock } from '../types';
 
@@ -17,7 +18,7 @@ jest.mock('@/features/ads', () => ({
 const listMine = jest.spyOn(organizationsApi, 'listMine');
 const getOrg = jest.spyOn(organizationsApi, 'get');
 const listFlocks = jest.spyOn(poultryApi, 'list');
-const getProfile = jest.spyOn(poultryOpsApi, 'getFarmProfile');
+const getProfile = jest.spyOn(farmOpsApi, 'getFarmProfile');
 const getBatchSummary = jest.spyOn(poultryOpsApi, 'batchSummary');
 const getWeekly = jest.spyOn(poultryOpsApi, 'weeklySummary');
 const listDaily = jest.spyOn(poultryOpsApi, 'listDailyRecords');
@@ -118,7 +119,7 @@ describe('PoultryFarmsLandingScreen', () => {
   });
 });
 
-describe('FarmDetailsScreen', () => {
+describe('PoultryFarmDetailsScreen', () => {
   beforeEach(() => {
     setSearchParams({ organizationId: 'o1' });
     getOrg.mockResolvedValue({
@@ -126,6 +127,8 @@ describe('FarmDetailsScreen', () => {
       type: 'FARM',
       name: 'مزرعة السعادة للدواجن',
       description: 'المنصورة',
+      status: 'ACTIVE',
+      details: { subscriptionStatus: 'ACTIVE', subscriptionEndDate: '2099-01-01' },
       myRole: 'OWNER',
     } as never);
     getProfile.mockResolvedValue({
@@ -136,7 +139,7 @@ describe('FarmDetailsScreen', () => {
       capacity: 10000,
       currentBirdCount: 8500,
       establishedOn: '2024-01-01',
-      farmCategory: 'MIXED',
+      poultryProductionType: 'MIXED',
       contactName: null,
       contactPhone: null,
       contactEmail: null,
@@ -172,7 +175,7 @@ describe('FarmDetailsScreen', () => {
     });
     getBatchSummary.mockResolvedValue(summary());
 
-    renderWithProviders(<FarmDetailsScreen />);
+    renderWithProviders(<PoultryFarmDetailsScreen />);
 
     expect(await screen.findByText('مزرعة السعادة للدواجن')).toBeTruthy();
     expect(await screen.findByText('الدفعة رقم 1')).toBeTruthy();
@@ -187,7 +190,7 @@ describe('FarmDetailsScreen', () => {
       meta: { page: 1, pageSize: 1, total: 0, totalPages: 1 },
     });
 
-    renderWithProviders(<FarmDetailsScreen />);
+    renderWithProviders(<PoultryFarmDetailsScreen />);
 
     expect(await screen.findByText('لا توجد دفعة نشطة حالياً')).toBeTruthy();
     expect(getBatchSummary).not.toHaveBeenCalled();
@@ -202,7 +205,7 @@ describe('FarmDetailsScreen', () => {
       items: [],
       meta: { page: 1, pageSize: 1, total: 0, totalPages: 1 },
     });
-    renderWithProviders(<FarmDetailsScreen />);
+    renderWithProviders(<PoultryFarmDetailsScreen />);
     await waitFor(() => expect(screen.getByText('لا تملك صلاحية الوصول')).toBeOnTheScreen());
     expect(screen.queryByText('forbidden')).toBeNull();
     expect(routerMock.push).not.toHaveBeenCalled();

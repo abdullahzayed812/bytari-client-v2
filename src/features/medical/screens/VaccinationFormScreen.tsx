@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { OrgFormLayout } from '@/features/organizations';
 import { fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { ApiError } from '@/services/api';
 
 import { VaccinationForm } from '../components';
+import { devVaccinationDefaults } from '../data/devDefaults';
 import { useCreateVaccination, useUpdateVaccination, useVaccination } from '../hooks';
 import type { VaccinationInput } from '../types';
 import { medicalErrorMessage, type VaccinationFormValues } from '../validation/schemas';
@@ -65,7 +67,9 @@ export default function VaccinationFormScreen() {
         nextDueOn: v.nextDueOn ?? '',
         notes: v.notes ?? '',
       }
-    : {};
+    : devDataEnabled
+      ? devVaccinationDefaults()
+      : {};
 
   const onSubmit = (values: VaccinationFormValues) => {
     if (inFlight.current || busy) return;

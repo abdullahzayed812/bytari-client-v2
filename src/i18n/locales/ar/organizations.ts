@@ -176,11 +176,18 @@ export default {
     userIdLabel: 'معرّف المستخدم',
     userIdPlaceholder: 'مثال: 3fa85f64-5717-4562-b3fc-2c963f66afa6',
     userIdHint: 'لا يوجد بحث بالاسم بعد؛ استخدم معرّف حساب المستخدم (UUID).',
+    identifierLabel: 'البريد الإلكتروني أو معرّف المستخدم',
+    identifierPlaceholder: 'example@email.com أو معرّف المستخدم (UUID)',
+    identifierHint: 'يجب أن يكون البريد الإلكتروني مسجّلاً بالفعل في التطبيق.',
     roleLabel: 'الدور',
     rolePlaceholder: 'اختر الدور',
     roleHint: {
       VETERINARIAN: 'يجب أن يكون طبيباً بيطرياً معتمَداً.',
       STAFF: 'عضو غير طبيب في المؤسسة.',
+    },
+    errors: {
+      identifierRequired: 'أدخل البريد الإلكتروني أو معرّف المستخدم.',
+      identifierInvalid: 'أدخل بريداً إلكترونياً صحيحاً أو معرّف مستخدم (UUID) صحيحاً.',
     },
   },
   supervisors: {

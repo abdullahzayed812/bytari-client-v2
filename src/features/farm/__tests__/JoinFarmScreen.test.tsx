@@ -1,9 +1,8 @@
 import { useAuthStore } from '@/features/auth/store';
+import { farmApi } from '@/features/farmShared';
+import JoinFarmScreen from '@/features/farmShared/screens/JoinFarmScreen';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
-
-import { farmApi } from '../api';
-import JoinFarmScreen from '../screens/JoinFarmScreen';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -18,6 +17,7 @@ function seedVet(status: 'APPROVED' | 'PENDING' | 'NOT_APPLIED') {
         phone: null,
         status: 'ACTIVE',
         veterinarianStatus: status,
+        traderStatus: 'NOT_REGISTERED' as const,
         createdAt: '',
         updatedAt: '',
       },
@@ -26,6 +26,7 @@ function seedVet(status: 'APPROVED' | 'PENDING' | 'NOT_APPLIED') {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status, approved: status === 'APPROVED' },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 
+import { farmOpsApi } from '@/features/farmShared';
 import { orgKeys } from '@/features/organizations';
 import type { OrganizationWithDetails } from '@/features/organizations/types';
 import { FileUploadService } from '@/services/files';
 import type { LocalFile, PresignProvider } from '@/services/files/types';
 
-import { farmApi, poultryOpsApi } from '../api';
+import { farmApi } from '../api';
 import type { CreatePoultryFarmInput } from '../types';
 
 export interface CreatePoultryFarmVars {
@@ -36,13 +37,13 @@ export function useCreatePoultryFarm(): UseMutationResult<
         try {
           const provider: PresignProvider = {
             requestUpload: (file) =>
-              poultryOpsApi.requestFarmImageUploadUrl(organization.id, {
+              farmOpsApi.requestFarmImageUploadUrl(organization.id, {
                 filename: file.name,
                 mimeType: file.mimeType,
                 size: file.size ?? 0,
               }),
             finalizeUpload: async (storageKey, file) => {
-              await poultryOpsApi.registerFarmImage(organization.id, {
+              await farmOpsApi.registerFarmImage(organization.id, {
                 storageKey,
                 mimeType: file.mimeType,
               });

@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Input } from '@/components/forms';
 import { Modal } from '@/components/overlays';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 export interface ReasonPromptDialogProps {
@@ -40,8 +41,10 @@ export function ReasonPromptDialog({
   const theme = useTheme();
   const [reason, setReason] = useState('');
 
+  // DEV-ONLY: pre-filled so the dialog doesn't need retyping on every test
+  // run. `__DEV__` is statically replaced with `false` in release builds.
   useEffect(() => {
-    if (visible) setReason('');
+    if (visible) setReason(devDataEnabled ? 'سبب تجريبي لأغراض الاختبار خلال مرحلة التطوير' : '');
   }, [visible]);
 
   const trimmed = reason.trim();

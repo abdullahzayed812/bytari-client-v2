@@ -1,24 +1,24 @@
 import { waitFor } from '@testing-library/react-native';
 
+import {
+  farmApi as farmJoinApi,
+  farmKeys,
+  useJoinFarmByCode,
+  useRegenerateFarmJoinCode,
+} from '@/features/farmShared';
 import { orgKeys } from '@/features/organizations/api';
 import { ApiError } from '@/services/api';
 import { makeTestQueryClient, renderHookWithQuery } from '@/test-utils/render';
 
-import { farmApi, farmKeys, poultryApi, poultryKeys } from '../api';
-import {
-  useCreatePoultryFlock,
-  useDeletePoultryFlock,
-  useJoinFarmByCode,
-  useRegenerateFarmJoinCode,
-  useUpdatePoultryFlock,
-} from '../hooks';
+import { poultryApi, poultryKeys } from '../api';
+import { useCreatePoultryFlock, useDeletePoultryFlock, useUpdatePoultryFlock } from '../hooks';
 
 describe('farm & poultry mutations (§28 — no optimistic updates; backend authorises)', () => {
   afterEach(() => jest.restoreAllMocks());
 
   it('useJoinFarmByCode → POSTs the code and refreshes "My Organizations"', async () => {
     jest
-      .spyOn(farmApi, 'joinByCode')
+      .spyOn(farmJoinApi, 'joinByCode')
       .mockResolvedValueOnce({ id: 'm1', organizationId: 'o1' } as never);
     const client = makeTestQueryClient();
     const invalidate = jest.spyOn(client, 'invalidateQueries');
@@ -26,12 +26,12 @@ describe('farm & poultry mutations (§28 — no optimistic updates; backend auth
 
     await result.current.mutateAsync({ joinCode: 'FARM-ABCD12' });
 
-    expect(farmApi.joinByCode).toHaveBeenCalledWith({ joinCode: 'FARM-ABCD12' });
+    expect(farmJoinApi.joinByCode).toHaveBeenCalledWith({ joinCode: 'FARM-ABCD12' });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: orgKeys.lists() });
   });
 
   it('useRegenerateFarmJoinCode → caches the new code', async () => {
-    jest.spyOn(farmApi, 'regenerateJoinCode').mockResolvedValueOnce({ joinCode: 'FARM-NEW999' });
+    jest.spyOn(farmJoinApi, 'regenerateJoinCode').mockResolvedValueOnce({ joinCode: 'FARM-NEW999' });
     const client = makeTestQueryClient();
     const { result } = renderHookWithQuery(() => useRegenerateFarmJoinCode('o1'), { client });
 

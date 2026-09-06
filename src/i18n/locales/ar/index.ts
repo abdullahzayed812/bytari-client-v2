@@ -14,8 +14,10 @@ import orgAnimals from './orgAnimals';
 import organizations from './organizations';
 import pets from './pets';
 import poultry from './poultry';
+import poultryMarket from './poultryMarket';
 import publications from './publications';
 import registration from './registration';
+import sheepCattleFarm from './sheepCattleFarm';
 import showcase from './showcase';
 import store from './store';
 import support from './support';
@@ -37,6 +39,8 @@ export const ar = {
   orgAnimals,
   medical,
   farm,
+  poultryMarket,
+  sheepCattleFarm,
   publications,
   store,
   content,

@@ -23,6 +23,7 @@ export function FilterChips<T extends string>({ options, value, onChange }: Filt
       showsHorizontalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{
+        alignItems: 'flex-start',
         columnGap: theme.spacing.sm,
         paddingHorizontal: theme.screenPadding,
         paddingVertical: theme.spacing.sm,

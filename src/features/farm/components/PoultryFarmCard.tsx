@@ -4,6 +4,8 @@ import { Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
+import { OrganizationStatusBadge } from '@/features/organizations/components';
+import type { OrganizationStatus } from '@/features/organizations/types';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -22,6 +24,12 @@ export interface PoultryFarmCardProps {
   profile?: FarmProfile | null;
   location?: string | null;
   stats?: FarmBirdStats | null;
+  /**
+   * The farm's approval status — surfaced here so a PENDING/REJECTED/
+   * SUSPENDED/DEACTIVATED farm is never hidden from its owner on the landing
+   * list (spec §3). Omitted (or ACTIVE) keeps the card visually unchanged.
+   */
+  status?: OrganizationStatus;
   onPressDetails: () => void;
   onPressMenu?: () => void;
 }
@@ -32,6 +40,7 @@ export function PoultryFarmCard({
   profile,
   location,
   stats,
+  status,
   onPressDetails,
   onPressMenu,
 }: PoultryFarmCardProps) {
@@ -91,6 +100,11 @@ export function PoultryFarmCard({
             <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
               {name}
             </Text>
+            {status && status !== 'ACTIVE' ? (
+              <View style={{ marginEnd: onPressMenu ? theme.spacing.xs : 0 }}>
+                <OrganizationStatusBadge status={status} size="sm" />
+              </View>
+            ) : null}
             {onPressMenu ? (
               <Pressable
                 accessibilityRole="button"

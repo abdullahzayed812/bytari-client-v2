@@ -1,6 +1,6 @@
+import { farmApi } from '@/features/farmShared';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 
-import { farmApi } from '../api';
 import { FarmJoinCodeCard } from '../components';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);

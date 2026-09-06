@@ -24,6 +24,7 @@ function seedOwner() {
         phone: null,
         status: 'ACTIVE',
         veterinarianStatus: 'APPROVED',
+        traderStatus: 'NOT_REGISTERED' as const,
         createdAt: '',
         updatedAt: '',
       },
@@ -32,6 +33,7 @@ function seedOwner() {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status: 'APPROVED', approved: true },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

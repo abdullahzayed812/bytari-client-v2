@@ -79,9 +79,22 @@ export interface OrganizationProfile {
   galleryUrls?: string[];
 }
 
+/**
+ * A FARM's subscription validity — SEPARATE from `Organization.status` (the
+ * approval state). Always computed server-side from the stored dates vs the
+ * backend's clock; the app must never compute this itself.
+ */
+export const FARM_SUBSCRIPTION_STATUSES = ['NOT_STARTED', 'ACTIVE', 'EXPIRED'] as const;
+export type FarmSubscriptionStatus = (typeof FARM_SUBSCRIPTION_STATUSES)[number];
+
 export interface OrganizationDetails extends OrganizationProfile {
   /** FARM organizations only. */
   joinCode?: string;
+  /** FARM organizations only — admin/supervisor-controlled subscription period. */
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
+  /** FARM organizations only — computed server-side, never by the app. */
+  subscriptionStatus?: FarmSubscriptionStatus;
 }
 
 export interface OrganizationWithDetails extends Organization {
@@ -205,8 +218,10 @@ export interface UpdateOrganizationInput {
   tiktokUrl?: string | null;
 }
 
+/** Identify the target by exactly one of `userId` or `email` (the email must belong to an existing account). */
 export interface AddMemberInput {
-  userId: string;
+  userId?: string;
+  email?: string;
   role: AssignableMemberRole;
 }
 

@@ -7,9 +7,11 @@ import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
 import { OrgFormLayout } from '@/features/organizations';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import type { LocalFile } from '@/services/media';
 
 import { PoultryFarmForm } from '../components';
+import { devPoultryFarmDefaults } from '../data/devDefaults';
 import { useCreatePoultryFarm } from '../hooks';
 import type { CreatePoultryFarmInput } from '../types';
 import type { CreatePoultryFarmFormValues } from '../validation/schemas';
@@ -37,10 +39,14 @@ export default function PoultryFarmCreateScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
 
+  // DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
+  // Real user contact info still wins over the dummy fallback when present.
+  const dev = devDataEnabled ? devPoultryFarmDefaults() : {};
   const defaults: Partial<CreatePoultryFarmFormValues> = {
-    contactName: user ? `${user.firstName} ${user.lastName}`.trim() : '',
-    contactPhone: user?.phone ?? '',
-    contactEmail: user?.email ?? '',
+    ...dev,
+    contactName: user ? `${user.firstName} ${user.lastName}`.trim() : (dev.contactName ?? ''),
+    contactPhone: user?.phone ?? dev.contactPhone ?? '',
+    contactEmail: user?.email ?? dev.contactEmail ?? '',
   };
 
   const onSubmit = (values: CreatePoultryFarmFormValues, image: LocalFile | null): void => {
@@ -53,7 +59,7 @@ export default function PoultryFarmCreateScreen() {
       name: values.name.trim(),
       location: values.location.trim(),
       governorate: values.governorate,
-      farmCategory: values.farmCategory,
+      poultryProductionType: values.poultryProductionType,
       description: orNull(values.description) ?? null,
       address: orNull(values.address) ?? null,
       capacity: toCount(values.capacity) ?? null,

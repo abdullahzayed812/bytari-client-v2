@@ -2,17 +2,23 @@ import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
 import type {
+  AdminFarmListItem,
+  AdminFarmRenewalRequest,
+  AdminListFarmsFilter,
   AdminOrgMember,
   AdminUser,
   AdminUserDetail,
+  ApproveFarmRenewalInput,
   AssignSupervisorInput,
   AuditListFilter,
   AuditLogEntry,
   Organization,
+  OrganizationWithDetails,
   OrgListFilter,
   OrgStatusAction,
   Paginated,
   PendingVetApplication,
+  SetFarmSubscriptionInput,
   SupervisorAssignment,
   SupervisorListFilter,
   UserListFilter,
@@ -116,8 +122,8 @@ export const adminApi = {
     return listPaged<Organization>('/admin/organizations/pending', page, pageSize, {});
   },
 
-  getOrganization(organizationId: string): Promise<Organization> {
-    return apiClient.get<Organization>(`/admin/organizations/${organizationId}`);
+  getOrganization(organizationId: string): Promise<OrganizationWithDetails> {
+    return apiClient.get<OrganizationWithDetails>(`/admin/organizations/${organizationId}`);
   },
 
   listOrganizationMembers(organizationId: string): Promise<AdminOrgMember[]> {
@@ -147,6 +153,55 @@ export const adminApi = {
     return apiClient.post<Organization>(
       `/admin/organizations/${organizationId}/${action}`,
       reason ? { reason } : {},
+    );
+  },
+
+  // --- Poultry Farms management (subscription + renewal requests) -----
+  listFarms(f: AdminListFarmsFilter): Promise<Paginated<AdminFarmListItem>> {
+    return listPaged<AdminFarmListItem>('/admin/organizations/farms', f.page, f.pageSize, {
+      status: f.status,
+      subscriptionStatus: f.subscriptionStatus,
+    });
+  },
+
+  listFarmRenewalRequests(organizationId: string): Promise<AdminFarmRenewalRequest[]> {
+    return apiClient
+      .requestEnvelope<AdminFarmRenewalRequest[]>({
+        method: 'GET',
+        url: `/admin/organizations/${organizationId}/subscription-renewals`,
+      })
+      .then((e) => e.data);
+  },
+
+  setFarmSubscription(
+    organizationId: string,
+    input: SetFarmSubscriptionInput,
+  ): Promise<{ updated: boolean }> {
+    return apiClient.post<{ updated: boolean }>(
+      `/admin/organizations/${organizationId}/subscription`,
+      input,
+    );
+  },
+
+  approveFarmRenewal(
+    organizationId: string,
+    requestId: string,
+    input: ApproveFarmRenewalInput,
+  ): Promise<AdminFarmRenewalRequest> {
+    return apiClient.post<AdminFarmRenewalRequest>(
+      `/admin/organizations/${organizationId}/subscription-renewals/${requestId}/approve`,
+      input,
+    );
+  },
+
+  rejectFarmRenewal(
+    organizationId: string,
+    requestId: string,
+    reason: string,
+  ): Promise<AdminFarmRenewalRequest> {
+    return apiClient.post<AdminFarmRenewalRequest>(
+      `/admin/organizations/${organizationId}/subscription-renewals/${requestId}/reject`,
+      { reason },
     );
   },
 

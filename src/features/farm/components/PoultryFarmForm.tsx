@@ -7,7 +7,7 @@ import { Pressable, View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Card, Icon, type IconName } from '@/components/content';
 import { Alert, useToast } from '@/components/feedback';
-import { Checkbox, FormField, Select } from '@/components/forms';
+import { Checkbox, FormField, Select, TileOptionGroup } from '@/components/forms';
 import { ImagePreview } from '@/components/media';
 import { Caption, Label, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
@@ -15,7 +15,7 @@ import { isPermissionError, pickImage, type LocalFile } from '@/services/media';
 import { useTheme } from '@/theme';
 
 import { IRAQ_GOVERNORATES } from '../constants';
-import type { FarmProductionType } from '../constants';
+import type { PoultryProductionType } from '../constants';
 import {
   buildCreatePoultryFarmSchema,
   type CreatePoultryFarmFormValues,
@@ -33,7 +33,7 @@ const EMPTY: CreatePoultryFarmFormValues = {
   name: '',
   location: '',
   governorate: '',
-  farmCategory: 'BROILER',
+  poultryProductionType: 'BROILER',
   description: '',
   address: '',
   capacity: '',
@@ -103,7 +103,7 @@ export function PoultryFarmForm({
     [],
   );
   const productionOptions: {
-    value: FarmProductionType;
+    value: PoultryProductionType;
     icon: IconName;
     label: string;
     hint: string;
@@ -180,53 +180,14 @@ export function PoultryFarmForm({
       <FormCard icon="pulse-outline" title={t('create.fields.production')}>
         <Controller
           control={control}
-          name="farmCategory"
+          name="poultryProductionType"
           render={({ field: { value, onChange }, fieldState }) => (
-            <View style={{ rowGap: theme.spacing.xs }}>
-              <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
-                {productionOptions.map((opt) => {
-                  const selected = value === opt.value;
-                  return (
-                    <Pressable
-                      key={opt.value}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      accessibilityLabel={opt.label}
-                      onPress={() => onChange(opt.value)}
-                      style={{
-                        flex: 1,
-                        alignItems: 'center',
-                        rowGap: 4,
-                        paddingVertical: theme.spacing.lg,
-                        borderRadius: theme.radius.lg,
-                        borderWidth: 1.5,
-                        borderColor: selected ? theme.colors.primary : theme.colors.border,
-                        backgroundColor: selected ? theme.colors.primarySoft : theme.colors.surface,
-                      }}
-                    >
-                      <Icon
-                        name={opt.icon}
-                        size="iconLg"
-                        color={selected ? 'primary' : 'textMuted'}
-                      />
-                      <Text
-                        variant="bodyMedium"
-                        weight={selected ? 'bold' : 'regular'}
-                        style={{
-                          color: selected ? theme.colors.primary : theme.colors.textPrimary,
-                        }}
-                      >
-                        {opt.label}
-                      </Text>
-                      <Caption>{opt.hint}</Caption>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              {fieldState.error ? (
-                <Caption style={{ color: theme.colors.danger }}>{fieldState.error.message}</Caption>
-              ) : null}
-            </View>
+            <TileOptionGroup
+              options={productionOptions}
+              value={value}
+              onChange={onChange}
+              error={fieldState.error?.message}
+            />
           )}
         />
       </FormCard>

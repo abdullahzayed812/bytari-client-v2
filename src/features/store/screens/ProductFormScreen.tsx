@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { OrgFormLayout } from '@/features/organizations';
 import { fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { ApiError } from '@/services/api';
 
 import { ProductForm } from '../components';
+import { devProductDefaults } from '../data/devDefaults';
 import { useCreateProduct, useProduct, useUpdateProduct } from '../hooks';
 import type { CreateProductInput, UpdateProductInput } from '../types';
 import { storeErrorMessage, type ProductFormValues } from '../validation/schemas';
@@ -67,7 +69,9 @@ export default function ProductFormScreen() {
         price: product.price ?? '',
         description: product.description ?? '',
       }
-    : {};
+    : devDataEnabled
+      ? devProductDefaults()
+      : {};
 
   const onSubmit = (values: ProductFormValues) => {
     if (inFlight.current || busy) return;

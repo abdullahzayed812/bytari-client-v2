@@ -1,4 +1,5 @@
 import type {
+  AdminListFarmsFilter,
   AuditListFilter,
   OrgListFilter,
   SupervisorListFilter,
@@ -38,6 +39,15 @@ export const adminKeys = {
       [...adminKeys.organizations.details(), organizationId] as const,
     members: (organizationId: string) =>
       [...adminKeys.organizations.detail(organizationId), 'members'] as const,
+  },
+
+  farms: {
+    all: ['admin', 'farms'] as const,
+    lists: () => [...adminKeys.farms.all, 'list'] as const,
+    list: (filter: Omit<AdminListFarmsFilter, 'page' | 'pageSize'>) =>
+      [...adminKeys.farms.lists(), filter] as const,
+    renewals: (organizationId: string) =>
+      [...adminKeys.farms.all, organizationId, 'renewals'] as const,
   },
 
   supervisors: {

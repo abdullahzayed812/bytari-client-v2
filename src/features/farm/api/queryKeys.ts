@@ -9,11 +9,6 @@ import type { PoultryListFilter } from '../types';
  *   poultryKeys.list(orgId, filter)       → ['poultry', orgId, 'list', { …filter }]
  *   poultryKeys.detail(orgId, flockId)    → ['poultry', orgId, 'detail', flockId]
  */
-export const farmKeys = {
-  all: ['farm'] as const,
-  joinCode: (organizationId: string) => [...farmKeys.all, organizationId, 'join-code'] as const,
-};
-
 export const poultryKeys = {
   all: ['poultry'] as const,
   forOrg: (organizationId: string) => [...poultryKeys.all, organizationId] as const,
@@ -36,8 +31,12 @@ export const poultryOpsKeys = {
   expenseList: (orgId: string, filter: Record<string, unknown>) =>
     [...poultryOpsKeys.expenses(orgId), 'list', filter] as const,
   expenseSummary: (orgId: string) => [...poultryOpsKeys.expenses(orgId), 'summary'] as const,
+  expenseDetail: (orgId: string, expenseId: string) =>
+    [...poultryOpsKeys.expenses(orgId), 'detail', expenseId] as const,
   appointments: (orgId: string, filter: Record<string, unknown>) =>
     [...poultryOpsKeys.forOrg(orgId), 'appointments', filter] as const,
+  appointmentDetail: (orgId: string, appointmentId: string) =>
+    [...poultryOpsKeys.forOrg(orgId), 'appointments', 'detail', appointmentId] as const,
   forFlock: (orgId: string, flockId: string) =>
     [...poultryOpsKeys.forOrg(orgId), 'flock', flockId] as const,
   batchSummary: (orgId: string, flockId: string) =>
@@ -48,8 +47,12 @@ export const poultryOpsKeys = {
     [...poultryOpsKeys.forFlock(orgId, flockId), 'daily', filter] as const,
   healthEvents: (orgId: string, flockId: string, filter: Record<string, unknown>) =>
     [...poultryOpsKeys.forFlock(orgId, flockId), 'health', filter] as const,
+  healthEventDetail: (orgId: string, flockId: string, eventId: string) =>
+    [...poultryOpsKeys.forFlock(orgId, flockId), 'health', 'detail', eventId] as const,
   cases: (orgId: string, flockId: string, filter: Record<string, unknown>) =>
     [...poultryOpsKeys.forFlock(orgId, flockId), 'cases', filter] as const,
   caseSummary: (orgId: string, flockId: string) =>
     [...poultryOpsKeys.forFlock(orgId, flockId), 'cases', 'summary'] as const,
+  caseDetail: (orgId: string, flockId: string, caseId: string) =>
+    [...poultryOpsKeys.forFlock(orgId, flockId), 'cases', 'detail', caseId] as const,
 };

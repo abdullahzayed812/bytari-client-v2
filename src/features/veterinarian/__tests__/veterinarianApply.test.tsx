@@ -44,6 +44,7 @@ function seed(status: SessionSnapshot['veterinarian']['status']) {
         phone: null,
         status: 'ACTIVE',
         veterinarianStatus: status,
+        traderStatus: 'NOT_REGISTERED' as const,
         createdAt: '',
         updatedAt: '',
       },
@@ -52,6 +53,7 @@ function seed(status: SessionSnapshot['veterinarian']['status']) {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status, approved: status === 'APPROVED' },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

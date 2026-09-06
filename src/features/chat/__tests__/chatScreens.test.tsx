@@ -26,6 +26,7 @@ function authed(id = ME) {
     phone: null,
     status: 'ACTIVE' as const,
     veterinarianStatus: 'NOT_APPLIED' as const,
+    traderStatus: 'NOT_REGISTERED' as const,
     createdAt: '',
     updatedAt: '',
   };
@@ -39,6 +40,7 @@ function authed(id = ME) {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status: 'NOT_APPLIED', approved: false },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

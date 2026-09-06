@@ -1,18 +1,10 @@
 import type { BadgeTone, IconName } from '@/components/content';
-import type { OrganizationType } from '@/features/organizations/types';
 
-import type { PoultryBirdType, PoultryFlockStatus } from './types';
-
-/**
- * Organization type that carries farm behaviour. Backend source of truth:
- * `FARM_ORG_TYPE` in `server/src/modules/farms/domain/farm.constants.ts`.
- * Centralised so no component does `if (org.type === 'FARM')` inline.
- */
-export const FARM_ORG_TYPE: OrganizationType = 'FARM';
-
-export function organizationIsFarm(type: OrganizationType | string | undefined): boolean {
-  return type === FARM_ORG_TYPE;
-}
+import type {
+  PoultryBirdType,
+  PoultryCaseStatus,
+  PoultryFlockStatus,
+} from './types';
 
 /** Bird type → line icon + ordered list for the "create flock" picker. */
 export const BIRD_TYPE_ICON: Record<string, IconName> = {
@@ -43,32 +35,25 @@ export const FLOCK_STATUS_TONE: Record<PoultryFlockStatus, BadgeTone> = {
   CLOSED: 'neutral',
 };
 
+/** Individual-case status → icon + tone (الحالات الفردية screen). */
+export const CASE_STATUS_ICON: Record<PoultryCaseStatus, IconName> = {
+  UNDER_TREATMENT: 'pulse-outline',
+  RECOVERED: 'heart-outline',
+  DECEASED: 'skull-outline',
+};
+export const CASE_STATUS_TONE: Record<PoultryCaseStatus, BadgeTone> = {
+  UNDER_TREATMENT: 'warning',
+  RECOVERED: 'success',
+  DECEASED: 'neutral',
+};
+
 /**
  * Production type ("نوع الإنتاج") shown on the "Add Poultry Farm" form. Only the
  * two types in the reference design are offered; the backend `FARM_CATEGORIES`
  * enum is wider (MIXED / BREEDER / HATCHERY / OTHER) and stays valid.
  */
-export const FARM_PRODUCTION_TYPES = ['BROILER', 'LAYER'] as const;
-export type FarmProductionType = (typeof FARM_PRODUCTION_TYPES)[number];
+export const POULTRY_PRODUCTION_TYPES = ['BROILER', 'LAYER'] as const;
+export type PoultryProductionType = (typeof POULTRY_PRODUCTION_TYPES)[number];
 
-/** Iraqi governorates for the "المحافظة" picker. Value === Arabic label. */
-export const IRAQ_GOVERNORATES: readonly string[] = [
-  'بغداد',
-  'البصرة',
-  'نينوى',
-  'أربيل',
-  'النجف',
-  'كربلاء',
-  'بابل',
-  'ذي قار',
-  'الأنبار',
-  'ديالى',
-  'كركوك',
-  'صلاح الدين',
-  'واسط',
-  'ميسان',
-  'المثنى',
-  'القادسية',
-  'دهوك',
-  'السليمانية',
-];
+/** Re-exported for backward compatibility — this is genuinely shared geography data, not poultry-specific; its canonical home is `@/constants/governorates`. */
+export { IRAQ_GOVERNORATES } from '@/constants/governorates';

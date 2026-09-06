@@ -1,6 +1,7 @@
+import { farmApi as farmJoinApi } from '@/features/farmShared';
 import { apiClient } from '@/services/api';
 
-import { farmApi, poultryApi } from '../api';
+import { poultryApi } from '../api';
 
 // File-scope spies + a single file-level afterAll (a per-describe
 // `restoreAllMocks` would un-spy the client for the next describe block).
@@ -13,22 +14,22 @@ const del = jest.spyOn(apiClient, 'delete');
 beforeEach(() => [envelope, get, post, patch, del].forEach((s) => s.mockReset()));
 afterAll(() => jest.restoreAllMocks());
 
-describe('farmApi — Farm-ID join flow (organization id is never in the join body)', () => {
+describe('farmApi (farmShared) — Farm-ID join flow (organization id is never in the join body)', () => {
   it('joinByCode → POST /organizations/join with { joinCode } only', async () => {
     post.mockResolvedValueOnce({ id: 'm1', organizationId: 'o1' });
-    await farmApi.joinByCode({ joinCode: 'FARM-ABCD12' });
+    await farmJoinApi.joinByCode({ joinCode: 'FARM-ABCD12' });
     expect(post).toHaveBeenCalledWith('/organizations/join', { joinCode: 'FARM-ABCD12' });
   });
 
   it('getJoinCode → GET /organizations/:id/join-code', async () => {
     get.mockResolvedValueOnce({ joinCode: 'FARM-ABCD12' });
-    await farmApi.getJoinCode('o1');
+    await farmJoinApi.getJoinCode('o1');
     expect(get).toHaveBeenCalledWith('/organizations/o1/join-code');
   });
 
   it('regenerateJoinCode → POST /organizations/:id/join-code/regenerate', async () => {
     post.mockResolvedValueOnce({ joinCode: 'FARM-NEW999' });
-    await farmApi.regenerateJoinCode('o1');
+    await farmJoinApi.regenerateJoinCode('o1');
     expect(post).toHaveBeenCalledWith('/organizations/o1/join-code/regenerate');
   });
 });

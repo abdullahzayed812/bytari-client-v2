@@ -82,3 +82,12 @@ export const realtimeEndpoint = `${env.realtimeUrl.replace(/\/+$/, '')}${env.rea
 
 export const isProduction = env.environment === 'production';
 export const isDevelopment = env.environment === 'development';
+
+/**
+ * Gates development-only convenience data (form pre-fills, quick-fill test
+ * buttons, …): true in a dev/simulator build, false in release AND under
+ * Jest — so component tests that assert on an empty/required field still see
+ * one. `__DEV__` is statically replaced at build time, so the release branch
+ * of every `devDataEnabled ? … : …` call site is dead-code-eliminated.
+ */
+export const devDataEnabled = __DEV__ && process.env.NODE_ENV !== 'test';

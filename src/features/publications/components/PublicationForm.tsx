@@ -6,8 +6,10 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Alert } from '@/components/feedback';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
+import { devPublicationListingDefaults } from '../data/devDefaults';
 import type { CreatePublicationInput, PublicationKind } from '../types';
 import { buildListingSchema, listingValuesToInput } from '../validation/schemas';
 
@@ -35,6 +37,11 @@ const EMPTY_DEFAULTS = {
   healthNotes: '',
 };
 
+// DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
+const DEFAULT_VALUES = devDataEnabled
+  ? { ...EMPTY_DEFAULTS, ...devPublicationListingDefaults() }
+  : EMPTY_DEFAULTS;
+
 /**
  * The listing-fields-only form — used by `PublishAnimalScreen` (an already
  * registered pet, so only the per-kind listing fields are collected; the
@@ -54,7 +61,7 @@ export function PublicationForm({
 
   const { control, handleSubmit } = useForm<any>({
     resolver: zodResolver(schema),
-    defaultValues: EMPTY_DEFAULTS,
+    defaultValues: DEFAULT_VALUES,
     mode: 'onTouched',
   });
 

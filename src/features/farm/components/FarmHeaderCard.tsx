@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Icon } from '@/components/content';
+import { Icon, type IconName } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -13,10 +13,12 @@ interface Props {
   name: string;
   location?: string | null;
   profile?: FarmProfile | null;
+  /** Fallback image icon + capacity-row icon — species-specific (e.g. `egg-outline` for poultry). */
+  icon: IconName;
 }
 
-/** Farm Details header — image, name, location, total capacity, establishment date, type icon. */
-export function FarmHeaderCard({ name, location, profile }: Props) {
+/** Farm Details header — image, name, location, total capacity, establishment date, type icon. Reused across poultry/sheep/cattle. */
+export function FarmHeaderCard({ name, location, profile, icon }: Props) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
   const loc = location ?? profile?.address ?? null;
@@ -25,7 +27,7 @@ export function FarmHeaderCard({ name, location, profile }: Props) {
   if (loc) rows.push({ icon: 'location-outline', label: t('details.locationLabel'), value: loc });
   if (profile?.capacity != null) {
     rows.push({
-      icon: 'egg-outline',
+      icon,
       label: t('details.capacityLabel'),
       value: t('details.capacityValue', { count: profile.capacity }),
     });
@@ -70,7 +72,7 @@ export function FarmHeaderCard({ name, location, profile }: Props) {
             accessibilityIgnoresInvertColors
           />
         ) : (
-          <Icon name="egg-outline" size="iconXl" color="primary" />
+          <Icon name={icon} size="iconXl" color="primary" />
         )}
       </View>
 
@@ -78,8 +80,8 @@ export function FarmHeaderCard({ name, location, profile }: Props) {
         <Text variant="subtitle" weight="bold" numberOfLines={2}>
           {name}
         </Text>
-        {profile?.farmCategory ? (
-          <Caption>{t(`category.${profile.farmCategory as FarmCategory}`)}</Caption>
+        {profile?.poultryProductionType ? (
+          <Caption>{t(`category.${profile.poultryProductionType as FarmCategory}`)}</Caption>
         ) : null}
         {rows.map((r) => (
           <View

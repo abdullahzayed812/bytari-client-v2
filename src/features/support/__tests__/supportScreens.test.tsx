@@ -45,6 +45,7 @@ function seed({
     phone: null,
     status: 'ACTIVE' as const,
     veterinarianStatus: vetApproved ? ('APPROVED' as const) : ('NOT_APPLIED' as const),
+    traderStatus: 'NOT_REGISTERED' as const,
     createdAt: '',
     updatedAt: '',
   };
@@ -61,6 +62,7 @@ function seed({
         status: vetApproved ? 'APPROVED' : 'NOT_APPLIED',
         approved: vetApproved,
       },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }

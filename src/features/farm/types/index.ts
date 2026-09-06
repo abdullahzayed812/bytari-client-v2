@@ -79,6 +79,42 @@ export interface JoinFarmInput {
   joinCode: string;
 }
 
+// --- subscription & renewal requests (Poultry Farm Approval & Subscription) --
+
+export const RENEWAL_REQUEST_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
+export type RenewalRequestStatus = (typeof RENEWAL_REQUEST_STATUSES)[number];
+
+/** `server/src/modules/farms/domain/farm-subscription.types.ts` mirrored exactly. */
+export interface FarmSubscriptionRenewalRequest {
+  id: string;
+  organizationId: string;
+  requestedByUserId: string;
+  status: RenewalRequestStatus;
+  note: string | null;
+  previousSubscriptionEndDate: string | null;
+  newSubscriptionStartDate: string | null;
+  newSubscriptionEndDate: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  decisionReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRenewalRequestInput {
+  note?: string;
+}
+
+export interface SetSubscriptionInput {
+  startDate: string;
+  endDate: string;
+}
+
+export interface ApproveRenewalInput {
+  startDate: string;
+  endDate: string;
+}
+
 export interface PoultryListFilter {
   page: number;
   pageSize: number;

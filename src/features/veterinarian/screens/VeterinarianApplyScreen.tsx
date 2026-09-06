@@ -14,6 +14,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { useVeterinarianStatus } from '@/features/auth';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { useApplyForVeterinarian, useVeterinarianDocumentPresignProvider } from '../hooks';
@@ -84,8 +85,9 @@ export default function VeterinarianApplyScreen() {
   const schema = useMemo(() => buildApplySchema(t), [t]);
   const { control, handleSubmit, watch, resetField } = useForm<ApplyFormValues>({
     resolver: zodResolver(schema),
+    // DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
     defaultValues: {
-      note: '',
+      note: devDataEnabled ? 'طلب تجريبي لأغراض الاختبار خلال مرحلة التطوير' : '',
       subType: 'VETERINARIAN',
       licenseOrId: undefined,
       additionalId: undefined,

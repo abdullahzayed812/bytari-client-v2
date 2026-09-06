@@ -7,8 +7,10 @@ import { Routes } from '@/constants/routes';
 import { useVeterinarianStatus } from '@/features/auth';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 
 import { OrganizationForm, OrgFormLayout } from '../components';
+import { devOrganizationDefaults } from '../data/devDefaults';
 import { useCreateOrganization } from '../hooks';
 import type { CreateOrganizationFormValues } from '../validation/schemas';
 
@@ -61,6 +63,7 @@ export default function CreateOrganizationScreen() {
       <OrganizationForm
         mode="create"
         vetApproved={vet.isApproved}
+        defaultValues={devDataEnabled ? devOrganizationDefaults() : undefined}
         submitting={create.isPending}
         formError={formError}
         serverFields={serverFields}

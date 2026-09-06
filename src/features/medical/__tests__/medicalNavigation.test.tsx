@@ -22,6 +22,7 @@ function seedVet() {
         phone: null,
         status: 'ACTIVE',
         veterinarianStatus: 'APPROVED',
+        traderStatus: 'NOT_REGISTERED' as const,
         createdAt: '',
         updatedAt: '',
       },
@@ -30,6 +31,7 @@ function seedVet() {
       isAdmin: false,
       supervisorDomains: [],
       veterinarian: { status: 'APPROVED', approved: true },
+      trader: { status: 'NOT_REGISTERED', approved: false },
     },
   });
 }
@@ -99,6 +101,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
       phone: null,
       status: 'ACTIVE' as const,
       veterinarianStatus: 'NOT_APPLIED' as const,
+      traderStatus: 'NOT_REGISTERED' as const,
       createdAt: '',
       updatedAt: '',
     };
@@ -111,6 +114,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
         isAdmin: false,
         supervisorDomains: [],
         veterinarian: { status: 'NOT_APPLIED', approved: false },
+        trader: { status: 'NOT_REGISTERED', approved: false },
       },
     });
     setSearchParams({ petId: 'p1' });

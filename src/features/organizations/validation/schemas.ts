@@ -46,7 +46,8 @@ export function buildEditOrganizationSchema(t: OrgTFn) {
 
 export type EditOrganizationFormValues = z.infer<ReturnType<typeof buildEditOrganizationSchema>>;
 
-/** UUID check for the "add member" / "assign supervisor" user-id inputs. */
+/** UUID check for the "assign supervisor" user-id input (email lookup isn't offered there — a
+ *  supervisor must already be an approved veterinarian, a narrower audience than plain staff). */
 export function buildUserIdSchema(t: OrgTFn) {
   return z.object({
     userId: z
@@ -54,4 +55,30 @@ export function buildUserIdSchema(t: OrgTFn) {
       .trim()
       .uuid({ message: t('form.errors.userIdInvalid') }),
   });
+}
+
+/**
+ * "Add member" identifier — accepts either the target's email (must belong to
+ * an existing account, resolved server-side) or their raw user id (UUID).
+ */
+export function buildMemberIdentifierSchema(t: OrgTFn) {
+  return z.object({
+    identifier: z
+      .string()
+      .trim()
+      .min(1, t('members.errors.identifierRequired'))
+      .refine(
+        (v) => z.string().uuid().safeParse(v).success || z.string().email().safeParse(v).success,
+        { message: t('members.errors.identifierInvalid') },
+      ),
+  });
+}
+export type MemberIdentifierFormValues = z.infer<ReturnType<typeof buildMemberIdentifierSchema>>;
+
+/** Split the single "email or user id" field into the right request field. */
+export function memberIdentifierToInput(identifier: string): { userId?: string; email?: string } {
+  const trimmed = identifier.trim();
+  return z.string().uuid().safeParse(trimmed).success
+    ? { userId: trimmed }
+    : { email: trimmed.toLowerCase() };
 }

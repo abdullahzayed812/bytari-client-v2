@@ -14,6 +14,7 @@ const snapshot: SessionSnapshot = {
     phone: null,
     status: 'ACTIVE',
     veterinarianStatus: 'APPROVED',
+    traderStatus: 'NOT_REGISTERED' as const,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -22,6 +23,7 @@ const snapshot: SessionSnapshot = {
   isAdmin: false,
   supervisorDomains: [],
   veterinarian: { status: 'APPROVED', approved: true },
+  trader: { status: 'NOT_REGISTERED', approved: false },
 };
 
 const authResult: AuthResult = {

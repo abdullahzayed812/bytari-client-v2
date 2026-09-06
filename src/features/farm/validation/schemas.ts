@@ -1,16 +1,14 @@
 import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
-import { apiErrorMessage } from '@/lib/apiError';
-import { ApiError } from '@/services/api';
-
-import { FARM_PRODUCTION_TYPES, IRAQ_GOVERNORATES } from '../constants';
+import { POULTRY_PRODUCTION_TYPES, IRAQ_GOVERNORATES } from '../constants';
 import { POULTRY_BIRD_TYPES } from '../types';
 
 /**
- * Farm join & poultry form validation. Mirrors the backend EXACTLY
- * (`server/src/modules/farms/presentation/farm.schemas.ts`) — same lengths,
- * same enums, same date rules. The backend re-validates authoritatively.
+ * Poultry-specific form validation. Mirrors the backend EXACTLY
+ * (`server/src/modules/farms/presentation/poultry-flock.schemas.ts`) — same
+ * lengths, same enums, same date rules. The backend re-validates authoritatively.
+ * Generic farm join/error-mapping validation lives in `@/features/farmShared`.
  */
 export type FarmTFn = TFunction<'farm'>;
 /** The "Add Poultry Farm" form + landing live in the `poultry` namespace. */
@@ -19,19 +17,6 @@ export type PoultryTFn = TFunction<'poultry'>;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const isValidDate = (v: string): boolean => DATE_RE.test(v) && !Number.isNaN(Date.parse(v));
 const isNotFuture = (v: string): boolean => new Date(v) <= new Date();
-
-/** `joinCode` — trim, 4–40 chars, upper-cased (the backend upper-cases too). */
-export function buildJoinFarmSchema(t: FarmTFn) {
-  return z.object({
-    joinCode: z
-      .string()
-      .trim()
-      .min(4, t('join.errors.tooShort'))
-      .max(40, t('join.errors.tooLong'))
-      .transform((s) => s.toUpperCase()),
-  });
-}
-export type JoinFarmFormValues = z.infer<ReturnType<typeof buildJoinFarmSchema>>;
 
 /**
  *   name        trim 1–120           (required)
@@ -99,7 +84,7 @@ export function buildCreatePoultryFarmSchema(t: PoultryTFn) {
       .refine((v) => (IRAQ_GOVERNORATES as readonly string[]).includes(v), {
         message: t('create.errors.governorateRequired'),
       }),
-    farmCategory: z.enum(FARM_PRODUCTION_TYPES, {
+    poultryProductionType: z.enum(POULTRY_PRODUCTION_TYPES, {
       message: t('create.errors.productionRequired'),
     }),
     description: z
@@ -137,20 +122,35 @@ export function buildCreatePoultryFarmSchema(t: PoultryTFn) {
 export type CreatePoultryFarmFormValues = z.infer<ReturnType<typeof buildCreatePoultryFarmSchema>>;
 
 /**
- * Feature-specific error mapping for farm/poultry mutations. Layers the known
- * backend cases on top of the generic `apiErrorMessage`; never surfaces raw text.
+ * Farm Settings → "معلومات الحقل" edit form. A subset of the create schema —
+ * only the fields shown on that tab (no governorate/description/contactName/
+ * contactEmail/image edit here). Submits as two separate calls
+ * (`useUpdateOrganization` for `name`, `useUpdateFarmProfile` for the rest).
  */
-export function farmErrorMessage(error: unknown, t: FarmTFn): string {
-  if (error instanceof ApiError) {
-    const code = error.code as string;
-    if (code === 'INVALID_JOIN_CODE') return t('join.errors.invalidCode');
-    if (code === 'ORGANIZATION_NOT_ACTIVE') return t('join.errors.farmNotActive');
-    if (code === 'VETERINARIAN_APPROVAL_REQUIRED') return t('join.errors.notApprovedVet');
-    if (code === 'ORGANIZATION_TYPE_NOT_SUPPORTED') return t('errors.notFarm');
-    if (code === 'POULTRY_FLOCK_NOT_ACTIVE') return t('poultry.errors.flockClosed');
-    if (code === 'PERMISSION_DENIED' && error.status === 403)
-      return t('join.errors.membershipEnded');
-    if (error.status === 404) return t('errors.notFound');
-  }
-  return apiErrorMessage(error);
+export function buildFarmSettingsInfoSchema(t: PoultryTFn) {
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, t('create.errors.nameRequired'))
+      .max(160, t('create.errors.tooLong')),
+    location: z
+      .string()
+      .trim()
+      .min(1, t('create.errors.locationRequired'))
+      .max(200, t('create.errors.tooLong')),
+    address: z.string().trim().max(500, t('create.errors.tooLong')).optional().or(z.literal('')),
+    poultryProductionType: z.enum(POULTRY_PRODUCTION_TYPES, {
+      message: t('create.errors.productionRequired'),
+    }),
+    capacity: optionalCount,
+    currentBirdCount: optionalCount,
+    contactPhone: z
+      .string()
+      .trim()
+      .max(40, t('create.errors.tooLong'))
+      .optional()
+      .or(z.literal('')),
+  });
 }
+export type FarmSettingsInfoFormValues = z.infer<ReturnType<typeof buildFarmSettingsInfoSchema>>;

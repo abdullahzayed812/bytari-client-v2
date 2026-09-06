@@ -6,30 +6,21 @@ import { ApiError } from '@/services/api';
 import { poultryOpsApi, poultryOpsKeys } from '../api';
 import type {
   BatchSummary,
-  CreateFarmExpenseInput,
-  FarmExpense,
-  FarmExpenseSummary,
-  FarmProfile,
+  CreateDailyRecordInput,
+  CreateHealthEventInput,
+  CreatePoultryCaseInput,
   Paginated,
+  PoultryCase,
+  PoultryCaseStatus,
   PoultryCaseSummary,
   PoultryDailyRecord,
-  UpdateFarmProfileInput,
+  PoultryHealthEvent,
+  PoultryHealthEventKind,
   WeeklySummary,
 } from '../types';
 
 const noRetryOn403 = (count: number, error: unknown): boolean =>
   !(error instanceof ApiError && (error.status === 403 || error.status === 404)) && count < 2;
-
-/** Farm Details header extras (image / address / capacity / established / category). */
-export function useFarmProfile(orgId: string | undefined, options: { enabled?: boolean } = {}) {
-  return useQuery<FarmProfile, ApiError>({
-    queryKey: poultryOpsKeys.farmProfile(orgId ?? 'unknown'),
-    queryFn: () => poultryOpsApi.getFarmProfile(orgId as string),
-    enabled: Boolean(orgId) && (options.enabled ?? true),
-    retry: noRetryOn403,
-    staleTime: 60_000,
-  });
-}
 
 /** The "الدفعة رقم N" card — server-computed. */
 export function useBatchSummary(
@@ -79,32 +70,16 @@ export function useDailyRecords(
   });
 }
 
-/** "المصاريف" — list + the three summary cards. */
-export function useFarmExpenses(
-  orgId: string | undefined,
-  filter: { category?: string; poultryFlockId?: string; pageSize?: number } = {},
-  options: { enabled?: boolean } = {},
-) {
-  const query = { page: 1, pageSize: filter.pageSize ?? 20, category: filter.category };
-  return useQuery<Paginated<FarmExpense>, ApiError>({
-    queryKey: poultryOpsKeys.expenseList(orgId ?? 'unknown', query),
-    queryFn: () => poultryOpsApi.listExpenses(orgId as string, query),
-    enabled: Boolean(orgId) && (options.enabled ?? true),
-    retry: noRetryOn403,
-    staleTime: 15_000,
-  });
-}
-
-export function useFarmExpenseSummary(
-  orgId: string | undefined,
-  options: { enabled?: boolean } = {},
-) {
-  return useQuery<FarmExpenseSummary, ApiError>({
-    queryKey: poultryOpsKeys.expenseSummary(orgId ?? 'unknown'),
-    queryFn: () => poultryOpsApi.expenseSummary(orgId as string),
-    enabled: Boolean(orgId) && (options.enabled ?? true),
-    retry: noRetryOn403,
-    staleTime: 15_000,
+/** Record a day's data ("البيانات اليومية"). */
+export function useCreateDailyRecord(orgId: string, flockId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['poultry-ops', 'daily-record', 'create', orgId, flockId],
+    mutationFn: (body: CreateDailyRecordInput) =>
+      poultryOpsApi.createDailyRecord(orgId, flockId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
+    },
   });
 }
 
@@ -122,26 +97,97 @@ export function usePoultryCaseSummary(
   });
 }
 
-/** Record a farm expense. mutate → server success → invalidate (§28). */
-export function useCreateFarmExpense(orgId: string) {
+// --- health events (treatments & vaccinations) -------------------
+
+export function useHealthEvents(
+  orgId: string | undefined,
+  flockId: string | undefined,
+  filter: { kind?: PoultryHealthEventKind; pageSize?: number } = {},
+  options: { enabled?: boolean } = {},
+) {
+  const query = { page: 1, pageSize: filter.pageSize ?? 50, kind: filter.kind };
+  const q = useQuery<Paginated<PoultryHealthEvent>, ApiError>({
+    queryKey: poultryOpsKeys.healthEvents(orgId ?? 'unknown', flockId ?? 'unknown', query),
+    queryFn: () => poultryOpsApi.listHealthEvents(orgId as string, flockId as string, query),
+    enabled: Boolean(orgId) && Boolean(flockId) && (options.enabled ?? true),
+    retry: noRetryOn403,
+    staleTime: 15_000,
+  });
+  return { ...q, events: q.data?.items ?? [] };
+}
+
+export function useCreateHealthEvent(orgId: string, flockId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationKey: ['poultry-ops', 'expense', 'create', orgId],
-    mutationFn: (body: CreateFarmExpenseInput) => poultryOpsApi.createExpense(orgId, body),
+    mutationKey: ['poultry-ops', 'health-event', 'create', orgId, flockId],
+    mutationFn: (body: CreateHealthEventInput) =>
+      poultryOpsApi.createHealthEvent(orgId, flockId, body),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(orgId) });
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
     },
   });
 }
 
-/** Update the farm-profile header. */
-export function useUpdateFarmProfile(orgId: string) {
+// --- individual cases ------------------------------------
+
+export function usePoultryCases(
+  orgId: string | undefined,
+  flockId: string | undefined,
+  filter: { status?: PoultryCaseStatus; pageSize?: number } = {},
+  options: { enabled?: boolean } = {},
+) {
+  const query = { page: 1, pageSize: filter.pageSize ?? 50, status: filter.status };
+  const q = useQuery<Paginated<PoultryCase>, ApiError>({
+    queryKey: poultryOpsKeys.cases(orgId ?? 'unknown', flockId ?? 'unknown', query),
+    queryFn: () => poultryOpsApi.listCases(orgId as string, flockId as string, query),
+    enabled: Boolean(orgId) && Boolean(flockId) && (options.enabled ?? true),
+    retry: noRetryOn403,
+    staleTime: 15_000,
+  });
+  return { ...q, cases: q.data?.items ?? [] };
+}
+
+export function useCreatePoultryCase(orgId: string, flockId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationKey: ['poultry-ops', 'farm-profile', 'update', orgId],
-    mutationFn: (body: UpdateFarmProfileInput) => poultryOpsApi.updateFarmProfile(orgId, body),
-    onSuccess: (data) => {
-      qc.setQueryData(poultryOpsKeys.farmProfile(orgId), data);
+    mutationKey: ['poultry-ops', 'case', 'create', orgId, flockId],
+    mutationFn: (body: CreatePoultryCaseInput) => poultryOpsApi.createCase(orgId, flockId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
     },
+  });
+}
+
+// --- single-item reads (detail screens) ---------------------------
+
+export function useHealthEvent(
+  orgId: string | undefined,
+  flockId: string | undefined,
+  eventId: string | undefined,
+) {
+  return useQuery<PoultryHealthEvent, ApiError>({
+    queryKey: poultryOpsKeys.healthEventDetail(
+      orgId ?? 'unknown',
+      flockId ?? 'unknown',
+      eventId ?? 'unknown',
+    ),
+    queryFn: () => poultryOpsApi.getHealthEvent(orgId as string, flockId as string, eventId as string),
+    enabled: Boolean(orgId) && Boolean(flockId) && Boolean(eventId),
+    retry: noRetryOn403,
+    staleTime: 15_000,
+  });
+}
+
+export function usePoultryCase(
+  orgId: string | undefined,
+  flockId: string | undefined,
+  caseId: string | undefined,
+) {
+  return useQuery<PoultryCase, ApiError>({
+    queryKey: poultryOpsKeys.caseDetail(orgId ?? 'unknown', flockId ?? 'unknown', caseId ?? 'unknown'),
+    queryFn: () => poultryOpsApi.getCase(orgId as string, flockId as string, caseId as string),
+    enabled: Boolean(orgId) && Boolean(flockId) && Boolean(caseId),
+    retry: noRetryOn403,
+    staleTime: 15_000,
   });
 }

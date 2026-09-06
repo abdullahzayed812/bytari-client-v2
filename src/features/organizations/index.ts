@@ -66,8 +66,11 @@ export {
   buildCreateOrganizationSchema,
   buildEditOrganizationSchema,
   buildUserIdSchema,
+  buildMemberIdentifierSchema,
+  memberIdentifierToInput,
   type CreateOrganizationFormValues,
   type EditOrganizationFormValues,
+  type MemberIdentifierFormValues,
   type OrgTFn,
 } from './validation/schemas';
 export * from './types';

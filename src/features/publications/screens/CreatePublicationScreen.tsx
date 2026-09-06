@@ -13,6 +13,7 @@ import { Label, Text } from '@/components/typography';
 import { OrgFormLayout } from '@/features/organizations';
 import { petsApi } from '@/features/pets/api/petsApi';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { FileUploadService } from '@/services/files';
 import type { PresignProvider } from '@/services/files/types';
 import { isPermissionError, pickImages, type LocalFile } from '@/services/media';
@@ -21,6 +22,7 @@ import { useTheme } from '@/theme';
 import { publicationsApi } from '../api';
 import { AnimalProfileFields, PublicationListingFieldsForm } from '../components';
 import { publicationKindFromSlug } from '../constants';
+import { devNewAnimalPublicationDefaults } from '../data/devDefaults';
 import type { CreatePublicationInput } from '../types';
 import {
   buildAnimalProfileSchema,
@@ -54,6 +56,11 @@ const EMPTY_DEFAULTS = {
   vaccinationStatus: '',
   isSterilized: '',
 };
+
+// DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
+const DEFAULT_VALUES = devDataEnabled
+  ? { ...EMPTY_DEFAULTS, ...devNewAnimalPublicationDefaults() }
+  : EMPTY_DEFAULTS;
 
 /** Local, pre-upload photo staging — no `animalId` exists yet to upload against. */
 function PhotoPicker({
@@ -139,7 +146,7 @@ export default function CreatePublicationScreen() {
 
   const { control, handleSubmit } = useForm<any>({
     resolver: zodResolver(combinedSchema),
-    defaultValues: EMPTY_DEFAULTS,
+    defaultValues: DEFAULT_VALUES,
     mode: 'onTouched',
   });
 

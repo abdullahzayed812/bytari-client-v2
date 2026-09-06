@@ -16,6 +16,7 @@ import { Routes } from '@/constants/routes';
 import { authErrorMessage, fieldErrors, useRegisterMutation } from '@/features/auth';
 import type { ApplyForVeterinarianInput } from '@/features/veterinarian';
 import { apiErrorMessage } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import {
@@ -74,7 +75,7 @@ export default function VeterinarianRegisterScreen() {
       // DEV-ONLY: pre-filled so the form doesn't need retyping on every test
       // run. Never covers the avatar or documents — those need real uploaded
       // images/files.
-      defaultValues: __DEV__
+      defaultValues: devDataEnabled
         ? {
             ...devVeterinarianDefaults(),
             subType: 'VETERINARIAN',

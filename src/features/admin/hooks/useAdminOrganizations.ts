@@ -17,6 +17,7 @@ import type {
   Organization,
   OrganizationStatus,
   OrganizationType,
+  OrganizationWithDetails,
   OrgStatusAction,
   Paginated,
 } from '../types';
@@ -72,7 +73,7 @@ export function useAdminOrganizations(params: AdminOrgsParams = {}) {
 }
 
 export function useAdminOrganization(organizationId: string, options: { enabled?: boolean } = {}) {
-  return useQuery<Organization, ApiError>({
+  return useQuery<OrganizationWithDetails, ApiError>({
     queryKey: adminKeys.organizations.detail(organizationId),
     queryFn: () => adminApi.getOrganization(organizationId),
     enabled: (options.enabled ?? true) && Boolean(organizationId),

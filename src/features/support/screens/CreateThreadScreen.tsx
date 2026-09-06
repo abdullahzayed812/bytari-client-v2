@@ -14,6 +14,7 @@ import { OrgFormLayout } from '@/features/organizations';
 import { usePets } from '@/features/pets';
 import { useCapabilities } from '@/hooks';
 import { fieldErrors } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { SUPPORT_KIND_META, kindFromSlug } from '../constants';
@@ -46,7 +47,11 @@ export default function CreateThreadScreen() {
   );
   const { control, handleSubmit } = useForm<ConsultationFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { body: '', animalId: '' },
+    // DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
+    defaultValues: {
+      body: devDataEnabled ? 'استشارة تجريبية لأغراض الاختبار خلال مرحلة التطوير' : '',
+      animalId: '',
+    },
     mode: 'onTouched',
   });
 

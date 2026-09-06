@@ -53,6 +53,9 @@ export type FarmAppointmentStatus = (typeof FARM_APPOINTMENT_STATUSES)[number];
 export const POULTRY_CASE_STATUSES = ['UNDER_TREATMENT', 'RECOVERED', 'DECEASED'] as const;
 export type PoultryCaseStatus = (typeof POULTRY_CASE_STATUSES)[number];
 
+export const POULTRY_CASE_SEXES = ['MALE', 'FEMALE', 'UNKNOWN'] as const;
+export type PoultryCaseSex = (typeof POULTRY_CASE_SEXES)[number];
+
 // --- farm profile -----------------------------------------------
 
 export interface FarmProfile {
@@ -63,7 +66,7 @@ export interface FarmProfile {
   capacity: number | null;
   currentBirdCount: number | null;
   establishedOn: string | null;
-  farmCategory: FarmCategory | null;
+  poultryProductionType: FarmCategory | null;
   contactName: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
@@ -76,7 +79,7 @@ export interface UpdateFarmProfileInput {
   capacity?: number | null;
   currentBirdCount?: number | null;
   establishedOn?: string | null;
-  farmCategory?: FarmCategory | null;
+  poultryProductionType?: FarmCategory | null;
   contactName?: string | null;
   contactPhone?: string | null;
   contactEmail?: string | null;
@@ -87,7 +90,7 @@ export interface CreatePoultryFarmInput {
   name: string;
   location: string;
   governorate: string;
-  farmCategory: FarmCategory;
+  poultryProductionType: FarmCategory;
   description?: string | null;
   address?: string | null;
   capacity?: number | null;
@@ -221,6 +224,19 @@ export interface PoultryHealthEvent {
   updatedAt: string;
 }
 
+export interface CreateHealthEventInput {
+  kind: PoultryHealthEventKind;
+  name: string;
+  medication?: string | null;
+  dose?: string | null;
+  eventDate: string;
+  casesCount?: number | null;
+  coverageCount?: number | null;
+  nextDueDate?: string | null;
+  status?: PoultryHealthEventStatus;
+  notes?: string | null;
+}
+
 // --- appointments ------------------------------------
 
 export interface FarmAppointment {
@@ -237,6 +253,14 @@ export interface FarmAppointment {
   updatedAt: string;
 }
 
+export interface CreateFarmAppointmentInput {
+  title: string;
+  description?: string | null;
+  category?: FarmAppointmentCategory;
+  scheduledFor: string;
+  poultryFlockId?: string | null;
+}
+
 // --- individual cases ------------------------------
 
 export interface PoultryCase {
@@ -245,7 +269,7 @@ export interface PoultryCase {
   organizationId: string;
   caseNumber: number | null;
   animalTag: string | null;
-  sex: 'MALE' | 'FEMALE' | 'UNKNOWN';
+  sex: PoultryCaseSex;
   diagnosis: string | null;
   treatment: string | null;
   status: PoultryCaseStatus;
@@ -255,6 +279,15 @@ export interface PoultryCase {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreatePoultryCaseInput {
+  animalTag?: string | null;
+  sex?: PoultryCaseSex;
+  diagnosis?: string | null;
+  treatment?: string | null;
+  startedOn: string;
+  nextFollowupOn?: string | null;
 }
 
 export interface PoultryCaseSummary {

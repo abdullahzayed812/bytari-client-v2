@@ -16,6 +16,7 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { farmErrorMessage } from '@/features/farmShared';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { ApiError } from '@/services/api';
@@ -24,7 +25,6 @@ import { formatDate } from '@/utils';
 
 import { FLOCK_STATUS_TONE } from '../constants';
 import { useDeletePoultryFlock, usePoultryFlock, useUpdatePoultryFlock } from '../hooks';
-import { farmErrorMessage } from '../validation/schemas';
 
 /**
  * Route `/organizations/[organizationId]/poultry/[flockId]`. Sections map 1:1 to

@@ -72,7 +72,7 @@ describe('PoultryFarmCreateScreen', () => {
           name: 'مزرعة الاختبار',
           location: 'بغداد - الدورة',
           governorate: 'بغداد',
-          farmCategory: 'BROILER',
+          poultryProductionType: 'BROILER',
           // unset optionals are normalised to null (never omitted / undefined)
           description: null,
           capacity: null,

@@ -1,11 +1,8 @@
+import { buildJoinFarmSchema, farmErrorMessage } from '@/features/farmShared';
 import { i18n } from '@/i18n';
 import { ApiError } from '@/services/api';
 
-import {
-  buildJoinFarmSchema,
-  buildPoultryFlockSchema,
-  farmErrorMessage,
-} from '../validation/schemas';
+import { buildPoultryFlockSchema } from '../validation/schemas';
 
 const t = i18n.getFixedT('ar', 'farm');
 
