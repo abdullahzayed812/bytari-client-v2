@@ -77,7 +77,7 @@ export function AppHeader({
         ) : null}
       </View>
 
-      <View style={{ width: 40, alignItems: 'flex-end' }}>{right}</View>
+      <View style={{ alignItems: 'flex-end' }}>{right}</View>
     </View>
   );
 }

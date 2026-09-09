@@ -1,14 +1,15 @@
-import { View } from 'react-native';
+import { View, type DimensionValue } from 'react-native';
 
 import { Skeleton } from '@/components/feedback';
 import { useTheme } from '@/theme';
 
 /** Placeholder row matching `ThreadCard`'s layout. */
-export function ThreadCardSkeleton() {
+export function ThreadCardSkeleton({ width }: { width?: DimensionValue } = {}) {
   const theme = useTheme();
   return (
     <View
       style={{
+        width,
         flexDirection: 'row',
         alignItems: 'center',
         columnGap: theme.spacing.lg,

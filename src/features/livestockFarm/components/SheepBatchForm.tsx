@@ -20,14 +20,22 @@ export interface SheepBatchFormProps {
   onSubmit: (values: SheepBatchFormValues) => void;
 }
 
-const EMPTY: SheepBatchFormValues = {
-  name: '',
-  breed: '',
-  headCount: '',
-  lambCount: '',
-  maleCount: '',
-  femaleCount: '',
-  arrivalDate: '',
+/** Today, `YYYY-MM-DD` in the device's local timezone (matches the schema's not-future rule). */
+function today(): string {
+  const d = new Date();
+  const p = (n: number): string => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** Starter values so a new batch is one edit away from ready. Overridden by `defaultValues` in edit mode. */
+const DEFAULTS: SheepBatchFormValues = {
+  name: 'دفعة أغنام 1',
+  breed: 'العواسي',
+  headCount: '50',
+  lambCount: '15',
+  maleCount: '10',
+  femaleCount: '25',
+  arrivalDate: today(),
   notes: '',
 };
 
@@ -39,7 +47,7 @@ export function SheepBatchForm({ mode, defaultValues, submitting, formError, ser
 
   const { control, handleSubmit } = useForm<SheepBatchFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { ...EMPTY, ...defaultValues },
+    defaultValues: { ...DEFAULTS, ...defaultValues },
     mode: 'onTouched',
   });
 

@@ -27,15 +27,20 @@ export interface CattleFarmFormProps {
   onSubmit: (values: CreateCattleFarmFormValues, image: LocalFile | null) => void;
 }
 
-const EMPTY: CreateCattleFarmFormValues = {
-  name: '',
-  location: '',
-  governorate: '',
+/**
+ * Starter values — the form opens pre-filled so it's one review away from
+ * submit. Screen-level `defaultValues` (the signed-in user's contact info)
+ * still take precedence, and the user must actively accept the terms.
+ */
+const DEFAULTS: CreateCattleFarmFormValues = {
+  name: 'مزرعة الأبقار النموذجية',
+  location: 'بغداد',
+  governorate: 'بغداد',
   cattleProductionType: 'DAIRY',
-  description: '',
-  address: '',
-  capacity: '',
-  currentCattleCount: '',
+  description: 'مزرعة لتربية الأبقار لإنتاج الحليب.',
+  address: 'حي الجامعة، شارع 14',
+  capacity: '150',
+  currentCattleCount: '80',
   contactName: '',
   contactPhone: '',
   contactEmail: '',
@@ -66,7 +71,7 @@ export function CattleFarmForm({ defaultValues, submitting, formError, serverFie
 
   const { control, handleSubmit } = useForm<CreateCattleFarmFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { ...EMPTY, ...defaultValues },
+    defaultValues: { ...DEFAULTS, ...defaultValues },
     mode: 'onTouched',
   });
 

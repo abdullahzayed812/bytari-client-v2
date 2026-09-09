@@ -15,7 +15,12 @@
  * NOT in the backend (documented in MOBILE_ARCHITECTURE.md, never mocked):
  * title / description / category fields, attachments, message edit/delete by
  * the user, search / category filters, admin status-change or supervisor
- * reassignment endpoints.
+ * reassignment endpoints, reopening a CLOSED thread.
+ *
+ * A thread is OPEN and freely writable by the creator by default. Only a
+ * responder CLOSING it, or manually muting the creator (`POST /:id/block`),
+ * stops them. CONSULTATION / INQUIRY may get one automatic AI reply on
+ * creation (admin-toggled); SUPPORT never does.
  */
 
 export const THREAD_KINDS = ['CONSULTATION', 'INQUIRY', 'SUPPORT'] as const;
@@ -38,7 +43,7 @@ export interface Thread {
   createdByUserId: string;
   /** Consultations only; always `null` for inquiries. */
   animalId: string | null;
-  /** The creator has been muted (the thread stays OPEN). */
+  /** A responder has muted the creator (the thread stays OPEN). */
   senderBlocked: boolean;
   aiResponded: boolean;
   /** ISO datetime or `null`. */

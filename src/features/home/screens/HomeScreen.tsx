@@ -16,6 +16,7 @@ import { HomeHeader, HomeSectionHeader } from '../components';
 
 const PREVIEW_COUNT = 3;
 const CLINIC_CARD_WIDTH = 220;
+const CONSULT_CARD_WIDTH = 280;
 
 interface CategoryCardProps {
   icon: IconName;
@@ -143,9 +144,10 @@ export default function HomeScreen() {
           onAction={() => router.push(Routes.support('consultations'))}
         />
         {consultations.isLoading ? (
-          <View style={{ rowGap: theme.spacing.md }}>
-            <ThreadCardSkeleton />
-          </View>
+          <Row gap="md">
+            <ThreadCardSkeleton width={CONSULT_CARD_WIDTH} />
+            <ThreadCardSkeleton width={CONSULT_CARD_WIDTH} />
+          </Row>
         ) : consultationPreview.length === 0 ? (
           <EmptyState
             icon="chatbubbles-outline"
@@ -153,15 +155,20 @@ export default function HomeScreen() {
             message={ts('home.emptyMessage')}
           />
         ) : (
-          <View style={{ rowGap: theme.spacing.md }}>
-            {consultationPreview.map((thread) => (
+          <FlatList
+            data={consultationPreview}
+            keyExtractor={(thr) => thr.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+            renderItem={({ item }) => (
               <ThreadCard
-                key={thread.id}
-                thread={thread}
-                onPress={() => router.push(Routes.supportThread('consultations', thread.id))}
+                thread={item}
+                width={CONSULT_CARD_WIDTH}
+                onPress={() => router.push(Routes.supportThread('consultations', item.id))}
               />
-            ))}
-          </View>
+            )}
+          />
         )}
       </Section>
 

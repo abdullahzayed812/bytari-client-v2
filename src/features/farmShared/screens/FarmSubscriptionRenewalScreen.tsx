@@ -11,7 +11,10 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import type { RenewalRequestStatus } from '@/features/farm/types';
-import { useOrganization } from '@/features/organizations';
+// Deep import (not the `@/features/organizations` barrel) to avoid a require
+// cycle: organizations barrel → OrganizationDetailsScreen → farmShared barrel
+// → this screen → organizations barrel.
+import { useOrganization } from '@/features/organizations/hooks/useOrganization';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';

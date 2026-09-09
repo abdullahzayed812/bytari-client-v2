@@ -79,7 +79,11 @@ export const THREAD_STATUS_TONE: Record<ThreadStatus, BadgeTone> = {
   CLOSED: 'neutral',
 };
 
-/** Message source → bubble alignment + accent. `USER` is the current user's own side. */
+/**
+ * Message source → bubble alignment + accent. `USER` is the current user's own
+ * side. `AI` is presented exactly like a human responder ("رد الإدارة") — the
+ * viewer is not meant to tell them apart.
+ */
 export const MESSAGE_SOURCE_META: Record<
   MessageSource,
   { align: 'start' | 'end' | 'center'; tone: BadgeTone; icon: IconName }
@@ -87,6 +91,6 @@ export const MESSAGE_SOURCE_META: Record<
   USER: { align: 'end', tone: 'primary', icon: 'person-outline' },
   SUPERVISOR: { align: 'start', tone: 'info', icon: 'shield-checkmark-outline' },
   ADMIN: { align: 'start', tone: 'info', icon: 'shield-checkmark-outline' },
-  AI: { align: 'start', tone: 'warning', icon: 'sparkles-outline' },
+  AI: { align: 'start', tone: 'info', icon: 'shield-checkmark-outline' },
   SYSTEM: { align: 'center', tone: 'neutral', icon: 'information-circle-outline' },
 };

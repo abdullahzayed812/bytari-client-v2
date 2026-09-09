@@ -27,15 +27,20 @@ export interface SheepFarmFormProps {
   onSubmit: (values: CreateSheepFarmFormValues, image: LocalFile | null) => void;
 }
 
-const EMPTY: CreateSheepFarmFormValues = {
-  name: '',
-  location: '',
-  governorate: '',
+/**
+ * Starter values — the form opens pre-filled so it's one review away from
+ * submit. Screen-level `defaultValues` (the signed-in user's contact info)
+ * still take precedence, and the user must actively accept the terms.
+ */
+const DEFAULTS: CreateSheepFarmFormValues = {
+  name: 'مزرعة الأغنام النموذجية',
+  location: 'بغداد',
+  governorate: 'بغداد',
   sheepProductionType: 'MEAT',
-  description: '',
-  address: '',
-  capacity: '',
-  currentSheepCount: '',
+  description: 'مزرعة لتربية الأغنام لإنتاج اللحوم.',
+  address: 'حي الجامعة، شارع 14',
+  capacity: '500',
+  currentSheepCount: '320',
   contactName: '',
   contactPhone: '',
   contactEmail: '',
@@ -66,7 +71,7 @@ export function SheepFarmForm({ defaultValues, submitting, formError, serverFiel
 
   const { control, handleSubmit } = useForm<CreateSheepFarmFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { ...EMPTY, ...defaultValues },
+    defaultValues: { ...DEFAULTS, ...defaultValues },
     mode: 'onTouched',
   });
 

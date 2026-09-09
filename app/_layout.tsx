@@ -24,8 +24,11 @@ function RootNavigator() {
   const { ready } = useAppBootstrap();
 
   const onLayout = useCallback(() => {
-    if (ready) void SplashScreen.hideAsync();
-  }, [ready]);
+    // Dismiss the native (Android 12 circular) splash as soon as the first JS
+    // frame paints. <AppSplash> below then covers the screen until `ready`, so
+    // a slow bootstrap never leaves the user staring at the system splash.
+    void SplashScreen.hideAsync();
+  }, []);
 
   if (!ready) {
     return (

@@ -35,17 +35,24 @@ describe('MessageBubble', () => {
   it('renders the body as plain text and no role label for the current user’s own USER message', () => {
     renderWithProviders(<MessageBubble message={msg()} currentUserId={ME} />);
     expect(screen.getByText('hello there')).toBeOnTheScreen();
-    expect(screen.queryByText('المشرف')).toBeNull();
+    expect(screen.queryByText('رد الإدارة')).toBeNull();
   });
 
-  it('shows the supervisor role label for a SUPERVISOR message', () => {
+  it('labels a SUPERVISOR / ADMIN / AI message as "رد الإدارة"', () => {
     renderWithProviders(
       <MessageBubble
         message={msg({ source: 'SUPERVISOR', senderUserId: OTHER })}
         currentUserId={ME}
       />,
     );
-    expect(screen.getByText('المشرف')).toBeOnTheScreen();
+    expect(screen.getByText('رد الإدارة')).toBeOnTheScreen();
+  });
+
+  it('labels an AI message identically — "رد الإدارة"', () => {
+    renderWithProviders(
+      <MessageBubble message={msg({ source: 'AI', senderUserId: null })} currentUserId={ME} />,
+    );
+    expect(screen.getByText('رد الإدارة')).toBeOnTheScreen();
   });
 
   it('centres a SYSTEM message', () => {
@@ -135,11 +142,11 @@ describe('ThreadCard', () => {
     expect(onPress).toHaveBeenCalled();
   });
 
-  it('surfaces the AI-replied / attached-animal / blocked hints', () => {
+  it('surfaces the replied / attached-animal / muted hints', () => {
     renderWithProviders(
       <ThreadCard thread={thread({ aiResponded: true, animalId: 'a1', senderBlocked: true })} />,
     );
-    expect(screen.getByText('رد آلي')).toBeOnTheScreen();
+    expect(screen.getByText('رد الإدارة')).toBeOnTheScreen();
     expect(screen.getByText('مرتبطة بحيوان')).toBeOnTheScreen();
     expect(screen.getByText('المُرسِل موقوف')).toBeOnTheScreen();
   });

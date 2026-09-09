@@ -20,14 +20,22 @@ export interface CattleBatchFormProps {
   onSubmit: (values: CattleBatchFormValues) => void;
 }
 
-const EMPTY: CattleBatchFormValues = {
-  name: '',
-  breed: '',
-  headCount: '',
-  calfCount: '',
-  bullCount: '',
-  cowCount: '',
-  arrivalDate: '',
+/** Today, `YYYY-MM-DD` in the device's local timezone (matches the schema's not-future rule). */
+function today(): string {
+  const d = new Date();
+  const p = (n: number): string => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** Starter values so a new batch is one edit away from ready. Overridden by `defaultValues` in edit mode. */
+const DEFAULTS: CattleBatchFormValues = {
+  name: 'دفعة أبقار 1',
+  breed: 'الهولشتاين',
+  headCount: '30',
+  calfCount: '8',
+  bullCount: '2',
+  cowCount: '20',
+  arrivalDate: today(),
   notes: '',
 };
 
@@ -39,7 +47,7 @@ export function CattleBatchForm({ mode, defaultValues, submitting, formError, se
 
   const { control, handleSubmit } = useForm<CattleBatchFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { ...EMPTY, ...defaultValues },
+    defaultValues: { ...DEFAULTS, ...defaultValues },
     mode: 'onTouched',
   });
 

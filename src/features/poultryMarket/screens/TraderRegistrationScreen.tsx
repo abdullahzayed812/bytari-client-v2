@@ -24,14 +24,19 @@ import { useRegisterTrader, useTraderStatus } from '../hooks';
 import type { TraderType } from '../types';
 import { buildRegisterTraderSchema, marketErrorMessage, type RegisterTraderFormValues } from '../validation/schemas';
 
-const EMPTY: RegisterTraderFormValues = {
-  displayName: '',
+/**
+ * Starter values — the form opens pre-filled so registration is one review
+ * away. The signed-in user's phone still takes precedence, and the user must
+ * actively accept the terms.
+ */
+const DEFAULTS: RegisterTraderFormValues = {
+  displayName: 'تاجر الدواجن النموذجي',
   traderType: 'WHOLESALE',
-  governorate: '',
-  district: '',
-  phone: '',
-  whatsapp: '',
-  bio: '',
+  governorate: 'بغداد',
+  district: 'الكرادة',
+  phone: '07701234567',
+  whatsapp: '07701234567',
+  bio: 'تاجر دواجن بالجملة في بغداد.',
   termsAccepted: false as unknown as true,
 };
 
@@ -51,8 +56,8 @@ export default function TraderRegistrationScreen() {
   const inFlight = useRef(false);
 
   const defaults: RegisterTraderFormValues = {
-    ...EMPTY,
-    phone: user?.phone ?? '',
+    ...DEFAULTS,
+    phone: user?.phone ?? DEFAULTS.phone,
   };
 
   const { control, handleSubmit } = useForm<RegisterTraderFormValues>({

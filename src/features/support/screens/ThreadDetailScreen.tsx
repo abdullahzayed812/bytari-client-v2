@@ -146,7 +146,7 @@ export default function ThreadDetailScreen() {
               ) : null}
               {thread.aiResponded ? (
                 <Row gap="xs" align="center">
-                  <Icon name="sparkles-outline" size="iconXs" color="textSecondary" />
+                  <Icon name="shield-checkmark-outline" size="iconXs" color="textSecondary" />
                   <Caption>{t('detail.aiReplied')}</Caption>
                 </Row>
               ) : null}

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type DimensionValue } from 'react-native';
 
 import { Badge, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
@@ -16,6 +16,8 @@ export interface ThreadCardProps {
   thread: Thread;
   /** Show the creator's name (admin / supervisor list); hidden on "my threads". */
   showCreator?: boolean;
+  /** Fixed width — set when the card sits in a horizontal list (e.g. the home preview). */
+  width?: DimensionValue;
   onPress?: () => void;
 }
 
@@ -24,7 +26,7 @@ export interface ThreadCardProps {
  * the card surfaces status, kind, last-activity, an AI-replied hint, and an
  * "attached to an animal" hint — enough to pick a thread to open.
  */
-export function ThreadCard({ thread, showCreator = false, onPress }: ThreadCardProps) {
+export function ThreadCard({ thread, showCreator = false, width, onPress }: ThreadCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('support');
   const meta = SUPPORT_KIND_META[thread.kind];
@@ -39,6 +41,7 @@ export function ThreadCard({ thread, showCreator = false, onPress }: ThreadCardP
       onPress={onPress}
       style={({ pressed }) => [
         {
+          width,
           flexDirection: 'row',
           alignItems: 'center',
           columnGap: theme.spacing.lg,
@@ -94,7 +97,7 @@ export function ThreadCard({ thread, showCreator = false, onPress }: ThreadCardP
               : t('card.created', { date: formatDate(thread.createdAt) })}
           </Caption>
           {thread.aiResponded ? (
-            <Badge label={t('card.aiReplied')} tone="warning" size="sm" />
+            <Badge label={t('card.aiReplied')} tone="info" size="sm" />
           ) : null}
           {thread.animalId ? <Badge label={t('card.hasAnimal')} tone="info" size="sm" /> : null}
           {thread.senderBlocked ? (

@@ -72,6 +72,12 @@ export function initI18n(language: AppLanguage): { directionChanged: boolean } {
       ns: NAMESPACES as unknown as string[],
       interpolation: { escapeValue: false },
       returnNull: false,
+      // Hermes ships without a full `Intl.PluralRules`, which i18next's default
+      // v4 plural handling needs. The app uses no ICU plural keys, so pin the
+      // legacy resolver — behaviour is identical and the startup error goes
+      // away. Add `@formatjs/intl-pluralrules` + switch back to v4 if real
+      // Arabic pluralisation is ever needed.
+      compatibilityJSON: 'v3',
     });
     initialised = true;
     log.info('i18n initialised', { language });
