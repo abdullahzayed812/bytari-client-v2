@@ -121,6 +121,7 @@ export const SUPERVISOR_DOMAINS: readonly SupervisorDomain[] = [
   'CONTENT',
   'CONSULTATION',
   'INQUIRY',
+  'SUPPORT',
   'MARKET',
 ];
 export type SupervisorAssignmentStatus = 'ACTIVE' | 'INACTIVE';
@@ -228,4 +229,35 @@ export interface SetFarmSubscriptionInput {
 export interface ApproveFarmRenewalInput {
   startDate: string;
   endDate: string;
+}
+
+// --- Admin animals (oversight of user pets) ------------------------
+// Backend: server/src/modules/animals/presentation/admin-animal.controller.ts
+//   GET    /admin/animals            — animal.read  (ADMIN or ANIMAL supervisor)
+//   DELETE /admin/animals/:animalId  — animal.delete (ADMIN override)
+
+export type AdminAnimalStatus = 'ACTIVE' | 'DEACTIVATED';
+
+export interface AdminAnimal {
+  id: string;
+  name: string;
+  species: string;
+  breed: string | null;
+  sex: string;
+  status: AdminAnimalStatus;
+  currentOwnerUserId: string | null;
+  /** Current owner's display name, resolved server-side. */
+  ownerName: string | null;
+  galleryUrls: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminAnimalsFilter {
+  page: number;
+  pageSize: number;
+  status?: AdminAnimalStatus;
+  species?: string;
+  search?: string;
+  ownerUserId?: string;
 }

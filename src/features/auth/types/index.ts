@@ -23,7 +23,10 @@ export type SupervisorDomain =
   | 'CONTENT'
   | 'CONSULTATION'
   | 'INQUIRY'
-  | 'MARKET';
+  | 'SUPPORT'
+  | 'MARKET'
+  | 'PET_OWNER_STORE'
+  | 'VET_SERVICE';
 
 // --- user DTO ---------------------------------------------------------
 /**

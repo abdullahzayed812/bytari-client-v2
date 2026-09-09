@@ -6,6 +6,7 @@ import type {
   CreateInteractionInput,
   CreatePublicationInput,
   PublicationInteraction,
+  PublicationKind,
 } from '../types';
 
 /**
@@ -27,6 +28,29 @@ export function useCreatePublication(
       void qc.invalidateQueries({ queryKey: publicationKeys.forAnimal(animalId) });
       // Public browse for that kind (harmless now — visible only once approved).
       void qc.invalidateQueries({ queryKey: publicationKeys.publicList(created.kind) });
+    },
+  });
+}
+
+/**
+ * Delete one of the caller's own listings. The backend enforces that only the
+ * listing's creator, an ADMIN, or an ACTIVE ANIMAL supervisor may delete it —
+ * a non-owner gets `404`. `animalId` is passed only to invalidate that
+ * animal's owner-view cache.
+ */
+export function useDeletePublication(): UseMutationResult<
+  { success: boolean },
+  unknown,
+  { publicationId: string; kind: PublicationKind; animalId?: string }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['publications', 'delete'],
+    mutationFn: ({ publicationId }) => publicationsApi.remove(publicationId),
+    onSuccess: (_data, { kind, animalId }) => {
+      void qc.invalidateQueries({ queryKey: publicationKeys.mine() });
+      void qc.invalidateQueries({ queryKey: publicationKeys.publicList(kind) });
+      if (animalId) void qc.invalidateQueries({ queryKey: publicationKeys.forAnimal(animalId) });
     },
   });
 }

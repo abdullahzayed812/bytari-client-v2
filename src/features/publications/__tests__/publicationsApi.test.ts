@@ -81,3 +81,27 @@ describe('publicationsApi — owner-facing (per animal, every status)', () => {
     expect(post).toHaveBeenCalledWith('/animals/a1/publications', lostInput);
   });
 });
+
+describe('publicationsApi — "my listings" + delete (ownership derived server-side)', () => {
+  const del = jest.spyOn(apiClient, 'delete');
+  beforeEach(() => del.mockReset());
+
+  it('listMine → GET /animal-publications/mine with page/pageSize/kind/status (no user id in the request)', async () => {
+    envelope.mockResolvedValueOnce({
+      data: [],
+      meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
+    });
+    await publicationsApi.listMine(1, 20, { kind: 'ADOPTION', status: 'PENDING' });
+    expect(envelope).toHaveBeenCalledWith({
+      method: 'GET',
+      url: '/animal-publications/mine',
+      params: { page: 1, pageSize: 20, kind: 'ADOPTION', status: 'PENDING' },
+    });
+  });
+
+  it('remove → DELETE /animal-publications/:id', async () => {
+    del.mockResolvedValueOnce({ success: true });
+    await publicationsApi.remove('p1');
+    expect(del).toHaveBeenCalledWith('/animal-publications/p1');
+  });
+});

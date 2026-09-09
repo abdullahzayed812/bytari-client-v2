@@ -5,7 +5,14 @@ import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
 import { publicationKeys, publicationsApi } from '../api';
-import type { AnimalPublication, Paginated, PublicPublication, PublicationKind } from '../types';
+import type {
+  AnimalPublication,
+  MyPublication,
+  Paginated,
+  PublicPublication,
+  PublicationKind,
+  PublicationStatus,
+} from '../types';
 
 /**
  * The authenticated public browse for one kind — APPROVED publications from
@@ -37,6 +44,48 @@ export function usePublicPublications(
   });
 
   const publications = useMemo<PublicPublication[]>(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
+  const total = query.data?.pages[0]?.meta.total ?? 0;
+
+  return { ...query, publications, total };
+}
+
+/**
+ * "My listings" for one kind — the caller's OWN publications of every status
+ * (PENDING / APPROVED / REJECTED). The backend derives ownership from the
+ * session; this is never a client-supplied user id.
+ */
+export function useMyPublications(
+  kind: PublicationKind | null | undefined,
+  params: { status?: PublicationStatus; pageSize?: number; enabled?: boolean } = {},
+) {
+  const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+
+  const query = useInfiniteQuery<
+    Paginated<MyPublication>,
+    unknown,
+    InfiniteData<Paginated<MyPublication>>,
+    ReturnType<typeof publicationKeys.mineList>,
+    number
+  >({
+    queryKey: publicationKeys.mineList((kind ?? 'ADOPTION') as PublicationKind, {
+      status: params.status,
+    }),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      publicationsApi.listMine(pageParam, pageSize, {
+        kind: kind as PublicationKind,
+        status: params.status,
+      }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled: Boolean(kind) && (params.enabled ?? true),
+    staleTime: 10_000,
+  });
+
+  const publications = useMemo<MyPublication[]>(
     () => query.data?.pages.flatMap((p) => p.items) ?? [],
     [query.data],
   );

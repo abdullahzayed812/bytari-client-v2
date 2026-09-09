@@ -13,6 +13,7 @@ export {
   threadApi,
   consultationApi,
   inquiryApi,
+  supportMessageApi,
   aiSettingsApi,
   supportKeys,
   type ThreadApi,

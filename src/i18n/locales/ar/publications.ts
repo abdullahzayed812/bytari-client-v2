@@ -74,6 +74,19 @@ export default {
     count: '{{count}} إعلان',
     unknownKind: 'نوع إعلان غير معروف',
     addCta: 'إضافة حيوان',
+    scope: {
+      all: 'الكل',
+      mine: 'منشوراتي',
+    },
+    mineEmpty: 'لا توجد منشورات لك',
+    mineEmptyHint: 'ستظهر هنا الإعلانات التي أنشأتها بجميع حالاتها.',
+  },
+  mine: {
+    delete: 'حذف الإعلان',
+    deleteTitle: 'حذف الإعلان',
+    deleteBody: 'سيتم حذف هذا الإعلان نهائياً ولن يظهر لأي مستخدم.',
+    deleteConfirm: 'تأكيد الحذف',
+    deleteSuccess: 'تم حذف الإعلان',
   },
   detail: {
     title: 'تفاصيل الإعلان',

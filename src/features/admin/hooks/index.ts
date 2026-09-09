@@ -30,3 +30,4 @@ export {
   useAdminTraderApplications,
   useTraderDecisionMutation,
 } from './useAdminTraderApplications';
+export { useAdminAnimals, useAdminDeleteAnimal, type AdminAnimalsParams } from './useAdminAnimals';

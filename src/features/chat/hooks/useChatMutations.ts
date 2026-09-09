@@ -51,6 +51,21 @@ export function useDeleteMessage(
   });
 }
 
+/** "إيقاف المحادثة" — close a marketplace deal conversation. */
+export function useCloseConversation(
+  conversationId: string,
+): UseMutationResult<Conversation, unknown, void> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['chat', 'close', conversationId],
+    mutationFn: () => chatApi.close(conversationId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: chatKeys.detail(conversationId) });
+      void qc.invalidateQueries({ queryKey: chatKeys.lists() });
+    },
+  });
+}
+
 /** Start (or fetch the existing) conversation, then invalidate the list. */
 export function useStartConversation(): UseMutationResult<
   Conversation,

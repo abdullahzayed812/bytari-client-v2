@@ -1,0 +1,87 @@
+/**
+ * Clinic Appointments (حجز موعد) — Pet Owner ↔ Clinic booking flow.
+ * Structurally mirrored by `en/index.ts` (`clinicAppointments`).
+ */
+const clinicAppointments = {
+  list: {
+    title: 'مواعيدي',
+    filterLabel: 'تصفية',
+    loading: 'جارٍ تحميل المواعيد…',
+    loadingMore: 'تحميل المزيد…',
+    empty: 'لا توجد مواعيد',
+    emptyHint: 'ستظهر هنا المواعيد التي تحجزها مع العيادات.',
+  },
+  filter: {
+    all: 'الكل',
+  },
+  status: {
+    PENDING: 'في الانتظار',
+    CONFIRMED: 'المؤكدة',
+    RESCHEDULE_PROPOSED: 'اقتراح بديل',
+    COMPLETED: 'مكتملة',
+    REJECTED: 'مرفوضة',
+    CANCELLED: 'ملغاة',
+  },
+  visitType: {
+    CHECKUP: 'فحص',
+    VACCINATION: 'تطعيم',
+    FOLLOW_UP: 'مراجعة',
+    SURGERY: 'جراحة',
+    OTHER: 'أخرى',
+  },
+  card: {
+    slot: 'الموعد',
+    requestedByYou: 'طلبته: أنت',
+  },
+  book: {
+    title: 'حجز موعد',
+    titleWithClinic: 'حجز موعد — {{clinic}}',
+    close: 'إغلاق',
+    petLabel: 'اختر حيوانك',
+    petPlaceholder: 'اختر حيواناً',
+    petRequired: 'الرجاء اختيار الحيوان',
+    noPets: 'لا يوجد لديك حيوانات نشطة لحجز موعد لها.',
+    visitTypeLabel: 'نوع الزيارة',
+    slotLabel: 'التاريخ والوقت المقترح',
+    dateA11y: 'اختيار التاريخ',
+    timeA11y: 'اختيار الوقت',
+    slotInPast: 'يجب أن يكون التاريخ والوقت في المستقبل.',
+    noteLabel: 'ملاحظة (اختياري)',
+    notePlaceholder: 'أضف تفاصيل تساعد العيادة…',
+    submit: 'إرسال الطلب',
+    cancel: 'إلغاء',
+    success: 'تم إرسال طلب الموعد',
+  },
+  detail: {
+    title: 'تفاصيل الموعد',
+    pet: 'الحيوان',
+    visitType: 'نوع الزيارة',
+    slot: 'الموعد',
+    note: 'ملاحظة',
+    decisionReason: 'سبب القرار',
+    proposedTitle: 'اقترحت العيادة موعداً بديلاً',
+    acceptProposal: 'قبول',
+    declineProposal: 'رفض',
+    contactTitle: 'التواصل مع العيادة',
+    historyTitle: 'سجل الموعد',
+    historyEmpty: 'لا يوجد سجل بعد.',
+    cancelCta: 'إلغاء الموعد',
+    cancelConfirmTitle: 'إلغاء الموعد؟',
+    cancelConfirmMessage: 'لن تتمكن من التراجع بعد إلغاء الموعد.',
+    cancelled: 'تم إلغاء الموعد',
+    rescheduleAccepted: 'تم قبول الموعد البديل',
+    rescheduleDeclined: 'تم رفض الموعد البديل',
+  },
+  historyKind: {
+    REQUESTED: 'تم إرسال الطلب',
+    CONFIRMED: 'تم تأكيد الموعد',
+    REJECTED: 'تم رفض الطلب',
+    RESCHEDULE_PROPOSED: 'اقتراح موعد بديل',
+    RESCHEDULE_ACCEPTED: 'تم قبول الموعد البديل',
+    RESCHEDULE_DECLINED: 'تم رفض الموعد البديل',
+    CANCELLED: 'تم إلغاء الموعد',
+    COMPLETED: 'اكتمل الموعد',
+  },
+};
+
+export default clinicAppointments;

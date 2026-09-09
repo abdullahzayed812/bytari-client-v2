@@ -1,6 +1,8 @@
 import Constants from 'expo-constants';
 import { I18nManager, Platform } from 'react-native';
 
+import { DEFAULT_LANGUAGE } from '@/constants/config';
+
 import { createLogger } from './logger';
 
 /**
@@ -35,6 +37,22 @@ export function isRtlLanguage(language: string): boolean {
   return RTL_LANGUAGES.has(language.split('-')[0] ?? language);
 }
 
+const IS_WEB = Platform.OS === 'web';
+
+/**
+ * Web has no `I18nManager` (react-native-web stubs it to a no-op), so we track
+ * direction ourselves and drive it through the DOM `dir` attribute. Seeded from
+ * the default language; `applyDirectionForLanguage` keeps it in sync.
+ */
+let webIsRTL = isRtlLanguage(DEFAULT_LANGUAGE);
+
+/** Push the current direction onto `<html dir lang>` (web only, DOM present). */
+function syncWebDocumentDirection(language: string, rtl: boolean): void {
+  if (typeof document === 'undefined') return;
+  document.documentElement.dir = rtl ? 'rtl' : 'ltr';
+  document.documentElement.lang = language.split('-')[0] ?? language;
+}
+
 export interface DirectionResult {
   /** `true` when a native reload is required for the change to take effect. */
   changed: boolean;
@@ -43,6 +61,15 @@ export interface DirectionResult {
 
 export function applyDirectionForLanguage(language: string): DirectionResult {
   const shouldBeRTL = isRtlLanguage(language);
+
+  if (IS_WEB) {
+    // No reload needed — the browser reflows `dir`-sensitive layout live, and a
+    // language switch already re-renders the tree via react-i18next.
+    webIsRTL = shouldBeRTL;
+    syncWebDocumentDirection(language, shouldBeRTL);
+    return { changed: false, isRTL: shouldBeRTL };
+  }
+
   I18nManager.allowRTL(true);
 
   if (I18nManager.isRTL === shouldBeRTL) {
@@ -64,11 +91,11 @@ export function applyDirectionForLanguage(language: string): DirectionResult {
   return { changed: true, isRTL: shouldBeRTL };
 }
 
-/** Convenience: current layout direction as resolved by the native layer. */
-export const isRTL = (): boolean => I18nManager.isRTL;
+/** Current layout direction: `I18nManager` on native, the DOM-driven flag on web. */
+export const isRTL = (): boolean => (IS_WEB ? webIsRTL : I18nManager.isRTL);
 
 /** Horizontal sign for transforms/offsets: `1` in LTR, `-1` in RTL. */
-export const directionSign = (): 1 | -1 => (I18nManager.isRTL ? -1 : 1);
+export const directionSign = (): 1 | -1 => (isRTL() ? -1 : 1);
 
 /** Flip a horizontally-directional icon (chevron, arrow) for the current direction. */
 export const flipForDirection = (): { transform: { scaleX: number }[] } => ({
@@ -76,6 +103,6 @@ export const flipForDirection = (): { transform: { scaleX: number }[] } => ({
 });
 
 /** `writingDirection` for `<Text>` so mixed content aligns correctly. */
-export const writingDirection = (): 'rtl' | 'ltr' => (I18nManager.isRTL ? 'rtl' : 'ltr');
+export const writingDirection = (): 'rtl' | 'ltr' => (isRTL() ? 'rtl' : 'ltr');
 
 export const supportsRuntimeReload = Platform.OS !== 'web';

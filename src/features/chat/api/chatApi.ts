@@ -24,9 +24,12 @@ function toConversation(raw: unknown): Conversation {
   return {
     id: String(r.id ?? ''),
     type: (r.type as Conversation['type']) ?? 'PET_OWNER_CLINIC',
-    organizationId: String(r.organizationId ?? ''),
+    organizationId: (r.organizationId as string | null) ?? null,
     counterpartUserId: (r.counterpartUserId as string | null) ?? null,
     viewerSide: (r.viewerSide as Conversation['viewerSide']) ?? 'PET_OWNER',
+    subjectType: (r.subjectType as Conversation['subjectType']) ?? null,
+    subjectId: (r.subjectId as string | null) ?? null,
+    status: (r.status as Conversation['status']) ?? 'OPEN',
     lastMessageAt: (r.lastMessageAt as string | null) ?? null,
     unreadCount:
       r.unreadCount === null || r.unreadCount === undefined ? null : Number(r.unreadCount),
@@ -106,6 +109,11 @@ export const chatApi = {
 
   deleteMessage(messageId: string): Promise<ChatMessage> {
     return apiClient.delete<unknown>(`/messages/${messageId}`).then((r) => toMessage(r));
+  },
+
+  /** "إيقاف المحادثة" — close a PET_OWNER_VETERINARIAN marketplace deal conversation. */
+  async close(conversationId: string): Promise<Conversation> {
+    return toConversation(await apiClient.post<unknown>(`/conversations/${conversationId}/close`));
   },
 
   async start(input: StartConversationInput): Promise<Conversation> {

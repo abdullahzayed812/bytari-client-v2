@@ -58,6 +58,20 @@ describe('Management Centre — role/permission-gated admin navigation', () => {
     expect(screen.queryByText('سجل التدقيق')).toBeNull();
   });
 
+  it('a VET_SERVICE supervisor sees the vet-service moderation queues and can open one', () => {
+    useAuthStore.setState({
+      session: session({ supervisorDomains: ['VET_SERVICE'] }),
+    });
+    renderWithProviders(<ManagementScreen />);
+
+    expect(screen.getByText('مراجعة خدمات الأطباء')).toBeTruthy();
+    expect(screen.getByText('مراجعة طلبات أصحاب الحيوانات')).toBeTruthy();
+    expect(screen.queryByText('المستخدمون والأدوار')).toBeNull();
+
+    fireEvent.press(screen.getByText('مراجعة خدمات الأطباء'));
+    expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/admin/vet-service-listings');
+  });
+
   it('a plain pet owner sees no admin areas', () => {
     useAuthStore.setState({ session: session({}) });
     renderWithProviders(<ManagementScreen />);

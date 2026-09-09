@@ -7,6 +7,7 @@ import type {
   AiSettings,
   CreateConsultationInput,
   CreateInquiryInput,
+  CreateSupportInput,
   Paginated,
   SendMessageInput,
   Thread,
@@ -31,7 +32,7 @@ function normalizeMessage(raw: unknown): ThreadMessage {
   const r = (raw ?? {}) as Record<string, unknown>;
   return {
     id: String(r.id ?? ''),
-    threadId: String(r.threadId ?? r.consultationId ?? r.inquiryId ?? ''),
+    threadId: String(r.threadId ?? r.consultationId ?? r.inquiryId ?? r.supportId ?? ''),
     senderUserId: (r.senderUserId as string | null) ?? null,
     source: r.source as ThreadMessage['source'],
     body: (r.body as string | null) ?? null,
@@ -89,7 +90,9 @@ export function makeThreadApi(kind: ThreadKind) {
       return { items, meta: readMeta(envelope.meta, page, pageSize, items.length) };
     },
 
-    create(body: CreateConsultationInput | CreateInquiryInput): Promise<Thread> {
+    create(
+      body: CreateConsultationInput | CreateInquiryInput | CreateSupportInput,
+    ): Promise<Thread> {
       return apiClient.post<Thread>(`/${slug}`, body);
     },
 
@@ -134,8 +137,11 @@ export type ThreadApi = ReturnType<typeof makeThreadApi>;
 
 export const consultationApi = makeThreadApi('CONSULTATION');
 export const inquiryApi = makeThreadApi('INQUIRY');
+export const supportMessageApi = makeThreadApi('SUPPORT');
 export function threadApi(kind: ThreadKind): ThreadApi {
-  return kind === 'CONSULTATION' ? consultationApi : inquiryApi;
+  if (kind === 'CONSULTATION') return consultationApi;
+  if (kind === 'INQUIRY') return inquiryApi;
+  return supportMessageApi;
 }
 
 /** Admin-only AI toggle (`/admin/ai-settings`, `ai.settings.manage`). */

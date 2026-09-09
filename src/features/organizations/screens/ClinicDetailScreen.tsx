@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Pressable, Share, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
 import { Card, Chip, Divider, Icon, type IconName } from '@/components/content';
@@ -11,6 +11,7 @@ import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useStartConversation } from '@/features/chat';
 import { apiErrorMessage } from '@/lib/apiError';
+import { shareText } from '@/lib/share';
 import { useTheme } from '@/theme';
 
 import { ImageCarousel, RatingStars, ReviewModal } from '../components';
@@ -83,6 +84,7 @@ export default function ClinicDetailScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation('organizations');
+  const { t: tc } = useTranslation('common');
   const toast = useToast();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const q = usePublicOrganization(organizationId);
@@ -123,7 +125,11 @@ export default function ClinicDetailScreen() {
   };
 
   const onShare = () => {
-    void Share.share({ message: org.name + (org.address ? `\n${org.address}` : '') });
+    void shareText(org.name + (org.address ? `\n${org.address}` : '')).then((outcome) => {
+      if (outcome === 'copied') toast.show({ message: tc('share.copied'), tone: 'success' });
+      else if (outcome === 'unavailable')
+        toast.show({ message: tc('share.unavailable'), tone: 'info' });
+    });
   };
 
   const onDirectContact = () => {
@@ -137,7 +143,7 @@ export default function ClinicDetailScreen() {
   };
 
   const onBookAppointment = () => {
-    toast.show({ message: t('clinicDetail.bookAppointmentComingSoon'), tone: 'info' });
+    router.push(Routes.clinicBookAppointment(org.id));
   };
 
   const socialLinks: { icon: IconName; url: string; label: string }[] = [

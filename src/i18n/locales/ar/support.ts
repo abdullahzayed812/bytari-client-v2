@@ -6,6 +6,7 @@ export default {
   kind: {
     CONSULTATION: 'استشارة',
     INQUIRY: 'استفسار',
+    SUPPORT: 'رسالة دعم',
   },
   status: {
     OPEN: 'مفتوحة',
@@ -15,10 +16,12 @@ export default {
     title: {
       CONSULTATION: 'الاستشارات',
       INQUIRY: 'الاستفسارات',
+      SUPPORT: 'رسائلي',
     },
     empty: {
       CONSULTATION: 'لا توجد استشارات حتى الآن',
       INQUIRY: 'لا توجد استفسارات حتى الآن',
+      SUPPORT: 'لا توجد رسائل دعم حتى الآن',
     },
     emptyFiltered: 'لا توجد عناصر مطابقة',
     emptyHint: 'ابدأ محادثة جديدة وسيتم الرد عليها من الفريق المختص.',
@@ -33,6 +36,7 @@ export default {
     title: {
       CONSULTATION: 'إدارة الاستشارات',
       INQUIRY: 'إدارة الاستفسارات',
+      SUPPORT: 'إدارة رسائل الدعم',
     },
     empty: 'لا توجد عناصر تحتاج إلى مراجعة',
     deniedTitle: 'غير متاح',
@@ -51,15 +55,18 @@ export default {
     title: {
       CONSULTATION: 'استشارة جديدة',
       INQUIRY: 'استفسار جديد',
+      SUPPORT: 'رسالة إلى الإدارة',
     },
     intro: {
       CONSULTATION: 'اطرح استشارتك البيطرية. يمكنك ربطها بأحد حيواناتك (اختياري).',
       INQUIRY: 'اطرح استفسارك المهني العام.',
+      SUPPORT: 'أرسل رسالتك إلى فريق الدعم وسيتم الرد عليك في أقرب وقت.',
     },
     bodyLabel: 'الرسالة',
     bodyPlaceholder: {
       CONSULTATION: 'صِف حالة الحيوان أو سؤالك بالتفصيل…',
       INQUIRY: 'اكتب استفسارك…',
+      SUPPORT: 'اكتب رسالتك…',
     },
     animalLabel: 'الحيوان (اختياري)',
     animalPlaceholder: 'اختر حيواناً',

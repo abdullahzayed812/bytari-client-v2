@@ -37,8 +37,8 @@ export function ConversationTitle({ conversation, ...textProps }: ConversationTi
 function OrgName({
   organizationId,
   ...textProps
-}: { organizationId: string } & Omit<TextProps, 'children'>) {
+}: { organizationId: string | null } & Omit<TextProps, 'children'>) {
   const { t } = useTranslation('chat');
-  const q = useOrganization(organizationId);
+  const q = useOrganization(organizationId ?? undefined);
   return <Text {...textProps}>{q.data?.name ?? t('title.unknownOrg')}</Text>;
 }

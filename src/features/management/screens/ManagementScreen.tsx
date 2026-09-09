@@ -23,6 +23,7 @@ export default function ManagementScreen() {
   const { t } = useTranslation('auth');
   const { t: ta } = useTranslation('admin');
   const { t: ts } = useTranslation('support');
+  const { t: tp } = useTranslation('petOwnerStore');
   const caps = useCapabilities();
 
   const areas = [
@@ -57,6 +58,30 @@ export default function ManagementScreen() {
       show: caps.isAdmin || caps.can('trader.admin.read'),
     },
     {
+      key: 'animalPublications',
+      label: ta('animalPublications.title'),
+      route: Routes.adminAnimalPublications,
+      show: caps.isAdmin || caps.isSupervisorOf('ANIMAL') || caps.can('animal.read'),
+    },
+    {
+      key: 'adminAnimals',
+      label: ta('adminAnimals.title'),
+      route: Routes.adminAnimals,
+      show: caps.isAdmin || caps.isSupervisorOf('ANIMAL') || caps.can('animal.read'),
+    },
+    {
+      key: 'vetServiceListings',
+      label: ta('vetServiceListings.title'),
+      route: Routes.adminVetServiceListings,
+      show: caps.isAdmin || caps.isSupervisorOf('VET_SERVICE') || caps.can('vet_service.read'),
+    },
+    {
+      key: 'vetServiceRequests',
+      label: ta('vetServiceRequests.title'),
+      route: Routes.adminVetServiceRequests,
+      show: caps.isAdmin || caps.isSupervisorOf('VET_SERVICE') || caps.can('vet_service.read'),
+    },
+    {
       key: 'marketOffers',
       label: ta('home.marketOffers'),
       route: Routes.adminMarketOffers('poultry'),
@@ -73,6 +98,33 @@ export default function ManagementScreen() {
       label: ta('home.eggExchangeRates'),
       route: Routes.eggExchangeRatesEntry,
       show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage'),
+    },
+    {
+      key: 'petStoreProducts',
+      label: tp('admin.entry.products'),
+      route: Routes.adminPetStoreProducts,
+      show:
+        caps.isAdmin ||
+        caps.isSupervisorOf('PET_OWNER_STORE') ||
+        caps.can('pet_store.product.manage'),
+    },
+    {
+      key: 'petStoreCategories',
+      label: tp('admin.entry.categories'),
+      route: Routes.adminPetStoreCategories,
+      show:
+        caps.isAdmin ||
+        caps.isSupervisorOf('PET_OWNER_STORE') ||
+        caps.can('pet_store.category.manage'),
+    },
+    {
+      key: 'petStoreOrders',
+      label: tp('admin.entry.orders'),
+      route: Routes.adminPetStoreOrders,
+      show:
+        caps.isAdmin ||
+        caps.isSupervisorOf('PET_OWNER_STORE') ||
+        caps.can('pet_store.order.manage'),
     },
     {
       key: 'supervisors',

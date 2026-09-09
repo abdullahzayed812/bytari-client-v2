@@ -17,7 +17,7 @@ import { useTheme } from '@/theme';
 
 import { GovernorateFilterRow, MarketOfferCard } from '../components';
 import { EGG_TYPE_ORDER } from '../constants';
-import { useDeleteEggOffer, useEggOffers, useTraderStatus } from '../hooks';
+import { useDeleteEggOffer, useEggOffers, useMyEggOffers, useTraderStatus } from '../hooks';
 import type { EggOffer, EggType } from '../types';
 
 /** Route `/(app)/poultry/egg-market` — سوق البيض. */
@@ -32,9 +32,12 @@ export default function EggMarketScreen() {
 
   const [eggType, setEggType] = useState<EggType | undefined>(undefined);
   const [governorate, setGovernorate] = useState<string | undefined>(undefined);
+  const [scope, setScope] = useState<'all' | 'mine'>('all');
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
-  const q = useEggOffers({ eggType, governorate });
+  const allQ = useEggOffers({ eggType, governorate, enabled: scope === 'all' });
+  const mineQ = useMyEggOffers({ enabled: scope === 'mine' && trader.isApproved });
+  const q = scope === 'all' ? allQ : mineQ;
   const del = useDeleteEggOffer();
 
   const canManage = (offer: EggOffer): boolean =>
@@ -48,21 +51,44 @@ export default function EggMarketScreen() {
       <Section spacing="md">
         <Advertisement placement="EGG_MARKET" />
       </Section>
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={[undefined, ...EGG_TYPE_ORDER]}
-        keyExtractor={(v) => v ?? 'ALL'}
-        contentContainerStyle={{ paddingHorizontal: theme.screenPadding, columnGap: theme.spacing.sm }}
-        renderItem={({ item }) => (
+      {trader.isApproved ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            columnGap: theme.spacing.sm,
+            paddingHorizontal: theme.screenPadding,
+          }}
+        >
+          <Chip label={t('scope.all')} selected={scope === 'all'} onPress={() => setScope('all')} />
           <Chip
-            label={item ? t(`eggMarket.eggType.${item}`) : t('eggMarket.eggType.ALL')}
-            selected={eggType === item}
-            onPress={() => setEggType(item)}
+            label={t('scope.mineOffers')}
+            selected={scope === 'mine'}
+            onPress={() => setScope('mine')}
           />
-        )}
-      />
-      <GovernorateFilterRow value={governorate} onChange={setGovernorate} />
+        </View>
+      ) : null}
+      {scope === 'all' ? (
+        <>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={[undefined, ...EGG_TYPE_ORDER]}
+            keyExtractor={(v) => v ?? 'ALL'}
+            contentContainerStyle={{
+              paddingHorizontal: theme.screenPadding,
+              columnGap: theme.spacing.sm,
+            }}
+            renderItem={({ item }) => (
+              <Chip
+                label={item ? t(`eggMarket.eggType.${item}`) : t('eggMarket.eggType.ALL')}
+                selected={eggType === item}
+                onPress={() => setEggType(item)}
+              />
+            )}
+          />
+          <GovernorateFilterRow value={governorate} onChange={setGovernorate} />
+        </>
+      ) : null}
     </View>
   );
 
@@ -124,7 +150,11 @@ export default function EggMarketScreen() {
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
           ListEmptyComponent={
-            <EmptyState icon="egg-outline" title={t('eggMarket.empty')} message={t('eggMarket.emptyHint')} />
+            <EmptyState
+              icon="egg-outline"
+              title={scope === 'mine' ? t('scope.mineEmpty') : t('eggMarket.empty')}
+              message={scope === 'mine' ? t('scope.mineEmptyHint') : t('eggMarket.emptyHint')}
+            />
           }
           ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
           contentContainerStyle={{

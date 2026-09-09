@@ -10,14 +10,14 @@ import type { MessageSource, ThreadKind, ThreadKindSlug, ThreadStatus } from './
 export interface ThreadKindMeta {
   slug: ThreadKindSlug;
   /** Plural route slug ⇄ the singular used by the realtime room / event names. */
-  singular: 'consultation' | 'inquiry';
+  singular: 'consultation' | 'inquiry' | 'support';
   icon: IconName;
   /** Only APPROVED vets may create an inquiry (backend `createEligibility`). */
   createRequiresApprovedVet: boolean;
   adminReadPerm: string;
   respondPerm: string;
   closePerm: string;
-  supervisorDomain: Extract<SupervisorDomain, 'CONSULTATION' | 'INQUIRY'>;
+  supervisorDomain: Extract<SupervisorDomain, 'CONSULTATION' | 'INQUIRY' | 'SUPPORT'>;
 }
 
 export const SUPPORT_KIND_META: Record<ThreadKind, ThreadKindMeta> = {
@@ -41,13 +41,24 @@ export const SUPPORT_KIND_META: Record<ThreadKind, ThreadKindMeta> = {
     closePerm: 'inquiry.close',
     supervisorDomain: 'INQUIRY',
   },
+  SUPPORT: {
+    slug: 'support-messages',
+    singular: 'support',
+    icon: 'headset-outline',
+    createRequiresApprovedVet: false,
+    adminReadPerm: 'support.admin.read',
+    respondPerm: 'support.respond',
+    closePerm: 'support.close',
+    supervisorDomain: 'SUPPORT',
+  },
 };
 
-export const THREAD_KIND_ORDER: readonly ThreadKind[] = ['CONSULTATION', 'INQUIRY'];
+export const THREAD_KIND_ORDER: readonly ThreadKind[] = ['CONSULTATION', 'INQUIRY', 'SUPPORT'];
 
 const SLUG_TO_KIND: Record<ThreadKindSlug, ThreadKind> = {
   consultations: 'CONSULTATION',
   inquiries: 'INQUIRY',
+  'support-messages': 'SUPPORT',
 };
 
 export function kindFromSlug(slug: string | undefined): ThreadKind | undefined {

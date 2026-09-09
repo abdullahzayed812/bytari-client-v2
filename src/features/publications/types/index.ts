@@ -114,6 +114,20 @@ export interface PublicPublication extends PublicationListingFields {
   animal: PublicationAnimal;
 }
 
+/**
+ * "My listings" projection — `GET /animal-publications/mine`. The caller's OWN
+ * listings of EVERY status (owner id derived server-side from the session).
+ * The public shape plus the moderation fields, so the owner can see PENDING /
+ * REJECTED listings and why one was rejected.
+ */
+export interface MyPublication extends PublicPublication {
+  animalId: string;
+  status: PublicationStatus;
+  rejectionReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- request payloads (client sends ONLY these fields) --------------
 
 export interface CreateLostPublicationInput {

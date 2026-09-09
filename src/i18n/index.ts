@@ -20,6 +20,7 @@ export const NAMESPACES = [
   'admin',
   'pets',
   'poultry',
+  'petOwnerStore',
   'home',
   'veterinarian',
   'organizations',
@@ -33,11 +34,15 @@ export const NAMESPACES = [
   'content',
   'news',
   'chat',
+  'clinicAppointments',
+  'contact',
+  'settings',
   'users',
   'support',
   'notifications',
   'showcase',
   'registration',
+  'vetServices',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

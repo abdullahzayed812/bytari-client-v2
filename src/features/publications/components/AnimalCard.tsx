@@ -7,14 +7,22 @@ import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { PUBLICATION_KIND_META, publicationSpeciesIcon } from '../constants';
-import type { PublicationKind, PublicPublication } from '../types';
+import {
+  PUBLICATION_KIND_META,
+  PUBLICATION_STATUS_TONE,
+  publicationSpeciesIcon,
+} from '../constants';
+import type { PublicationKind, PublicationStatus, PublicPublication } from '../types';
 
 export interface AnimalCardProps {
   publication: PublicPublication;
   kind: PublicationKind;
   width: DimensionValue;
   onPress: () => void;
+  /** "My Listings" view — show the moderation status pill. */
+  status?: PublicationStatus;
+  /** "My Listings" view — show a delete affordance on the card. */
+  onDelete?: () => void;
 }
 
 /** Age label from the joined animal — falls back to the age-estimate bucket. */
@@ -38,7 +46,14 @@ function ageLabel(
  * found/adopted/mated tracking exists on the backend, so every APPROVED
  * listing of a kind shows the same badge — no fake per-card state).
  */
-export function AnimalCard({ publication, kind, width, onPress }: AnimalCardProps) {
+export function AnimalCard({
+  publication,
+  kind,
+  width,
+  onPress,
+  status,
+  onDelete,
+}: AnimalCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('publications');
   const { animal } = publication;
@@ -47,6 +62,15 @@ export function AnimalCard({ publication, kind, width, onPress }: AnimalCardProp
   const cover = animal.galleryUrls[0] ?? null;
   const location = kind === 'LOST' ? publication.lostDistrict : publication.city;
   const age = ageLabel(animal, t);
+  const statusColor = status
+    ? theme.colors[
+        PUBLICATION_STATUS_TONE[status] === 'success'
+          ? 'success'
+          : PUBLICATION_STATUS_TONE[status] === 'danger'
+            ? 'danger'
+            : 'warning'
+      ]
+    : undefined;
 
   return (
     <Pressable
@@ -99,6 +123,48 @@ export function AnimalCard({ publication, kind, width, onPress }: AnimalCardProp
             {t(`card.badge.${kind}`)}
           </Text>
         </View>
+
+        {status ? (
+          <View
+            style={{
+              position: 'absolute',
+              top: theme.spacing.sm,
+              right: theme.spacing.sm,
+              backgroundColor: theme.colors.surface,
+              borderRadius: theme.radius.pill,
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: 4,
+              ...theme.shadows.xs,
+            }}
+          >
+            <Text variant="overline" style={{ color: statusColor }}>
+              {t(`status.${status}`)}
+            </Text>
+          </View>
+        ) : null}
+
+        {onDelete ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('mine.delete')}
+            onPress={onDelete}
+            hitSlop={8}
+            style={{
+              position: 'absolute',
+              bottom: theme.spacing.sm,
+              right: theme.spacing.sm,
+              width: 30,
+              height: 30,
+              borderRadius: 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: theme.colors.surface,
+              ...theme.shadows.xs,
+            }}
+          >
+            <Icon name="trash-outline" size="iconXs" color="danger" />
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={{ padding: theme.spacing.md, rowGap: 4 }}>

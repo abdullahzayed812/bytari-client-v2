@@ -106,4 +106,28 @@ describe('adminApi — maps 1:1 to the backend admin surface', () => {
       }),
     );
   });
+
+  it('animals → GET /admin/animals (with owner + status filters), DELETE /admin/animals/:id', async () => {
+    await adminApi.listAnimals({
+      page: 1,
+      pageSize: 20,
+      status: 'ACTIVE',
+      search: 'ريكس',
+      ownerUserId: 'u7',
+    });
+    expect(requestEnvelope).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: '/admin/animals',
+        params: expect.objectContaining({
+          page: 1,
+          pageSize: 20,
+          status: 'ACTIVE',
+          search: 'ريكس',
+          ownerUserId: 'u7',
+        }),
+      }),
+    );
+    await adminApi.deleteAnimal('an1');
+    expect(del).toHaveBeenCalledWith('/admin/animals/an1');
+  });
 });

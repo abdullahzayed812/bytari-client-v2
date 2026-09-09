@@ -1,10 +1,18 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import type { TFunction } from 'i18next';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Linking, Pressable, View } from 'react-native';
 
+import { Button } from '@/components/actions';
 import { Card, Icon, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { ImageCarousel } from '@/features/organizations';
@@ -18,6 +26,7 @@ import { KIND_INTERACTION, PUBLICATION_KIND_META, publicationKindFromSlug } from
 import {
   useAnimalPublication,
   useCreatePublicationInteraction,
+  useDeletePublication,
   usePublicPublication,
 } from '../hooks';
 import type { PublicationKind, PublicPublication } from '../types';
@@ -198,6 +207,8 @@ export default function PublicationDetailScreen() {
   const publicQ = usePublicPublication(publicationId, { enabled: !isOwnerView });
   const q = isOwnerView ? ownerQ : publicQ;
   const interact = useCreatePublicationInteraction(publicationId ?? '');
+  const del = useDeletePublication();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const notFound =
     q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
@@ -264,6 +275,42 @@ export default function PublicationDetailScreen() {
             <Text variant="bodyMedium">{pub.note}</Text>
           </Card>
         </Section>
+        <Section spacing="xl">
+          <Button
+            label={t('mine.delete')}
+            variant="danger"
+            fullWidth
+            leftIcon="trash-outline"
+            loading={del.isPending}
+            onPress={() => setConfirmDelete(true)}
+          />
+        </Section>
+
+        <ConfirmationDialog
+          visible={confirmDelete}
+          title={t('mine.deleteTitle')}
+          message={t('mine.deleteBody')}
+          confirmLabel={t('mine.deleteConfirm')}
+          destructive
+          loading={del.isPending}
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={() =>
+            del.mutate(
+              { publicationId: pub.id, kind: pub.kind, animalId: pub.animalId },
+              {
+                onSuccess: () => {
+                  setConfirmDelete(false);
+                  toast.show({ tone: 'success', message: t('mine.deleteSuccess') });
+                  router.back();
+                },
+                onError: (error) => {
+                  setConfirmDelete(false);
+                  toast.show({ tone: 'danger', message: apiErrorMessage(error) });
+                },
+              },
+            )
+          }
+        />
       </ScrollScreen>
     );
   }

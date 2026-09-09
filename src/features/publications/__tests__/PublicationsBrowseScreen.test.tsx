@@ -3,7 +3,7 @@ import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/route
 
 import { publicationsApi } from '../api';
 import PublicationsBrowseScreen from '../screens/PublicationsBrowseScreen';
-import type { PublicPublication } from '../types';
+import type { MyPublication, PublicPublication } from '../types';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -103,5 +103,60 @@ describe("PublicationsBrowseScreen — grid list of ALL users' APPROVED listings
     await waitFor(() => expect(screen.getByText('لا توجد حيوانات متاحة للتبني')).toBeOnTheScreen());
     fireEvent.press(screen.getByLabelText('إضافة حيوان'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/publications/adoption/create');
+  });
+});
+
+describe('PublicationsBrowseScreen — "My listings" scope', () => {
+  // Spies created inside beforeEach — a sibling describe's `afterAll(restoreAllMocks)`
+  // would otherwise detach spies created in this describe's body.
+  let listMine: jest.SpyInstance;
+  let remove: jest.SpyInstance;
+
+  const myPub = (over: Partial<MyPublication> = {}): MyPublication => ({
+    ...(pub() as PublicPublication),
+    animalId: 'a1',
+    status: 'PENDING',
+    rejectionReason: null,
+    createdAt: '2026-02-01T10:00:00.000Z',
+    updatedAt: '2026-02-01T10:00:00.000Z',
+    ...over,
+  });
+
+  beforeEach(() => {
+    resetRouterMock();
+    jest.spyOn(publicationsApi, 'listPublic').mockResolvedValue({
+      items: [],
+      meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
+    });
+    listMine = jest.spyOn(publicationsApi, 'listMine').mockResolvedValue({
+      items: [myPub({ status: 'PENDING' })],
+      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+    remove = jest.spyOn(publicationsApi, 'remove').mockResolvedValue({ success: true });
+  });
+  afterAll(() => jest.restoreAllMocks());
+
+  it('switching to "منشوراتي" calls listMine (server derives the owner) and shows the status', async () => {
+    setSearchParams({ kind: 'adoption' });
+    renderWithProviders(<PublicationsBrowseScreen />);
+
+    fireEvent.press(screen.getByText('منشوراتي'));
+    await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
+    expect(listMine).toHaveBeenCalledWith(1, 20, { kind: 'ADOPTION', status: undefined });
+    expect(screen.getByText('قيد المراجعة')).toBeOnTheScreen();
+  });
+
+  it('tapping an own card opens the owner detail; the trash button deletes it', async () => {
+    setSearchParams({ kind: 'adoption' });
+    renderWithProviders(<PublicationsBrowseScreen />);
+    fireEvent.press(screen.getByText('منشوراتي'));
+    await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
+
+    fireEvent.press(screen.getByRole('button', { name: /ميمي/ }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/a1/publications/p1');
+
+    fireEvent.press(screen.getByLabelText('حذف الإعلان'));
+    fireEvent.press(screen.getByText('تأكيد الحذف'));
+    await waitFor(() => expect(remove).toHaveBeenCalledWith('p1'));
   });
 });

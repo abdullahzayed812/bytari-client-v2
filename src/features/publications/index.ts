@@ -9,14 +9,25 @@
  * to the caller) — contact info IS included (explicit, per-listing, not the
  * account's private phone), and photos are real (the animal's own gallery).
  */
-export { publicationsApi, publicationKeys, type PublicationsApi } from './api';
+export {
+  publicationsApi,
+  adminPublicationsApi,
+  publicationKeys,
+  type PublicationsApi,
+  type AdminPublicationsApi,
+} from './api';
 export {
   usePublicPublications,
+  useMyPublications,
   usePublicPublication,
   useAnimalPublications,
   useAnimalPublication,
   useCreatePublication,
+  useDeletePublication,
   useCreatePublicationInteraction,
+  useAdminAnimalPublications,
+  useAdminApprovePublication,
+  useAdminRejectPublication,
 } from './hooks';
 export {
   AnimalCard,

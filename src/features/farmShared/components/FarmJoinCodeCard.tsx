@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Share, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Card } from '@/components/content';
 import { ConfirmationDialog, useToast } from '@/components/feedback';
 import { Caption, Label, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
+import { shareText } from '@/lib/share';
 import { useTheme } from '@/theme';
 
 import { useFarmJoinCode, useRegenerateFarmJoinCode } from '../hooks';
@@ -25,6 +26,7 @@ interface Props {
 export function FarmJoinCodeCard({ organizationId, organizationName }: Props) {
   const theme = useTheme();
   const { t } = useTranslation('farm');
+  const { t: tc } = useTranslation('common');
   const toast = useToast();
   const q = useFarmJoinCode(organizationId);
   const regenerate = useRegenerateFarmJoinCode(organizationId);
@@ -34,7 +36,11 @@ export function FarmJoinCodeCard({ organizationId, organizationName }: Props) {
 
   const share = () => {
     if (!code) return;
-    void Share.share({ message: t('joinCode.shareMessage', { name: organizationName, code }) });
+    void shareText(t('joinCode.shareMessage', { name: organizationName, code })).then((outcome) => {
+      if (outcome === 'copied') toast.show({ message: tc('share.copied'), tone: 'success' });
+      else if (outcome === 'unavailable')
+        toast.show({ message: tc('share.unavailable'), tone: 'info' });
+    });
   };
 
   return (

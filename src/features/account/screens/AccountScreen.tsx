@@ -1,11 +1,12 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Avatar, Badge, Card, Divider, Icon } from '@/components/content';
-import { ConfirmationDialog } from '@/components/feedback';
+import { Avatar, Badge, Card, Chip, Divider, Icon } from '@/components/content';
+import { ConfirmationDialog, useToast } from '@/components/feedback';
 import { Switch } from '@/components/forms';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -18,7 +19,8 @@ import {
   VeterinarianStatusBadge,
 } from '@/features/auth';
 import { useAppMode, useAuth, useCapabilities } from '@/hooks';
-import { usePreferencesStore } from '@/store';
+import { setLanguage as applyI18nLanguage } from '@/i18n';
+import { usePreferencesStore, type AppLanguage } from '@/store';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
 
@@ -32,12 +34,26 @@ type Pending = 'none' | 'one' | 'all';
 export default function AccountScreen() {
   const theme = useTheme();
   const { t } = useTranslation('auth');
+  const { t: tn } = useTranslation('nav');
+  const toast = useToast();
   const { user } = useAuth();
   const caps = useCapabilities();
   const vet = useVeterinarianStatus();
   const mode = useAppMode();
   const themePreference = usePreferencesStore((s) => s.themePreference);
   const setThemePreference = usePreferencesStore((s) => s.setThemePreference);
+  const language = usePreferencesStore((s) => s.language);
+  const setLanguagePref = usePreferencesStore((s) => s.setLanguage);
+  const appVersion = Constants.expoConfig?.version ?? '—';
+
+  const changeLanguage = async (next: AppLanguage): Promise<void> => {
+    if (next === language) return;
+    setLanguagePref(next);
+    const { directionChanged } = await applyI18nLanguage(next);
+    if (directionChanged) {
+      toast.show({ message: tn('more.languageRestart'), tone: 'info', durationMs: 6000 });
+    }
+  };
 
   const logout = useLogoutMutation();
   const logoutAll = useLogoutAllMutation();
@@ -129,7 +145,24 @@ export default function AccountScreen() {
       ) : null}
 
       <Section spacing="xl">
+        <Label>{tn('more.sectionApp')}</Label>
         <Card variant="outlined">
+          <View style={{ rowGap: theme.spacing.sm }}>
+            <Text variant="bodyMedium">{tn('more.language')}</Text>
+            <Row gap="sm">
+              <Chip
+                label={tn('more.languageArabic')}
+                selected={language === 'ar'}
+                onPress={() => void changeLanguage('ar')}
+              />
+              <Chip
+                label={tn('more.languageEnglish')}
+                selected={language === 'en'}
+                onPress={() => void changeLanguage('en')}
+              />
+            </Row>
+          </View>
+          <Divider spacing="md" />
           <Switch
             label="الوضع الداكن (تجريبي)"
             value={themePreference === 'dark'}
@@ -141,6 +174,11 @@ export default function AccountScreen() {
             icon="color-palette-outline"
             onPress={() => router.push(Routes.showcase)}
           />
+          <Divider spacing="md" />
+          <Row justify="space-between">
+            <Caption>{tn('more.version')}</Caption>
+            <Caption>{appVersion}</Caption>
+          </Row>
         </Card>
       </Section>
 

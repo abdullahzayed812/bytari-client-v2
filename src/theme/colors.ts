@@ -93,6 +93,15 @@ export interface ColorTokens {
   featureLostSurface: string;
   featureLostAccent: string;
 
+  /**
+   * Veterinary Services marketplace accents — purple for vet SERVICE listings,
+   * orange for pet-owner REQUESTS. Scoped to that section only.
+   */
+  serviceSurface: string;
+  serviceAccent: string;
+  requestSurface: string;
+  requestAccent: string;
+
   /** Bottom-nav specifics from the reference design. */
   tabBarBackground: string;
   tabBarChipBackground: string;
@@ -148,6 +157,11 @@ export const lightColors: ColorTokens = {
   featureLostSurface: palette.peach50,
   featureLostAccent: palette.peach500,
 
+  serviceSurface: palette.violet50,
+  serviceAccent: palette.violet500,
+  requestSurface: palette.peach50,
+  requestAccent: palette.peach500,
+
   tabBarBackground: palette.gray50,
   tabBarChipBackground: palette.white,
   tabBarActive: palette.green500,
@@ -202,6 +216,11 @@ export const darkColors: ColorTokens = {
   featureMatingAccent: '#B49BF0',
   featureLostSurface: '#3A1E12',
   featureLostAccent: '#F0A184',
+
+  serviceSurface: '#241B3D',
+  serviceAccent: '#B49BF0',
+  requestSurface: '#3A1E12',
+  requestAccent: '#F0A184',
 
   tabBarBackground: palette.gray800,
   tabBarChipBackground: palette.gray700,

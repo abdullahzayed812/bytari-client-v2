@@ -63,6 +63,12 @@ export default {
     addOffer: 'إضافة عرض بيع',
   },
   deleteConfirm: { title: 'حذف العرض', body: 'هل أنت متأكد من حذف هذا العرض؟' },
+  scope: {
+    all: 'الكل',
+    mineOffers: 'عروضي',
+    mineEmpty: 'لا توجد عروض لك',
+    mineEmptyHint: 'ستظهر هنا العروض التي أنشأتها.',
+  },
   poultryMarket: {
     title: 'سوق الدواجن',
     addTitle: 'إضافة عرض بيع',

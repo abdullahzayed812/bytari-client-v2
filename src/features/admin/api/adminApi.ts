@@ -25,6 +25,8 @@ import type {
   UserRolesResult,
   UserStatusAction,
   RoleKey,
+  AdminAnimal,
+  AdminAnimalsFilter,
 } from '../types';
 
 /**
@@ -219,6 +221,20 @@ export const adminApi = {
 
   removeSupervisor(assignmentId: string): Promise<SupervisorAssignment> {
     return apiClient.delete<SupervisorAssignment>(`/admin/supervisors/${assignmentId}`);
+  },
+
+  // --- animals (oversight of user pets) -----------------
+  listAnimals(f: AdminAnimalsFilter): Promise<Paginated<AdminAnimal>> {
+    return listPaged<AdminAnimal>('/admin/animals', f.page, f.pageSize, {
+      status: f.status,
+      species: f.species,
+      search: f.search,
+      ownerUserId: f.ownerUserId,
+    });
+  },
+
+  deleteAnimal(animalId: string): Promise<{ id: string; status: string }> {
+    return apiClient.delete<{ id: string; status: string }>(`/admin/animals/${animalId}`);
   },
 
   // --- audit log ---------------------------------------

@@ -3,6 +3,7 @@ export {
   threadApi,
   consultationApi,
   inquiryApi,
+  supportMessageApi,
   aiSettingsApi,
   type ThreadApi,
 } from './supportApi';

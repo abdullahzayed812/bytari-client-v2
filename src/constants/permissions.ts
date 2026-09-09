@@ -48,6 +48,14 @@ export const Permission = {
   MARKET_OFFER_ADMIN_READ: 'market.offer.admin.read',
   MARKET_OFFER_ADMIN_DELETE: 'market.offer.admin.delete',
   MARKET_RATE_MANAGE: 'market.rate.manage',
+  // Pet Owners Store — platform catalogue + order management
+  PET_STORE_PRODUCT_MANAGE: 'pet_store.product.manage',
+  PET_STORE_CATEGORY_MANAGE: 'pet_store.category.manage',
+  PET_STORE_ORDER_MANAGE: 'pet_store.order.manage',
+  // Veterinary Services marketplace — listing + request moderation
+  VET_SERVICE_READ: 'vet_service.read',
+  VET_SERVICE_APPROVE: 'vet_service.approve',
+  VET_SERVICE_REJECT: 'vet_service.reject',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission] | (string & {});

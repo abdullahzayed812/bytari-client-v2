@@ -2,6 +2,10 @@ export default {
   appName: 'بيطري',
   tagline: 'منصة الرعاية البيطرية',
   comingSoon: 'هذه الميزة ستتوفر قريباً.',
+  share: {
+    copied: 'تم النسخ إلى الحافظة',
+    unavailable: 'المشاركة غير مدعومة في هذا المتصفح',
+  },
   actions: {
     continue: 'متابعة',
     cancel: 'إلغاء',

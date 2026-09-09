@@ -116,7 +116,11 @@ export default function AdminFarmDetailScreen() {
             <View style={{ rowGap: theme.spacing.xs }}>
               <Text variant="heading">{org.name}</Text>
               <View style={{ marginTop: 4 }}>
-                <Badge label={t(`orgs.status.${org.status}`)} tone={statusTone(org.status)} size="sm" />
+                <Badge
+                  label={t(`orgs.status.${org.status}`)}
+                  tone={statusTone(org.status)}
+                  size="sm"
+                />
               </View>
               {org.description ? (
                 <Text variant="body" color="textSecondary" style={{ marginTop: theme.spacing.sm }}>
@@ -130,7 +134,10 @@ export default function AdminFarmDetailScreen() {
             <Card variant="outlined" padding="md">
               <View style={{ rowGap: theme.spacing.sm }}>
                 <Row label={t('farms.detail.ownerLabel')} value={org.ownerUserId} />
-                <Row label={t('orgs.detail.createdLabel')} value={new Date(org.createdAt).toLocaleDateString()} />
+                <Row
+                  label={t('orgs.detail.createdLabel')}
+                  value={new Date(org.createdAt).toLocaleDateString()}
+                />
                 {org.decisionReason ? (
                   <Row label={t('orgs.detail.decisionLabel')} value={org.decisionReason} />
                 ) : null}
@@ -328,7 +335,9 @@ export default function AdminFarmDetailScreen() {
         onCancel={() => setOrgPending(null)}
       />
       <ReasonPromptDialog
-        visible={orgPending === 'suspend' || orgPending === 'activate' || orgPending === 'deactivate'}
+        visible={
+          orgPending === 'suspend' || orgPending === 'activate' || orgPending === 'deactivate'
+        }
         title={t('orgs.statusTitle')}
         message={t('orgs.statusBody')}
         label={t('orgs.reasonLabel')}
@@ -338,7 +347,11 @@ export default function AdminFarmDetailScreen() {
         destructive={orgPending === 'suspend' || orgPending === 'deactivate'}
         loading={decide.isPending}
         onConfirm={(reason) => {
-          if (orgPending === 'suspend' || orgPending === 'activate' || orgPending === 'deactivate') {
+          if (
+            orgPending === 'suspend' ||
+            orgPending === 'activate' ||
+            orgPending === 'deactivate'
+          ) {
             runStatus(orgPending, reason || undefined);
           }
         }}
@@ -466,9 +479,19 @@ function SubscriptionDatesDialog({
   return (
     <Modal visible={visible} onClose={onCancel} title={title} dismissable={!loading}>
       <View style={{ rowGap: theme.spacing.md }}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: theme.spacing.md, rowGap: 4 }}>
-          <TextButton label={t('farms.detail.quickExpired')} onPress={fillExpired} disabled={loading} />
-          <TextButton label={t('farms.detail.quickActiveYear')} onPress={fillActiveYear} disabled={loading} />
+        <View
+          style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: theme.spacing.md, rowGap: 4 }}
+        >
+          <TextButton
+            label={t('farms.detail.quickExpired')}
+            onPress={fillExpired}
+            disabled={loading}
+          />
+          <TextButton
+            label={t('farms.detail.quickActiveYear')}
+            onPress={fillActiveYear}
+            disabled={loading}
+          />
         </View>
         <Input
           label={t('farms.detail.startDateLabel')}
@@ -582,7 +605,9 @@ function RenewalRejectDialog({
       required
       destructive
       loading={decide.isPending}
-      onConfirm={(reason) => decide.mutate({ decision: 'reject', reason }, { onSuccess: onDone, onError })}
+      onConfirm={(reason) =>
+        decide.mutate({ decision: 'reject', reason }, { onSuccess: onDone, onError })
+      }
       onCancel={onCancel}
     />
   );

@@ -132,19 +132,68 @@ export const Routes = {
     section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
   ) => `/(app)/livestock/cattle/${organizationId}/sections/${section}` as const,
 
+  // Pet Owners Store — consumer storefront (3rd bottom tab in Pet Owner mode)
+  petOwnerStore: '/(app)/pet-owner-store',
+  petOwnerStoreProducts: '/(app)/pet-owner-store/products',
+  petOwnerStoreProduct: (productId: string) =>
+    `/(app)/pet-owner-store/products/${productId}` as const,
+  petOwnerStoreCart: '/(app)/pet-owner-store/cart',
+  petOwnerStoreCheckout: '/(app)/pet-owner-store/checkout',
+  petOwnerStoreOrders: '/(app)/pet-owner-store/orders',
+  petOwnerStoreOrder: (orderId: string) => `/(app)/pet-owner-store/orders/${orderId}` as const,
+
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',
+
+  // Clinic appointments — Pet Owner ↔ Clinic booking ("حجز موعد")
+  /** The authenticated Pet Owner's appointment list. */
+  petOwnerAppointments: '/(app)/clinic-appointments',
+  petOwnerAppointment: (appointmentId: string) =>
+    `/(app)/clinic-appointments/${appointmentId}` as const,
+  /** Booking screen, opened from a Clinic Details screen. */
+  clinicBookAppointment: (organizationId: string) =>
+    `/(app)/clinic-appointments/book/${organizationId}` as const,
 
   // Chat — Pet Owner ↔ Clinic / Farm Owner ↔ member (Final Completion phase)
   chat: '/(app)/chat',
   chatThread: (conversationId: string) => `/(app)/chat/${conversationId}` as const,
 
-  // Consultations & Inquiries (Mobile Phase 13)
-  support: (kind: 'consultations' | 'inquiries') => `/(app)/support/${kind}` as const,
-  supportCreate: (kind: 'consultations' | 'inquiries') => `/(app)/support/${kind}/create` as const,
-  supportManage: (kind: 'consultations' | 'inquiries') => `/(app)/support/${kind}/manage` as const,
-  supportThread: (kind: 'consultations' | 'inquiries', threadId: string) =>
-    `/(app)/support/${kind}/${threadId}` as const,
+  // Consultations & Inquiries + Support Messages ("تواصل معنا") (Mobile Phase 13)
+  support: (kind: 'consultations' | 'inquiries' | 'support-messages') =>
+    `/(app)/support/${kind}` as const,
+  supportCreate: (kind: 'consultations' | 'inquiries' | 'support-messages') =>
+    `/(app)/support/${kind}/create` as const,
+  supportManage: (kind: 'consultations' | 'inquiries' | 'support-messages') =>
+    `/(app)/support/${kind}/manage` as const,
+  supportThread: (
+    kind: 'consultations' | 'inquiries' | 'support-messages',
+    threadId: string,
+  ) => `/(app)/support/${kind}/${threadId}` as const,
+
+  // Settings & Contact ("الإعدادات" / "تواصل معنا")
+  settings: '/(app)/settings',
+  settingsAbout: '/(app)/settings/about',
+  contact: '/(app)/contact',
+
+  // Veterinary Services marketplace ("الخدمات")
+  vetServices: '/(app)/vet-services',
+  vetServiceListings: '/(app)/vet-services/listings',
+  vetServiceListing: (listingId: string) =>
+    `/(app)/vet-services/listings/${listingId}` as const,
+  vetServiceListingNew: '/(app)/vet-services/listings/new',
+  vetServiceListingRequest: (listingId: string) =>
+    `/(app)/vet-services/listings/${listingId}/request` as const,
+  vetServiceRequests: '/(app)/vet-services/requests',
+  vetServiceRequest: (requestId: string) =>
+    `/(app)/vet-services/requests/${requestId}` as const,
+  vetServiceRequestNew: '/(app)/vet-services/requests/new',
+  vetServiceOfferNew: (requestId: string) =>
+    `/(app)/vet-services/requests/${requestId}/offer` as const,
+  vetServiceMy: '/(app)/vet-services/my',
+  vetServiceDeal: (conversationId: string) =>
+    `/(app)/vet-services/deals/${conversationId}` as const,
+  vetServiceEngagement: (kind: 'offer' | 'listing-request', engagementId: string) =>
+    `/(app)/vet-services/engagements/${kind}/${engagementId}` as const,
 
   // Veterinarian & Organizations (Mobile Phase 4)
   veterinarian: '/(app)/veterinarian',
@@ -231,10 +280,30 @@ export const Routes = {
   adminFarm: (organizationId: string) => `/(app)/admin/farms/${organizationId}` as const,
   adminSupervisors: '/(app)/admin/supervisors',
   adminAuditLogs: '/(app)/admin/audit-logs',
+  /** Lost / Adoption / Mating moderation queue (approve / reject requests). */
+  adminAnimalPublications: '/(app)/admin/animal-publications',
+  /** Oversight of user pets — list all, soft-delete. */
+  adminAnimals: '/(app)/admin/animals',
+  /** Veterinary Services listing moderation queue (approve / reject). */
+  adminVetServiceListings: '/(app)/admin/vet-service-listings',
+  /** Veterinary Services pet-owner request moderation queue (approve / reject). */
+  adminVetServiceRequests: '/(app)/admin/vet-service-requests',
   /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */
   adminTraderApplications: '/(app)/admin/traders',
   /** Market offer moderation — one screen parametrized by kind (poultry | egg). */
   adminMarketOffers: (kind: 'poultry' | 'egg') => `/(app)/admin/market-offers/${kind}` as const,
+
+  // Pet Owners Store — Admin management (Management Centre → Pet Store)
+  adminPetStoreProducts: '/(app)/admin/pet-owner-store/products',
+  adminPetStoreProductCreate: '/(app)/admin/pet-owner-store/products/create',
+  adminPetStoreProduct: (productId: string) =>
+    `/(app)/admin/pet-owner-store/products/${productId}` as const,
+  adminPetStoreProductEdit: (productId: string) =>
+    `/(app)/admin/pet-owner-store/products/${productId}/edit` as const,
+  adminPetStoreCategories: '/(app)/admin/pet-owner-store/categories',
+  adminPetStoreOrders: '/(app)/admin/pet-owner-store/orders',
+  adminPetStoreOrder: (orderId: string) =>
+    `/(app)/admin/pet-owner-store/orders/${orderId}` as const,
 
   showcase: '/(app)/showcase',
 } as const;

@@ -1,4 +1,5 @@
 import type {
+  AdminAnimalsFilter,
   AdminListFarmsFilter,
   AuditListFilter,
   OrgListFilter,
@@ -27,6 +28,13 @@ export const adminKeys = {
   vetApplications: {
     all: ['admin', 'vet-applications'] as const,
     list: () => [...adminKeys.vetApplications.all, 'list'] as const,
+  },
+
+  animals: {
+    all: ['admin', 'animals'] as const,
+    lists: () => [...adminKeys.animals.all, 'list'] as const,
+    list: (filter: Omit<AdminAnimalsFilter, 'page' | 'pageSize'>) =>
+      [...adminKeys.animals.lists(), filter] as const,
   },
 
   organizations: {

@@ -4,6 +4,7 @@ import { supportKeys, threadApi } from '../api';
 import type {
   CreateConsultationInput,
   CreateInquiryInput,
+  CreateSupportInput,
   SendMessageInput,
   Thread,
   ThreadKind,
@@ -18,7 +19,11 @@ import type {
 
 export function useCreateThread(
   kind: ThreadKind,
-): UseMutationResult<Thread, unknown, CreateConsultationInput | CreateInquiryInput> {
+): UseMutationResult<
+  Thread,
+  unknown,
+  CreateConsultationInput | CreateInquiryInput | CreateSupportInput
+> {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['support', kind, 'create'],

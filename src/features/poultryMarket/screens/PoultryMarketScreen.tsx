@@ -17,7 +17,12 @@ import { useTheme } from '@/theme';
 
 import { GovernorateFilterRow, MarketOfferCard } from '../components';
 import { BIRD_TYPE_ORDER } from '../constants';
-import { useDeletePoultryOffer, usePoultryOffers, useTraderStatus } from '../hooks';
+import {
+  useDeletePoultryOffer,
+  useMyPoultryOffers,
+  usePoultryOffers,
+  useTraderStatus,
+} from '../hooks';
 import type { BirdType, PoultryOffer } from '../types';
 
 /** Route `/(app)/poultry/market` — سوق الدواجن. */
@@ -32,9 +37,12 @@ export default function PoultryMarketScreen() {
 
   const [birdType, setBirdType] = useState<BirdType | undefined>(undefined);
   const [governorate, setGovernorate] = useState<string | undefined>(undefined);
+  const [scope, setScope] = useState<'all' | 'mine'>('all');
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
-  const q = usePoultryOffers({ birdType, governorate });
+  const allQ = usePoultryOffers({ birdType, governorate, enabled: scope === 'all' });
+  const mineQ = useMyPoultryOffers({ enabled: scope === 'mine' && trader.isApproved });
+  const q = scope === 'all' ? allQ : mineQ;
   const del = useDeletePoultryOffer();
 
   const canManage = (offer: PoultryOffer): boolean =>
@@ -45,21 +53,48 @@ export default function PoultryMarketScreen() {
       <Section spacing="md">
         <Advertisement placement="POULTRY_MARKET" />
       </Section>
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={[undefined, ...BIRD_TYPE_ORDER]}
-        keyExtractor={(v) => v ?? 'ALL'}
-        contentContainerStyle={{ paddingHorizontal: theme.screenPadding, columnGap: theme.spacing.sm }}
-        renderItem={({ item }) => (
+      {trader.isApproved ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            columnGap: theme.spacing.sm,
+            paddingHorizontal: theme.screenPadding,
+          }}
+        >
           <Chip
-            label={item ? t(`poultryMarket.birdType.${item}`) : t('poultryMarket.birdType.ALL')}
-            selected={birdType === item}
-            onPress={() => setBirdType(item)}
+            label={t('scope.all')}
+            selected={scope === 'all'}
+            onPress={() => setScope('all')}
           />
-        )}
-      />
-      <GovernorateFilterRow value={governorate} onChange={setGovernorate} />
+          <Chip
+            label={t('scope.mineOffers')}
+            selected={scope === 'mine'}
+            onPress={() => setScope('mine')}
+          />
+        </View>
+      ) : null}
+      {scope === 'all' ? (
+        <>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={[undefined, ...BIRD_TYPE_ORDER]}
+            keyExtractor={(v) => v ?? 'ALL'}
+            contentContainerStyle={{
+              paddingHorizontal: theme.screenPadding,
+              columnGap: theme.spacing.sm,
+            }}
+            renderItem={({ item }) => (
+              <Chip
+                label={item ? t(`poultryMarket.birdType.${item}`) : t('poultryMarket.birdType.ALL')}
+                selected={birdType === item}
+                onPress={() => setBirdType(item)}
+              />
+            )}
+          />
+          <GovernorateFilterRow value={governorate} onChange={setGovernorate} />
+        </>
+      ) : null}
     </View>
   );
 
@@ -125,7 +160,11 @@ export default function PoultryMarketScreen() {
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
           ListEmptyComponent={
-            <EmptyState icon="egg-outline" title={t('poultryMarket.empty')} message={t('poultryMarket.emptyHint')} />
+            <EmptyState
+              icon="egg-outline"
+              title={scope === 'mine' ? t('scope.mineEmpty') : t('poultryMarket.empty')}
+              message={scope === 'mine' ? t('scope.mineEmptyHint') : t('poultryMarket.emptyHint')}
+            />
           }
           ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
           contentContainerStyle={{

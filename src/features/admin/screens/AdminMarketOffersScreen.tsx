@@ -87,7 +87,10 @@ export default function AdminMarketOffersScreen() {
           <AdminRow
             title={[o.governorate, o.district].filter(Boolean).join(' - ')}
             subtitle={o.phone}
-            badge={{ label: t(`marketOffers.status.${o.status}`), tone: o.status === 'ACTIVE' ? 'success' : 'danger' }}
+            badge={{
+              label: t(`marketOffers.status.${o.status}`),
+              tone: o.status === 'ACTIVE' ? 'success' : 'danger',
+            }}
             actions={
               o.status === 'ACTIVE' ? (
                 <Button

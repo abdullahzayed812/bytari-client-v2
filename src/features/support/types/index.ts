@@ -18,7 +18,7 @@
  * reassignment endpoints.
  */
 
-export const THREAD_KINDS = ['CONSULTATION', 'INQUIRY'] as const;
+export const THREAD_KINDS = ['CONSULTATION', 'INQUIRY', 'SUPPORT'] as const;
 export type ThreadKind = (typeof THREAD_KINDS)[number];
 
 export const THREAD_STATUSES = ['OPEN', 'CLOSED'] as const;
@@ -28,7 +28,7 @@ export type ThreadStatus = (typeof THREAD_STATUSES)[number];
 export const MESSAGE_SOURCES = ['USER', 'SUPERVISOR', 'ADMIN', 'AI', 'SYSTEM'] as const;
 export type MessageSource = (typeof MESSAGE_SOURCES)[number];
 
-export const THREAD_KIND_SLUGS = ['consultations', 'inquiries'] as const;
+export const THREAD_KIND_SLUGS = ['consultations', 'inquiries', 'support-messages'] as const;
 export type ThreadKindSlug = (typeof THREAD_KIND_SLUGS)[number];
 
 export interface Thread {
@@ -67,6 +67,10 @@ export interface CreateConsultationInput {
   animalId?: string | null;
 }
 export interface CreateInquiryInput {
+  body: string;
+}
+/** "تواصل معنا" — a support message to the administration. Body only. */
+export interface CreateSupportInput {
   body: string;
 }
 export interface SendMessageInput {

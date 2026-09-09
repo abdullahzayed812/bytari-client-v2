@@ -20,6 +20,16 @@ export const publicationKeys = {
   publicDetail: (publicationId: string) =>
     [...publicationKeys.public(), 'detail', publicationId] as const,
 
+  /** "My listings" — the caller's own publications, every status. */
+  mine: () => [...publicationKeys.all, 'mine'] as const,
+  mineList: (kind: PublicationKind, filter: { status?: string } = {}) =>
+    [...publicationKeys.mine(), 'list', { kind, ...filter }] as const,
+
+  /** Admin moderation queue. */
+  admin: () => [...publicationKeys.all, 'admin'] as const,
+  adminList: (filter: { kind?: string; status?: string } = {}) =>
+    [...publicationKeys.admin(), 'list', filter] as const,
+
   forAnimal: (animalId: string) => [...publicationKeys.all, 'animal', animalId] as const,
   animalList: (animalId: string) => [...publicationKeys.forAnimal(animalId), 'list'] as const,
   animalDetail: (animalId: string, publicationId: string) =>

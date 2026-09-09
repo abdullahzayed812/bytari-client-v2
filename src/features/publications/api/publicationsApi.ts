@@ -5,9 +5,11 @@ import type {
   AnimalPublication,
   CreateInteractionInput,
   CreatePublicationInput,
+  MyPublication,
   Paginated,
   PublicationInteraction,
   PublicationKind,
+  PublicationStatus,
   PublicPublication,
 } from '../types';
 
@@ -45,6 +47,31 @@ export const publicationsApi = {
 
   getPublic(publicationId: string): Promise<PublicPublication> {
     return apiClient.get<PublicPublication>(`/animal-publications/${publicationId}`);
+  },
+
+  /**
+   * "My listings" — the caller's OWN publications of every status. The owner id
+   * is derived server-side from the session, never sent by the client.
+   */
+  async listMine(
+    page: number,
+    pageSize: number,
+    filter: { kind?: PublicationKind; status?: PublicationStatus } = {},
+  ): Promise<Paginated<MyPublication>> {
+    const envelope = await apiClient.requestEnvelope<MyPublication[]>({
+      method: 'GET',
+      url: '/animal-publications/mine',
+      params: { page, pageSize, kind: filter.kind, status: filter.status },
+    });
+    return {
+      items: envelope.data,
+      meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+    };
+  },
+
+  /** Delete a listing — the backend allows only its creator, an ADMIN, or an ANIMAL supervisor. */
+  remove(publicationId: string): Promise<{ success: boolean }> {
+    return apiClient.delete<{ success: boolean }>(`/animal-publications/${publicationId}`);
   },
 
   /** "طلب التبني" / "طلب تزاوج" / "ابلاغ عن مشاهدة" — any user except the listing's own owner. */

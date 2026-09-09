@@ -42,8 +42,7 @@ export function useAdminFarms(params: AdminFarmsParams = {}) {
   >({
     queryKey: adminKeys.farms.list(filter),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) =>
-      adminApi.listFarms({ page: pageParam, pageSize, ...filter }),
+    queryFn: ({ pageParam }) => adminApi.listFarms({ page: pageParam, pageSize, ...filter }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: params.enabled ?? true,
@@ -91,7 +90,10 @@ export function useFarmRenewalDecisionMutation(organizationId: string, requestId
     mutationKey: ['admin', 'farms', organizationId, 'renewals', requestId, 'decision'],
     mutationFn: (input) => {
       if (input.decision === 'approve') {
-        const body: ApproveFarmRenewalInput = { startDate: input.startDate, endDate: input.endDate };
+        const body: ApproveFarmRenewalInput = {
+          startDate: input.startDate,
+          endDate: input.endDate,
+        };
         return adminApi.approveFarmRenewal(organizationId, requestId, body);
       }
       return adminApi.rejectFarmRenewal(organizationId, requestId, input.reason);
