@@ -15,6 +15,7 @@ import type {
   AdminFarmListItem,
   AdminFarmRenewalRequest,
   ApproveFarmRenewalInput,
+  FarmSpeciesGroup,
   FarmSubscriptionStatus,
   OrganizationStatus,
   Paginated,
@@ -24,14 +25,20 @@ import type {
 export interface AdminFarmsParams {
   status?: OrganizationStatus;
   subscriptionStatus?: FarmSubscriptionStatus;
+  /** Scope the list to poultry or to sheep/cattle farms. */
+  speciesGroup?: FarmSpeciesGroup;
   pageSize?: number;
   enabled?: boolean;
 }
 
-/** `GET /admin/organizations/farms` — the Poultry Farms management list. */
+/** `GET /admin/organizations/farms` — farm-request / subscription management, scoped by `speciesGroup`. */
 export function useAdminFarms(params: AdminFarmsParams = {}) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
-  const filter = { status: params.status, subscriptionStatus: params.subscriptionStatus };
+  const filter = {
+    status: params.status,
+    subscriptionStatus: params.subscriptionStatus,
+    speciesGroup: params.speciesGroup,
+  };
 
   const query = useInfiniteQuery<
     Paginated<AdminFarmListItem>,

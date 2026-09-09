@@ -35,7 +35,7 @@ export default function PetOwnerStoreHomeScreen() {
   const products = usePetOwnerStoreProducts({ pageSize: 6 });
   const { addItem } = usePetOwnerStoreCartMutations();
 
-  const cardWidth = 168;
+  const cardWidth = 175;
 
   const submitSearch = (): void => {
     const q = search.trim();

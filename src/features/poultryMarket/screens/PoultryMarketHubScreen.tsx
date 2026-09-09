@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
+import { EmptyState } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
@@ -12,62 +13,92 @@ import { useTheme } from '@/theme';
 import { BenefitsCard } from '../components';
 import { useTraderStatus } from '../hooks';
 
-/** Route `/(app)/poultry/market-hub` — trader-gated entry to the market/bourse/statistics screens. */
+/**
+ * Route `/(app)/poultry/market-hub` — the market / bourse / statistics entries
+ * are shown ONLY to a trader whose registration has been ACCEPTED. Every other
+ * state (not registered / pending / rejected / suspended) gets an explanatory
+ * screen instead — the backend also enforces trader approval on each action.
+ */
 export default function PoultryMarketHubScreen() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tp } = useTranslation('poultry');
   const trader = useTraderStatus();
 
+  if (!trader.isApproved) {
+    return (
+      <ScrollScreen>
+        <AppHeader title={tp('landing.marketTitle')} showBack />
+        <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
+          {trader.isPending ? (
+            <EmptyState
+              icon="time-outline"
+              title={t('gate.pendingTitle')}
+              message={t('gate.pendingBody')}
+            />
+          ) : trader.isSuspended ? (
+            <EmptyState icon="ban-outline" title={t('gate.suspendedTitle')} />
+          ) : trader.isRejected ? (
+            <>
+              <EmptyState icon="close-circle-outline" title={t('gate.rejectedTitle')} />
+              <Button
+                label={t('gate.reapplyCta')}
+                fullWidth
+                onPress={() => router.push(Routes.traderRegister)}
+              />
+            </>
+          ) : (
+            <>
+              <BenefitsCard />
+              <Button
+                label={t('gate.registerCta')}
+                fullWidth
+                onPress={() => router.push(Routes.traderRegister)}
+              />
+            </>
+          )}
+        </Section>
+      </ScrollScreen>
+    );
+  }
+
   return (
     <ScrollScreen>
       <AppHeader title={tp('landing.marketTitle')} showBack />
-
-      {!trader.hasRegistered ? (
-        <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
-          <BenefitsCard />
-          <Button
-            label={t('gate.registerCta')}
-            fullWidth
-            onPress={() => router.push(Routes.traderRegister)}
+      <Section spacing="xl">
+        <View style={{ rowGap: theme.spacing.md }}>
+          <MarketNavCard
+            icon="trending-up-outline"
+            title={tp('landing.hubPoultryMarketTitle')}
+            subtitle={tp('landing.hubPoultryMarketSubtitle')}
+            onPress={() => router.push(Routes.poultryMarket)}
           />
-        </Section>
-      ) : (
-        <Section spacing="xl">
-          <View style={{ rowGap: theme.spacing.md }}>
-            <MarketNavCard
-              icon="trending-up-outline"
-              title={tp('landing.hubPoultryMarketTitle')}
-              subtitle={tp('landing.hubPoultryMarketSubtitle')}
-              onPress={() => router.push(Routes.poultryMarket)}
-            />
-            <MarketNavCard
-              icon="egg-outline"
-              title={tp('landing.eggMarketTitle')}
-              subtitle={tp('landing.eggMarketSubtitle')}
-              onPress={() => router.push(Routes.eggMarket)}
-            />
-            <MarketNavCard
-              icon="bar-chart-outline"
-              title={tp('landing.poultryBourseTitle')}
-              subtitle={tp('landing.poultryBourseSubtitle')}
-              onPress={() => router.push(Routes.poultryExchangeRates)}
-            />
-            <MarketNavCard
-              icon="stats-chart-outline"
-              title={tp('landing.eggBourseTitle')}
-              subtitle={tp('landing.eggBourseSubtitle')}
-              onPress={() => router.push(Routes.eggExchangeRates)}
-            />
-            <MarketNavCard
-              icon="analytics-outline"
-              title={tp('landing.statisticsTitle')}
-              subtitle={tp('landing.statisticsSubtitle')}
-              onPress={() => router.push(Routes.marketStatistics)}
-            />
-          </View>
-        </Section>
-      )}
+          <MarketNavCard
+            icon="egg-outline"
+            title={tp('landing.eggMarketTitle')}
+            subtitle={tp('landing.eggMarketSubtitle')}
+            onPress={() => router.push(Routes.eggMarket)}
+          />
+          <MarketNavCard
+            icon="bar-chart-outline"
+            title={tp('landing.poultryBourseTitle')}
+            subtitle={tp('landing.poultryBourseSubtitle')}
+            onPress={() => router.push(Routes.poultryExchangeRates)}
+          />
+          <MarketNavCard
+            icon="stats-chart-outline"
+            title={tp('landing.eggBourseTitle')}
+            subtitle={tp('landing.eggBourseSubtitle')}
+            onPress={() => router.push(Routes.eggExchangeRates)}
+          />
+          <MarketNavCard
+            icon="analytics-outline"
+            title={tp('landing.statisticsTitle')}
+            subtitle={tp('landing.statisticsSubtitle')}
+            onPress={() => router.push(Routes.marketStatistics)}
+          />
+        </View>
+      </Section>
     </ScrollScreen>
   );
 }

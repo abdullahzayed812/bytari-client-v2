@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type DimensionValue } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
@@ -24,11 +24,21 @@ export interface SheepFarmCardProps {
   location?: string | null;
   stats?: SheepHeadcountStats | null;
   status?: OrganizationStatus;
+  /** Fixed width — set when the card sits in a horizontal list. */
+  width?: DimensionValue;
   onPressDetails: () => void;
 }
 
 /** The sheep-farm card on the combined landing screen — mirrors `PoultryFarmCard` exactly. */
-export function SheepFarmCard({ name, profile, location, stats, status, onPressDetails }: SheepFarmCardProps) {
+export function SheepFarmCard({
+  name,
+  profile,
+  location,
+  stats,
+  status,
+  width,
+  onPressDetails,
+}: SheepFarmCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
   const loc = location ?? profile?.address ?? null;
@@ -45,6 +55,7 @@ export function SheepFarmCard({ name, profile, location, stats, status, onPressD
   return (
     <View
       style={{
+        width,
         borderRadius: theme.radius.xl,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,

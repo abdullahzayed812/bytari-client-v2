@@ -48,7 +48,12 @@ export function ServiceFiltersBar({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        // RN gives a ScrollView `flexGrow: 1` by default — inside this flex
+        // column it stretches down and its `stretch`-aligned chips grow into
+        // tall pills with a big empty gap beneath. Pin the height to content.
+        style={{ flexGrow: 0 }}
         contentContainerStyle={{
+          alignItems: 'center',
           columnGap: theme.spacing.sm,
           paddingHorizontal: theme.screenPadding,
           paddingVertical: theme.spacing.sm,

@@ -46,9 +46,15 @@ export default function ManagementScreen() {
       show: caps.isAdmin || caps.can('organization.admin.read'),
     },
     {
-      key: 'farms',
-      label: ta('farms.title'),
-      route: Routes.adminFarms,
+      key: 'farmsPoultry',
+      label: ta('farms.titlePoultry'),
+      route: { pathname: Routes.adminFarms, params: { species: 'POULTRY' } },
+      show: caps.isAdmin || caps.can('organization.admin.read'),
+    },
+    {
+      key: 'farmsLivestock',
+      label: ta('farms.titleLivestock'),
+      route: { pathname: Routes.adminFarms, params: { species: 'LIVESTOCK' } },
       show: caps.isAdmin || caps.can('organization.admin.read'),
     },
     {

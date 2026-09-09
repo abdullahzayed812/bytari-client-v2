@@ -3,6 +3,7 @@ export default {
     title: 'الأغنام والأبقار',
     homeA11y: 'الرئيسية',
     sectionTitle: 'الأغنام والأبقار',
+    myFarmsTitle: 'حقولي',
     addSheepFarm: 'إضافة حقل أغنام',
     addCattleFarm: 'إضافة حقل أبقار',
     empty: 'لا توجد حقول بعد',

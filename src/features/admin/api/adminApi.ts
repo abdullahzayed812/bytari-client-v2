@@ -163,6 +163,7 @@ export const adminApi = {
     return listPaged<AdminFarmListItem>('/admin/organizations/farms', f.page, f.pageSize, {
       status: f.status,
       subscriptionStatus: f.subscriptionStatus,
+      speciesGroup: f.speciesGroup,
     });
   },
 

@@ -73,6 +73,11 @@ export const Routes = {
   // Poultry Farms (Home → "الدواجن والطيور")
   poultryFarms: '/(app)/poultry',
   poultryFarmCreate: '/(app)/poultry/create',
+  /**
+   * "See all" of the caller's farms of one species group — paginated list.
+   * Push with `{ pathname: Routes.myFarms, params: { species: 'POULTRY' | 'SHEEP_CATTLE' } }`.
+   */
+  myFarms: '/(app)/farms',
   /** Market hub — gates to trader registration, or the 5 market/bourse/statistics entries. */
   marketHub: '/(app)/poultry/market-hub',
   poultryMarket: '/(app)/poultry/market',

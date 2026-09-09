@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/content';
@@ -9,7 +9,8 @@ import { Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
-import { useFarmProfile } from '@/features/farm';
+// Deep import — keeps the farm barrel (and its screens) out of the require graph.
+import { useMyFarms } from '@/features/farm/hooks/useMyFarms';
 import { HomeSectionHeader } from '@/features/home/components';
 import { NewsCard } from '@/features/news/components';
 import { useNews } from '@/features/news/hooks';
@@ -19,37 +20,28 @@ import { useTips } from '@/features/tips/hooks';
 import { useTheme } from '@/theme';
 
 import { CattleFarmCard, SheepFarmCard } from '../components';
-import { useCattleFarms, useSheepFarms } from '../hooks';
-import type { LivestockFarmProfile } from '../types';
 
-/** One farm row — resolves its own species (not present on the lightweight "my organizations" list). */
-function FarmListRow({ farm }: { farm: MyOrganization }) {
-  const profile = useFarmProfile(farm.id, { enabled: true });
-  const p = profile.data as LivestockFarmProfile | undefined;
-  const species = p?.farmSpecies;
-
-  if (species === 'CATTLE') {
+/** One farm row — the card variant follows the row's own `farmSpecies` (now on the list DTO). */
+function FarmListRow({ farm, width }: { farm: MyOrganization; width?: number }) {
+  if (farm.farmSpecies === 'CATTLE') {
     return (
       <CattleFarmCard
         name={farm.name}
-        profile={p}
         location={farm.description}
         stats={null}
         status={farm.status}
+        width={width}
         onPressDetails={() => router.push(Routes.cattleFarmDetail(farm.id))}
       />
     );
   }
-  // Default to Sheep while the profile is loading or for SHEEP/MIXED farms —
-  // a MIXED farm's own Details screen shows both sections regardless of which
-  // card variant the landing list uses to open it.
   return (
     <SheepFarmCard
       name={farm.name}
-      profile={p}
       location={farm.description}
       stats={null}
       status={farm.status}
+      width={width}
       onPressDetails={() => router.push(Routes.sheepFarmDetail(farm.id))}
     />
   );
@@ -61,22 +53,17 @@ export default function SheepCattleFarmsLandingScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation('sheepCattleFarm');
 
-  const sheepFarms = useSheepFarms();
-  const cattleFarms = useCattleFarms();
+  const farms = useMyFarms(['SHEEP', 'CATTLE']);
+  const farmPreview = farms.farms.slice(0, 3);
   const news = useNews({ pageSize: 6 });
   const tips = useTips({ pageSize: 6 });
-
-  // Both hooks return the SAME underlying "my FARM organizations" list (type
-  // filter only, no species) — de-duplicate by id since a farm only needs one row.
-  const farms = sheepFarms.farms.length >= cattleFarms.farms.length ? sheepFarms : cattleFarms;
 
   const isLoading = farms.isLoading;
   const isError = farms.isError;
 
   const refreshing = (farms.isRefetching || news.isRefetching || tips.isRefetching) && !isLoading;
   const onRefresh = (): void => {
-    void sheepFarms.refetch();
-    void cattleFarms.refetch();
+    void farms.refetch();
     void news.refetch();
     void tips.refetch();
   };
@@ -162,16 +149,32 @@ export default function SheepCattleFarmsLandingScreen() {
         </Section>
 
         <Section spacing="xl">
+          <HomeSectionHeader
+            title={t('landing.myFarmsTitle')}
+            actionLabel={farms.farms.length > 3 ? t('landing.viewAll') : undefined}
+            onAction={
+              farms.farms.length > 3
+                ? () =>
+                    router.push({
+                      pathname: Routes.myFarms,
+                      params: { species: 'SHEEP_CATTLE' },
+                    })
+                : undefined
+            }
+          />
           {isLoading ? null : isError ? (
             <ErrorState error={farms.error} onRetry={() => void farms.refetch()} />
           ) : farms.farms.length === 0 ? (
             <EmptyState icon="paw-outline" title={t('landing.empty')} message={t('landing.emptyHint')} />
           ) : (
-            <View style={{ rowGap: theme.spacing.md }}>
-              {farms.farms.map((farm) => (
-                <FarmListRow key={farm.id} farm={farm} />
-              ))}
-            </View>
+            <FlatList
+              data={farmPreview}
+              keyExtractor={(farm) => farm.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+              renderItem={({ item }) => <FarmListRow farm={item} width={300} />}
+            />
           )}
         </Section>
 

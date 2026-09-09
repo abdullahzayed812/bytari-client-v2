@@ -17,6 +17,10 @@ export const ORGANIZATION_TYPES = [
 ] as const;
 export type OrganizationType = (typeof ORGANIZATION_TYPES)[number];
 
+/** `farm_details.farm_species` — the FARM sub-type. `null` on legacy farms / non-FARM orgs. */
+export const FARM_SPECIES = ['POULTRY', 'SHEEP', 'CATTLE', 'MIXED'] as const;
+export type FarmSpecies = (typeof FARM_SPECIES)[number];
+
 /** Organization types whose owner MUST be a globally APPROVED veterinarian. */
 export const VET_APPROVAL_REQUIRED_TYPES: readonly OrganizationType[] = ['CLINIC', 'FARM'];
 
@@ -156,9 +160,14 @@ export interface SubmitReviewInput {
   comment?: string | null;
 }
 
-/** `GET /organizations` list item — an {@link Organization} plus the caller's role. */
+/**
+ * `GET /organizations` list item — an {@link Organization} plus the caller's
+ * role and, for FARM rows, the farm species (`null` for non-FARM / legacy).
+ */
 export interface MyOrganization extends Organization {
   myRole: OrgRoleKey | string;
+  /** FARM rows only; `null` for non-FARM / legacy farms. Absent on pre-existing cached payloads. */
+  farmSpecies?: FarmSpecies | null;
 }
 
 /**

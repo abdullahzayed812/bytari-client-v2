@@ -20,6 +20,8 @@ import { Advertisement } from '@/features/ads';
 import { HomeSectionHeader } from '@/features/home/components';
 import { NewsCard } from '@/features/news/components';
 import { useNews } from '@/features/news/hooks';
+// Deep import — avoids a farm ⇄ poultryMarket barrel require cycle.
+import { useTraderStatus } from '@/features/poultryMarket/hooks/useTraderStatus';
 import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { useTheme } from '@/theme';
@@ -55,6 +57,8 @@ export default function PoultryFarmsLandingScreen() {
   const { width } = useWindowDimensions();
 
   const farms = usePoultryFarms();
+  const trader = useTraderStatus();
+  const farmPreview = farms.farms.slice(0, 3);
   const primaryFarm = farms.farms[0];
   const flocks = usePoultryFlocks(primaryFarm?.id, {
     pageSize: 100,
@@ -71,6 +75,7 @@ export default function PoultryFarmsLandingScreen() {
   const cardWidth = width - theme.screenPadding * 2;
   const newsWidth = Math.min(220, cardWidth * 0.62);
   const tipWidth = Math.min(200, cardWidth * 0.56);
+  const farmWidth = Math.min(320, cardWidth * 0.86);
 
   const refreshing =
     (farms.isRefetching || news.isRefetching || tips.isRefetching) && !farms.isLoading;
@@ -148,18 +153,30 @@ export default function PoultryFarmsLandingScreen() {
             icon="trending-up-outline"
             title={t('landing.marketTitle')}
             subtitle={t('landing.marketSubtitle')}
-            onPress={() => router.push(Routes.marketHub)}
+            onPress={() =>
+              trader.isApproved
+                ? router.push(Routes.marketHub)
+                : router.push(Routes.traderRegister)
+            }
           />
         </Section>
 
         <Section spacing="xl">
           <HomeSectionHeader
             title={t('landing.myFarmsTitle')}
-            actionLabel={farms.farms.length > 1 ? t('landing.viewAll') : undefined}
-            onAction={farms.farms.length > 1 ? () => router.push(Routes.organizations) : undefined}
+            actionLabel={farms.farms.length > 3 ? t('landing.viewAll') : undefined}
+            onAction={
+              farms.farms.length > 3
+                ? () =>
+                    router.push({ pathname: Routes.myFarms, params: { species: 'POULTRY' } })
+                : undefined
+            }
           />
           {farms.isLoading ? (
-            <PoultryCardSkeleton />
+            <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
+              <PoultryCardSkeleton width={farmWidth} />
+              <PoultryCardSkeleton width={farmWidth} />
+            </View>
           ) : farms.isError ? (
             <ErrorState error={farms.error} onRetry={() => void farms.refetch()} />
           ) : farms.farms.length === 0 ? (
@@ -171,18 +188,23 @@ export default function PoultryFarmsLandingScreen() {
               onAction={goCreateFarm}
             />
           ) : (
-            <View style={{ rowGap: theme.spacing.md }}>
-              {farms.farms.map((farm) => (
+            <FlatList
+              data={farmPreview}
+              keyExtractor={(farm) => farm.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+              renderItem={({ item: farm }) => (
                 <PoultryFarmCard
-                  key={farm.id}
                   name={farm.name}
                   location={farm.description}
                   stats={farm.id === primaryFarm?.id ? stats : null}
                   status={farm.status}
+                  width={farmWidth}
                   onPressDetails={() => router.push(Routes.poultryFarmDetail(farm.id))}
                 />
-              ))}
-            </View>
+              )}
+            />
           )}
         </Section>
 

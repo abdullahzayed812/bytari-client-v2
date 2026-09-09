@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/features/auth/store';
 import { farmOpsApi } from '@/features/farmShared';
 import { organizationsApi } from '@/features/organizations';
-import { renderWithProviders, screen, waitFor } from '@/test-utils/render';
+import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { poultryApi, poultryOpsApi } from '../api';
@@ -92,9 +92,18 @@ describe('PoultryFarmsLandingScreen', () => {
           name: 'حقل الجنوب للدواجن',
           description: 'محافظة بابل',
           myRole: 'OWNER',
+          farmSpecies: 'POULTRY',
+        } as never,
+        {
+          id: 'o2',
+          type: 'FARM',
+          name: 'حقل الأغنام',
+          description: 'محافظة واسط',
+          myRole: 'OWNER',
+          farmSpecies: 'SHEEP',
         } as never,
       ],
-      meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
+      meta: { page: 1, pageSize: 50, total: 2, totalPages: 1 },
     });
     listFlocks.mockResolvedValue({
       items: [flock()],
@@ -104,7 +113,9 @@ describe('PoultryFarmsLandingScreen', () => {
     renderWithProviders(<PoultryFarmsLandingScreen />);
 
     expect(await screen.findByText('إضافة حقل دواجن')).toBeTruthy();
+    // only the POULTRY farm is listed — the SHEEP farm is filtered out
     expect(await screen.findByText('حقل الجنوب للدواجن')).toBeTruthy();
+    expect(screen.queryByText('حقل الأغنام')).toBeNull();
     // farms list came from the membership-scoped org list, never a public discovery call
     await waitFor(() => expect(listMine).toHaveBeenCalled());
   });
@@ -116,6 +127,31 @@ describe('PoultryFarmsLandingScreen', () => {
     });
     renderWithProviders(<PoultryFarmsLandingScreen />);
     expect(await screen.findByText('لا توجد حقول دواجن بعد')).toBeTruthy();
+  });
+
+  it('routes the market card to trader registration while the trader is not approved', async () => {
+    // beforeEach sets session = null → NOT_REGISTERED → not approved
+    listMine.mockResolvedValue({
+      items: [],
+      meta: { page: 1, pageSize: 50, total: 0, totalPages: 1 },
+    });
+    renderWithProviders(<PoultryFarmsLandingScreen />);
+    fireEvent.press(await screen.findByText('الدواجن والسوق والبورصات'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/trader-register');
+    expect(routerMock.push).not.toHaveBeenCalledWith('/(app)/poultry/market-hub');
+  });
+
+  it('routes the market card to the market hub when the trader is approved', async () => {
+    useAuthStore.setState({
+      session: { trader: { status: 'APPROVED', approved: true } } as never,
+    });
+    listMine.mockResolvedValue({
+      items: [],
+      meta: { page: 1, pageSize: 50, total: 0, totalPages: 1 },
+    });
+    renderWithProviders(<PoultryFarmsLandingScreen />);
+    fireEvent.press(await screen.findByText('الدواجن والسوق والبورصات'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/market-hub');
   });
 });
 

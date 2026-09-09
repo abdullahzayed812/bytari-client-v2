@@ -22,6 +22,9 @@ export function FilterChips<T extends string>({ options, value, onChange }: Filt
       horizontal
       showsHorizontalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
+      // RN gives a ScrollView `flexGrow: 1` by default — inside a flex column
+      // that makes this row stretch and leave a large gap beneath the chips.
+      style={{ flexGrow: 0 }}
       contentContainerStyle={{
         alignItems: 'flex-start',
         columnGap: theme.spacing.sm,

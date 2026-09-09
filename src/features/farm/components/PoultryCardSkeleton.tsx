@@ -1,14 +1,15 @@
-import { View } from 'react-native';
+import { View, type DimensionValue } from 'react-native';
 
 import { Skeleton } from '@/components/feedback';
 import { useTheme } from '@/theme';
 
 /** Placeholder row matching `PoultryCard`'s layout, for the initial list load. */
-export function PoultryCardSkeleton() {
+export function PoultryCardSkeleton({ width }: { width?: DimensionValue } = {}) {
   const theme = useTheme();
   return (
     <View
       style={{
+        width,
         flexDirection: 'row',
         alignItems: 'center',
         columnGap: theme.spacing.lg,

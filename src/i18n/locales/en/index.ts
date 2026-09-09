@@ -1846,6 +1846,7 @@ export const en: TranslationResources = {
       title: 'Sheep & Cattle',
       homeA11y: 'Home',
       sectionTitle: 'Sheep & Cattle',
+      myFarmsTitle: 'My farms',
       addSheepFarm: 'Add sheep farm',
       addCattleFarm: 'Add cattle farm',
       empty: 'No farms yet',
@@ -3261,6 +3262,8 @@ export const en: TranslationResources = {
     },
     farms: {
       title: 'Poultry Farms',
+      titlePoultry: 'Poultry farm management',
+      titleLivestock: 'Sheep & cattle farm management',
       empty: 'No farms',
       emptyHint: 'No farm matches this filter.',
       tab: {

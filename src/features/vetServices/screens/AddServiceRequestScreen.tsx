@@ -36,21 +36,25 @@ export default function AddServiceRequestScreen() {
   const imageProvider = useVetServiceImageProvider();
   const create = useCreateServiceRequest();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>(null);
-  const [serviceType, setServiceType] = useState<VetServiceType | null>(null);
-  const [animalCount, setAnimalCount] = useState('');
-  const [animalAge, setAnimalAge] = useState('');
-  const [governorate, setGovernorate] = useState<string | null>(null);
-  const [district, setDistrict] = useState('');
-  const [detailedAddress, setDetailedAddress] = useState('');
+  // Sample starter values — the form opens pre-filled so it's one review away
+  // from submitting; every field stays editable and terms must still be accepted.
+  const [title, setTitle] = useState('كشف بيطري لقطة مريضة');
+  const [description, setDescription] = useState(
+    'قطة عمرها سنة تعاني من فقدان الشهية والخمول منذ يومين، أحتاج كشفاً وتشخيصاً.',
+  );
+  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>('CAT');
+  const [serviceType, setServiceType] = useState<VetServiceType | null>('EXAMINATION');
+  const [animalCount, setAnimalCount] = useState('1');
+  const [animalAge, setAnimalAge] = useState('سنة واحدة');
+  const [governorate, setGovernorate] = useState<string | null>('بغداد');
+  const [district, setDistrict] = useState('الكرادة');
+  const [detailedAddress, setDetailedAddress] = useState('حي الكرادة، قرب ساحة الفردوس');
   const [needsFieldVisit, setNeedsFieldVisit] = useState(false);
   const [hasPreferredDate, setHasPreferredDate] = useState(false);
   const [preferredDate, setPreferredDate] = useState<Date>(new Date(Date.now() + 24 * 60 * 60 * 1000));
-  const [budgetAmount, setBudgetAmount] = useState('');
+  const [budgetAmount, setBudgetAmount] = useState('20000');
   const [urgency, setUrgency] = useState<VetServiceUrgency>('NORMAL');
-  const [extraNotes, setExtraNotes] = useState('');
+  const [extraNotes, setExtraNotes] = useState('يفضّل زيارة منزلية في المساء.');
   const [imageKeys, setImageKeys] = useState<string[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);

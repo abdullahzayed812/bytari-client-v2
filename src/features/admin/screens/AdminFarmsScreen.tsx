@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -11,7 +11,7 @@ import { formatDate } from '@/utils';
 
 import { AdminListScreen, AdminRow, FilterChips } from '../components';
 import { useAdminFarms } from '../hooks';
-import type { OrganizationStatus } from '../types';
+import type { FarmSpeciesGroup, OrganizationStatus } from '../types';
 
 type Scope = 'all' | 'pending' | 'active' | 'rejected' | 'expired';
 
@@ -33,18 +33,24 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
   return 'danger';
 }
 
-/** `/admin/farms` — Poultry Farms management (spec §8): approval + subscription in one place. */
+/**
+ * `/admin/farms?species=POULTRY|LIVESTOCK` — farm-request / subscription
+ * management, scoped to one species family. Two separate entries on the
+ * Management screen point here; the backend enforces the same scope.
+ */
 export default function AdminFarmsScreen() {
   const { t } = useTranslation('admin');
   const theme = useTheme();
+  const { species } = useLocalSearchParams<{ species?: string }>();
+  const speciesGroup: FarmSpeciesGroup = species === 'LIVESTOCK' ? 'LIVESTOCK' : 'POULTRY';
+  const isPoultry = speciesGroup === 'POULTRY';
   const [scope, setScope] = useState<Scope>('all');
 
-  const filter = scopeFilter(scope);
-  const q = useAdminFarms(filter);
+  const q = useAdminFarms({ ...scopeFilter(scope), speciesGroup });
 
   return (
     <AdminListScreen
-      title={t('farms.title')}
+      title={isPoultry ? t('farms.titlePoultry') : t('farms.titleLivestock')}
       query={q}
       data={q.farms}
       keyExtractor={(f) => f.organizationId}
@@ -54,7 +60,7 @@ export default function AdminFarmsScreen() {
           <Skeleton width="40%" height={12} />
         </View>
       }
-      emptyIcon="egg-outline"
+      emptyIcon={isPoultry ? 'egg-outline' : 'paw-outline'}
       emptyTitle={t('farms.empty')}
       emptyMessage={t('farms.emptyHint')}
       loadingMoreLabel={t('common.loadingMore')}

@@ -38,22 +38,28 @@ export default function AddServiceListingScreen() {
   const imageProvider = useVetServiceImageProvider();
   const create = useCreateServiceListing();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [serviceType, setServiceType] = useState<VetServiceType | null>(null);
-  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>(null);
-  const [specialty, setSpecialty] = useState('');
-  const [governorate, setGovernorate] = useState<string | null>(null);
-  const [district, setDistrict] = useState('');
-  const [priceAmount, setPriceAmount] = useState('');
+  // Sample starter values — the form opens pre-filled so it's one review away
+  // from publishing; every field stays editable and terms must still be accepted.
+  const [title, setTitle] = useState('كشف بيطري منزلي للقطط والكلاب');
+  const [description, setDescription] = useState(
+    'خدمة فحص وكشف بيطري شامل في المنزل مع تقرير مبدئي وخطة علاج.',
+  );
+  const [serviceType, setServiceType] = useState<VetServiceType | null>('EXAMINATION');
+  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>('CAT');
+  const [specialty, setSpecialty] = useState('طب الحيوانات الأليفة');
+  const [governorate, setGovernorate] = useState<string | null>('بغداد');
+  const [district, setDistrict] = useState('الكرادة');
+  const [priceAmount, setPriceAmount] = useState('25000');
   const [priceType, setPriceType] = useState<VetServicePriceType>('APPROXIMATE');
   const [locationMode, setLocationMode] = useState<VetServiceLocationMode>('CLINIC');
-  const [availability, setAvailability] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [contactWhatsapp, setContactWhatsapp] = useState('');
-  const [executionDuration, setExecutionDuration] = useState('');
+  const [availability, setAvailability] = useState('يومياً من 9 صباحاً حتى 6 مساءً');
+  const [contactPhone, setContactPhone] = useState('07701234567');
+  const [contactWhatsapp, setContactWhatsapp] = useState('07701234567');
+  const [executionDuration, setExecutionDuration] = useState('٣٠–٤٥ دقيقة');
   const [arrivalTime, setArrivalTime] = useState('');
-  const [detailsText, setDetailsText] = useState('');
+  const [detailsText, setDetailsText] = useState(
+    'فحص سريري كامل\nقياس الحرارة والوزن\nتقرير مبدئي وخطة علاج',
+  );
   const [imageKeys, setImageKeys] = useState<string[]>([]);
   const [showArrival, setShowArrival] = useState(false);
   const [accepted, setAccepted] = useState(false);

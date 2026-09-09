@@ -193,13 +193,20 @@ export interface AdminFarmListItem {
   subscriptionStatus: FarmSubscriptionStatus;
   hasOpenRenewalRequest: boolean;
   supervisors: { userId: string; name: string }[];
+  /** `POULTRY` | `SHEEP` | `CATTLE` | `MIXED` | `null` (legacy farms). */
+  farmSpecies?: 'POULTRY' | 'SHEEP' | 'CATTLE' | 'MIXED' | null;
 }
+
+/** Which farm family the admin list is scoped to. */
+export type FarmSpeciesGroup = 'POULTRY' | 'LIVESTOCK';
 
 export interface AdminListFarmsFilter {
   page: number;
   pageSize: number;
   status?: OrganizationStatus;
   subscriptionStatus?: FarmSubscriptionStatus;
+  /** `POULTRY` → poultry farms; `LIVESTOCK` → sheep + cattle farms. */
+  speciesGroup?: FarmSpeciesGroup;
 }
 
 export const RENEWAL_REQUEST_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;

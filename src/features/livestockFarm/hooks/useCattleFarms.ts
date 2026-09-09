@@ -1,23 +1,15 @@
-import { useMutation, useQuery, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 
-import { orgKeys, organizationsApi } from '@/features/organizations';
-import type { MyOrganization, OrganizationWithDetails } from '@/features/organizations/types';
-import { ApiError } from '@/services/api';
+import { useMyFarms } from '@/features/farm';
+import { orgKeys } from '@/features/organizations';
+import type { OrganizationWithDetails } from '@/features/organizations/types';
 
 import { cattleFarmApi } from '../api';
 import type { CreateCattleFarmInput } from '../types';
 
-/** The current user's Cattle Farms. Mirrors `useSheepFarms` exactly. */
+/** The current user's Cattle Farms — `farmSpecies === 'CATTLE'` (strict). Mirrors `useSheepFarms`. */
 export function useCattleFarms() {
-  const query = useQuery<MyOrganization[], ApiError>({
-    queryKey: ['cattle-farms', 'mine'],
-    queryFn: async () => {
-      const { items } = await organizationsApi.listMine(1, 50);
-      return items.filter((o) => o.type === 'FARM');
-    },
-    staleTime: 30_000,
-  });
-  return { ...query, farms: query.data ?? [] };
+  return useMyFarms(['CATTLE']);
 }
 
 export function useCreateCattleFarm(): UseMutationResult<

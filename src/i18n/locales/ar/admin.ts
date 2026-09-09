@@ -141,6 +141,8 @@ export default {
 
   farms: {
     title: 'مزارع الدواجن',
+    titlePoultry: 'إدارة مزارع الدواجن',
+    titleLivestock: 'إدارة مزارع الأغنام والأبقار',
     empty: 'لا توجد مزارع',
     emptyHint: 'لم يتم إنشاء أي مزرعة تطابق هذا التصفية.',
     tab: {

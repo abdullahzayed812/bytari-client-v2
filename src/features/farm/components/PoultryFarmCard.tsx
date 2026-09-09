@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type DimensionValue } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
@@ -30,6 +30,8 @@ export interface PoultryFarmCardProps {
    * list (spec §3). Omitted (or ACTIVE) keeps the card visually unchanged.
    */
   status?: OrganizationStatus;
+  /** Fixed width — set when the card sits in a horizontal list (the landing carousel). */
+  width?: DimensionValue;
   onPressDetails: () => void;
   onPressMenu?: () => void;
 }
@@ -41,6 +43,7 @@ export function PoultryFarmCard({
   location,
   stats,
   status,
+  width,
   onPressDetails,
   onPressMenu,
 }: PoultryFarmCardProps) {
@@ -60,6 +63,7 @@ export function PoultryFarmCard({
   return (
     <View
       style={{
+        width,
         borderRadius: theme.radius.xl,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
