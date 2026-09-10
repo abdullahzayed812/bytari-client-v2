@@ -28,12 +28,22 @@ afterAll(() => {
 const product = (over: Partial<Product> = {}): Product => ({
   id: 'p1',
   organizationId: 'o1',
+  organizationType: 'VETERINARY_STORE',
   name: 'مضاد حيوي',
   description: null,
   productType: 'MEDICINE',
   price: '120.00',
   stockQuantity: 40,
   status: 'ACTIVE',
+  primaryImageUrl: null,
+  images: [],
+  subtype: null,
+  weight: null,
+  usageInstructions: null,
+  dosage: null,
+  shelfLife: null,
+  manufacturer: null,
+  highlights: [],
   createdByUserId: 'u1',
   createdAt: '2026-02-01T00:00:00.000Z',
   updatedAt: '2026-02-01T00:00:00.000Z',
@@ -77,11 +87,11 @@ describe('ProductsScreen (§5, §23, §29, §34)', () => {
     renderWithProviders(<ProductsScreen />);
     await waitFor(() => expect(screen.getByText('مضاد حيوي')).toBeOnTheScreen());
 
-    fireEvent.press(screen.getByText('جهاز طبي'));
+    fireEvent.press(screen.getByText('أدوات ومستلزمات'));
     await waitFor(() =>
       expect(list).toHaveBeenCalledWith(
         'o1',
-        expect.objectContaining({ productType: 'EQUIPMENT' }),
+        expect.objectContaining({ productType: 'EQUIPMENT_SUPPLY' }),
       ),
     );
   });

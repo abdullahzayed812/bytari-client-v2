@@ -13,20 +13,30 @@ import { useAppHeaderGreeting } from '@/navigation/useAppHeaderGreeting';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
 
-interface HeaderIconButtonProps {
+export interface HeaderIconButtonProps {
   icon: IconName;
   label: string;
   badgeCount?: number;
   onPress: () => void;
+  disabled?: boolean;
 }
 
-function HeaderIconButton({ icon, label, badgeCount = 0, onPress }: HeaderIconButtonProps) {
+/** Round icon button used in screen headers (Home, Veterinarian Home) — optional unread badge. */
+export function HeaderIconButton({
+  icon,
+  label,
+  badgeCount = 0,
+  onPress,
+  disabled,
+}: HeaderIconButtonProps) {
   const theme = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
       onPress={onPress}
+      disabled={disabled}
       hitSlop={8}
       style={({ pressed }) => [
         {
@@ -38,6 +48,7 @@ function HeaderIconButton({ icon, label, badgeCount = 0, onPress }: HeaderIconBu
           justifyContent: 'center',
         },
         pressed && { opacity: 0.7 },
+        disabled && { opacity: 0.5 },
       ]}
     >
       <Icon name={icon} size="iconMd" color="textPrimary" />

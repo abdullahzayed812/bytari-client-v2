@@ -5,15 +5,15 @@ export default {
     recordedAt: 'تاريخ الإضافة',
   },
   errors: {
-    notStore: 'إدارة المنتجات متاحة للمتاجر البيطرية فقط.',
+    notStore: 'إدارة المنتجات متاحة للمتاجر والمكاتب البيطرية فقط.',
     notFound: 'المنتج المطلوب غير موجود.',
     forbidden: 'لا تملك صلاحية تنفيذ هذا الإجراء في هذا المتجر.',
   },
   productType: {
     MEDICINE: 'دواء',
-    EQUIPMENT: 'جهاز طبي',
-    SUPPLY: 'مستلزم',
-    OTHER: 'أخرى',
+    EQUIPMENT_SUPPLY: 'أدوات ومستلزمات',
+    SUPPLEMENT: 'مكملات',
+    CARE: 'عناية',
   },
   productStatus: {
     ACTIVE: 'متاح',

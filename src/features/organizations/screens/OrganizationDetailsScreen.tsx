@@ -18,7 +18,7 @@ import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { organizationManagesAnimals } from '@/features/animals/constants';
 import { FarmJoinCodeCard, organizationIsFarm } from '@/features/farmShared';
-import { organizationIsVeterinaryStore } from '@/features/store/constants';
+import { organizationOwnsProducts } from '@/features/store/constants';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -68,7 +68,7 @@ export default function OrganizationDetailsScreen() {
   const org = q.data;
   const caps = orgCapabilities(org?.myRole, isAdmin);
   const isFarm = organizationIsFarm(org?.type);
-  const isVeterinaryStore = organizationIsVeterinaryStore(org?.type);
+  const isVeterinaryStore = organizationOwnsProducts(org?.type);
   const managesAnimals = organizationManagesAnimals(org?.type);
 
   return (

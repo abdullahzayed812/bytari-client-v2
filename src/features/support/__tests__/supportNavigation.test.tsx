@@ -1,12 +1,14 @@
 import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
+import { organizationsApi } from '@/features/organizations';
 import { petsApi } from '@/features/pets';
-import { renderWithProviders, screen, within } from '@/test-utils/render';
+import { renderWithProviders, screen } from '@/test-utils/render';
 import { resetRouterMock, setSearchParams } from '@/test-utils/routerMock';
 
 import HomeScreen from '@/features/home/screens/HomeScreen';
 import VeterinarianHomeScreen from '@/features/veterinarian/screens/VeterinarianHomeScreen';
 
+import { inquiryApi } from '../api';
 import { SUPPORT_KIND_META, kindFromSlug, kindSlug, threadRoom } from '../constants';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
@@ -44,6 +46,10 @@ beforeEach(() => {
   setSearchParams({});
   seedPlain();
   jest.spyOn(petsApi, 'list').mockResolvedValue({
+    items: [],
+    meta: { page: 1, pageSize: 3, total: 0, totalPages: 1 },
+  });
+  jest.spyOn(organizationsApi, 'discover').mockResolvedValue({
     items: [],
     meta: { page: 1, pageSize: 3, total: 0, totalPages: 1 },
   });
@@ -86,10 +92,28 @@ describe('Pet Owner Home — consultation CTA + previous consultations', () => {
 });
 
 describe('Veterinarian Home — Phase 13 entry', () => {
-  it('renders the Consultations & Inquiries section for a vet-mode user', async () => {
-    const view = renderWithProviders(<VeterinarianHomeScreen />);
-    expect(await within(view.UNSAFE_root).findByText('الاستشارات والاستفسارات')).toBeOnTheScreen();
-    // no management card without a permission / supervisor domain / admin
-    expect(view.queryByText('إدارة الاستشارات')).toBeNull();
+  it('a non-approved vet-mode user sees the approval status card, not the inquiry sections', async () => {
+    renderWithProviders(<VeterinarianHomeScreen />);
+    expect(await screen.findByText('حالة الاعتماد كطبيب بيطري')).toBeOnTheScreen();
+    expect(screen.queryByText('أرسل استفسارك')).toBeNull();
+  });
+
+  it('an APPROVED vet-mode user sees the inquiry CTA and previous-inquiries section', async () => {
+    useAuthStore.setState((s) => ({
+      session: s.session && {
+        ...s.session,
+        user: { ...s.session.user, veterinarianStatus: 'APPROVED' },
+        roles: ['PET_OWNER', 'VETERINARIAN'],
+        veterinarian: { status: 'APPROVED', approved: true },
+      },
+    }));
+    jest.spyOn(inquiryApi, 'listMine').mockResolvedValue({
+      items: [],
+      meta: { page: 1, pageSize: 3, total: 0, totalPages: 1 },
+    });
+
+    renderWithProviders(<VeterinarianHomeScreen />);
+    expect(await screen.findByText('أرسل استفسارك')).toBeOnTheScreen();
+    expect(await screen.findByText('استفسارات سابقة')).toBeOnTheScreen();
   });
 });

@@ -1,6 +1,9 @@
 import { useAuthStore } from '@/features/auth/store';
 import type { VeterinarianStatus } from '@/features/auth/types';
 import { organizationsApi } from '@/features/organizations';
+import type { PublicOrganization } from '@/features/organizations';
+import { inquiryApi } from '@/features/support';
+import type { Paginated, Thread } from '@/features/support';
 import { renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock } from '@/test-utils/routerMock';
 
@@ -34,16 +37,60 @@ function seed(status: VeterinarianStatus) {
   });
 }
 
-describe('VeterinarianHomeScreen (§25) — capability-aware, backend authoritative', () => {
-  const listMine = jest.spyOn(organizationsApi, 'listMine');
+const office = (over: Partial<PublicOrganization> = {}): PublicOrganization => ({
+  id: 'org1',
+  type: 'VETERINARY_OFFICE',
+  name: 'عيادة البرموك البيطرية',
+  description: null,
+  address: null,
+  latitude: null,
+  longitude: null,
+  phone: null,
+  logoUrl: null,
+  workingHours: null,
+  services: [],
+  email: null,
+  whatsapp: null,
+  instagramUrl: null,
+  facebookUrl: null,
+  tiktokUrl: null,
+  galleryUrls: [],
+  distanceKm: null,
+  rating: null,
+  reviewsCount: 0,
+  createdAt: '2026-01-01',
+  ...over,
+});
+
+const inquiryThread = (over: Partial<Thread> = {}): Thread => ({
+  id: 'inq1',
+  kind: 'INQUIRY',
+  status: 'OPEN',
+  createdByUserId: 'u1',
+  animalId: null,
+  senderBlocked: false,
+  aiResponded: false,
+  lastMessageAt: null,
+  closedAt: null,
+  createdAt: '2026-01-01',
+  updatedAt: '2026-01-01',
+  ...over,
+});
+
+const page = <T,>(items: T[]): Paginated<T> => ({
+  items,
+  meta: { page: 1, pageSize: 20, total: items.length, totalPages: 1 },
+});
+
+describe('VeterinarianHomeScreen — capability-aware, backend authoritative', () => {
+  const discover = jest.spyOn(organizationsApi, 'discover');
   const myStatus = jest.spyOn(veterinarianApi, 'myStatus');
+  const listMyInquiries = jest.spyOn(inquiryApi, 'listMine');
 
   beforeEach(() => {
     resetRouterMock();
-    listMine.mockReset().mockResolvedValue({
-      items: [],
-      meta: { page: 1, pageSize: 1, total: 3, totalPages: 3 },
-    });
+    discover.mockReset().mockResolvedValue(page([]));
+    listMyInquiries.mockReset().mockResolvedValue(page([]));
     myStatus.mockReset().mockResolvedValue({ veterinarianStatus: 'PENDING', application: null });
   });
   afterAll(() => {
@@ -51,21 +98,37 @@ describe('VeterinarianHomeScreen (§25) — capability-aware, backend authoritat
     useAuthStore.setState({ session: null });
   });
 
-  it('APPROVED → shows organization management with the org count', async () => {
+  it('APPROVED → shows the inquiry CTA, previous inquiries and veterinary offices, no status card', async () => {
     seed('APPROVED');
+    discover.mockResolvedValue(page([office()]));
+    listMyInquiries.mockResolvedValue(page([inquiryThread()]));
+
     renderWithProviders(<VeterinarianHomeScreen />);
-    await waitFor(() => expect(screen.getByText('مؤسساتي')).toBeOnTheScreen());
-    await waitFor(() => expect(screen.getByText('3 مؤسسة')).toBeOnTheScreen());
-    expect(screen.getByText('معتمَد')).toBeOnTheScreen();
+
+    await waitFor(() => expect(screen.getByText('عيادة البرموك البيطرية')).toBeOnTheScreen());
+    expect(screen.getByText('أرسل استفسارك')).toBeOnTheScreen();
+    expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen();
+    expect(screen.queryByText('حالة الاعتماد كطبيب بيطري')).toBeNull();
   });
 
-  it('PENDING → shows the pending hint and no organization section', async () => {
+  it('APPROVED with nothing yet → shows empty states instead of fake data', async () => {
+    seed('APPROVED');
+    renderWithProviders(<VeterinarianHomeScreen />);
+
+    await waitFor(() => expect(screen.getByText('لا توجد استفسارات')).toBeOnTheScreen());
+    expect(screen.getByText('لا توجد مكاتب بيطرية متاحة حالياً')).toBeOnTheScreen();
+  });
+
+  it('PENDING → shows the pending hint and hides the inquiry sections, but still shows public offices', async () => {
     seed('PENDING');
+    discover.mockResolvedValue(page([office()]));
     renderWithProviders(<VeterinarianHomeScreen />);
     await waitFor(() =>
       expect(screen.getByText('طلب اعتمادك قيد المراجعة من فريق الإدارة.')).toBeOnTheScreen(),
     );
-    expect(screen.queryByText('مؤسساتي')).toBeNull();
+    await waitFor(() => expect(screen.getByText('عيادة البرموك البيطرية')).toBeOnTheScreen());
+    expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen();
+    expect(screen.queryByText('أرسل استفسارك')).toBeNull();
   });
 
   it('REJECTED → surfaces the rejection reason and a re-apply CTA', async () => {

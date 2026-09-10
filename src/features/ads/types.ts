@@ -23,6 +23,7 @@ export const AD_PLACEMENTS = [
   'TRADER_REGISTRATION',
   'SHEEP_FARMS',
   'CATTLE_FARMS',
+  'VETERINARIAN_HOME',
 ] as const;
 export type AdPlacement = (typeof AD_PLACEMENTS)[number];
 

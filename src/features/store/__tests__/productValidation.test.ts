@@ -17,7 +17,7 @@ describe('buildProductSchema — mirrors the backend product rules', () => {
     expect(
       schema.safeParse({
         name: 'x',
-        productType: 'SUPPLY',
+        productType: 'EQUIPMENT_SUPPLY',
         price: '',
         stockQuantity: '',
         description: '',

@@ -28,6 +28,7 @@ import support from './support';
 import tips from './tips';
 import users from './users';
 import veterinarian from './veterinarian';
+import veterinaryOffices from './veterinaryOffices';
 import vetServices from './vetServices';
 
 export const ar = {
@@ -62,5 +63,6 @@ export const ar = {
   showcase,
   registration,
   vetServices,
+  veterinaryOffices,
 } as const;
 export type TranslationResources = typeof ar;

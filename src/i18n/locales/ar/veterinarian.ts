@@ -42,17 +42,41 @@ export default {
       studentIdBackRequired: 'صورة ظهر هوية الطالب مطلوبة.',
     },
   },
-  organizations: {
-    label: 'المؤسسات',
-    myOrganizations: 'مؤسساتي',
-    loading: 'جارٍ التحميل…',
-    count: '{{count}} مؤسسة',
-    createCta: 'إنشاء مؤسسة',
-    joinFarmCta: 'الانضمام إلى مزرعة برمز',
-  },
-  switchToOwner: {
-    title: 'وضع مالك الحيوان',
-    hint: 'ميزات الحيوانات الأليفة تبقى متاحة دائماً.',
-    action: 'تبديل',
+  home: {
+    greeting: 'مرحباً دكتور',
+    switchToOwnerA11y: 'التبديل إلى وضع مالك الحيوان',
+    inquiryCta: {
+      title:
+        'إذا كان لديك أي استفسار عن مرض معين أو عن علاج أو أي شيء يخص الطب البيطري، تفضل بمراسلتنا',
+      button: 'أرسل استفسارك',
+    },
+    previousInquiries: {
+      title: 'استفسارات سابقة',
+      viewAll: 'عرض الكل',
+      empty: 'لا توجد استفسارات',
+    },
+    organizations: {
+      title: 'المكاتب البيطرية',
+      viewAll: 'عرض الكل',
+      emptyTitle: 'لا توجد مكاتب بيطرية متاحة حالياً',
+    },
+    chat: {
+      title: 'الدردشات',
+      subtitle: 'تواصل فوري ومباشر مع الأطباء البيطريين',
+      cta: 'ابدأ الآن',
+    },
+    services: {
+      title: 'الخدمات',
+      subtitle: 'خدمات بيطرية متنوعة تلبي احتياجاتك',
+      cta: 'استكشاف الخدمات',
+    },
+    magazine: {
+      title: 'مجلة الجزيرة',
+      subtitle: 'أحدث المقالات والأبحاث في الطب البيطري',
+    },
+    books: {
+      title: 'الكتب البيطرية',
+      subtitle: 'مراجع وكتب بيطرية موثوقة',
+    },
   },
 };

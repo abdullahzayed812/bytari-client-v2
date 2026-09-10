@@ -17,12 +17,22 @@ afterAll(() => jest.restoreAllMocks());
 const product: Product = {
   id: 'p1',
   organizationId: 'o1',
+  organizationType: 'VETERINARY_STORE',
   name: 'مضاد حيوي',
   description: null,
   productType: 'MEDICINE',
   price: '120.00',
   stockQuantity: 40,
   status: 'ACTIVE',
+  primaryImageUrl: null,
+  images: [],
+  subtype: null,
+  weight: null,
+  usageInstructions: null,
+  dosage: null,
+  shelfLife: null,
+  manufacturer: null,
+  highlights: [],
   createdByUserId: 'u1',
   createdAt: '2026-02-01T00:00:00.000Z',
   updatedAt: '2026-02-01T00:00:00.000Z',
@@ -75,10 +85,10 @@ describe('productsApi — 1:1 with the backend routes', () => {
     await productsApi.get('o1', 'p1');
     expect(get).toHaveBeenCalledWith('/organizations/o1/products/p1');
 
-    await productsApi.create('o1', { name: 'x', productType: 'SUPPLY', price: '10.00' });
+    await productsApi.create('o1', { name: 'x', productType: 'EQUIPMENT_SUPPLY', price: '10.00' });
     expect(post).toHaveBeenCalledWith('/organizations/o1/products', {
       name: 'x',
-      productType: 'SUPPLY',
+      productType: 'EQUIPMENT_SUPPLY',
       price: '10.00',
     });
 

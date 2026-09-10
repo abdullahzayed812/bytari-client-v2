@@ -209,6 +209,13 @@ export const Routes = {
   organizationsDiscover: '/(app)/organizations/discover',
   organizationDiscoverDetail: (organizationId: string) =>
     `/(app)/organizations/discover/${organizationId}` as const,
+  // Veterinary Offices — public browse (Veterinarian Home → "المكاتب البيطرية").
+  veterinaryOffices: '/(app)/veterinary-offices',
+  veterinaryOfficeDetail: (officeId: string) => `/(app)/veterinary-offices/${officeId}` as const,
+  veterinaryOfficeProducts: (officeId: string) =>
+    `/(app)/veterinary-offices/${officeId}/products` as const,
+  veterinaryOfficeProductDetail: (officeId: string, productId: string) =>
+    `/(app)/veterinary-offices/${officeId}/products/${productId}` as const,
   organizationDetail: (organizationId: string) => `/(app)/organizations/${organizationId}` as const,
   organizationEdit: (organizationId: string) =>
     `/(app)/organizations/${organizationId}/edit` as const,

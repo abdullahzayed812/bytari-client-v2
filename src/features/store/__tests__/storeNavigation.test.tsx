@@ -9,7 +9,7 @@ import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/re
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { productsApi } from '../api';
-import { organizationIsVeterinaryStore } from '../constants';
+import { organizationOwnsProducts } from '../constants';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -86,11 +86,12 @@ describe('Phase 10 store navigation + capability gates + Pet Owner coexistence',
     );
   });
 
-  it('organizationIsVeterinaryStore only matches VETERINARY_STORE', () => {
-    expect(organizationIsVeterinaryStore('VETERINARY_STORE')).toBe(true);
-    expect(organizationIsVeterinaryStore('CLINIC')).toBe(false);
-    expect(organizationIsVeterinaryStore('FARM')).toBe(false);
-    expect(organizationIsVeterinaryStore(undefined)).toBe(false);
+  it('organizationOwnsProducts matches VETERINARY_STORE and VETERINARY_OFFICE only', () => {
+    expect(organizationOwnsProducts('VETERINARY_STORE')).toBe(true);
+    expect(organizationOwnsProducts('VETERINARY_OFFICE')).toBe(true);
+    expect(organizationOwnsProducts('CLINIC')).toBe(false);
+    expect(organizationOwnsProducts('FARM')).toBe(false);
+    expect(organizationOwnsProducts(undefined)).toBe(false);
   });
 
   it('orgCapabilities: OWNER manages, STAFF is read-only, VETERINARIAN gets nothing', () => {

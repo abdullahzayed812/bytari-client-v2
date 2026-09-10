@@ -11,3 +11,4 @@ export { OrgFormLayout } from './OrgFormLayout';
 export { RatingStars, type RatingStarsProps } from './RatingStars';
 export { ImageCarousel, type ImageCarouselProps } from './ImageCarousel';
 export { ReviewModal, type ReviewModalProps } from './ReviewModal';
+export { DiscoverFilterBar, type DiscoverFilterBarProps } from './DiscoverFilterBar';

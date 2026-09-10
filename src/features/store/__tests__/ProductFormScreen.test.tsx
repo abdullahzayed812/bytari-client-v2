@@ -26,12 +26,22 @@ afterAll(() => jest.restoreAllMocks());
 const product = (over: Partial<Product> = {}): Product => ({
   id: 'p1',
   organizationId: 'o1',
+  organizationType: 'VETERINARY_STORE',
   name: 'مضاد حيوي',
   description: null,
   productType: 'MEDICINE',
   price: '120.00',
   stockQuantity: 40,
   status: 'ACTIVE',
+  primaryImageUrl: null,
+  images: [],
+  subtype: null,
+  weight: null,
+  usageInstructions: null,
+  dosage: null,
+  shelfLife: null,
+  manufacturer: null,
+  highlights: [],
   createdByUserId: 'u1',
   createdAt: '2026-02-01T00:00:00.000Z',
   updatedAt: '2026-02-01T00:00:00.000Z',
@@ -126,7 +136,7 @@ describe('ProductFormScreen (§8, §11, §36)', () => {
     fireEvent.changeText(screen.getByPlaceholderText('مثال: مضاد حيوي بيطري 100 مل'), 'x');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ المنتج' }));
     await waitFor(() =>
-      expect(screen.getByText('إدارة المنتجات متاحة للمتاجر البيطرية فقط.')).toBeOnTheScreen(),
+      expect(screen.getByText('إدارة المنتجات متاحة للمتاجر والمكاتب البيطرية فقط.')).toBeOnTheScreen(),
     );
     expect(screen.queryByText('raw')).toBeNull();
   });

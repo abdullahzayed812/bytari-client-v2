@@ -11,6 +11,7 @@ import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useStartConversation } from '@/features/chat';
 import { apiErrorMessage } from '@/lib/apiError';
+import { mapsUrl } from '@/lib/maps';
 import { shareText } from '@/lib/share';
 import { useTheme } from '@/theme';
 
@@ -66,17 +67,6 @@ function ContactRow({ icon, value, onPress, accessibilityLabel }: ContactRowProp
       />
     </Row>
   );
-}
-
-function mapsUrl(
-  address: string,
-  latitude: number | null | undefined,
-  longitude: number | null | undefined,
-) {
-  if (latitude != null && longitude != null) {
-    return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-  }
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
 /** A publicly-discoverable clinic's profile — no membership required. */

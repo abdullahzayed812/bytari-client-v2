@@ -1,16 +1,18 @@
 /**
- * Store feature — Mobile Phase 10. Veterinary Store product-catalogue
- * management for that store's own members, against
- * `server/src/modules/veterinary-store` (`/organizations/:orgId/products`).
+ * Store feature — Mobile Phase 10, extended to Veterinary Offices. Product
+ * catalogue management for a product-owning organization's own members,
+ * against `server/src/modules/veterinary-store` (`/organizations/:orgId/products`).
  *
- * A Veterinary Store is an Organization of type `VETERINARY_STORE` — members /
- * supervisors / staff / profile reuse the Phase 4 `features/organizations` APIs
- * and screens. Every product route needs `product.read` on that organization;
- * there is NO public / consumer browse.
+ * A product-owning organization is VETERINARY_STORE or VETERINARY_OFFICE —
+ * members / supervisors / staff / profile reuse the Phase 4
+ * `features/organizations` APIs and screens. Every product route needs
+ * `product.read` on that organization. Public/consumer browse (any
+ * authenticated user) lives in `features/veterinaryOffices`.
  *
- * NOT built (no backend support — see MOBILE_ARCHITECTURE.md, never mocked):
- * Pet Owner Store, consumer product browse, categories, product images, cart,
- * checkout, addresses, delivery, payment, orders / order history / order status.
+ * NOT built here (no backend support for THIS catalog — see
+ * MOBILE_ARCHITECTURE.md, never mocked): Pet Owner Store (a wholly separate
+ * platform catalog), cart, checkout, addresses, delivery, payment, orders /
+ * order history / order status.
  */
 export { productsApi, productKeys, type ProductsApi } from './api';
 export {
@@ -33,8 +35,8 @@ export {
 } from './components';
 export { ProductsScreen, ProductDetailScreen, ProductFormScreen } from './screens';
 export {
-  VETERINARY_STORE_ORG_TYPE,
-  organizationIsVeterinaryStore,
+  PRODUCT_ORG_TYPES,
+  organizationOwnsProducts,
   productTypeIcon,
   PRODUCT_TYPE_ICON,
   PRODUCT_TYPE_ORDER,

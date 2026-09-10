@@ -27,6 +27,8 @@ const base: PublicOrganizationDetail = {
   tiktokUrl: null,
   galleryUrls: [],
   distanceKm: null,
+  rating: null,
+  reviewsCount: 0,
   createdAt: '',
   veterinarians: [{ id: 'v1', firstName: 'أحمد', lastName: 'محمد' }],
   engagement: { isFollowing: false, followersCount: 1248, rating: 4.8, reviewsCount: 126 },

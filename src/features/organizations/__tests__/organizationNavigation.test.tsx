@@ -57,6 +57,7 @@ const detail: OrganizationDetail = {
 
 describe('Phase 4 navigation (§32): Vet Home → Organizations → Details → Members / Supervisors / Edit', () => {
   const listMine = jest.spyOn(organizationsApi, 'listMine');
+  const discover = jest.spyOn(organizationsApi, 'discover');
   const get = jest.spyOn(organizationsApi, 'get');
   const myStatus = jest.spyOn(veterinarianApi, 'myStatus');
 
@@ -65,6 +66,10 @@ describe('Phase 4 navigation (§32): Vet Home → Organizations → Details → 
     listMine.mockReset().mockResolvedValue({
       items: [],
       meta: { page: 1, pageSize: 1, total: 0, totalPages: 1 },
+    });
+    discover.mockReset().mockResolvedValue({
+      items: [],
+      meta: { page: 1, pageSize: 3, total: 0, totalPages: 1 },
     });
     get.mockReset().mockResolvedValue(detail);
     myStatus.mockReset().mockResolvedValue({ veterinarianStatus: 'APPROVED', application: null });
@@ -85,11 +90,39 @@ describe('Phase 4 navigation (§32): Vet Home → Organizations → Details → 
     expect(Routes.veterinarianApply).toBe('/(app)/veterinarian/apply');
   });
 
-  it('Veterinarian Home → My Organizations', async () => {
+  it('Veterinarian Home → Veterinary Offices (public discovery)', async () => {
+    discover.mockResolvedValue({
+      items: [
+        {
+          id: 'o1',
+          type: 'VETERINARY_OFFICE',
+          name: 'عيادة الرحمة البيطرية',
+          description: null,
+          address: null,
+          latitude: null,
+          longitude: null,
+          phone: null,
+          logoUrl: null,
+          workingHours: null,
+          services: [],
+          email: null,
+          whatsapp: null,
+          instagramUrl: null,
+          facebookUrl: null,
+          tiktokUrl: null,
+          galleryUrls: [],
+          distanceKm: null,
+          rating: null,
+          reviewsCount: 0,
+          createdAt: '',
+        },
+      ],
+      meta: { page: 1, pageSize: 3, total: 1, totalPages: 1 },
+    });
     renderWithProviders(<VeterinarianHomeScreen />);
-    await waitFor(() => expect(screen.getByText('مؤسساتي')).toBeOnTheScreen());
-    fireEvent.press(screen.getByText('مؤسساتي'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations');
+    await waitFor(() => expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen());
+    fireEvent.press(screen.getByText('عرض الكل'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices');
   });
 
   it('Organization Details → Members, Supervisors and Edit', async () => {

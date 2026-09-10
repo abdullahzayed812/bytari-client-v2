@@ -17,6 +17,7 @@ export default {
     all: 'الكل',
     verifiedA11y: 'عيادة موثّقة',
     distanceKm: '{{value}} كم',
+    reviewsCountShort: '({{count}})',
     loadingMore: 'جارٍ تحميل المزيد…',
     empty: 'لا توجد عيادات متاحة حالياً',
     emptySearch: 'لا توجد نتائج مطابقة لبحثك',

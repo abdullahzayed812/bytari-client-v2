@@ -120,6 +120,9 @@ export interface PublicOrganization extends OrganizationProfile {
   name: string;
   description: string | null;
   distanceKm: number | null;
+  /** Average rating rounded to 1 decimal, `null` with no reviews yet. */
+  rating: number | null;
+  reviewsCount: number;
   createdAt: string;
 }
 

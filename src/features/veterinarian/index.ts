@@ -12,6 +12,7 @@ export {
   type VeterinarianDocumentRef,
 } from './hooks';
 export { VeterinarianHomeScreen, VeterinarianApplyScreen } from './screens';
+export { VeterinarianHomeHeader } from './components';
 export { buildApplySchema, type ApplyFormValues, type VetTFn } from './validation/schemas';
 export {
   VET_APPLICATION_STATUSES,

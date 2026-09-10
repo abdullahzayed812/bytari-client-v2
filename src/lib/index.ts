@@ -11,6 +11,7 @@ export { logger, createLogger, type Logger } from './logger';
 export { createQueryClient } from './queryClient';
 export { apiErrorMessage, fieldErrors } from './apiError';
 export { shareText, type ShareOutcome } from './share';
+export { mapsUrl } from './maps';
 export {
   isRTL,
   isRtlLanguage,

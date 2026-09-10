@@ -4,25 +4,27 @@ import type { OrganizationType } from '@/features/organizations/types';
 import type { ProductSort, ProductStatus, ProductType } from './types';
 
 /**
- * Organization type that carries veterinary-store behaviour. Backend source of
- * truth: `VETERINARY_STORE_ORG_TYPE` in
- * `server/src/modules/veterinary-store/domain/store.constants.ts`. Centralised so
- * no component does `if (org.type === 'VETERINARY_STORE')` inline.
+ * Organization types that can own products. Backend source of truth:
+ * `PRODUCT_ORG_TYPES` in
+ * `server/src/modules/veterinary-store/domain/store.constants.ts` — a
+ * VETERINARY_STORE or a VETERINARY_OFFICE. Centralised so no component does
+ * `if (org.type === 'VETERINARY_STORE')` inline.
  */
-export const VETERINARY_STORE_ORG_TYPE: OrganizationType = 'VETERINARY_STORE';
+export const PRODUCT_ORG_TYPES: readonly OrganizationType[] = [
+  'VETERINARY_STORE',
+  'VETERINARY_OFFICE',
+];
 
-export function organizationIsVeterinaryStore(
-  type: OrganizationType | string | undefined,
-): boolean {
-  return type === VETERINARY_STORE_ORG_TYPE;
+export function organizationOwnsProducts(type: OrganizationType | string | undefined): boolean {
+  return type != null && (PRODUCT_ORG_TYPES as readonly string[]).includes(type);
 }
 
 /** Product type → line icon + ordered list for the "add product" picker. */
 export const PRODUCT_TYPE_ICON: Record<string, IconName> = {
   MEDICINE: 'medical-outline',
-  EQUIPMENT: 'hardware-chip-outline',
-  SUPPLY: 'cube-outline',
-  OTHER: 'help-circle-outline',
+  EQUIPMENT_SUPPLY: 'hardware-chip-outline',
+  SUPPLEMENT: 'nutrition-outline',
+  CARE: 'leaf-outline',
 };
 
 export function productTypeIcon(productType: string): IconName {
@@ -31,9 +33,9 @@ export function productTypeIcon(productType: string): IconName {
 
 export const PRODUCT_TYPE_ORDER: readonly ProductType[] = [
   'MEDICINE',
-  'EQUIPMENT',
-  'SUPPLY',
-  'OTHER',
+  'EQUIPMENT_SUPPLY',
+  'SUPPLEMENT',
+  'CARE',
 ];
 
 /** Product lifecycle → badge tone. `INACTIVE` is the soft-delete state. */
