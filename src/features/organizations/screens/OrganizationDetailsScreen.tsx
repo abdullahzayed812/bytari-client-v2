@@ -18,7 +18,8 @@ import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { organizationManagesAnimals } from '@/features/animals/constants';
 import { FarmJoinCodeCard, organizationIsFarm } from '@/features/farmShared';
-import { organizationOwnsProducts } from '@/features/store/constants';
+import { organizationOwnsVeterinaryOfficeProducts } from '@/features/veterinaryOffices/constants';
+import { organizationOwnsVeterinaryStoreProducts } from '@/features/veterinaryStore/constants';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -68,7 +69,8 @@ export default function OrganizationDetailsScreen() {
   const org = q.data;
   const caps = orgCapabilities(org?.myRole, isAdmin);
   const isFarm = organizationIsFarm(org?.type);
-  const isVeterinaryStore = organizationOwnsProducts(org?.type);
+  const isVeterinaryStore = organizationOwnsVeterinaryStoreProducts(org?.type);
+  const isVeterinaryOffice = organizationOwnsVeterinaryOfficeProducts(org?.type);
   const managesAnimals = organizationManagesAnimals(org?.type);
 
   return (
@@ -167,7 +169,14 @@ export default function OrganizationDetailsScreen() {
                 <NavRow
                   icon="storefront-outline"
                   label={t('detail.products')}
-                  onPress={() => router.push(Routes.organizationProducts(org.id))}
+                  onPress={() => router.push(Routes.organizationStoreProducts(org.id))}
+                />
+              ) : null}
+              {isVeterinaryOffice && caps.canViewStoreProducts ? (
+                <NavRow
+                  icon="storefront-outline"
+                  label={t('detail.products')}
+                  onPress={() => router.push(Routes.organizationOfficeProducts(org.id))}
                 />
               ) : null}
               {caps.canViewMembers ? (
@@ -208,7 +217,8 @@ export default function OrganizationDetailsScreen() {
               !caps.canEditOrganization &&
               !(managesAnimals && caps.canViewOrganizationAnimals) &&
               !(isFarm && caps.canViewFarmPoultry) &&
-              !(isVeterinaryStore && caps.canViewStoreProducts) ? (
+              !(isVeterinaryStore && caps.canViewStoreProducts) &&
+              !(isVeterinaryOffice && caps.canViewStoreProducts) ? (
                 <Caption>{t('detail.noManageAccess')}</Caption>
               ) : null}
             </View>

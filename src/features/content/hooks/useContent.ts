@@ -1,4 +1,11 @@
-import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+  type UseMutationResult,
+} from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { AppConfig } from '@/constants/config';
@@ -7,8 +14,11 @@ import { ApiError } from '@/services/api';
 import { contentApi, contentKeys } from '../api';
 import type {
   ContentCategory,
+  ContentComment,
   ContentDownload,
   ContentItem,
+  ContentRatingAggregate,
+  ContentSort,
   ContentType,
   Paginated,
 } from '../types';
@@ -17,15 +27,17 @@ export interface UseContentListParams {
   type?: ContentType;
   categoryId?: string;
   search?: string;
+  sort?: ContentSort;
+  bookmarkedOnly?: boolean;
   pageSize?: number;
   enabled?: boolean;
 }
 
 /**
  * Published content, paginated (`page`/`pageSize`) with the backend's own
- * `type` / `categoryId` / `q` filters (§14/§15). The filter set is part of the
- * query key so Articles / Books / search results never share a cache entry.
- * There is no `sort` param on the backend, so none is exposed (§16).
+ * `type` / `categoryId` / `q` / `sort` / `bookmarkedOnly` filters. The filter
+ * set is part of the query key so Articles / Books / search / saved results
+ * never share a cache entry.
  */
 export function useContentList(params: UseContentListParams = {}) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
@@ -33,6 +45,8 @@ export function useContentList(params: UseContentListParams = {}) {
     type: params.type,
     categoryId: params.categoryId,
     search: params.search || undefined,
+    sort: params.sort,
+    bookmarkedOnly: params.bookmarkedOnly,
     pageSize,
   };
 
@@ -52,6 +66,8 @@ export function useContentList(params: UseContentListParams = {}) {
         type: params.type,
         categoryId: params.categoryId,
         search: params.search || undefined,
+        sort: params.sort,
+        bookmarkedOnly: params.bookmarkedOnly,
       }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
@@ -108,5 +124,100 @@ export function useContentFileUrl(
     gcTime: 60_000,
     retry: (count, error) =>
       !(error instanceof ApiError && (error.status === 404 || error.status === 403)) && count < 2,
+  });
+}
+
+// --- engagement: bookmarks / likes -------------------------------
+
+/** Toggle save/bookmark on a content item. Invalidates the item + any list (the "saved" section). */
+export function useToggleContentBookmark(
+  contentId: string,
+): UseMutationResult<boolean, unknown, boolean> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['content', 'bookmark', contentId],
+    mutationFn: (bookmarked: boolean) => contentApi.setBookmark(contentId, bookmarked),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: contentKeys.detail(contentId) });
+      void qc.invalidateQueries({ queryKey: contentKeys.lists() });
+    },
+  });
+}
+
+export function useToggleContentLike(
+  contentId: string,
+): UseMutationResult<{ isLiked: boolean; likeCount: number }, unknown, boolean> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['content', 'like', contentId],
+    mutationFn: (liked: boolean) => contentApi.setLike(contentId, liked),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: contentKeys.detail(contentId) });
+      void qc.invalidateQueries({ queryKey: contentKeys.lists() });
+    },
+  });
+}
+
+// --- engagement: comments -----------------------------------------
+
+export function useContentComments(contentId: string | undefined, pageSize = 20) {
+  return useQuery<Paginated<ContentComment>, ApiError>({
+    queryKey: contentKeys.comments(contentId ?? 'unknown'),
+    queryFn: () => contentApi.listComments(contentId as string, 1, pageSize),
+    enabled: Boolean(contentId),
+    staleTime: 15_000,
+  });
+}
+
+export function useAddContentComment(
+  contentId: string,
+): UseMutationResult<ContentComment, unknown, string> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['content', 'comments', 'add', contentId],
+    mutationFn: (body: string) => contentApi.addComment(contentId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: contentKeys.comments(contentId) });
+      void qc.invalidateQueries({ queryKey: contentKeys.detail(contentId) });
+    },
+  });
+}
+
+export function useDeleteContentComment(
+  contentId: string,
+): UseMutationResult<void, unknown, string> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['content', 'comments', 'delete', contentId],
+    mutationFn: (commentId: string) => contentApi.deleteComment(contentId, commentId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: contentKeys.comments(contentId) });
+      void qc.invalidateQueries({ queryKey: contentKeys.detail(contentId) });
+    },
+  });
+}
+
+// --- engagement: rating (books) -------------------------------------
+
+export function useContentRating(contentId: string | undefined, options: { enabled?: boolean } = {}) {
+  return useQuery<{ aggregate: ContentRatingAggregate; myRating: number | null }, ApiError>({
+    queryKey: contentKeys.rating(contentId ?? 'unknown'),
+    queryFn: () => contentApi.getRating(contentId as string),
+    enabled: Boolean(contentId) && (options.enabled ?? true),
+  });
+}
+
+export function useSubmitContentRating(
+  contentId: string,
+): UseMutationResult<ContentRatingAggregate, unknown, number> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['content', 'rating', contentId],
+    mutationFn: (rating: number) => contentApi.submitRating(contentId, rating),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: contentKeys.rating(contentId) });
+      void qc.invalidateQueries({ queryKey: contentKeys.detail(contentId) });
+      void qc.invalidateQueries({ queryKey: contentKeys.lists() });
+    },
   });
 }

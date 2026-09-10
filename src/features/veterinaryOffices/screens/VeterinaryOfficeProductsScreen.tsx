@@ -1,150 +1,154 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, useWindowDimensions, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 
-import { Button } from '@/components/actions';
-import { Chip, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { IconButton } from '@/components/actions';
+import { Chip } from '@/components/content';
+import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { PRODUCT_TYPE_ORDER, productTypeIcon, type ProductType } from '@/features/store';
-import { useDebouncedValue } from '@/hooks';
+import { orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities, useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { VeterinaryProductCard } from '../components';
+import { VeterinaryOfficeProductCard, VeterinaryOfficeProductCardSkeleton } from '../components';
+import { VETERINARY_OFFICE_PRODUCT_TYPE_ORDER } from '../constants';
 import { useVeterinaryOfficeProducts } from '../hooks';
+import type { VeterinaryOfficeProduct, VeterinaryOfficeProductType } from '../types';
 
-const NUM_COLUMNS = 2;
-const GRID_GAP = 12;
-
-/** Full public product catalog for one veterinary office/store. */
+/** Route `/organizations/[organizationId]/office-products` — a veterinary office's catalogue (management). */
 export default function VeterinaryOfficeProductsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
-  const { t: ts } = useTranslation('store');
-  const { t: tc } = useTranslation('common');
-  const toast = useToast();
-  const { officeId } = useLocalSearchParams<{ officeId: string }>();
+  const { isAdmin } = useCapabilities();
+  const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
+  const orgId = organizationId ?? '';
+
+  const detail = useOrganization(orgId);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const canAdd = caps.canManageStoreProducts;
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
-  const [type, setType] = useState<ProductType | undefined>(undefined);
+  const [type, setType] = useState<VeterinaryOfficeProductType | undefined>(undefined);
 
-  const q = useVeterinaryOfficeProducts(officeId, { search: search || undefined, productType: type });
+  const q = useVeterinaryOfficeProducts(orgId, { search, productType: type });
 
-  const { width: windowWidth } = useWindowDimensions();
-  const columnWidth =
-    (windowWidth - theme.screenPadding * 2 - GRID_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
+  const goToDetail = (p: VeterinaryOfficeProduct) => router.push(Routes.organizationOfficeProduct(orgId, p.id));
+  const goToCreate = () => router.push(Routes.organizationOfficeProductCreate(orgId));
+
+  const header = (
+    <View style={{ paddingBottom: theme.spacing.md, rowGap: theme.spacing.sm }}>
+      <SearchInput
+        value={rawSearch}
+        onChangeText={setRawSearch}
+        onClear={() => setRawSearch('')}
+        placeholder={t('manage.list.searchPlaceholder')}
+        accessibilityLabel={t('manage.list.searchPlaceholder')}
+      />
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+        <Chip
+          label={t('manage.list.filterAll')}
+          selected={type === undefined}
+          onPress={() => setType(undefined)}
+        />
+        {VETERINARY_OFFICE_PRODUCT_TYPE_ORDER.map((pt) => (
+          <Chip
+            key={pt}
+            label={t(`productType.${pt}`)}
+            selected={type === pt}
+            onPress={() => setType((cur) => (cur === pt ? undefined : pt))}
+          />
+        ))}
+      </View>
+      {q.total > 0 ? <Caption>{t('manage.list.count', { count: q.total })}</Caption> : null}
+    </View>
+  );
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('products.title')} showBack backAlign="left" />
-
-      <View
-        style={{
-          paddingHorizontal: theme.screenPadding,
-          paddingTop: theme.spacing.md,
-          rowGap: theme.spacing.md,
-        }}
-      >
-        <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-          <Button
-            label={t('products.filter')}
-            variant="outline"
-            leftIcon="funnel-outline"
-            onPress={() => toast.show({ message: tc('comingSoon'), tone: 'info' })}
-          />
-          <View style={{ flex: 1 }}>
-            <SearchInput
-              value={rawSearch}
-              onChangeText={setRawSearch}
-              onClear={() => setRawSearch('')}
-              placeholder={t('products.searchPlaceholder')}
-              accessibilityLabel={t('products.searchPlaceholder')}
+      <AppHeader
+        title={t('manage.list.title')}
+        showBack
+        right={
+          canAdd ? (
+            <IconButton
+              icon="add"
+              variant="soft"
+              accessibilityLabel={t('manage.list.addCta')}
+              onPress={goToCreate}
             />
-          </View>
-        </View>
-
-        <FlatList
-          data={PRODUCT_TYPE_ORDER}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item}
-          ItemSeparatorComponent={() => <View style={{ width: theme.spacing.sm }} />}
-          ListHeaderComponent={
-            <Chip
-              label={t('products.all')}
-              icon={'grid-outline' as IconName}
-              selected={type === undefined}
-              onPress={() => setType(undefined)}
-            />
-          }
-          ListHeaderComponentStyle={{ marginEnd: theme.spacing.sm }}
-          renderItem={({ item }) => (
-            <Chip
-              label={ts(`productType.${item}`)}
-              icon={productTypeIcon(item)}
-              selected={type === item}
-              onPress={() => setType(item)}
-            />
-          )}
-        />
-
-        <Caption>{t('products.resultsCount', { count: q.total })}</Caption>
-      </View>
+          ) : undefined
+        }
+      />
 
       {q.isLoading ? (
-        <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.md }}>
-          <Loading fill />
+        <View
+          style={{
+            paddingHorizontal: theme.screenPadding,
+            paddingTop: theme.spacing.md,
+            rowGap: theme.spacing.md,
+          }}
+        >
+          {header}
+          {[0, 1, 2, 3].map((i) => (
+            <VeterinaryOfficeProductCardSkeleton key={i} />
+          ))}
         </View>
       ) : q.isError ? (
         <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.md }}>
+          {header}
           <ErrorState error={q.error} onRetry={() => void q.refetch()} />
         </View>
       ) : (
         <FlatList
           data={q.products}
           keyExtractor={(p) => p.id}
-          numColumns={NUM_COLUMNS}
-          columnWrapperStyle={{ columnGap: GRID_GAP }}
-          ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
           renderItem={({ item }) => (
-            <VeterinaryProductCard
-              product={item}
-              width={columnWidth}
-              onPress={() =>
-                router.push(Routes.veterinaryOfficeProductDetail(officeId as string, item.id))
-              }
-            />
+            <VeterinaryOfficeProductCard product={item} onPress={() => goToDetail(item)} />
           )}
+          ListHeaderComponent={header}
           ListEmptyComponent={
             <EmptyState
-              icon="cube-outline"
-              title={search || type ? t('products.emptySearch') : t('products.empty')}
+              icon="storefront-outline"
+              title={search || type ? t('manage.list.emptyFiltered') : t('manage.list.empty')}
+              message={
+                search || type
+                  ? t('manage.list.emptyFilteredHint')
+                  : canAdd
+                    ? t('manage.list.emptyHintManage')
+                    : t('manage.list.emptyHint')
+              }
+              actionLabel={canAdd && !search && !type ? t('manage.list.addCta') : undefined}
+              onAction={canAdd && !search && !type ? goToCreate : undefined}
             />
           }
           ListFooterComponent={
-            q.isFetchingNextPage ? (
-              <Loading label={t('products.loadingMore')} />
-            ) : q.hasNextPage ? (
-              <Button
-                label={t('list.loadMore')}
-                variant="outline"
-                fullWidth
-                onPress={() => void q.fetchNextPage()}
-              />
-            ) : null
+            q.isFetchingNextPage ? <Loading label={t('manage.list.loadingMore')} /> : null
           }
           contentContainerStyle={{
             paddingHorizontal: theme.screenPadding,
-            paddingTop: theme.spacing.lg,
+            paddingTop: theme.spacing.md,
             paddingBottom: theme.spacing.huge,
+            rowGap: theme.spacing.md,
             flexGrow: 1,
           }}
+          onEndReachedThreshold={0.4}
+          onEndReached={() => {
+            if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={q.isRefetching && !q.isFetchingNextPage}
+              onRefresh={() => void q.refetch()}
+              tintColor={theme.colors.primary}
+              colors={[theme.colors.primary]}
+            />
+          }
         />
       )}
     </SafeAreaScreen>

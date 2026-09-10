@@ -22,8 +22,8 @@ import { mapsUrl } from '@/lib/maps';
 import { shareText } from '@/lib/share';
 import { useTheme } from '@/theme';
 
-import { VeterinaryProductCard } from '../components';
-import { useVeterinaryOfficeProducts } from '../hooks';
+import { PublicVeterinaryOfficeProductCard } from '../components';
+import { usePublicVeterinaryOfficeProducts } from '../hooks';
 
 const PRODUCT_PREVIEW_COUNT = 6;
 const PRODUCT_CARD_WIDTH = 150;
@@ -108,7 +108,7 @@ export default function VeterinaryOfficeDetailsScreen() {
   const unfollow = useUnfollowOrganization(officeId ?? '');
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
-  const products = useVeterinaryOfficeProducts(officeId, { pageSize: PRODUCT_PREVIEW_COUNT });
+  const products = usePublicVeterinaryOfficeProducts(officeId, { pageSize: PRODUCT_PREVIEW_COUNT });
   const productPreview = products.products.slice(0, PRODUCT_PREVIEW_COUNT);
 
   if (q.isLoading) {
@@ -325,7 +325,7 @@ export default function VeterinaryOfficeDetailsScreen() {
               style={{ marginTop: theme.spacing.md }}
               ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
               renderItem={({ item }) => (
-                <VeterinaryProductCard
+                <PublicVeterinaryOfficeProductCard
                   product={item}
                   width={PRODUCT_CARD_WIDTH}
                   onPress={() =>

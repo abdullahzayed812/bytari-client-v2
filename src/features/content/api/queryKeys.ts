@@ -19,4 +19,6 @@ export const contentKeys = {
   detail: (contentId: string) => [...contentKeys.details(), contentId] as const,
   file: (contentId: string, fileId: string) =>
     [...contentKeys.all, 'file', contentId, fileId] as const,
+  comments: (contentId: string) => [...contentKeys.all, 'comments', contentId] as const,
+  rating: (contentId: string) => [...contentKeys.all, 'rating', contentId] as const,
 };

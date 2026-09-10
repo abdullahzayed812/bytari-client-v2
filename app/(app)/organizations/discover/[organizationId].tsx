@@ -1,2 +1,2 @@
 /** Route: /(app)/organizations/discover/[organizationId] — public clinic profile. */
-export { default } from '@/features/organizations/screens/ClinicDetailScreen';
+export { default } from '@/features/clinics/screens/ClinicDetailsScreen';

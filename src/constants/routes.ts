@@ -62,6 +62,35 @@ export const Routes = {
   contentFile: (contentId: string, fileId: string) =>
     `/(app)/content/item/${contentId}/files/${fileId}` as const,
 
+  // Veterinary Magazine — Veterinarian Home → "المجلة البيطرية" (type=MAGAZINE)
+  veterinaryMagazineHome: '/(app)/veterinary-magazine',
+  veterinaryMagazineArticle: (articleId: string) =>
+    `/(app)/veterinary-magazine/${articleId}` as const,
+  veterinaryMagazineCategory: (categoryId: string) =>
+    `/(app)/veterinary-magazine/category/${categoryId}` as const,
+  veterinaryMagazineSection: (mode: 'latest' | 'mostRead' | 'saved') =>
+    `/(app)/veterinary-magazine/section/${mode}` as const,
+
+  // Veterinary Books — Veterinarian Home → "الكتب البيطرية" (type=BOOK)
+  veterinaryBooksHome: '/(app)/veterinary-books',
+  veterinaryBooksDetail: (bookId: string) => `/(app)/veterinary-books/${bookId}` as const,
+  veterinaryBooksCategory: (categoryId: string) =>
+    `/(app)/veterinary-books/category/${categoryId}` as const,
+  veterinaryBooksSection: (mode: 'all' | 'mostRead' | 'favorites') =>
+    `/(app)/veterinary-books/section/${mode}` as const,
+
+  // Veterinary content admin (Veterinarian interface — approved-vet CONTENT
+  // supervisor or ADMIN, mirrors `/admin/content*`)
+  adminVeterinaryContent: (type: 'MAGAZINE' | 'BOOK') =>
+    `/(app)/admin/veterinary-content/${type}` as const,
+  adminVeterinaryContentCreate: (type: 'MAGAZINE' | 'BOOK') =>
+    `/(app)/admin/veterinary-content/${type}/create` as const,
+  adminVeterinaryContentDetail: (type: 'MAGAZINE' | 'BOOK', contentId: string) =>
+    `/(app)/admin/veterinary-content/${type}/${contentId}` as const,
+  adminVeterinaryContentEdit: (type: 'MAGAZINE' | 'BOOK', contentId: string) =>
+    `/(app)/admin/veterinary-content/${type}/${contentId}/edit` as const,
+  adminVeterinaryContentCategories: '/(app)/admin/veterinary-content/categories',
+
   // Tips — أفضل النصائح (structured care advice from the content module)
   tips: '/(app)/tips',
   tip: (tipId: string) => `/(app)/tips/${tipId}` as const,
@@ -247,14 +276,24 @@ export const Routes = {
     `/(app)/organizations/${organizationId}/poultry/${flockId}/edit` as const,
 
   // Organization operations — Veterinary Store products (Mobile Phase 10)
-  organizationProducts: (organizationId: string) =>
-    `/(app)/organizations/${organizationId}/products` as const,
-  organizationProductCreate: (organizationId: string) =>
-    `/(app)/organizations/${organizationId}/products/create` as const,
-  organizationProduct: (organizationId: string, productId: string) =>
-    `/(app)/organizations/${organizationId}/products/${productId}` as const,
-  organizationProductEdit: (organizationId: string, productId: string) =>
-    `/(app)/organizations/${organizationId}/products/${productId}/edit` as const,
+  organizationStoreProducts: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/store-products` as const,
+  organizationStoreProductCreate: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/store-products/create` as const,
+  organizationStoreProduct: (organizationId: string, productId: string) =>
+    `/(app)/organizations/${organizationId}/store-products/${productId}` as const,
+  organizationStoreProductEdit: (organizationId: string, productId: string) =>
+    `/(app)/organizations/${organizationId}/store-products/${productId}/edit` as const,
+
+  // Organization operations — Veterinary Office products (own catalog, own table)
+  organizationOfficeProducts: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/office-products` as const,
+  organizationOfficeProductCreate: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/office-products/create` as const,
+  organizationOfficeProduct: (organizationId: string, productId: string) =>
+    `/(app)/organizations/${organizationId}/office-products/${productId}` as const,
+  organizationOfficeProductEdit: (organizationId: string, productId: string) =>
+    `/(app)/organizations/${organizationId}/office-products/${productId}/edit` as const,
 
   // Clinic veterinary care — Medical Records & Vaccinations (Mobile Phase 6)
   orgAnimalMedicalRecords: (organizationId: string, animalId: string) =>

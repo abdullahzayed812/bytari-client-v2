@@ -1,21 +1,21 @@
-import type { ProductListFilter } from '@/features/store';
+import type { VeterinaryOfficeProductListFilter } from '../types';
 
 /**
- * Public product-catalog query keys, scoped by organization so two offices
- * never share a cache entry. Separate key space from `@/features/store`'s
- * `productKeys` (management) even though the DTO is identical — the two
- * surfaces have different visibility rules and must never share a cache entry.
+ * Veterinary Office product management query keys. Everything is
+ * organization-scoped so one prefix invalidates an office's whole catalogue,
+ * and two different offices can never overwrite each other's cache entries.
+ * Separate key space from `publicVeterinaryOfficeProductKeys` (public browse,
+ * in `./publicQueryKeys`).
  *
- *   veterinaryOfficeProductKeys.forOffice(officeId)          → ['veterinary-office-products', officeId]
- *   veterinaryOfficeProductKeys.list(officeId, filter)       → [...forOffice, 'list', filter]
- *   veterinaryOfficeProductKeys.detail(officeId, productId)  → [...forOffice, 'detail', productId]
+ *   veterinaryOfficeProductKeys.forOrg(orgId)             → ['office-products', orgId]
+ *   veterinaryOfficeProductKeys.list(orgId, filter)       → ['office-products', orgId, 'list', { …filter }]
+ *   veterinaryOfficeProductKeys.detail(orgId, productId)  → ['office-products', orgId, 'detail', productId]
  */
 export const veterinaryOfficeProductKeys = {
-  all: ['veterinary-office-products'] as const,
-  forOffice: (organizationId: string) =>
-    [...veterinaryOfficeProductKeys.all, organizationId] as const,
-  list: (organizationId: string, filter: Omit<ProductListFilter, 'page' | 'status'>) =>
-    [...veterinaryOfficeProductKeys.forOffice(organizationId), 'list', filter] as const,
+  all: ['office-products'] as const,
+  forOrg: (organizationId: string) => [...veterinaryOfficeProductKeys.all, organizationId] as const,
+  list: (organizationId: string, filter: Omit<VeterinaryOfficeProductListFilter, 'page'>) =>
+    [...veterinaryOfficeProductKeys.forOrg(organizationId), 'list', filter] as const,
   detail: (organizationId: string, productId: string) =>
-    [...veterinaryOfficeProductKeys.forOffice(organizationId), 'detail', productId] as const,
+    [...veterinaryOfficeProductKeys.forOrg(organizationId), 'detail', productId] as const,
 };

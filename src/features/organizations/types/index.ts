@@ -108,7 +108,7 @@ export interface OrganizationWithDetails extends Organization {
 /**
  * `GET /organizations/discover` / `GET /organizations/discover/:id` — any
  * authenticated user, not just members (e.g. the Pet Owner Home "Available
- * clinics" section / `DiscoverClinicsScreen`). ACTIVE organizations only;
+ * clinics" section / `ClinicsScreen` (features/clinics)). ACTIVE organizations only;
  * deliberately narrower than {@link Organization} — no owner id / decision
  * metadata. `address`/`latitude`/`longitude`/`phone`/`logoUrl` are `null` for
  * FARM and for CLINIC/OFFICE/STORE organizations that haven't filled them in

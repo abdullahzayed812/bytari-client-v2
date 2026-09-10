@@ -1,6 +1,14 @@
-import type { Paginated, Product, ProductListFilter } from '@/features/store';
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+
+import type {
+  AdjustVeterinaryOfficeStockInput,
+  CreateVeterinaryOfficeProductInput,
+  Paginated,
+  VeterinaryOfficeProduct,
+  VeterinaryOfficeProductListFilter,
+  UpdateVeterinaryOfficeProductInput,
+} from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
   const m = (meta ?? {}) as Partial<ApiPageMeta>;
@@ -13,24 +21,32 @@ function readMeta(meta: unknown, page: number, pageSize: number, count: number):
 }
 
 /**
- * Public product-catalog browse — any authenticated user, not just members
- * (the Veterinary Offices product screens). `GET /organizations/discover/:id/*`
- * counterpart for products: the organization must be ACTIVE and product-capable
- * (VETERINARY_OFFICE / VETERINARY_STORE), and only ACTIVE products are
- * returned. Same `ProductDTO` shape as `@/features/store`'s management API —
- * a separate client because the visibility rule (and the URL) differs.
+ * Veterinary Office product management wrappers — 1:1 with the backend
+ * routes, always scoped to one VETERINARY_OFFICE organization by the path.
+ * This is its own catalog, fully separate from Veterinary Store products
+ * (`@/features/veterinaryStore`) and the public browse client
+ * (`publicVeterinaryOfficeProductsApi`) — own table, own routes server-side.
+ * `organizationId` / `createdByUserId` / `status` (after create) are set by
+ * the server, never in a body. `stockQuantity` changes only through
+ * `adjustStock`.
+ *
+ *   GET/POST         /organizations/:orgId/office-products          (`product.read` / `.create`)
+ *   GET/PATCH/DELETE  /organizations/:orgId/office-products/:id      (`product.read` / `.update` / `.delete`)
+ *   POST             /organizations/:orgId/office-products/:id/stock (`product.inventory.adjust`)
  */
 export const veterinaryOfficeProductsApi = {
   async list(
     organizationId: string,
-    filter: Omit<ProductListFilter, 'status'>,
-  ): Promise<Paginated<Product>> {
-    const envelope = await apiClient.requestEnvelope<Product[]>({
+    filter: VeterinaryOfficeProductListFilter,
+  ): Promise<Paginated<VeterinaryOfficeProduct>> {
+    const envelope = await apiClient.requestEnvelope<VeterinaryOfficeProduct[]>({
       method: 'GET',
-      url: `/organizations/discover/${organizationId}/products`,
+      url: `/organizations/${organizationId}/office-products`,
       params: {
         page: filter.page,
         pageSize: filter.pageSize,
+        status: filter.status,
+        // The backend query param is `type`, the DTO field is `productType`.
         type: filter.productType,
         search: filter.search || undefined,
         sort: filter.sort,
@@ -43,9 +59,48 @@ export const veterinaryOfficeProductsApi = {
     };
   },
 
-  get(organizationId: string, productId: string): Promise<Product> {
-    return apiClient.get<Product>(
-      `/organizations/discover/${organizationId}/products/${productId}`,
+  get(organizationId: string, productId: string): Promise<VeterinaryOfficeProduct> {
+    return apiClient.get<VeterinaryOfficeProduct>(
+      `/organizations/${organizationId}/office-products/${productId}`,
+    );
+  },
+
+  create(
+    organizationId: string,
+    body: CreateVeterinaryOfficeProductInput,
+  ): Promise<VeterinaryOfficeProduct> {
+    return apiClient.post<VeterinaryOfficeProduct>(
+      `/organizations/${organizationId}/office-products`,
+      body,
+    );
+  },
+
+  update(
+    organizationId: string,
+    productId: string,
+    body: UpdateVeterinaryOfficeProductInput,
+  ): Promise<VeterinaryOfficeProduct> {
+    return apiClient.patch<VeterinaryOfficeProduct>(
+      `/organizations/${organizationId}/office-products/${productId}`,
+      body,
+    );
+  },
+
+  /** Soft-delete: sets `status = INACTIVE`. Idempotent. Returns the product. */
+  remove(organizationId: string, productId: string): Promise<VeterinaryOfficeProduct> {
+    return apiClient.delete<VeterinaryOfficeProduct>(
+      `/organizations/${organizationId}/office-products/${productId}`,
+    );
+  },
+
+  adjustStock(
+    organizationId: string,
+    productId: string,
+    body: AdjustVeterinaryOfficeStockInput,
+  ): Promise<VeterinaryOfficeProduct> {
+    return apiClient.post<VeterinaryOfficeProduct>(
+      `/organizations/${organizationId}/office-products/${productId}/stock`,
+      body,
     );
   },
 };

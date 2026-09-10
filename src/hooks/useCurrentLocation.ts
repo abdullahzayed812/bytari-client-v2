@@ -22,7 +22,7 @@ export interface UseCurrentLocationResult {
 /**
  * One-shot device location — permission request → services check → fix.
  * Never estimates or caches a stale position across calls; every `request()`
- * asks the OS fresh. Used for "nearest" sorting (e.g. `DiscoverClinicsScreen`)
+ * asks the OS fresh. Used for "nearest" sorting (e.g. `ClinicsScreen` (features/clinics))
  * — the coordinates are sent to the backend, which computes real distance;
  * this hook never computes distance itself.
  */

@@ -305,7 +305,7 @@ export default function VeterinarianHomeScreen() {
             subtitle={t('home.magazine.subtitle')}
             surfaceColor={theme.colors.surfaceAccent}
             accentColor="primary"
-            onPress={() => router.push(Routes.contentType('magazines'))}
+            onPress={() => router.push(Routes.veterinaryMagazineHome)}
           />
           <QuickLinkCard
             icon="book-outline"
@@ -313,7 +313,7 @@ export default function VeterinarianHomeScreen() {
             subtitle={t('home.books.subtitle')}
             surfaceColor={theme.colors.surfaceAccent}
             accentColor="primary"
-            onPress={() => router.push(Routes.contentType('books'))}
+            onPress={() => router.push(Routes.veterinaryBooksHome)}
           />
         </Row>
       </Section>

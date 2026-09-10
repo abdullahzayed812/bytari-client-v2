@@ -24,6 +24,7 @@ export default function ManagementScreen() {
   const { t: ta } = useTranslation('admin');
   const { t: ts } = useTranslation('support');
   const { t: tp } = useTranslation('petOwnerStore');
+  const { t: tc } = useTranslation('content');
   const caps = useCapabilities();
 
   const areas = [
@@ -131,6 +132,25 @@ export default function ManagementScreen() {
         caps.isAdmin ||
         caps.isSupervisorOf('PET_OWNER_STORE') ||
         caps.can('pet_store.order.manage'),
+    },
+    {
+      key: 'veterinaryMagazine',
+      label: tc('admin.entry.magazine'),
+      route: Routes.adminVeterinaryContent('MAGAZINE'),
+      show: caps.isAdmin || caps.isSupervisorOf('CONTENT') || caps.can('content.read'),
+    },
+    {
+      key: 'veterinaryBooks',
+      label: tc('admin.entry.books'),
+      route: Routes.adminVeterinaryContent('BOOK'),
+      show: caps.isAdmin || caps.isSupervisorOf('CONTENT') || caps.can('content.read'),
+    },
+    {
+      key: 'veterinaryContentCategories',
+      label: tc('admin.entry.categories'),
+      route: Routes.adminVeterinaryContentCategories,
+      show:
+        caps.isAdmin || caps.isSupervisorOf('CONTENT') || caps.can('content.category.manage'),
     },
     {
       key: 'supervisors',

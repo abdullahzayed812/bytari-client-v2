@@ -1,15 +1,19 @@
 /**
- * Content & Knowledge feature — Mobile Phase 11. The user-facing reading
- * experience for the backend's educational content (articles / books /
- * magazines + their files), against `server/src/modules/content` public routes
- * (`/content`, `/content/:id`, `/content/:id/files/:fileId/download`,
- * `/content-categories`).
+ * Content & Knowledge feature — Mobile Phase 11, extended with self-service
+ * engagement (bookmarks / likes / comments / book ratings). The shared,
+ * type-agnostic reading + engagement layer for the backend's content
+ * (articles / books / magazines + their files), against
+ * `server/src/modules/content` public routes (`/content`, `/content/:id`,
+ * `/content/:id/files/:fileId/download`, `/content-categories`,
+ * `/content/:id/{bookmark,like,comments,rating}`).
  *
- * Read-only: content is authored and published by admins / CONTENT supervisors
- * through the backend admin API — there is NO mobile content-management area, so
- * no create / update / publish / upload screens exist here (documented in
- * MOBILE_ARCHITECTURE.md, not mocked). No R2 credentials anywhere — files are
- * reached only through the backend-authorized download URL.
+ * The Veterinarian-specific "Veterinary Magazine" (`features/veterinaryMagazine`,
+ * type=MAGAZINE) and "Veterinary Books" (`features/veterinaryBooks`,
+ * type=BOOK) sections build their own UI on top of this shared API/hooks
+ * layer. Content is authored and published by admins / CONTENT supervisors
+ * through `features/content/admin`, which wires the `/admin/content*` routes.
+ * No R2 credentials anywhere — files are reached only through the
+ * backend-authorized download / upload-URL routes.
  */
 export { contentApi, contentKeys, type ContentApi } from './api';
 export {
@@ -17,6 +21,13 @@ export {
   useContentItem,
   useContentCategories,
   useContentFileUrl,
+  useToggleContentBookmark,
+  useToggleContentLike,
+  useContentComments,
+  useAddContentComment,
+  useDeleteContentComment,
+  useContentRating,
+  useSubmitContentRating,
   type UseContentListParams,
 } from './hooks';
 export {

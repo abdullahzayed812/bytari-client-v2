@@ -1,10 +1,10 @@
 import { organizationsApi } from '@/features/organizations';
 import type { PublicOrganizationDetail } from '@/features/organizations';
-import type { Product } from '@/features/store';
+import type { VeterinaryOfficeProduct } from '../types';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
-import { veterinaryOfficeProductsApi } from '../api';
+import { publicVeterinaryOfficeProductsApi } from '../api';
 import VeterinaryOfficeDetailsScreen from '../screens/VeterinaryOfficeDetailsScreen';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
@@ -35,10 +35,9 @@ const office: PublicOrganizationDetail = {
   engagement: { isFollowing: false, followersCount: 1245, rating: 4.8, reviewsCount: 128 },
 };
 
-const product = (over: Partial<Product> = {}): Product => ({
+const product = (over: Partial<VeterinaryOfficeProduct> = {}): VeterinaryOfficeProduct => ({
   id: 'p1',
   organizationId: 'o1',
-  organizationType: 'VETERINARY_OFFICE',
   name: 'أنتي بيك',
   description: 'مضاد حيوي واسع المجال',
   productType: 'MEDICINE',
@@ -63,7 +62,7 @@ const product = (over: Partial<Product> = {}): Product => ({
 describe('VeterinaryOfficeDetailsScreen', () => {
   const getPublic = jest.spyOn(organizationsApi, 'getPublic');
   const follow = jest.spyOn(organizationsApi, 'follow');
-  const listProducts = jest.spyOn(veterinaryOfficeProductsApi, 'list');
+  const listProducts = jest.spyOn(publicVeterinaryOfficeProductsApi, 'list');
 
   beforeEach(() => {
     resetRouterMock();

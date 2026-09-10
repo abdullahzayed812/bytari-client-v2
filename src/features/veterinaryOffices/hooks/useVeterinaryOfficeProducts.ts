@@ -2,24 +2,34 @@ import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-q
 import { useMemo } from 'react';
 
 import { AppConfig } from '@/constants/config';
-import type { Paginated, Product, ProductSort, ProductType, SortOrder } from '@/features/store';
 import { ApiError } from '@/services/api';
 
-import { veterinaryOfficeProductKeys, veterinaryOfficeProductsApi } from '../api';
+import { veterinaryOfficeProductsApi, veterinaryOfficeProductKeys } from '../api';
+import type {
+  Paginated,
+  VeterinaryOfficeProduct,
+  VeterinaryOfficeProductSort,
+  VeterinaryOfficeProductStatus,
+  VeterinaryOfficeProductType,
+  SortOrder,
+} from '../types';
 
 export interface UseVeterinaryOfficeProductsParams {
-  productType?: ProductType;
+  status?: VeterinaryOfficeProductStatus;
+  productType?: VeterinaryOfficeProductType;
   search?: string;
-  sort?: ProductSort;
+  sort?: VeterinaryOfficeProductSort;
   order?: SortOrder;
   pageSize?: number;
   enabled?: boolean;
 }
 
 /**
- * A veterinary office's (or store's) public product catalog — any
- * authenticated user, ACTIVE organization + ACTIVE products only. Paginated
- * with the backend's own `type` / `search` filters and `sort` / `order`.
+ * A veterinary office's product catalogue (management). Requires
+ * `product.read` on the organization server-side. Paginated with the
+ * backend's own `status` / `type` / `search` filters and `sort` / `order`.
+ * The office id is part of the query key so two offices never share a cache
+ * entry.
  */
 export function useVeterinaryOfficeProducts(
   organizationId: string | undefined,
@@ -27,6 +37,7 @@ export function useVeterinaryOfficeProducts(
 ) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
   const filter = {
+    status: params.status,
     productType: params.productType,
     search: params.search || undefined,
     sort: params.sort,
@@ -35,23 +46,31 @@ export function useVeterinaryOfficeProducts(
   };
 
   const query = useInfiniteQuery<
-    Paginated<Product>,
+    Paginated<VeterinaryOfficeProduct>,
     unknown,
-    InfiniteData<Paginated<Product>>,
+    InfiniteData<Paginated<VeterinaryOfficeProduct>>,
     ReturnType<typeof veterinaryOfficeProductKeys.list>,
     number
   >({
     queryKey: veterinaryOfficeProductKeys.list(organizationId ?? 'unknown', filter),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      veterinaryOfficeProductsApi.list(organizationId as string, { ...filter, page: pageParam }),
+      veterinaryOfficeProductsApi.list(organizationId as string, {
+        page: pageParam,
+        pageSize,
+        status: params.status,
+        productType: params.productType,
+        search: params.search || undefined,
+        sort: params.sort,
+        order: params.order,
+      }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: Boolean(organizationId) && (params.enabled ?? true),
     staleTime: 15_000,
   });
 
-  const products = useMemo<Product[]>(
+  const products = useMemo<VeterinaryOfficeProduct[]>(
     () => query.data?.pages.flatMap((p) => p.items) ?? [],
     [query.data],
   );
@@ -60,20 +79,17 @@ export function useVeterinaryOfficeProducts(
   return { ...query, products, total };
 }
 
-/** One product from the public catalog. 404 if the office/product isn't visible. */
+/** One product. A product id not under this office returns `404` (cross-office isolation). */
 export function useVeterinaryOfficeProduct(
   organizationId: string | undefined,
   productId: string | undefined,
   options: { enabled?: boolean } = {},
 ) {
-  return useQuery<Product, ApiError>({
-    queryKey: veterinaryOfficeProductKeys.detail(
-      organizationId ?? 'unknown',
-      productId ?? 'unknown',
-    ),
-    queryFn: () =>
-      veterinaryOfficeProductsApi.get(organizationId as string, productId as string),
+  return useQuery<VeterinaryOfficeProduct, ApiError>({
+    queryKey: veterinaryOfficeProductKeys.detail(organizationId ?? 'unknown', productId ?? 'unknown'),
+    queryFn: () => veterinaryOfficeProductsApi.get(organizationId as string, productId as string),
     enabled: Boolean(organizationId) && Boolean(productId) && (options.enabled ?? true),
-    retry: (count, error) => !(error instanceof ApiError && error.status === 404) && count < 2,
+    retry: (count, error) =>
+      !(error instanceof ApiError && (error.status === 404 || error.status === 403)) && count < 2,
   });
 }

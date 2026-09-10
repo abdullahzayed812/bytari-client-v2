@@ -12,7 +12,7 @@ const roundCoord = (n: number): number => Math.round(n * 10_000) / 10_000;
 /**
  * Public organization discovery — ACTIVE organizations, any authenticated
  * user (not just members). Backs the Pet Owner Home "Available clinics"
- * section and `DiscoverClinicsScreen`, as scoped by `GET /organizations/discover`.
+ * section and `ClinicsScreen` (features/clinics), as scoped by `GET /organizations/discover`.
  *
  * `sort: 'nearest'` requires `near` (both `lat` and `lng`) — the backend
  * computes and orders by real great-circle distance; this hook never

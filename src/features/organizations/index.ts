@@ -49,8 +49,6 @@ export {
 } from './components';
 export {
   MyOrganizationsScreen,
-  DiscoverClinicsScreen,
-  ClinicDetailScreen,
   CreateOrganizationScreen,
   OrganizationDetailsScreen,
   OrganizationEditScreen,

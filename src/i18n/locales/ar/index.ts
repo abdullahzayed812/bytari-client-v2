@@ -23,12 +23,14 @@ import registration from './registration';
 import settings from './settings';
 import sheepCattleFarm from './sheepCattleFarm';
 import showcase from './showcase';
-import store from './store';
 import support from './support';
 import tips from './tips';
 import users from './users';
 import veterinarian from './veterinarian';
+import veterinaryBooks from './veterinaryBooks';
+import veterinaryMagazine from './veterinaryMagazine';
 import veterinaryOffices from './veterinaryOffices';
+import veterinaryStore from './veterinaryStore';
 import vetServices from './vetServices';
 
 export const ar = {
@@ -49,7 +51,7 @@ export const ar = {
   poultryMarket,
   sheepCattleFarm,
   publications,
-  store,
+  veterinaryStore,
   content,
   tips,
   news,
@@ -64,5 +66,7 @@ export const ar = {
   registration,
   vetServices,
   veterinaryOffices,
+  veterinaryMagazine,
+  veterinaryBooks,
 } as const;
 export type TranslationResources = typeof ar;
