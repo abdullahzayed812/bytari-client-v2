@@ -240,6 +240,46 @@ export const Routes = {
   vetServiceEngagement: (kind: 'offer' | 'listing-request', engagementId: string) =>
     `/(app)/vet-services/engagements/${kind}/${engagementId}` as const,
 
+  // Veterinarian Jobs / Careers ("الوظائف البيطرية")
+  vetJobs: '/(app)/vet-jobs',
+  vetJobOffers: '/(app)/vet-jobs/offers',
+  vetJobOffer: (offerId: string) => `/(app)/vet-jobs/offers/${offerId}` as const,
+  vetJobOfferNew: '/(app)/vet-jobs/offers/new',
+  vetJobOfferEdit: (offerId: string) => `/(app)/vet-jobs/offers/${offerId}/edit` as const,
+  vetJobOfferApply: (offerId: string) => `/(app)/vet-jobs/offers/${offerId}/apply` as const,
+  vetJobOfferApplicants: (offerId: string) =>
+    `/(app)/vet-jobs/offers/${offerId}/applicants` as const,
+  vetJobSeekers: '/(app)/vet-jobs/seekers',
+  vetJobSeeker: (seekerId: string) => `/(app)/vet-jobs/seekers/${seekerId}` as const,
+  vetJobSeekerProfileNew: '/(app)/vet-jobs/seekers/new',
+  vetJobSeekerProfileEdit: '/(app)/vet-jobs/seekers/mine/edit',
+  vetJobMy: '/(app)/vet-jobs/my',
+
+  // Veterinarian Courses & Seminars ("الدورات والندوات")
+  vetCourses: '/(app)/vet-courses',
+  vetCourse: (courseId: string) => `/(app)/vet-courses/${courseId}` as const,
+  vetCourseNew: '/(app)/vet-courses/new',
+  vetCourseEdit: (courseId: string) => `/(app)/vet-courses/${courseId}/edit` as const,
+  vetCourseRegister: (courseId: string) => `/(app)/vet-courses/${courseId}/register` as const,
+  vetCourseMy: '/(app)/vet-courses/my',
+
+  // Veterinary Syndicates / Unions ("نقابة الأطباء البيطريين")
+  syndicates: '/(app)/syndicates',
+  syndicateMain: (organizationId: string) => `/(app)/syndicates/${organizationId}` as const,
+  syndicateBranches: (organizationId: string) => `/(app)/syndicates/${organizationId}/branches` as const,
+  syndicateAnnouncements: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/announcements` as const,
+  syndicateAnnouncementNew: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/announcements/new` as const,
+  syndicateAnnouncementDetails: (id: string) => `/(app)/syndicates/announcements/${id}` as const,
+  syndicateInquiry: (organizationId: string) => `/(app)/syndicates/${organizationId}/inquiry` as const,
+  syndicateSubmissions: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/submissions` as const,
+  syndicateMy: '/(app)/syndicates/my',
+  syndicateIdRequirements: '/(app)/syndicates/id-requirements',
+  syndicateOfficeLicenses: '/(app)/syndicates/office-licenses',
+  syndicateLegalSupport: '/(app)/syndicates/legal-support',
+
   // Veterinarian & Organizations (Mobile Phase 4)
   veterinarian: '/(app)/veterinarian',
   veterinarianApply: '/(app)/veterinarian/apply',
@@ -350,6 +390,14 @@ export const Routes = {
   adminVetServiceListings: '/(app)/admin/vet-service-listings',
   /** Veterinary Services pet-owner request moderation queue (approve / reject). */
   adminVetServiceRequests: '/(app)/admin/vet-service-requests',
+  /** Veterinarian Jobs — job offer moderation queue (approve / reject). */
+  adminVetJobOffers: '/(app)/admin/vet-job-offers',
+  /** Veterinarian Jobs — job-seeker profile moderation queue (approve / reject). */
+  adminVetJobSeekers: '/(app)/admin/vet-job-seekers',
+  /** Veterinarian Courses & Seminars — moderation queue (approve / reject / cancel). */
+  adminVetCourses: '/(app)/admin/vet-courses',
+  /** Veterinary Syndicates — create a main or subordinate syndicate (syndicate.admin.create). */
+  adminCreateSyndicate: '/(app)/admin/syndicates/new',
   /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */
   adminTraderApplications: '/(app)/admin/traders',
   /** Market offer moderation — one screen parametrized by kind (poultry | egg). */

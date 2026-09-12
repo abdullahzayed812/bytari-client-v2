@@ -13,3 +13,7 @@ export { default as AdminAnimalPublicationsScreen } from './AdminAnimalPublicati
 export { default as AdminAnimalsScreen } from './AdminAnimalsScreen';
 export { default as AdminVetServiceListingsScreen } from './AdminVetServiceListingsScreen';
 export { default as AdminVetServiceRequestsScreen } from './AdminVetServiceRequestsScreen';
+export { default as AdminVetJobOffersScreen } from './AdminVetJobOffersScreen';
+export { default as AdminVetJobSeekersScreen } from './AdminVetJobSeekersScreen';
+export { default as AdminVetCoursesScreen } from './AdminVetCoursesScreen';
+export { default as AdminCreateSyndicateScreen } from './AdminCreateSyndicateScreen';

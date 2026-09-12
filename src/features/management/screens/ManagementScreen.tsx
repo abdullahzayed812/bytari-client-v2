@@ -26,6 +26,7 @@ export default function ManagementScreen() {
   const { t: tp } = useTranslation('petOwnerStore');
   const { t: tv } = useTranslation('veterinarianStore');
   const { t: tc } = useTranslation('content');
+  const { t: tsy } = useTranslation('syndicates');
   const caps = useCapabilities();
 
   const areas = [
@@ -88,6 +89,30 @@ export default function ManagementScreen() {
       label: ta('vetServiceRequests.title'),
       route: Routes.adminVetServiceRequests,
       show: caps.isAdmin || caps.isSupervisorOf('VET_SERVICE') || caps.can('vet_service.read'),
+    },
+    {
+      key: 'vetJobOffers',
+      label: ta('vetJobOffers.title'),
+      route: Routes.adminVetJobOffers,
+      show: caps.isAdmin || caps.isSupervisorOf('VET_JOBS') || caps.can('vet_job.read'),
+    },
+    {
+      key: 'vetJobSeekers',
+      label: ta('vetJobSeekers.title'),
+      route: Routes.adminVetJobSeekers,
+      show: caps.isAdmin || caps.isSupervisorOf('VET_JOBS') || caps.can('vet_job.read'),
+    },
+    {
+      key: 'vetCourses',
+      label: ta('vetCourses.title'),
+      route: Routes.adminVetCourses,
+      show: caps.isAdmin || caps.isSupervisorOf('VET_COURSES') || caps.can('vet_course.read'),
+    },
+    {
+      key: 'createSyndicate',
+      label: tsy('admin.createTitle'),
+      route: Routes.adminCreateSyndicate,
+      show: caps.isAdmin || caps.can('syndicate.admin.create'),
     },
     {
       key: 'marketOffers',

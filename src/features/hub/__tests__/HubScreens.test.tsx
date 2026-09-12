@@ -122,7 +122,7 @@ describe('CategoriesTabScreen — leftmost tab is mode-aware', () => {
     expect(screen.queryByText('الرعاية والدعم')).toBeNull();
   });
 
-  it('keeps the Services hub in Veterinarian mode', () => {
+  it('shows the veterinarian category grid in Veterinarian mode', () => {
     const s = session({ roles: ['PET_OWNER', 'VETERINARIAN'] });
     s.user.veterinarianStatus = 'APPROVED';
     s.veterinarian = { status: 'APPROVED', approved: true };
@@ -130,8 +130,10 @@ describe('CategoriesTabScreen — leftmost tab is mode-aware', () => {
     useAppModeStore.setState({ activeMode: 'veterinarian' });
     renderWithProviders(<CategoriesTabScreen />);
 
-    expect(screen.getByText('الرعاية والدعم')).toBeTruthy();
-    expect(screen.queryByText('كل الأقسام')).toBeNull();
+    expect(screen.getByText('كل الأقسام')).toBeTruthy();
+    expect(screen.getByText('الوظائف الشاغرة')).toBeTruthy();
+    // the old Services hub headings are not rendered in veterinarian mode
+    expect(screen.queryByText('الرعاية والدعم')).toBeNull();
   });
 });
 

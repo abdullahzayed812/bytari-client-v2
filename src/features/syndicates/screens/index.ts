@@ -1,0 +1,12 @@
+export { default as SyndicatesScreen } from './SyndicatesScreen';
+export { default as SyndicateDetailsScreen } from './SyndicateDetailsScreen';
+export { default as SyndicateBranchesScreen } from './SyndicateBranchesScreen';
+export { default as SyndicateAnnouncementsScreen } from './SyndicateAnnouncementsScreen';
+export { default as SyndicateAnnouncementDetailsScreen } from './SyndicateAnnouncementDetailsScreen';
+export { default as CreateSyndicateAnnouncementScreen } from './CreateSyndicateAnnouncementScreen';
+export { default as SyndicateInquiryScreen } from './SyndicateInquiryScreen';
+export { default as SyndicateSubmissionsScreen } from './SyndicateSubmissionsScreen';
+export { default as MySyndicateSubmissionsScreen } from './MySyndicateSubmissionsScreen';
+export { default as SyndicateIdRequirementsScreen } from './SyndicateIdRequirementsScreen';
+export { default as SyndicateOfficeLicensesScreen } from './SyndicateOfficeLicensesScreen';
+export { default as SyndicateLegalSupportScreen } from './SyndicateLegalSupportScreen';

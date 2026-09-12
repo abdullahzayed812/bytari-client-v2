@@ -60,6 +60,14 @@ export const Permission = {
   VET_SERVICE_READ: 'vet_service.read',
   VET_SERVICE_APPROVE: 'vet_service.approve',
   VET_SERVICE_REJECT: 'vet_service.reject',
+  // Veterinarian Jobs / Careers — offer + seeker-profile moderation
+  VET_JOB_READ: 'vet_job.read',
+  VET_JOB_APPROVE: 'vet_job.approve',
+  VET_JOB_REJECT: 'vet_job.reject',
+  // Veterinarian Courses & Seminars — course/seminar/workshop moderation
+  VET_COURSE_READ: 'vet_course.read',
+  VET_COURSE_APPROVE: 'vet_course.approve',
+  VET_COURSE_REJECT: 'vet_course.reject',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission] | (string & {});
