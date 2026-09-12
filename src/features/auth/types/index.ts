@@ -26,7 +26,8 @@ export type SupervisorDomain =
   | 'SUPPORT'
   | 'MARKET'
   | 'PET_OWNER_STORE'
-  | 'VET_SERVICE';
+  | 'VET_SERVICE'
+  | 'VETERINARIAN_STORE';
 
 // --- user DTO ---------------------------------------------------------
 /**

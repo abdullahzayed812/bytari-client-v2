@@ -427,6 +427,7 @@ export default {
       MARKET: 'سوق الدواجن والبورصة',
       PET_OWNER_STORE: 'متجر أصحاب الحيوانات',
       VET_SERVICE: 'الخدمات البيطرية',
+      VETERINARIAN_STORE: 'المتجر البيطري',
     },
     status: { ACTIVE: 'نشط', INACTIVE: 'غير نشط' },
     remove: 'إزالة',

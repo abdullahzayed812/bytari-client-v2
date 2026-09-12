@@ -24,6 +24,7 @@ export default function ManagementScreen() {
   const { t: ta } = useTranslation('admin');
   const { t: ts } = useTranslation('support');
   const { t: tp } = useTranslation('petOwnerStore');
+  const { t: tv } = useTranslation('veterinarianStore');
   const { t: tc } = useTranslation('content');
   const caps = useCapabilities();
 
@@ -132,6 +133,33 @@ export default function ManagementScreen() {
         caps.isAdmin ||
         caps.isSupervisorOf('PET_OWNER_STORE') ||
         caps.can('pet_store.order.manage'),
+    },
+    {
+      key: 'vetStoreProducts',
+      label: tv('admin.entry.products'),
+      route: Routes.adminVetStoreProducts,
+      show:
+        caps.isAdmin ||
+        caps.isSupervisorOf('VETERINARIAN_STORE') ||
+        caps.can('veterinarian_store.product.manage'),
+    },
+    {
+      key: 'vetStoreCategories',
+      label: tv('admin.entry.categories'),
+      route: Routes.adminVetStoreCategories,
+      show:
+        caps.isAdmin ||
+        caps.isSupervisorOf('VETERINARIAN_STORE') ||
+        caps.can('veterinarian_store.category.manage'),
+    },
+    {
+      key: 'vetStoreOrders',
+      label: tv('admin.entry.orders'),
+      route: Routes.adminVetStoreOrders,
+      show:
+        caps.isAdmin ||
+        caps.isSupervisorOf('VETERINARIAN_STORE') ||
+        caps.can('veterinarian_store.order.manage'),
     },
     {
       key: 'veterinaryMagazine',

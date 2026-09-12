@@ -31,6 +31,7 @@ import veterinaryBooks from './veterinaryBooks';
 import veterinaryMagazine from './veterinaryMagazine';
 import veterinaryOffices from './veterinaryOffices';
 import veterinaryStore from './veterinaryStore';
+import veterinarianStore from './veterinarianStore';
 import vetServices from './vetServices';
 
 export const ar = {
@@ -68,5 +69,6 @@ export const ar = {
   veterinaryOffices,
   veterinaryMagazine,
   veterinaryBooks,
+  veterinarianStore,
 } as const;
 export type TranslationResources = typeof ar;

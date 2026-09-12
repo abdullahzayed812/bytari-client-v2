@@ -52,6 +52,10 @@ export const Permission = {
   PET_STORE_PRODUCT_MANAGE: 'pet_store.product.manage',
   PET_STORE_CATEGORY_MANAGE: 'pet_store.category.manage',
   PET_STORE_ORDER_MANAGE: 'pet_store.order.manage',
+  // Veterinarian Store — platform catalogue + order management
+  VETERINARIAN_STORE_PRODUCT_MANAGE: 'veterinarian_store.product.manage',
+  VETERINARIAN_STORE_CATEGORY_MANAGE: 'veterinarian_store.category.manage',
+  VETERINARIAN_STORE_ORDER_MANAGE: 'veterinarian_store.order.manage',
   // Veterinary Services marketplace — listing + request moderation
   VET_SERVICE_READ: 'vet_service.read',
   VET_SERVICE_APPROVE: 'vet_service.approve',

@@ -176,6 +176,17 @@ export const Routes = {
   petOwnerStoreOrders: '/(app)/pet-owner-store/orders',
   petOwnerStoreOrder: (orderId: string) => `/(app)/pet-owner-store/orders/${orderId}` as const,
 
+  // Veterinarian Store — consumer storefront (3rd bottom tab in Veterinarian mode)
+  veterinarianStore: '/(app)/veterinarian-store',
+  veterinarianStoreProducts: '/(app)/veterinarian-store/products',
+  veterinarianStoreProduct: (productId: string) =>
+    `/(app)/veterinarian-store/products/${productId}` as const,
+  veterinarianStoreCart: '/(app)/veterinarian-store/cart',
+  veterinarianStoreCheckout: '/(app)/veterinarian-store/checkout',
+  veterinarianStoreOrders: '/(app)/veterinarian-store/orders',
+  veterinarianStoreOrder: (orderId: string) =>
+    `/(app)/veterinarian-store/orders/${orderId}` as const,
+
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',
 
@@ -355,6 +366,18 @@ export const Routes = {
   adminPetStoreOrders: '/(app)/admin/pet-owner-store/orders',
   adminPetStoreOrder: (orderId: string) =>
     `/(app)/admin/pet-owner-store/orders/${orderId}` as const,
+
+  // Veterinarian Store — Admin management (Management Centre → Veterinarian Store)
+  adminVetStoreProducts: '/(app)/admin/veterinarian-store/products',
+  adminVetStoreProductCreate: '/(app)/admin/veterinarian-store/products/create',
+  adminVetStoreProduct: (productId: string) =>
+    `/(app)/admin/veterinarian-store/products/${productId}` as const,
+  adminVetStoreProductEdit: (productId: string) =>
+    `/(app)/admin/veterinarian-store/products/${productId}/edit` as const,
+  adminVetStoreCategories: '/(app)/admin/veterinarian-store/categories',
+  adminVetStoreOrders: '/(app)/admin/veterinarian-store/orders',
+  adminVetStoreOrder: (orderId: string) =>
+    `/(app)/admin/veterinarian-store/orders/${orderId}` as const,
 
   showcase: '/(app)/showcase',
 } as const;
