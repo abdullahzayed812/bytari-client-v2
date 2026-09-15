@@ -48,6 +48,7 @@ export const veterinaryOfficeProductsApi = {
         status: filter.status,
         // The backend query param is `type`, the DTO field is `productType`.
         type: filter.productType,
+        hidden: filter.hidden,
         search: filter.search || undefined,
         sort: filter.sort,
         order: filter.order,

@@ -33,4 +33,6 @@ export const orgKeys = {
   }) => [...orgKeys.discoverLists(), filter] as const,
   publicDetail: (organizationId: string) =>
     [...orgKeys.all, 'discover-detail', organizationId] as const,
+  subscriptionRenewals: (organizationId: string) =>
+    [...orgKeys.detail(organizationId), 'subscription-renewals'] as const,
 };

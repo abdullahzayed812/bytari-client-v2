@@ -68,4 +68,5 @@ export {
   type AdjustVeterinaryOfficeStockFormValues,
   type VeterinaryOfficeTFn,
 } from './validation/schemas';
+export { formatProductPrice } from './utils';
 export * from './types';

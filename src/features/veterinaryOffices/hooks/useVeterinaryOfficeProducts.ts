@@ -17,6 +17,8 @@ import type {
 export interface UseVeterinaryOfficeProductsParams {
   status?: VeterinaryOfficeProductStatus;
   productType?: VeterinaryOfficeProductType;
+  /** Owner-facing "Hidden products" screen filter. */
+  hidden?: boolean;
   search?: string;
   sort?: VeterinaryOfficeProductSort;
   order?: SortOrder;
@@ -39,6 +41,7 @@ export function useVeterinaryOfficeProducts(
   const filter = {
     status: params.status,
     productType: params.productType,
+    hidden: params.hidden,
     search: params.search || undefined,
     sort: params.sort,
     order: params.order,
@@ -60,6 +63,7 @@ export function useVeterinaryOfficeProducts(
         pageSize,
         status: params.status,
         productType: params.productType,
+        hidden: params.hidden,
         search: params.search || undefined,
         sort: params.sort,
         order: params.order,

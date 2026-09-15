@@ -44,12 +44,14 @@ export const NAMESPACES = [
   'registration',
   'vetServices',
   'veterinaryOffices',
+  'veterinaryOfficeDashboard',
   'veterinaryMagazine',
   'veterinaryBooks',
   'veterinarianStore',
   'vetJobs',
   'vetCourses',
   'syndicates',
+  'ads',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

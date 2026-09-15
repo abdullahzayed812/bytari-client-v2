@@ -7,3 +7,4 @@ export {
 export { FilterChips, type FilterOption } from './FilterChips';
 export { ReasonPromptDialog } from './ReasonPromptDialog';
 export { AdminListScreen, type InfiniteListQuery } from './AdminListScreen';
+export { SubscriptionDatesDialog, type SubscriptionDatesDialogProps } from './SubscriptionDatesDialog';

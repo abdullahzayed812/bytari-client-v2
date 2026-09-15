@@ -47,3 +47,58 @@ export interface AdCampaign {
   title: string;
   slides: AdSlide[];
 }
+
+// --- admin / supervisor management (`/admin/ads*`) -----------------------
+// Same underlying campaign/slide shape as the public feed, plus lifecycle
+// fields the admin UI needs (isActive / sortOrder / scheduling window).
+
+export interface AdminAdCampaign {
+  id: string;
+  placement: AdPlacement;
+  type: AdType;
+  title: string;
+  isActive: boolean;
+  sortOrder: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  slides: AdSlide[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAdCampaignInput {
+  placement: AdPlacement;
+  type: AdType;
+  title: string;
+  sortOrder?: number;
+}
+
+export interface UpdateAdCampaignInput {
+  title?: string;
+  sortOrder?: number;
+}
+
+export interface AdSlideContentInput {
+  title?: string | null;
+  subtitle?: string | null;
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
+  sortOrder?: number;
+}
+
+export interface ListAdminAdCampaignsParams {
+  placement?: AdPlacement;
+  type?: AdType;
+  includeDeleted?: boolean;
+}
+
+export interface PageMeta {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+export interface Paginated<T> {
+  items: T[];
+  meta: PageMeta;
+}

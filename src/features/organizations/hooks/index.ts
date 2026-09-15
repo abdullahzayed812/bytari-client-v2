@@ -23,3 +23,7 @@ export {
   useUnfollowOrganization,
   useSubmitOrganizationReview,
 } from './useOrganizationEngagement';
+export {
+  useOrganizationSubscriptionRenewals,
+  useRequestOrganizationRenewal,
+} from './useOrganizationSubscription';

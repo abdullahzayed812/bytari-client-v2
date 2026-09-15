@@ -69,4 +69,14 @@ export const adminKeys = {
     list: (filter: Omit<AuditListFilter, 'page' | 'pageSize'>) =>
       [...adminKeys.audit.all, 'list', filter] as const,
   },
+
+  chats: {
+    all: ['admin', 'chats'] as const,
+    lists: () => [...adminKeys.chats.all, 'list'] as const,
+  },
+
+  dashboard: {
+    all: ['admin', 'dashboard'] as const,
+    summary: () => [...adminKeys.dashboard.all, 'summary'] as const,
+  },
 };

@@ -44,6 +44,7 @@ const product: VeterinaryOfficeProduct = {
   price: '25000.00',
   stockQuantity: 30,
   status: 'ACTIVE',
+  isHidden: false,
   subtype: 'مضاد حيوي',
   weight: '100 جرام',
   usageInstructions: 'للأغنام، الأبقار، الدواجن',

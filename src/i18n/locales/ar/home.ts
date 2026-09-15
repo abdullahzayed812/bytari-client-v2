@@ -1,6 +1,8 @@
 export default {
   header: {
     searchA11y: 'بحث',
+    switchToVetA11y: 'التبديل إلى وضع الطبيب البيطري',
+    becomeVetA11y: 'التقديم لتصبح طبيباً بيطرياً معتمداً',
   },
   ads: {
     a11y: 'إعلان: {{title}}',

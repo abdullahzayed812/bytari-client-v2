@@ -27,6 +27,7 @@ export interface AdminUsersParams {
   search?: string;
   status?: UserStatus;
   veterinarianStatus?: VeterinarianStatus;
+  role?: 'PET_OWNER' | 'VETERINARIAN';
   pageSize?: number;
   enabled?: boolean;
 }
@@ -37,6 +38,7 @@ export function useAdminUsers(params: AdminUsersParams = {}) {
     search: params.search || undefined,
     status: params.status,
     veterinarianStatus: params.veterinarianStatus,
+    role: params.role,
   };
 
   const query = useInfiniteQuery<

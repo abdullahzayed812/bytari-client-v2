@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -9,7 +9,13 @@ import { useTheme } from '@/theme';
 
 import { AdminListScreen, AdminRow, FilterChips } from '../components';
 import { useAdminOrganizations } from '../hooks';
-import type { Organization, OrganizationStatus } from '../types';
+import type { Organization, OrganizationStatus, OrganizationType } from '../types';
+
+const FILTERABLE_TYPES = new Set<OrganizationType>([
+  'CLINIC',
+  'VETERINARY_OFFICE',
+  'SYNDICATE',
+]);
 
 function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | 'info' {
   if (s === 'ACTIVE') return 'success';
@@ -18,16 +24,27 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
   return 'danger';
 }
 
+/**
+ * `/admin/organizations?type=CLINIC|VETERINARY_OFFICE|SYNDICATE` — optionally
+ * scoped to one organization type (the admin dashboard's "العيادات" /
+ * "المكاتب" / "نقابة الأطباء البيطريين" cards); omitted shows every type,
+ * same as before this param existed.
+ */
 export default function AdminOrganizationsScreen() {
   const { t } = useTranslation('admin');
   const theme = useTheme();
+  const { type: typeParam } = useLocalSearchParams<{ type?: string }>();
+  const type =
+    typeParam && FILTERABLE_TYPES.has(typeParam as OrganizationType)
+      ? (typeParam as OrganizationType)
+      : undefined;
   const [scope, setScope] = useState<'all' | 'pending'>('all');
 
-  const q = useAdminOrganizations({ pending: scope === 'pending' });
+  const q = useAdminOrganizations({ pending: scope === 'pending', type });
 
   return (
     <AdminListScreen<Organization>
-      title={t('orgs.title')}
+      title={type ? t(`orgs.type.${type}`) : t('orgs.title')}
       query={q}
       data={q.organizations}
       keyExtractor={(o) => o.id}

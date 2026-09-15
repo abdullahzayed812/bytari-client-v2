@@ -9,11 +9,19 @@
  */
 
 // --- controlled vocabularies (exact backend values) -------------------
+/**
+ * `SYNDICATE` is real backend-side (`organization.types.ts`'s
+ * `ORGANIZATION_TYPES`) but excluded from self-service creation
+ * (`createOrganizationBodySchema` — admin-only via `POST /admin/syndicates`)
+ * — included here for display (admin dashboard, org-type badges) but
+ * deliberately NOT added to `ORG_TYPE_ORDER` (the create-flow type picker).
+ */
 export const ORGANIZATION_TYPES = [
   'CLINIC',
   'FARM',
   'VETERINARY_OFFICE',
   'VETERINARY_STORE',
+  'SYNDICATE',
 ] as const;
 export type OrganizationType = (typeof ORGANIZATION_TYPES)[number];
 
@@ -69,6 +77,8 @@ export interface Organization {
  */
 export interface OrganizationProfile {
   address?: string | null;
+  /** Free-text — no backend country enum; the client offers a picker over a static list. */
+  country?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   phone?: string | null;
@@ -77,6 +87,7 @@ export interface OrganizationProfile {
   services?: string[];
   email?: string | null;
   whatsapp?: string | null;
+  websiteUrl?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   tiktokUrl?: string | null;
@@ -94,11 +105,18 @@ export type FarmSubscriptionStatus = (typeof FARM_SUBSCRIPTION_STATUSES)[number]
 export interface OrganizationDetails extends OrganizationProfile {
   /** FARM organizations only. */
   joinCode?: string;
-  /** FARM organizations only — admin/supervisor-controlled subscription period. */
+  /** FARM / VETERINARY_OFFICE / CLINIC — admin/supervisor-controlled subscription period. */
   subscriptionStartDate?: string | null;
   subscriptionEndDate?: string | null;
-  /** FARM organizations only — computed server-side, never by the app. */
+  /** Computed server-side, never by the app. */
   subscriptionStatus?: FarmSubscriptionStatus;
+  /**
+   * CLINIC / VETERINARY_OFFICE only — owner/admin-facing registration
+   * credentials. Never on {@link PublicOrganization}: reviewed by an admin
+   * before approval, not shown on the public directory.
+   */
+  licenseNumber?: string | null;
+  licenseDocumentUrls?: string[];
 }
 
 export interface OrganizationWithDetails extends Organization {
@@ -166,11 +184,19 @@ export interface SubmitReviewInput {
 /**
  * `GET /organizations` list item — an {@link Organization} plus the caller's
  * role and, for FARM rows, the farm species (`null` for non-FARM / legacy).
+ * VETERINARY_OFFICE / CLINIC rows also carry the derived subscription status
+ * plus address/phone/logoUrl — the Veterinary Office Dashboard's "my
+ * organizations" card (`OwnedOrganizationCard`). Always `null` for other types.
  */
 export interface MyOrganization extends Organization {
   myRole: OrgRoleKey | string;
   /** FARM rows only; `null` for non-FARM / legacy farms. Absent on pre-existing cached payloads. */
   farmSpecies?: FarmSpecies | null;
+  subscriptionStatus?: FarmSubscriptionStatus | null;
+  subscriptionEndDate?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  logoUrl?: string | null;
 }
 
 /**
@@ -208,16 +234,41 @@ export interface OrganizationSupervisor extends OrganizationMember {
 }
 
 // --- request payloads (client sends ONLY these fields) ---------------
+/**
+ * Profile fields captured directly at creation (`details`) — CLINIC /
+ * VETERINARY_OFFICE / VETERINARY_STORE only, ignored server-side otherwise.
+ * Registration screens ("تسجيل العيادة") send the full profile in one
+ * submission: the owner cannot `PATCH` (or upload gallery/license-document
+ * images) until an admin approves the PENDING organization.
+ */
+export interface CreateOrganizationDetailsInput {
+  address?: string | null;
+  country?: string | null;
+  phone?: string | null;
+  workingHours?: string | null;
+  services?: string[];
+  email?: string | null;
+  whatsapp?: string | null;
+  websiteUrl?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  tiktokUrl?: string | null;
+  /** CLINIC / VETERINARY_OFFICE only. */
+  licenseNumber?: string | null;
+}
+
 export interface CreateOrganizationInput {
   type: OrganizationType;
   name: string;
   description?: string;
+  details?: CreateOrganizationDetailsInput;
 }
 
 export interface UpdateOrganizationInput {
   name?: string;
   description?: string | null;
   address?: string | null;
+  country?: string | null;
   phone?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -225,9 +276,12 @@ export interface UpdateOrganizationInput {
   services?: string[];
   email?: string | null;
   whatsapp?: string | null;
+  websiteUrl?: string | null;
   instagramUrl?: string | null;
   facebookUrl?: string | null;
   tiktokUrl?: string | null;
+  /** CLINIC / VETERINARY_OFFICE only. */
+  licenseNumber?: string | null;
 }
 
 /** Identify the target by exactly one of `userId` or `email` (the email must belong to an existing account). */

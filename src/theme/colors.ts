@@ -43,6 +43,19 @@ const palette = {
   violet50: '#F0EBFB',
   peach500: '#E5734B',
   peach50: '#FCEAE1',
+
+  pink500: '#D6488F',
+  pink50: '#FBEAF2',
+  teal500: '#1B9C8E',
+  teal50: '#E4F6F4',
+  mint500: '#22A67A',
+  mint50: '#E4F7EF',
+  slate500: '#5B6B7A',
+  slate50: '#EBEEF1',
+
+  navy900: '#0F1B2D',
+  navy800: '#182B44',
+  navyMuted: '#8CA0B3',
 } as const;
 
 export interface ColorTokens {
@@ -101,6 +114,33 @@ export interface ColorTokens {
   serviceAccent: string;
   requestSurface: string;
   requestAccent: string;
+
+  /**
+   * Admin dashboard card-grid tints (§ admin dashboard redesign) — an 8-colour
+   * cycle applied to the category tiles by index, `AdminDashboardCard`.
+   */
+  dashboardAmberSurface: string;
+  dashboardAmberAccent: string;
+  dashboardPinkSurface: string;
+  dashboardPinkAccent: string;
+  dashboardVioletSurface: string;
+  dashboardVioletAccent: string;
+  dashboardMintSurface: string;
+  dashboardMintAccent: string;
+  dashboardBlueSurface: string;
+  dashboardBlueAccent: string;
+  dashboardRoseSurface: string;
+  dashboardRoseAccent: string;
+  dashboardTealSurface: string;
+  dashboardTealAccent: string;
+  dashboardSlateSurface: string;
+  dashboardSlateAccent: string;
+
+  /** Wide/web admin dashboard sidebar — fixed dark chrome, same in both themes. */
+  adminSidebarBackground: string;
+  adminSidebarItemActive: string;
+  adminSidebarText: string;
+  adminSidebarTextMuted: string;
 
   /** Bottom-nav specifics from the reference design. */
   tabBarBackground: string;
@@ -162,6 +202,28 @@ export const lightColors: ColorTokens = {
   requestSurface: palette.peach50,
   requestAccent: palette.peach500,
 
+  dashboardAmberSurface: palette.amber50,
+  dashboardAmberAccent: palette.amber500,
+  dashboardPinkSurface: palette.pink50,
+  dashboardPinkAccent: palette.pink500,
+  dashboardVioletSurface: palette.violet50,
+  dashboardVioletAccent: palette.violet500,
+  dashboardMintSurface: palette.mint50,
+  dashboardMintAccent: palette.mint500,
+  dashboardBlueSurface: palette.blue50,
+  dashboardBlueAccent: palette.blue500,
+  dashboardRoseSurface: palette.peach50,
+  dashboardRoseAccent: palette.peach500,
+  dashboardTealSurface: palette.teal50,
+  dashboardTealAccent: palette.teal500,
+  dashboardSlateSurface: palette.slate50,
+  dashboardSlateAccent: palette.slate500,
+
+  adminSidebarBackground: palette.navy900,
+  adminSidebarItemActive: palette.navy800,
+  adminSidebarText: palette.white,
+  adminSidebarTextMuted: palette.navyMuted,
+
   tabBarBackground: palette.gray50,
   tabBarChipBackground: palette.white,
   tabBarActive: palette.green500,
@@ -221,6 +283,28 @@ export const darkColors: ColorTokens = {
   serviceAccent: '#B49BF0',
   requestSurface: '#3A1E12',
   requestAccent: '#F0A184',
+
+  dashboardAmberSurface: '#3A2E05',
+  dashboardAmberAccent: palette.amber500,
+  dashboardPinkSurface: '#3A0F26',
+  dashboardPinkAccent: '#EC7BB5',
+  dashboardVioletSurface: '#241B3D',
+  dashboardVioletAccent: '#B49BF0',
+  dashboardMintSurface: '#0E2A1C',
+  dashboardMintAccent: palette.mint500,
+  dashboardBlueSurface: '#0C2438',
+  dashboardBlueAccent: '#7FB5EA',
+  dashboardRoseSurface: '#3A1E12',
+  dashboardRoseAccent: '#F0A184',
+  dashboardTealSurface: '#0D2B28',
+  dashboardTealAccent: '#4FC3B4',
+  dashboardSlateSurface: '#20262C',
+  dashboardSlateAccent: '#9AAAB8',
+
+  adminSidebarBackground: palette.navy900,
+  adminSidebarItemActive: palette.navy800,
+  adminSidebarText: palette.white,
+  adminSidebarTextMuted: palette.navyMuted,
 
   tabBarBackground: palette.gray800,
   tabBarChipBackground: palette.gray700,

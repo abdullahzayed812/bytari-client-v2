@@ -68,6 +68,8 @@ export const Permission = {
   VET_COURSE_READ: 'vet_course.read',
   VET_COURSE_APPROVE: 'vet_course.approve',
   VET_COURSE_REJECT: 'vet_course.reject',
+  // Advertisements — one permission governs every placement
+  ADVERTISEMENT_MANAGE: 'advertisement.manage',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission] | (string & {});

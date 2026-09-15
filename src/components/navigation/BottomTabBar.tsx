@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/content/Icon';
 import { Text } from '@/components/typography';
+import { useAppMode } from '@/hooks';
 import { useUiStore } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -37,7 +38,17 @@ const ICONS: Record<string, IconPair> = {
   more: { active: 'bag-handle', inactive: 'bag-handle-outline' },
 };
 
-const iconFor = (routeName: string): IconPair =>
+/**
+ * "animals" is the one Pet-Owner-specific tab slot — in Veterinarian mode it
+ * shows "my veterinary organizations" (`AnimalsTabScreen`) instead of pets, so
+ * a paw icon would be wrong there.
+ */
+const VET_MODE_ICON_OVERRIDE: Partial<Record<string, IconPair>> = {
+  animals: { active: 'business', inactive: 'business-outline' },
+};
+
+const iconFor = (routeName: string, isVeterinarianMode: boolean): IconPair =>
+  (isVeterinarianMode ? VET_MODE_ICON_OVERRIDE[routeName] : undefined) ??
   ICONS[routeName] ?? { active: 'ellipse', inactive: 'ellipse-outline' };
 
 interface AnimatedTabButtonProps {
@@ -119,6 +130,7 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const badge = useUiStore((s) => s.notificationBadgeCount);
+  const { isVeterinarianMode } = useAppMode();
 
   return (
     <View
@@ -146,7 +158,7 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
               ? options.tabBarLabel
               : (options?.title ?? route.name);
           const focused = state.index === index;
-          const icons = iconFor(route.name);
+          const icons = iconFor(route.name, isVeterinarianMode);
 
           const onPress = () => {
             const event = navigation.emit({

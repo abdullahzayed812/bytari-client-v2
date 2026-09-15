@@ -1,1 +1,9 @@
-export { fullName, initialsOf, formatDate, formatWeekday, truncate, formatBytes } from './format';
+export {
+  fullName,
+  initialsOf,
+  formatDate,
+  formatTime,
+  formatWeekday,
+  truncate,
+  formatBytes,
+} from './format';

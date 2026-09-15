@@ -30,12 +30,14 @@ import veterinarian from './veterinarian';
 import veterinaryBooks from './veterinaryBooks';
 import veterinaryMagazine from './veterinaryMagazine';
 import veterinaryOffices from './veterinaryOffices';
+import veterinaryOfficeDashboard from './veterinaryOfficeDashboard';
 import veterinaryStore from './veterinaryStore';
 import veterinarianStore from './veterinarianStore';
 import vetServices from './vetServices';
 import vetJobs from './vetJobs';
 import vetCourses from './vetCourses';
 import syndicates from './syndicates';
+import ads from './ads';
 
 export const ar = {
   common,
@@ -70,11 +72,13 @@ export const ar = {
   registration,
   vetServices,
   veterinaryOffices,
+  veterinaryOfficeDashboard,
   veterinaryMagazine,
   veterinaryBooks,
   veterinarianStore,
   vetJobs,
   vetCourses,
   syndicates,
+  ads,
 } as const;
 export type TranslationResources = typeof ar;

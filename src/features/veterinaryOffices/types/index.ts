@@ -62,6 +62,13 @@ export interface VeterinaryOfficeProduct extends VeterinaryOfficeProductDetailFi
   price: string | null;
   stockQuantity: number;
   status: VeterinaryOfficeProductStatus;
+  /**
+   * "إخفاء/إظهار" — orthogonal to `status`. A hidden product stays ACTIVE (still
+   * owned, still counted) but is excluded from the public catalog and the
+   * dashboard's default product list. `status: 'INACTIVE'` remains the separate
+   * "حذف" soft-delete state.
+   */
+  isHidden: boolean;
   primaryImageUrl: string | null;
   images: VeterinaryOfficeProductImage[];
   /** The member who added the product. UUID — no name-resolution endpoint. */
@@ -99,6 +106,7 @@ export interface UpdateVeterinaryOfficeProductInput
   productType?: VeterinaryOfficeProductType;
   price?: string | null;
   status?: VeterinaryOfficeProductStatus;
+  isHidden?: boolean;
 }
 
 export interface AdjustVeterinaryOfficeStockInput {
@@ -115,6 +123,8 @@ export interface VeterinaryOfficeProductListFilter {
   pageSize: number;
   status?: VeterinaryOfficeProductStatus;
   productType?: VeterinaryOfficeProductType;
+  /** Owner-facing "Hidden products" screen filter. */
+  hidden?: boolean;
   search?: string;
   sort?: VeterinaryOfficeProductSort;
   order?: SortOrder;

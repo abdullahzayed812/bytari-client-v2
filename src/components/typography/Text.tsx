@@ -17,6 +17,7 @@ type ColorRole = keyof Pick<
   | 'danger'
   | 'success'
   | 'warning'
+  | 'info'
 >;
 
 export interface TextProps extends RNTextProps {

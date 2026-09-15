@@ -1,6 +1,7 @@
 export { OrganizationTypeBadge } from './OrganizationTypeBadge';
 export { OrganizationStatusBadge } from './OrganizationStatusBadge';
 export { OrganizationCard, type OrganizationCardProps } from './OrganizationCard';
+export { OwnedOrganizationCard, type OwnedOrganizationCardProps } from './OwnedOrganizationCard';
 export { OrganizationCardSkeleton } from './OrganizationCardSkeleton';
 export { ClinicCard, type ClinicCardProps } from './ClinicCard';
 export { MemberRow, type MemberRowProps } from './MemberRow';
@@ -12,3 +13,5 @@ export { RatingStars, type RatingStarsProps } from './RatingStars';
 export { ImageCarousel, type ImageCarouselProps } from './ImageCarousel';
 export { ReviewModal, type ReviewModalProps } from './ReviewModal';
 export { DiscoverFilterBar, type DiscoverFilterBarProps } from './DiscoverFilterBar';
+export { LocalImagePicker, type LocalImagePickerProps } from './LocalImagePicker';
+export { RegistrationSectionHeader } from './RegistrationSectionHeader';

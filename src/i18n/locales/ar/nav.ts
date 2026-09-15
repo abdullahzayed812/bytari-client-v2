@@ -2,6 +2,7 @@ export default {
   tabs: {
     account: 'حسابي',
     animals: 'حيواناتي',
+    myOrganizations: 'مكاتبي وعياداتي',
     home: 'الرئيسية',
     services: 'الخدمات',
     categories: 'كل الأقسام',

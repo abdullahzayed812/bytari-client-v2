@@ -25,6 +25,16 @@ export function formatDate(iso: string, locale: string = 'ar'): string {
   }).format(date);
 }
 
+/** `2026-08-28T10:24:00Z` → localised time-of-day, e.g. "10:24 ص". */
+export function formatTime(iso: string, locale: string = 'ar'): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
 /** `2026-08-28` → localised weekday name, e.g. "الأربعاء" / "Wednesday". */
 export function formatWeekday(iso: string, locale: string = 'ar'): string {
   const date = new Date(iso);

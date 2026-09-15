@@ -20,6 +20,7 @@ export interface SelectProps<T extends string> {
   onChange: (value: T) => void;
   error?: string;
   disabled?: boolean;
+  required?: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ export function Select<T extends string>({
   onChange,
   error,
   disabled,
+  required,
 }: SelectProps<T>) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -41,7 +43,12 @@ export function Select<T extends string>({
 
   return (
     <View style={{ rowGap: theme.spacing.xs }}>
-      {label ? <Label>{label}</Label> : null}
+      {label ? (
+        <Label>
+          {label}
+          {required ? <Text color="danger"> *</Text> : null}
+        </Label>
+      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label ?? placeholder ?? 'Select'}

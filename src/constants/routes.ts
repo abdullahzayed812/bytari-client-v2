@@ -286,6 +286,8 @@ export const Routes = {
   veterinarianJoinFarm: '/(app)/veterinarian/join-farm',
   organizations: '/(app)/organizations',
   organizationsCreate: '/(app)/organizations/create',
+  organizationRegisterClinic: '/(app)/organizations/register-clinic',
+  organizationRegisterOffice: '/(app)/organizations/register-office',
   organizationsDiscover: '/(app)/organizations/discover',
   organizationDiscoverDetail: (organizationId: string) =>
     `/(app)/organizations/discover/${organizationId}` as const,
@@ -346,6 +348,27 @@ export const Routes = {
   organizationOfficeProductEdit: (organizationId: string, productId: string) =>
     `/(app)/organizations/${organizationId}/office-products/${productId}/edit` as const,
 
+  // Generalized subscription renewal (VETERINARY_OFFICE / CLINIC) — Farm keeps its
+  // own separate `farmSubscriptionRenewal` route/screen, untouched.
+  organizationSubscriptionRenewal: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/subscription-renewal` as const,
+
+  // Veterinary Office Dashboard — its own 5-tab shell, entered via "دخول لوحة التحكم".
+  vetOfficeDashboard: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}` as const,
+  vetOfficeDashboardProducts: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}/products` as const,
+  vetOfficeDashboardHiddenProducts: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}/hidden-products` as const,
+  vetOfficeDashboardBroadcast: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}/broadcast` as const,
+  vetOfficeDashboardConversations: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}/conversations` as const,
+  vetOfficeDashboardOrders: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}/orders` as const,
+  vetOfficeDashboardReports: (organizationId: string) =>
+    `/(app)/vet-office-dashboard/${organizationId}/reports` as const,
+
   // Clinic veterinary care — Medical Records & Vaccinations (Mobile Phase 6)
   orgAnimalMedicalRecords: (organizationId: string, animalId: string) =>
     `/(app)/organizations/${organizationId}/animals/${animalId}/medical-records` as const,
@@ -398,10 +421,35 @@ export const Routes = {
   adminVetCourses: '/(app)/admin/vet-courses',
   /** Veterinary Syndicates — create a main or subordinate syndicate (syndicate.admin.create). */
   adminCreateSyndicate: '/(app)/admin/syndicates/new',
+  /** Admin dashboard "الخدمات" card — hub linking to the listings + requests queues. */
+  adminServicesHub: '/(app)/admin/services-hub',
+  /** Admin dashboard "الوظائف المتاحة" card — hub linking to offers + seekers. */
+  adminJobsHub: '/(app)/admin/jobs-hub',
+  /** Admin dashboard "الكتب والمجلات" card — hub linking to magazine + books + categories. */
+  adminContentHub: '/(app)/admin/content-hub',
+  /** Admin dashboard "متجر أصحاب الحيوانات" card — hub linking to products + categories + orders. */
+  adminPetOwnerStoreHub: '/(app)/admin/pet-owner-store-hub',
+  /** Admin dashboard "متجر الأطباء البيطريين" card — hub linking to products + categories + orders. */
+  adminVeterinarianStoreHub: '/(app)/admin/veterinarian-store-hub',
+  /** Admin dashboard "الدردشات" card — read-only oversight list of all conversations. */
+  adminChats: '/(app)/admin/chats',
+  /** Admin dashboard "إرسال رسالة" card — platform-wide broadcast to users. */
+  adminBroadcast: '/(app)/admin/broadcast',
   /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */
   adminTraderApplications: '/(app)/admin/traders',
   /** Market offer moderation — one screen parametrized by kind (poultry | egg). */
   adminMarketOffers: (kind: 'poultry' | 'egg') => `/(app)/admin/market-offers/${kind}` as const,
+
+  // Advertisements — Admin/Supervisor management (Management Centre → Ads)
+  /** Placement picker — choose which app section's ads to manage. */
+  adminAds: '/(app)/admin/ads',
+  /** Campaign list for one placement. */
+  adminAdPlacement: (placement: string) => `/(app)/admin/ads/${placement}` as const,
+  /** Create a campaign for one placement. */
+  adminAdCreate: (placement: string) => `/(app)/admin/ads/${placement}/create` as const,
+  /** Campaign detail/edit + slide management. */
+  adminAdCampaign: (placement: string, campaignId: string) =>
+    `/(app)/admin/ads/${placement}/${campaignId}` as const,
 
   // Pet Owners Store — Admin management (Management Centre → Pet Store)
   adminPetStoreProducts: '/(app)/admin/pet-owner-store/products',

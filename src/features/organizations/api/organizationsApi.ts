@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   AddMemberInput,
@@ -140,6 +141,64 @@ export const organizationsApi = {
 
   leave(organizationId: string): Promise<{ success: boolean }> {
     return apiClient.post<{ success: boolean }>(`/organizations/${organizationId}/leave`);
+  },
+
+  // --- gallery photos ("صور العيادة") — presigned direct-to-storage upload,
+  // usable by the owner even while the organization is still PENDING ---------
+
+  requestGalleryUploadUrl(
+    organizationId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/organizations/${organizationId}/gallery/upload-url`,
+      input,
+    );
+  },
+
+  addGalleryImage(
+    organizationId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<OrganizationWithDetails> {
+    return apiClient.post<OrganizationWithDetails>(`/organizations/${organizationId}/gallery`, input);
+  },
+
+  removeGalleryImage(organizationId: string, storageKey: string): Promise<OrganizationWithDetails> {
+    return apiClient.delete<OrganizationWithDetails>(
+      `/organizations/${organizationId}/gallery?storageKey=${encodeURIComponent(storageKey)}`,
+    );
+  },
+
+  // --- license documents ("صور الترخيص") — CLINIC / VETERINARY_OFFICE only,
+  // same shape as the gallery, own array ------------------------------------
+
+  requestLicenseDocumentUploadUrl(
+    organizationId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/organizations/${organizationId}/license-documents/upload-url`,
+      input,
+    );
+  },
+
+  addLicenseDocument(
+    organizationId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<OrganizationWithDetails> {
+    return apiClient.post<OrganizationWithDetails>(
+      `/organizations/${organizationId}/license-documents`,
+      input,
+    );
+  },
+
+  removeLicenseDocument(
+    organizationId: string,
+    storageKey: string,
+  ): Promise<OrganizationWithDetails> {
+    return apiClient.delete<OrganizationWithDetails>(
+      `/organizations/${organizationId}/license-documents?storageKey=${encodeURIComponent(storageKey)}`,
+    );
   },
 
   // --- members ------------------------------------------------------

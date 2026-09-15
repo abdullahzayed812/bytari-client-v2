@@ -1,303 +1,195 @@
 import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { RefreshControl, ScrollView, useWindowDimensions, View } from 'react-native';
 
-import { Card, Icon } from '@/components/content';
-import { EmptyState } from '@/components/feedback';
-import { Row, ScrollScreen, Section } from '@/components/layout';
-import { AppHeader } from '@/components/navigation';
-import { Caption, Label, Text } from '@/components/typography';
+import { IconButton, TextButton } from '@/components/actions';
+import { EmptyState, ErrorState, Loading } from '@/components/feedback';
+import { Row, SafeAreaScreen } from '@/components/layout';
+import { Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { AiSettingsCard } from '@/features/support/components';
-import { useCapabilities } from '@/hooks';
+import { useAdminDashboardSummary, useMarkDashboardCardSeen } from '@/features/admin/hooks';
+import type { AdminDashboardCardId } from '@/features/admin/types';
+import { useAuth, useCapabilities } from '@/hooks';
+import { useTheme } from '@/theme';
+import { fullName } from '@/utils';
+
+import {
+  AdminActivityFeed,
+  AdminDashboardCard,
+  AdminDashboardHeader,
+  AdminDashboardSidebar,
+  AdminPendingTasksList,
+} from '../components';
+import { DASHBOARD_CARD_DEFS } from '../config/dashboardCards';
+
+const WIDE_BREAKPOINT = 900;
 
 /**
- * Management Centre (§16 / §23). Admins & system supervisors use the same app;
- * this is their entry point. Entries are gated by the user's real backend
- * permissions / supervisor domains — never a hard-coded role. The admin areas
- * (users / vet approvals / organizations / supervisors / audit) navigate to
- * live screens; the Consultation / Inquiry supervisor queues + the admin AI
- * toggle are wired here too.
+ * Admin dashboard — screenshot-matched card grid + real counts
+ * (`GET /admin/dashboard/summary`) + recent activity + pending tasks. Every
+ * card keeps the exact RBAC gate the old plain-list `ManagementScreen` used
+ * per area (`DASHBOARD_CARD_DEFS[].show`) — this redesign changes
+ * presentation and adds data, not who can see what. Renders a fixed dark
+ * sidebar shell on wide/web viewports (`WIDE_BREAKPOINT`) and a normal
+ * single-column mobile screen below it — the grid itself needs no separate
+ * layout branch (flex-wrap reflows column count on its own).
  */
 export default function ManagementScreen() {
-  const { t } = useTranslation('auth');
-  const { t: ta } = useTranslation('admin');
-  const { t: ts } = useTranslation('support');
-  const { t: tp } = useTranslation('petOwnerStore');
-  const { t: tv } = useTranslation('veterinarianStore');
-  const { t: tc } = useTranslation('content');
-  const { t: tsy } = useTranslation('syndicates');
+  const theme = useTheme();
+  const { t } = useTranslation('admin');
+  const { t: tAuth } = useTranslation('auth');
+  const { width } = useWindowDimensions();
+  const isWide = width >= WIDE_BREAKPOINT;
   const caps = useCapabilities();
+  const { user } = useAuth();
+  const summary = useAdminDashboardSummary();
+  const markSeen = useMarkDashboardCardSeen();
+  const [search, setSearch] = useState('');
 
-  const areas = [
-    {
-      key: 'users',
-      label: ta('home.users'),
-      route: Routes.adminUsers,
-      show: caps.isAdmin || caps.can('user.read'),
-    },
-    {
-      key: 'vets',
-      label: ta('home.vets'),
-      route: Routes.adminVetApplications,
-      show: caps.isAdmin || caps.can('veterinarian.read'),
-    },
-    {
-      key: 'orgs',
-      label: ta('home.orgs'),
-      route: Routes.adminOrganizations,
-      show: caps.isAdmin || caps.can('organization.admin.read'),
-    },
-    {
-      key: 'farmsPoultry',
-      label: ta('farms.titlePoultry'),
-      route: { pathname: Routes.adminFarms, params: { species: 'POULTRY' } },
-      show: caps.isAdmin || caps.can('organization.admin.read'),
-    },
-    {
-      key: 'farmsLivestock',
-      label: ta('farms.titleLivestock'),
-      route: { pathname: Routes.adminFarms, params: { species: 'LIVESTOCK' } },
-      show: caps.isAdmin || caps.can('organization.admin.read'),
-    },
-    {
-      key: 'traders',
-      label: ta('home.traders'),
-      route: Routes.adminTraderApplications,
-      show: caps.isAdmin || caps.can('trader.admin.read'),
-    },
-    {
-      key: 'animalPublications',
-      label: ta('animalPublications.title'),
-      route: Routes.adminAnimalPublications,
-      show: caps.isAdmin || caps.isSupervisorOf('ANIMAL') || caps.can('animal.read'),
-    },
-    {
-      key: 'adminAnimals',
-      label: ta('adminAnimals.title'),
-      route: Routes.adminAnimals,
-      show: caps.isAdmin || caps.isSupervisorOf('ANIMAL') || caps.can('animal.read'),
-    },
-    {
-      key: 'vetServiceListings',
-      label: ta('vetServiceListings.title'),
-      route: Routes.adminVetServiceListings,
-      show: caps.isAdmin || caps.isSupervisorOf('VET_SERVICE') || caps.can('vet_service.read'),
-    },
-    {
-      key: 'vetServiceRequests',
-      label: ta('vetServiceRequests.title'),
-      route: Routes.adminVetServiceRequests,
-      show: caps.isAdmin || caps.isSupervisorOf('VET_SERVICE') || caps.can('vet_service.read'),
-    },
-    {
-      key: 'vetJobOffers',
-      label: ta('vetJobOffers.title'),
-      route: Routes.adminVetJobOffers,
-      show: caps.isAdmin || caps.isSupervisorOf('VET_JOBS') || caps.can('vet_job.read'),
-    },
-    {
-      key: 'vetJobSeekers',
-      label: ta('vetJobSeekers.title'),
-      route: Routes.adminVetJobSeekers,
-      show: caps.isAdmin || caps.isSupervisorOf('VET_JOBS') || caps.can('vet_job.read'),
-    },
-    {
-      key: 'vetCourses',
-      label: ta('vetCourses.title'),
-      route: Routes.adminVetCourses,
-      show: caps.isAdmin || caps.isSupervisorOf('VET_COURSES') || caps.can('vet_course.read'),
-    },
-    {
-      key: 'createSyndicate',
-      label: tsy('admin.createTitle'),
-      route: Routes.adminCreateSyndicate,
-      show: caps.isAdmin || caps.can('syndicate.admin.create'),
-    },
-    {
-      key: 'marketOffers',
-      label: ta('home.marketOffers'),
-      route: Routes.adminMarketOffers('poultry'),
-      show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.offer.admin.read'),
-    },
-    {
-      key: 'poultryExchangeRates',
-      label: ta('home.poultryExchangeRates'),
-      route: Routes.poultryExchangeRatesEntry,
-      show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage'),
-    },
-    {
-      key: 'eggExchangeRates',
-      label: ta('home.eggExchangeRates'),
-      route: Routes.eggExchangeRatesEntry,
-      show: caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage'),
-    },
-    {
-      key: 'petStoreProducts',
-      label: tp('admin.entry.products'),
-      route: Routes.adminPetStoreProducts,
-      show:
-        caps.isAdmin ||
-        caps.isSupervisorOf('PET_OWNER_STORE') ||
-        caps.can('pet_store.product.manage'),
-    },
-    {
-      key: 'petStoreCategories',
-      label: tp('admin.entry.categories'),
-      route: Routes.adminPetStoreCategories,
-      show:
-        caps.isAdmin ||
-        caps.isSupervisorOf('PET_OWNER_STORE') ||
-        caps.can('pet_store.category.manage'),
-    },
-    {
-      key: 'petStoreOrders',
-      label: tp('admin.entry.orders'),
-      route: Routes.adminPetStoreOrders,
-      show:
-        caps.isAdmin ||
-        caps.isSupervisorOf('PET_OWNER_STORE') ||
-        caps.can('pet_store.order.manage'),
-    },
-    {
-      key: 'vetStoreProducts',
-      label: tv('admin.entry.products'),
-      route: Routes.adminVetStoreProducts,
-      show:
-        caps.isAdmin ||
-        caps.isSupervisorOf('VETERINARIAN_STORE') ||
-        caps.can('veterinarian_store.product.manage'),
-    },
-    {
-      key: 'vetStoreCategories',
-      label: tv('admin.entry.categories'),
-      route: Routes.adminVetStoreCategories,
-      show:
-        caps.isAdmin ||
-        caps.isSupervisorOf('VETERINARIAN_STORE') ||
-        caps.can('veterinarian_store.category.manage'),
-    },
-    {
-      key: 'vetStoreOrders',
-      label: tv('admin.entry.orders'),
-      route: Routes.adminVetStoreOrders,
-      show:
-        caps.isAdmin ||
-        caps.isSupervisorOf('VETERINARIAN_STORE') ||
-        caps.can('veterinarian_store.order.manage'),
-    },
-    {
-      key: 'veterinaryMagazine',
-      label: tc('admin.entry.magazine'),
-      route: Routes.adminVeterinaryContent('MAGAZINE'),
-      show: caps.isAdmin || caps.isSupervisorOf('CONTENT') || caps.can('content.read'),
-    },
-    {
-      key: 'veterinaryBooks',
-      label: tc('admin.entry.books'),
-      route: Routes.adminVeterinaryContent('BOOK'),
-      show: caps.isAdmin || caps.isSupervisorOf('CONTENT') || caps.can('content.read'),
-    },
-    {
-      key: 'veterinaryContentCategories',
-      label: tc('admin.entry.categories'),
-      route: Routes.adminVeterinaryContentCategories,
-      show:
-        caps.isAdmin || caps.isSupervisorOf('CONTENT') || caps.can('content.category.manage'),
-    },
-    {
-      key: 'supervisors',
-      label: ta('home.supervisors'),
-      route: Routes.adminSupervisors,
-      show: caps.isAdmin || caps.can('supervisor.read'),
-    },
-    {
-      key: 'audit',
-      label: ta('home.audit'),
-      route: Routes.adminAuditLogs,
-      show: caps.isAdmin || caps.can('audit.read'),
-    },
-  ].filter((a) => a.show);
+  const cardLabel = (id: AdminDashboardCardId) => t(`dashboard.cards.${id}.title`);
 
-  const canConsultations =
-    caps.isAdmin || caps.isSupervisorOf('CONSULTATION') || caps.can('consultation.admin.read');
-  const canInquiries =
-    caps.isAdmin || caps.isSupervisorOf('INQUIRY') || caps.can('inquiry.admin.read');
-  const canAi = caps.isAdmin || caps.can('ai.settings.manage');
-  const nothing = areas.length === 0 && !canConsultations && !canInquiries && !canAi;
+  const visibleCards = useMemo(
+    () => DASHBOARD_CARD_DEFS.filter((card) => card.show(caps)),
+    [caps],
+  );
 
-  return (
-    <ScrollScreen>
-      <AppHeader title={t('management.title')} showBack />
-      <Section spacing="lg">
-        <Caption>{t('management.intro')}</Caption>
-      </Section>
+  const countFor = (id: AdminDashboardCardId): number =>
+    summary.data?.cards.find((c) => c.id === id)?.count ?? 0;
 
-      {nothing ? (
+  const openCard = (card: (typeof DASHBOARD_CARD_DEFS)[number]) => {
+    if (countFor(card.id) > 0) markSeen.mutate(card.id);
+    router.push(card.route);
+  };
+
+  const filteredCards = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return visibleCards;
+    return visibleCards.filter((card) => {
+      const title = t(`dashboard.cards.${card.id}.title`).toLowerCase();
+      const subtitle = t(`dashboard.cards.${card.id}.subtitle`).toLowerCase();
+      return title.includes(q) || subtitle.includes(q);
+    });
+  }, [visibleCards, search, t]);
+
+  const canViewAuditLog = caps.isAdmin || caps.can('audit.read');
+  const name = fullName(user?.firstName, user?.lastName) || user?.email || '';
+  const roleLabel = caps.isAdmin ? t('dashboard.header.roleAdmin') : t('dashboard.header.roleSupervisor');
+
+  if (visibleCards.length === 0) {
+    return (
+      <SafeAreaScreen>
         <EmptyState
           icon="lock-closed-outline"
-          title={t('management.title')}
-          message={t('management.placeholder')}
+          title={tAuth('management.title')}
+          message={tAuth('management.placeholder')}
         />
+      </SafeAreaScreen>
+    );
+  }
+
+  const mainContent = (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={summary.isRefetching}
+          onRefresh={() => void summary.refetch()}
+          tintColor={theme.colors.primary}
+          colors={[theme.colors.primary]}
+        />
+      }
+      contentContainerStyle={{
+        padding: theme.screenPadding,
+        paddingBottom: theme.spacing.huge,
+        rowGap: theme.spacing.lg,
+      }}
+    >
+      {!isWide ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconButton
+            icon="arrow-forward"
+            directional
+            variant="plain"
+            accessibilityLabel={t('dashboard.header.backA11y')}
+            onPress={() => router.back()}
+          />
+        </View>
+      ) : null}
+
+      <AdminDashboardHeader
+        name={name}
+        roleLabel={roleLabel}
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder={t('dashboard.header.searchPlaceholder')}
+        greeting={t('dashboard.header.greeting', { name })}
+        subtitle={t('dashboard.header.subtitle')}
+      />
+
+      {filteredCards.length === 0 && visibleCards.length > 0 ? (
+        <EmptyState icon="search-outline" title={t('dashboard.header.noSearchResults')} />
       ) : (
-        <>
-          {canConsultations || canInquiries ? (
-            <Section spacing="lg">
-              <Label>{ts('manage.sectionTitle')}</Label>
-              <View style={{ rowGap: 12 }}>
-                {canConsultations ? (
-                  <NavCard
-                    label={ts('manage.title.CONSULTATION')}
-                    onPress={() => router.push(Routes.supportManage('consultations'))}
-                  />
-                ) : null}
-                {canInquiries ? (
-                  <NavCard
-                    label={ts('manage.title.INQUIRY')}
-                    onPress={() => router.push(Routes.supportManage('inquiries'))}
-                  />
-                ) : null}
-              </View>
-            </Section>
-          ) : null}
-
-          {canAi ? (
-            <Section spacing="lg">
-              <Label>{ts('ai.title')}</Label>
-              <AiSettingsCard />
-            </Section>
-          ) : null}
-
-          {areas.length > 0 ? (
-            <Section spacing="lg">
-              <Label>{t('management.title')}</Label>
-              <View style={{ rowGap: 12 }}>
-                {areas.map((area) => (
-                  <NavCard
-                    key={area.key}
-                    label={area.label}
-                    onPress={() => router.push(area.route)}
-                  />
-                ))}
-              </View>
-            </Section>
-          ) : null}
-        </>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+          {filteredCards.map((card) => (
+            <AdminDashboardCard
+              key={card.id}
+              icon={card.icon}
+              tint={card.tint}
+              title={t(`dashboard.cards.${card.id}.title`)}
+              subtitle={t(`dashboard.cards.${card.id}.subtitle`)}
+              count={countFor(card.id)}
+              unit={t(`dashboard.cards.${card.id}.unit`)}
+              loading={summary.isLoading}
+              onPress={() => openCard(card)}
+            />
+          ))}
+        </View>
       )}
-    </ScrollScreen>
-  );
-}
 
-function NavCard({ label, onPress }: { label: string; onPress: () => void }) {
-  return (
-    <Card variant="outlined" padding="md" onPress={onPress} accessibilityLabel={label}>
-      <Row gap="md">
-        <Icon name="shield-checkmark-outline" size="iconMd" color="primary" />
-        <Text variant="bodyMedium" style={{ flex: 1 }}>
-          {label}
-        </Text>
-        <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
-      </Row>
-    </Card>
+      {summary.isLoading ? (
+        <Loading />
+      ) : summary.isError ? (
+        <ErrorState error={summary.error} onRetry={() => void summary.refetch()} />
+      ) : summary.data ? (
+        <View
+          style={{
+            flexDirection: isWide ? 'row' : 'column',
+            gap: theme.spacing.lg,
+            alignItems: 'flex-start',
+          }}
+        >
+          <View style={{ flex: 1, width: '100%', rowGap: theme.spacing.sm }}>
+            <Row justify="space-between">
+              <Label>{t('dashboard.sections.recentActivity')}</Label>
+              {canViewAuditLog ? (
+                <TextButton
+                  label={t('dashboard.viewAll')}
+                  onPress={() => router.push(Routes.adminAuditLogs)}
+                />
+              ) : null}
+            </Row>
+            <AdminActivityFeed items={summary.data.recentActivity} />
+          </View>
+          <View style={{ flex: 1, width: '100%', rowGap: theme.spacing.sm }}>
+            <Label>{t('dashboard.sections.pendingTasks')}</Label>
+            <AdminPendingTasksList items={summary.data.pendingTasks} />
+          </View>
+        </View>
+      ) : null}
+    </ScrollView>
   );
+
+  if (isWide) {
+    return (
+      <SafeAreaScreen>
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          <AdminDashboardSidebar cards={visibleCards} cardLabel={cardLabel} onCardPress={openCard} />
+          <View style={{ flex: 1 }}>{mainContent}</View>
+        </View>
+      </SafeAreaScreen>
+    );
+  }
+
+  return <SafeAreaScreen>{mainContent}</SafeAreaScreen>;
 }

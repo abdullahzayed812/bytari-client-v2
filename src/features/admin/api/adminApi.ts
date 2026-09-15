@@ -2,6 +2,12 @@ import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
 import type {
+  AdminAnimal,
+  AdminAnimalsFilter,
+  AdminChatConversation,
+  AdminChatListFilter,
+  AdminDashboardCardId,
+  AdminDashboardSummary,
   AdminFarmListItem,
   AdminFarmRenewalRequest,
   AdminListFarmsFilter,
@@ -18,15 +24,15 @@ import type {
   OrgStatusAction,
   Paginated,
   PendingVetApplication,
+  RoleKey,
+  SendBroadcastInput,
+  SendBroadcastResult,
   SetFarmSubscriptionInput,
   SupervisorAssignment,
   SupervisorListFilter,
   UserListFilter,
   UserRolesResult,
   UserStatusAction,
-  RoleKey,
-  AdminAnimal,
-  AdminAnimalsFilter,
 } from '../types';
 
 /**
@@ -76,6 +82,7 @@ export const adminApi = {
       status: f.status,
       veterinarianStatus: f.veterinarianStatus,
       search: f.search,
+      role: f.role,
     });
   },
 
@@ -246,6 +253,30 @@ export const adminApi = {
       entityId: f.entityId,
       actorUserId: f.actorUserId,
     });
+  },
+
+  // --- admin broadcast (platform-wide "إرسال رسالة") -----
+  sendBroadcast(input: SendBroadcastInput): Promise<SendBroadcastResult> {
+    return apiClient.post<SendBroadcastResult>('/admin/notifications', {
+      target: input.target,
+      type: 'ADMIN_ANNOUNCEMENT',
+      title: input.title,
+      body: input.body,
+    });
+  },
+
+  // --- chat oversight ("الدردشات") ----------------------
+  listChatConversations(f: AdminChatListFilter): Promise<Paginated<AdminChatConversation>> {
+    return listPaged<AdminChatConversation>('/admin/chat/conversations', f.page, f.pageSize, {});
+  },
+
+  // --- dashboard summary ---------------------------------
+  getDashboardSummary(): Promise<AdminDashboardSummary> {
+    return apiClient.get<AdminDashboardSummary>('/admin/dashboard/summary');
+  },
+  /** Resets one ManagementScreen card's badge to 0 — call when its screen is opened. */
+  markDashboardCardSeen(cardId: AdminDashboardCardId): Promise<{ seen: boolean }> {
+    return apiClient.post<{ seen: boolean }>(`/admin/dashboard/cards/${cardId}/seen`, {});
   },
 };
 

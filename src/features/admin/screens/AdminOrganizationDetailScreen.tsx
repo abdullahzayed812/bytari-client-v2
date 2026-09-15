@@ -11,14 +11,19 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
-import { ReasonPromptDialog } from '../components';
+import { ReasonPromptDialog, SubscriptionDatesDialog } from '../components';
 import {
   useAdminOrganization,
   useAdminOrganizationMembers,
   useOrgDecisionMutation,
+  useSetFarmSubscriptionMutation,
 } from '../hooks';
 import type { OrganizationStatus, OrgStatusAction } from '../types';
+
+/** Subscription management is generalized to these two org types too — see `FarmSubscriptionRenewalRepository`. */
+const SUBSCRIPTION_CAPABLE_TYPES = new Set(['VETERINARY_OFFICE', 'CLINIC']);
 
 function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | 'info' {
   if (s === 'ACTIVE') return 'success';
@@ -38,7 +43,9 @@ export default function AdminOrganizationDetailScreen() {
   const q = useAdminOrganization(organizationId);
   const membersQ = useAdminOrganizationMembers(organizationId);
   const decide = useOrgDecisionMutation(organizationId);
+  const setSubscription = useSetFarmSubscriptionMutation(organizationId);
   const [pending, setPending] = useState<Pending>(null);
+  const [subscriptionDialog, setSubscriptionDialog] = useState(false);
 
   const done = (message: string) => {
     toast.show({ message, tone: 'success' });
@@ -108,6 +115,47 @@ export default function AdminOrganizationDetailScreen() {
               </View>
             </Card>
           </Section>
+
+          {SUBSCRIPTION_CAPABLE_TYPES.has(org.type) ? (
+            <Section spacing="lg">
+              <Label>{t('farms.detail.subscriptionSection')}</Label>
+              <Card variant="outlined" padding="md">
+                <View style={{ rowGap: theme.spacing.sm }}>
+                  <Row
+                    label={t('farms.detail.subscriptionStartLabel')}
+                    value={
+                      org.details.subscriptionStartDate
+                        ? formatDate(org.details.subscriptionStartDate)
+                        : t('farms.detail.notSet')
+                    }
+                  />
+                  <Row
+                    label={t('farms.detail.subscriptionEndLabel')}
+                    value={
+                      org.details.subscriptionEndDate
+                        ? formatDate(org.details.subscriptionEndDate)
+                        : t('farms.detail.notSet')
+                    }
+                  />
+                  {org.details.subscriptionStatus ? (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Caption>{t('farms.detail.subscriptionStatusLabel')}</Caption>
+                      <Badge
+                        label={t(`farms.subscriptionStatus.${org.details.subscriptionStatus}`)}
+                        tone={org.details.subscriptionStatus === 'EXPIRED' ? 'danger' : 'success'}
+                        size="sm"
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              </Card>
+              <Button
+                label={t('farms.detail.setSubscription')}
+                variant="outline"
+                onPress={() => setSubscriptionDialog(true)}
+              />
+            </Section>
+          ) : null}
 
           <Section spacing="lg">
             <Label>{t('orgs.detail.membersSection')}</Label>
@@ -222,6 +270,24 @@ export default function AdminOrganizationDetailScreen() {
           }
         }}
         onCancel={() => setPending(null)}
+      />
+
+      <SubscriptionDatesDialog
+        visible={subscriptionDialog}
+        title={t('orgs.detail.setSubscriptionTitle')}
+        confirmLabel={t('farms.detail.setSubscription')}
+        loading={setSubscription.isPending}
+        onConfirm={(dates) =>
+          setSubscription.mutate(dates, {
+            onSuccess: () => {
+              toast.show({ message: t('farms.toast.subscriptionSet'), tone: 'success' });
+              setSubscriptionDialog(false);
+              void q.refetch();
+            },
+            onError: fail,
+          })
+        }
+        onCancel={() => setSubscriptionDialog(false)}
       />
     </ScrollScreen>
   );

@@ -63,6 +63,8 @@ export interface UserListFilter {
   status?: UserStatus;
   veterinarianStatus?: VeterinarianStatus;
   search?: string;
+  /** Admin dashboard "أصحاب الحيوانات" / "الأطباء البيطريون" cards. */
+  role?: 'PET_OWNER' | 'VETERINARIAN';
 }
 
 export type UserStatusAction = 'suspend' | 'activate' | 'deactivate';
@@ -267,4 +269,107 @@ export interface AdminAnimalsFilter {
   species?: string;
   search?: string;
   ownerUserId?: string;
+}
+
+// --- admin broadcast (POST /admin/notifications, notification.admin.send) ---
+/** Mirrors the backend's discriminated `target` union exactly — one of the three. */
+export type BroadcastTarget =
+  | { kind: 'ALL' }
+  | { kind: 'ROLE'; roleKey: 'PET_OWNER' | 'VETERINARIAN' }
+  | { kind: 'USER'; userId: string };
+
+export interface SendBroadcastInput {
+  target: BroadcastTarget;
+  title: string;
+  body: string;
+}
+
+export interface SendBroadcastResult {
+  recipientCount: number;
+}
+
+// --- admin chat oversight (GET /admin/chat/conversations, chat.read) ---
+export type AdminChatConversationType =
+  | 'PET_OWNER_CLINIC'
+  | 'PET_OWNER_VETERINARY_OFFICE'
+  | 'PET_OWNER_VETERINARIAN'
+  | 'FARM_OWNER_MEMBER';
+
+export interface AdminChatConversation {
+  id: string;
+  type: AdminChatConversationType;
+  organizationId: string | null;
+  petOwnerUserId: string | null;
+  memberUserId: string | null;
+  veterinarianUserId: string | null;
+  lastMessageAt: string | null;
+  createdAt: string;
+  status: string;
+}
+
+export interface AdminChatListFilter {
+  page: number;
+  pageSize: number;
+}
+
+// --- admin dashboard summary (GET /admin/dashboard/summary, dashboard.admin.read) ---
+export type AdminDashboardCardId =
+  | 'poultry'
+  | 'livestock'
+  | 'pets'
+  | 'consultations'
+  | 'inquiries'
+  | 'ads'
+  | 'clinics'
+  | 'offices'
+  | 'vetApprovals'
+  | 'courses'
+  | 'services'
+  | 'content'
+  | 'syndicate'
+  | 'petOwners'
+  | 'veterinarians'
+  | 'chats'
+  | 'jobs'
+  | 'supervisors'
+  | 'petOwnerStore'
+  | 'veterinarianStore'
+  | 'users'
+  | 'userMessages'
+  | 'broadcasts';
+
+export interface AdminDashboardCardCount {
+  id: AdminDashboardCardId;
+  count: number;
+}
+
+export interface AdminActivityItem {
+  id: string;
+  action: string;
+  actorId: string | null;
+  actorName: string | null;
+  entityType: string;
+  entityId: string | null;
+  createdAt: string;
+}
+
+export type AdminPendingTaskKind =
+  | 'VET_APPLICATION'
+  | 'ORGANIZATION_APPROVAL'
+  | 'SUBSCRIPTION_RENEWAL';
+export type AdminTaskPriority = 'urgent' | 'medium' | 'low';
+
+export interface AdminPendingTask {
+  id: string;
+  kind: AdminPendingTaskKind;
+  targetId: string;
+  label: string;
+  priority: AdminTaskPriority;
+  createdAt: string;
+}
+
+export interface AdminDashboardSummary {
+  cards: AdminDashboardCardCount[];
+  recentActivity: AdminActivityItem[];
+  pendingTasks: AdminPendingTask[];
 }

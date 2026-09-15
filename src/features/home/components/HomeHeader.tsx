@@ -8,7 +8,7 @@ import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversations } from '@/features/chat/hooks';
 import { useUnreadCount } from '@/features/notifications/hooks';
-import { useAuth } from '@/hooks';
+import { useAppMode, useAuth } from '@/hooks';
 import { useAppHeaderGreeting } from '@/navigation/useAppHeaderGreeting';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
@@ -63,9 +63,16 @@ export function HeaderIconButton({
 
 /**
  * Pet Owner Home header: greeting + avatar (start) and search / notifications
- * / chat icon buttons (end). No text labels, matching the reference — the
- * notifications card and chat card that used to live inline on Home are now
- * these two icons; both keep their unread badges.
+ * / chat / mode-switch icon buttons (end). No text labels, matching the
+ * reference — the notifications card and chat card that used to live inline
+ * on Home are now these icons; both keep their unread badges.
+ *
+ * The mode-switch icon mirrors `VeterinarianHomeHeader`'s own — it must be
+ * reachable from Home in BOTH modes, not only from Veterinarian mode. An
+ * approved vet (or admin) toggles straight into Veterinarian mode; anyone
+ * else is sent to the "become a vet" application flow instead of a silent
+ * no-op (`useAppMode`'s §15 UX decision: always show the option, explain/redirect
+ * when not eligible rather than hide it).
  */
 export function HomeHeader() {
   const theme = useTheme();
@@ -75,6 +82,7 @@ export function HomeHeader() {
   const { t: tch } = useTranslation('chat');
   const toast = useToast();
   const { user } = useAuth();
+  const mode = useAppMode();
   const greeting = useAppHeaderGreeting();
   const { data: unread = 0 } = useUnreadCount();
   const { unreadTotal: chatUnread } = useConversations({ pageSize: 20 });
@@ -119,6 +127,13 @@ export function HomeHeader() {
           label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
           badgeCount={chatUnread}
           onPress={() => router.push(Routes.chat)}
+        />
+        <HeaderIconButton
+          icon="swap-horizontal-outline"
+          label={mode.canSwitchMode ? t('header.switchToVetA11y') : t('header.becomeVetA11y')}
+          onPress={() =>
+            mode.canSwitchMode ? mode.setMode('veterinarian') : router.push(Routes.veterinarian)
+          }
         />
       </View>
     </View>

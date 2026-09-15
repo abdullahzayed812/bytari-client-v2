@@ -17,3 +17,5 @@ export { default as AdminVetJobOffersScreen } from './AdminVetJobOffersScreen';
 export { default as AdminVetJobSeekersScreen } from './AdminVetJobSeekersScreen';
 export { default as AdminVetCoursesScreen } from './AdminVetCoursesScreen';
 export { default as AdminCreateSyndicateScreen } from './AdminCreateSyndicateScreen';
+export { default as AdminChatsScreen } from './AdminChatsScreen';
+export { default as AdminBroadcastScreen } from './AdminBroadcastScreen';

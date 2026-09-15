@@ -9,6 +9,7 @@ import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useStartConversation } from '@/features/chat';
 import {
   ImageCarousel,
   RatingStars,
@@ -106,6 +107,7 @@ export default function VeterinaryOfficeDetailsScreen() {
   const q = usePublicOrganization(officeId);
   const follow = useFollowOrganization(officeId ?? '');
   const unfollow = useUnfollowOrganization(officeId ?? '');
+  const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
   const products = usePublicVeterinaryOfficeProducts(officeId, { pageSize: PRODUCT_PREVIEW_COUNT });
@@ -150,6 +152,15 @@ export default function VeterinaryOfficeDetailsScreen() {
   };
   const onDirections = () => {
     if (org.address) void Linking.openURL(mapsUrl(org.address, org.latitude, org.longitude));
+  };
+  const onMessage = () => {
+    startConversation.mutate(
+      { organizationId: org.id },
+      {
+        onSuccess: (conversation) => router.push(Routes.chatThread(conversation.id)),
+        onError: (error) => toast.show({ message: apiErrorMessage(error), tone: 'danger' }),
+      },
+    );
   };
 
   const socialLinks: { icon: IconName; url: string; label: string }[] = [
@@ -209,6 +220,7 @@ export default function VeterinaryOfficeDetailsScreen() {
             {org.address ? (
               <ActionButton icon="navigate-outline" label={t('detail.directions')} onPress={onDirections} />
             ) : null}
+            <ActionButton icon="chatbubble-outline" label={t('detail.message')} onPress={onMessage} />
             <ActionButton
               icon={org.engagement.isFollowing ? 'heart' : 'heart-outline'}
               label={org.engagement.isFollowing ? torg('clinicDetail.following') : t('detail.like')}

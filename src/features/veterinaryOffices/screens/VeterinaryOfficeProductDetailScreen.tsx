@@ -104,6 +104,22 @@ export default function VeterinaryOfficeProductDetailScreen() {
     );
   };
 
+  const toggleHidden = () => {
+    if (!product) return;
+    update.mutate(
+      { productId: product.id, body: { isHidden: !product.isHidden } },
+      {
+        onSuccess: () =>
+          toast.show({
+            tone: 'success',
+            message: t(product.isHidden ? 'manage.detail.shown' : 'manage.detail.hidden'),
+          }),
+        onError: (error) =>
+          toast.show({ tone: 'danger', message: veterinaryOfficeErrorMessage(error, t) }),
+      },
+    );
+  };
+
   const submitStock = (values: AdjustVeterinaryOfficeStockFormValues) => {
     if (!product || stockInFlight.current || stock.isPending) return;
     stockInFlight.current = true;
@@ -148,11 +164,16 @@ export default function VeterinaryOfficeProductDetailScreen() {
               <Heading level={2} numberOfLines={2} style={{ flex: 1 }}>
                 {product.name}
               </Heading>
-              <Badge
-                label={t(`manage.productStatus.${product.status}`)}
-                tone={VETERINARY_OFFICE_PRODUCT_STATUS_TONE[product.status]}
-                size="md"
-              />
+              <Row gap="xs">
+                {product.isHidden ? (
+                  <Badge label={t('manage.detail.hiddenBadge')} tone="warning" size="md" />
+                ) : null}
+                <Badge
+                  label={t(`manage.productStatus.${product.status}`)}
+                  tone={VETERINARY_OFFICE_PRODUCT_STATUS_TONE[product.status]}
+                  size="md"
+                />
+              </Row>
             </Row>
           </Section>
 
@@ -232,6 +253,16 @@ export default function VeterinaryOfficeProductDetailScreen() {
                   </Card>
                 </Section>
               ) : null}
+
+              <View style={{ marginTop: theme.spacing.md }}>
+                <Button
+                  label={t(product.isHidden ? 'manage.detail.unhideCta' : 'manage.detail.hideCta')}
+                  variant="outline"
+                  leftIcon={product.isHidden ? 'eye-outline' : 'eye-off-outline'}
+                  disabled={busy}
+                  onPress={toggleHidden}
+                />
+              </View>
 
               <View style={{ marginTop: theme.spacing.md }}>
                 {product.status === 'ACTIVE' ? (

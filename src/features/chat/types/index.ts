@@ -18,6 +18,7 @@ export const CONVERSATION_TYPES = [
   'PET_OWNER_CLINIC',
   'FARM_OWNER_MEMBER',
   'PET_OWNER_VETERINARIAN',
+  'PET_OWNER_VETERINARY_OFFICE',
 ] as const;
 export type ConversationType = (typeof CONVERSATION_TYPES)[number];
 
@@ -27,6 +28,7 @@ export const CONVERSATION_SIDES = [
   'FARM_OWNER',
   'FARM_MEMBER',
   'VETERINARIAN',
+  'VETERINARY_OFFICE',
 ] as const;
 export type ConversationSide = (typeof CONVERSATION_SIDES)[number];
 

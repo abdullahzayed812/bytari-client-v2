@@ -1,2 +1,6 @@
-/** Animals tab → My Pets (pets feature). Detail / create / edit live in the /pets stack. */
-export { default } from '@/features/pets/screens/MyPetsScreen';
+/**
+ * Animals tab → mode-aware. Pet Owner mode: My Pets (pets feature). Veterinarian
+ * mode: My Veterinary Organizations (owned/managed offices & clinics). See
+ * `AnimalsTabScreen`.
+ */
+export { default } from '@/features/hub/screens/AnimalsTabScreen';

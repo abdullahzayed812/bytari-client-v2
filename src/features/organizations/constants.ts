@@ -11,6 +11,7 @@ export const ORG_TYPE_ICON: Record<OrganizationType, IconName> = {
   FARM: 'leaf-outline',
   VETERINARY_OFFICE: 'business-outline',
   VETERINARY_STORE: 'storefront-outline',
+  SYNDICATE: 'ribbon-outline',
 };
 
 export const ORG_TYPE_ORDER: readonly OrganizationType[] = [
@@ -155,6 +156,12 @@ export interface OrgCapabilities {
   /** The organization owner cannot leave (backend rejects it). */
   canLeave: boolean;
   isOwner: boolean;
+  /**
+   * Veterinary Office Dashboard — may send a broadcast to followers
+   * (`organization.broadcast.send`, seeded to OWNER-override only; a SUPERVISOR
+   * may have it if the owner granted it). Every send is still gated server-side.
+   */
+  canSendBroadcast: boolean;
 }
 
 /**
@@ -196,5 +203,6 @@ export function orgCapabilities(
     canManageStoreProducts: privileged || isSupervisor,
     canLeave: myRole != null && !owner,
     isOwner: owner,
+    canSendBroadcast: privileged || isSupervisor,
   };
 }

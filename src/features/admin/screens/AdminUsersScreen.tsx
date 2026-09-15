@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -17,18 +17,30 @@ function statusTone(status: UserStatus): 'success' | 'warning' | 'danger' {
   return status === 'ACTIVE' ? 'success' : status === 'SUSPENDED' ? 'warning' : 'danger';
 }
 
+const FILTERABLE_ROLES = new Set(['PET_OWNER', 'VETERINARIAN']);
+
+/**
+ * `/admin/users?role=PET_OWNER|VETERINARIAN` — optionally scoped to one role
+ * (the admin dashboard's "أصحاب الحيوانات" / "الأطباء البيطريون" cards);
+ * omitted shows every user, same as before this param existed.
+ */
 export default function AdminUsersScreen() {
   const { t } = useTranslation('admin');
   const theme = useTheme();
+  const { role: roleParam } = useLocalSearchParams<{ role?: string }>();
+  const role =
+    roleParam && FILTERABLE_ROLES.has(roleParam)
+      ? (roleParam as 'PET_OWNER' | 'VETERINARIAN')
+      : undefined;
   const [rawSearch, setRawSearch] = useState('');
   const [status, setStatus] = useState<UserStatus | undefined>(undefined);
   const search = useDebouncedValue(rawSearch, 300);
 
-  const q = useAdminUsers({ search, status });
+  const q = useAdminUsers({ search, status, role });
 
   return (
     <AdminListScreen<AdminUser>
-      title={t('users.title')}
+      title={role ? t(`dashboard.cards.${role === 'PET_OWNER' ? 'petOwners' : 'veterinarians'}.title`) : t('users.title')}
       query={q}
       data={q.users}
       keyExtractor={(u) => u.id}
