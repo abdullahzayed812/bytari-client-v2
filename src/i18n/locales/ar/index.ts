@@ -38,6 +38,7 @@ import vetJobs from './vetJobs';
 import vetCourses from './vetCourses';
 import syndicates from './syndicates';
 import ads from './ads';
+import globalChat from './globalChat';
 
 export const ar = {
   common,
@@ -80,5 +81,6 @@ export const ar = {
   vetCourses,
   syndicates,
   ads,
+  globalChat,
 } as const;
 export type TranslationResources = typeof ar;

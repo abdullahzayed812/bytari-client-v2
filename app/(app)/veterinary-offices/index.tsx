@@ -1,2 +1,2 @@
 /** Route: /(app)/veterinary-offices — "المكاتب البيطرية" (public discovery). */
-export { default } from '@/features/veterinaryOffices/screens/VeterinaryOfficesScreen';
+export { default } from '@/features/veterinaryOffices/browse/screens/VeterinaryOfficesScreen';

@@ -36,10 +36,19 @@ export interface AdminDashboardCardProps {
   tint: DashboardTint;
   title: string;
   subtitle: string;
+  /** New/unseen items — rendered as a small red notification badge, hidden once 0. */
   count: number;
+  /** Active/approved/live items in this section — the card's main stat. */
+  activeCount: number;
   unit: string;
   onPress: () => void;
   loading?: boolean;
+}
+
+const BADGE_CAP = 99;
+
+function formatBadgeCount(count: number): string {
+  return count > BADGE_CAP ? `${BADGE_CAP}+` : String(count);
 }
 
 /**
@@ -54,6 +63,7 @@ export function AdminDashboardCard({
   title,
   subtitle,
   count,
+  activeCount,
   unit,
   onPress,
   loading,
@@ -63,7 +73,9 @@ export function AdminDashboardCard({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={
+        count > 0 ? `${title} (${formatBadgeCount(count)})` : title
+      }
       onPress={onPress}
       style={({ pressed }) => [
         {
@@ -85,24 +97,53 @@ export function AdminDashboardCard({
           </Text>
           <Caption numberOfLines={2}>{subtitle}</Caption>
         </View>
-        <View
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: theme.colors.surface,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon name={icon} size="iconSm" color={tint.accent} />
+        <View style={{ width: 36, height: 36 }}>
+          <View
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: theme.colors.surface,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Icon name={icon} size="iconSm" color={tint.accent} />
+          </View>
+          {!loading && count > 0 ? (
+            <View
+              style={{
+                position: 'absolute',
+                top: -4,
+                insetInlineEnd: -4,
+                minWidth: 18,
+                height: 18,
+                borderRadius: 9,
+                paddingHorizontal: 3,
+                backgroundColor: theme.colors.danger,
+                borderWidth: 1.5,
+                borderColor: theme.colors[tint.surface],
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                variant="overline"
+                weight="bold"
+                color="textInverse"
+                style={{ fontSize: 10, lineHeight: 12, letterSpacing: 0 }}
+              >
+                {formatBadgeCount(count)}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
         <View>
           <Text variant="title" weight="bold">
-            {loading ? '—' : count}
+            {loading ? '—' : activeCount}
           </Text>
           <Caption>{unit}</Caption>
         </View>

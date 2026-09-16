@@ -7,10 +7,10 @@ import { TextButton } from '@/components/actions';
 import { Badge, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-// Deep import (not the `@/features/veterinaryOfficeDashboard` barrel) — that
-// barrel's screens import `@/features/organizations`, so importing the full
-// barrel back from here would create a require cycle.
-import { useVeterinaryOfficeDashboard } from '@/features/veterinaryOfficeDashboard/hooks/useVeterinaryOfficeDashboard';
+// Deep import (not the `@/features/veterinaryOffices` barrel) — that
+// barrel's dashboard screens import `@/features/organizations`, so importing
+// the full barrel back from here would create a require cycle.
+import { useVeterinaryOfficeDashboard } from '@/features/veterinaryOffices/dashboard/hooks/useVeterinaryOfficeDashboard';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 

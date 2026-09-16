@@ -25,6 +25,8 @@ export default {
       notApprovedVet: 'يجب أن تكون طبيباً بيطرياً معتمَداً للانضمام إلى مزرعة.',
       membershipEnded: 'أنهت المؤسسة عضويتك في هذه المزرعة؛ تواصل مع مالك المزرعة.',
     },
+    linkedFarmsTitle: 'الحقول المرتبطة بي ({{count}})',
+    linkedFarmsEmpty: 'لم تنضم إلى أي حقل بعد.',
   },
   joinCode: {
     label: 'رمز انضمام المزرعة',

@@ -6,26 +6,34 @@ import { Checkbox } from '@/components/forms';
 import { Caption, Label } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { ORG_PERMISSION_GROUPS } from '../constants';
+import { ORG_PERMISSION_GROUPS, type OrgPermissionGroup } from '../constants';
 
 export interface PermissionSelectorProps {
   /** Currently-selected permission keys. */
   value: string[];
   onChange: (next: string[]) => void;
   disabled?: boolean;
+  /** Defaults to {@link ORG_PERMISSION_GROUPS} — pass `permissionGroupsFor(orgType)` for a type-aware set. */
+  groups?: readonly OrgPermissionGroup[];
 }
 
 /**
  * Grouped checkbox list for choosing an organization supervisor's permissions.
- * The keys come straight from `ORG_PERMISSION_GROUPS`, which is a presentation
- * grouping of the backend `ORG_PERMISSION_KEYS` catalogue — the client never
- * invents a key, and the backend re-validates every submitted key.
+ * The keys come straight from `ORG_PERMISSION_GROUPS` (or a wider type-aware
+ * set via `groups`), which is a presentation grouping of the backend
+ * `ORG_PERMISSION_KEYS` catalogue — the client never invents a key, and the
+ * backend re-validates every submitted key.
  *
  * Selection state is held by the parent form; this component only ever emits a
  * new array. It cannot be used to "grant" anything — the backend authorises the
  * assigning actor (`supervisor.assign`) and the final permission set.
  */
-export function PermissionSelector({ value, onChange, disabled }: PermissionSelectorProps) {
+export function PermissionSelector({
+  value,
+  onChange,
+  disabled,
+  groups = ORG_PERMISSION_GROUPS,
+}: PermissionSelectorProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
   const selected = new Set(value);
@@ -35,12 +43,12 @@ export function PermissionSelector({ value, onChange, disabled }: PermissionSele
     if (next.has(key)) next.delete(key);
     else next.add(key);
     // Preserve catalogue order for a stable payload.
-    onChange(ORG_PERMISSION_GROUPS.flatMap((g) => g.permissions).filter((k) => next.has(k)));
+    onChange(groups.flatMap((g) => g.permissions).filter((k) => next.has(k)));
   };
 
   return (
     <View style={{ rowGap: theme.spacing.lg }}>
-      {ORG_PERMISSION_GROUPS.map((group, i) => (
+      {groups.map((group, i) => (
         <View key={group.key} style={{ rowGap: theme.spacing.sm }}>
           {i > 0 ? <Divider spacing="none" /> : null}
           <Label>{t(`permissionGroups.${group.key}`)}</Label>

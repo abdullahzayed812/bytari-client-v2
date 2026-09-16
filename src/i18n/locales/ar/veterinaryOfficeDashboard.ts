@@ -21,6 +21,8 @@ export default {
     hiddenProductsCta: 'المنتجات المخفية',
     conversationsCta: 'المحادثات',
     sendMessageCta: 'إرسال رسالة للمتابعين',
+    membersCta: 'الأعضاء',
+    supervisorsCta: 'المشرفون',
   },
   products: {
     title: 'عرض كل المنتجات',

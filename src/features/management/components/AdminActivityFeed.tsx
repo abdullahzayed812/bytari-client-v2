@@ -69,7 +69,7 @@ export function AdminActivityFeed({ items }: Props) {
             <View
               style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor }}
             />
-            <View style={{ flex: 1, rowGap: 2 }}>
+            <View style={{ flex: 1, minWidth: 0, rowGap: 2 }}>
               <Text variant="bodyMedium" numberOfLines={2}>
                 {t(`activityActions.${item.action}`, { defaultValue: item.action })}
               </Text>
@@ -77,7 +77,7 @@ export function AdminActivityFeed({ items }: Props) {
                 {item.actorName ?? t('dashboard.activity.unknownUser')}
               </Caption>
             </View>
-            <Caption>{formatTime(item.createdAt)}</Caption>
+            <Caption style={{ flexShrink: 0 }}>{formatTime(item.createdAt)}</Caption>
           </View>
         );
       })}

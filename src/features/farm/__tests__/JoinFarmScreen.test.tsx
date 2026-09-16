@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/features/auth/store';
 import { farmApi } from '@/features/farmShared';
+import { organizationsApi } from '@/features/organizations/api';
 import JoinFarmScreen from '@/features/farmShared/screens/JoinFarmScreen';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
@@ -33,10 +34,15 @@ function seedVet(status: 'APPROVED' | 'PENDING' | 'NOT_APPLIED') {
 
 describe('JoinFarmScreen (§9 — no approval step)', () => {
   const join = jest.spyOn(farmApi, 'joinByCode');
+  const listMine = jest.spyOn(organizationsApi, 'listMine');
 
   beforeEach(() => {
     resetRouterMock();
     join.mockReset();
+    listMine.mockReset().mockResolvedValue({
+      items: [],
+      meta: { page: 1, pageSize: 50, total: 0, totalPages: 1 },
+    });
   });
   afterAll(() => {
     jest.restoreAllMocks();

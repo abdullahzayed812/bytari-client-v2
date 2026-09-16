@@ -33,7 +33,23 @@ export type CreateOrganizationFormValues = z.infer<
   ReturnType<typeof buildCreateOrganizationSchema>
 >;
 
+/**
+ * Edit form — name/description always, plus the full `profileFieldsShape` set
+ * (mirrors `server/.../organization.schemas.ts` `updateOrganizationBodySchema`,
+ * loosened to plain optional strings like `buildRegistrationSchema` since
+ * every field may already be filled in or intentionally cleared). Which of
+ * these render is a per-org-type UI decision (`PROFILE_FIELDS_ORG_TYPES` /
+ * `LICENSABLE_ORG_TYPES`), not a schema concern — the screen only puts
+ * applicable keys into the `PATCH` payload.
+ */
 export function buildEditOrganizationSchema(t: OrgTFn) {
+  const optionalUrl = z
+    .string()
+    .trim()
+    .url({ message: t('registration.errors.invalidUrl') })
+    .optional()
+    .or(z.literal(''));
+
   return z.object({
     name: z
       .string()
@@ -41,25 +57,32 @@ export function buildEditOrganizationSchema(t: OrgTFn) {
       .min(2, t('form.errors.nameRequired'))
       .max(160, t('form.errors.tooLong')),
     description: z.string().trim().max(2000, t('form.errors.tooLong')).optional().or(z.literal('')),
+    address: z.string().trim().max(500, t('form.errors.tooLong')).optional().or(z.literal('')),
+    country: z.string().trim().max(100, t('form.errors.tooLong')).optional().or(z.literal('')),
+    phone: z.string().trim().max(40, t('form.errors.tooLong')).optional().or(z.literal('')),
+    workingHours: z.string().trim().max(200, t('form.errors.tooLong')).optional().or(z.literal('')),
+    services: z.string().trim().max(500, t('form.errors.tooLong')).optional().or(z.literal('')),
+    email: z
+      .string()
+      .trim()
+      .email({ message: t('registration.errors.invalidEmail') })
+      .optional()
+      .or(z.literal('')),
+    whatsapp: z.string().trim().max(40, t('form.errors.tooLong')).optional().or(z.literal('')),
+    websiteUrl: optionalUrl,
+    facebookUrl: optionalUrl,
+    instagramUrl: optionalUrl,
+    tiktokUrl: optionalUrl,
+    licenseNumber: z.string().trim().max(100, t('form.errors.tooLong')).optional().or(z.literal('')),
   });
 }
 
 export type EditOrganizationFormValues = z.infer<ReturnType<typeof buildEditOrganizationSchema>>;
 
-/** UUID check for the "assign supervisor" user-id input (email lookup isn't offered there — a
- *  supervisor must already be an approved veterinarian, a narrower audience than plain staff). */
-export function buildUserIdSchema(t: OrgTFn) {
-  return z.object({
-    userId: z
-      .string()
-      .trim()
-      .uuid({ message: t('form.errors.userIdInvalid') }),
-  });
-}
-
 /**
- * "Add member" identifier — accepts either the target's email (must belong to
- * an existing account, resolved server-side) or their raw user id (UUID).
+ * "Add member" / "assign supervisor" identifier — accepts either the target's
+ * email (must belong to an existing account, resolved server-side) or their
+ * raw user id (UUID). Shared by `AddMemberScreen` and `AssignSupervisorScreen`.
  */
 export function buildMemberIdentifierSchema(t: OrgTFn) {
   return z.object({

@@ -10,6 +10,7 @@ export { useOrganizationSupervisors } from './useOrganizationSupervisors';
 export {
   useCreateOrganization,
   useUpdateOrganization,
+  useRemoveOrganizationLogo,
   useLeaveOrganization,
   useAddOrganizationMember,
   useUpdateOrganizationMember,
@@ -18,6 +19,7 @@ export {
   useUpdateOrganizationSupervisor,
   useRemoveOrganizationSupervisor,
 } from './useOrganizationMutations';
+export { useOrganizationLogoPresignProvider } from './useOrganizationLogoPresignProvider';
 export {
   useFollowOrganization,
   useUnfollowOrganization,

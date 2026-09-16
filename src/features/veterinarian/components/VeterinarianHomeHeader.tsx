@@ -6,7 +6,7 @@ import { Avatar } from '@/components/content';
 import { useToast } from '@/components/feedback';
 import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useConversations } from '@/features/chat/hooks';
+import { useChatRooms } from '@/features/globalChat/hooks';
 import { HeaderIconButton } from '@/features/home/components';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { useAppMode, useAuth } from '@/hooks';
@@ -20,7 +20,9 @@ import { fullName } from '@/utils';
  * header (`@/features/home`) for a consistent look. The last icon (visually a
  * refresh glyph, per the reference design) switches the app straight back to
  * Pet Owner mode — the same action as the segmented control on `AccountScreen`
- * (`mode.setMode('owner')`), just one tap away from Home.
+ * (`mode.setMode('owner')`), just one tap away from Home. The chat icon opens
+ * Global Chat (public discussion rooms) — the 1:1 conversation list is still
+ * reachable from there via a header icon, so nothing is lost.
  */
 export function VeterinarianHomeHeader() {
   const theme = useTheme();
@@ -28,12 +30,12 @@ export function VeterinarianHomeHeader() {
   const { t: th } = useTranslation('home');
   const { t: tc } = useTranslation('common');
   const { t: tn } = useTranslation('notifications');
-  const { t: tch } = useTranslation('chat');
+  const { t: tch } = useTranslation('globalChat');
   const toast = useToast();
   const { user } = useAuth();
   const mode = useAppMode();
   const { data: unread = 0 } = useUnreadCount();
-  const { unreadTotal: chatUnread } = useConversations({ pageSize: 20 });
+  const { unreadTotal: chatUnread } = useChatRooms({ pageSize: 20 });
 
   const name = user ? fullName(user.firstName, user.lastName) : undefined;
 
@@ -74,9 +76,9 @@ export function VeterinarianHomeHeader() {
         />
         <HeaderIconButton
           icon="chatbubbles-outline"
-          label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
+          label={tch('list.title')}
           badgeCount={chatUnread}
-          onPress={() => router.push(Routes.chat)}
+          onPress={() => router.push(Routes.globalChat)}
         />
         <HeaderIconButton
           icon="refresh-outline"

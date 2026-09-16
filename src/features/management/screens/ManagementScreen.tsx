@@ -57,6 +57,9 @@ export default function ManagementScreen() {
   const countFor = (id: AdminDashboardCardId): number =>
     summary.data?.cards.find((c) => c.id === id)?.count ?? 0;
 
+  const activeCountFor = (id: AdminDashboardCardId): number =>
+    summary.data?.cards.find((c) => c.id === id)?.activeCount ?? 0;
+
   const openCard = (card: (typeof DASHBOARD_CARD_DEFS)[number]) => {
     if (countFor(card.id) > 0) markSeen.mutate(card.id);
     router.push(card.route);
@@ -139,6 +142,7 @@ export default function ManagementScreen() {
               title={t(`dashboard.cards.${card.id}.title`)}
               subtitle={t(`dashboard.cards.${card.id}.subtitle`)}
               count={countFor(card.id)}
+              activeCount={activeCountFor(card.id)}
               unit={t(`dashboard.cards.${card.id}.unit`)}
               loading={summary.isLoading}
               onPress={() => openCard(card)}

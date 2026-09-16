@@ -112,6 +112,9 @@ export default {
       hidden: 'تم إخفاء المنتج.',
       shown: 'تم إظهار المنتج.',
       hiddenBadge: 'مخفي',
+      images: 'صور المنتج',
+      addImage: 'تمت إضافة الصورة.',
+      imageLimitReached: 'تم الوصول للحد الأقصى (6 صور).',
     },
     form: {
       addTitle: 'إضافة منتج',

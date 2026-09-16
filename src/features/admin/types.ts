@@ -340,7 +340,10 @@ export type AdminDashboardCardId =
 
 export interface AdminDashboardCardCount {
   id: AdminDashboardCardId;
+  /** New/unseen items since the caller last opened this card — the red notification badge. */
   count: number;
+  /** How many items in this section are currently active/approved/live. */
+  activeCount: number;
 }
 
 export interface AdminActivityItem {

@@ -283,7 +283,7 @@ export default function VeterinarianHomeScreen() {
             ctaLabel={t('home.chat.cta')}
             surfaceColor={theme.colors.primarySoft}
             accentColor="primary"
-            onPress={() => router.push(Routes.chat)}
+            onPress={() => router.push(Routes.globalChat)}
           />
           <QuickLinkCard
             icon="medkit-outline"

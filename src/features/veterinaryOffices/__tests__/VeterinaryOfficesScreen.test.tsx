@@ -3,7 +3,7 @@ import type { PublicOrganization } from '@/features/organizations';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
-import VeterinaryOfficesScreen from '../screens/VeterinaryOfficesScreen';
+import VeterinaryOfficesScreen from '../browse/screens/VeterinaryOfficesScreen';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 

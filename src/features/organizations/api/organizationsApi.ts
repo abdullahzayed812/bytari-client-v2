@@ -38,6 +38,7 @@ import type {
  *   GET    /organizations/:id                          → detail + myRole
  *   PATCH  /organizations/:id                          → update profile
  *   POST   /organizations/:id/leave                    → leave (owner rejected)
+ *   POST   /organizations/:id/logo/upload-url, POST /logo, DELETE /logo → logo upload/replace/remove
  *   GET    /organizations/:id/members?page&pageSize&status&roleKey
  *   POST   /organizations/:id/members                  → add member (201)
  *   PATCH  /organizations/:id/members/:memberId        → update role/status
@@ -141,6 +142,26 @@ export const organizationsApi = {
 
   leave(organizationId: string): Promise<{ success: boolean }> {
     return apiClient.post<{ success: boolean }>(`/organizations/${organizationId}/leave`);
+  },
+
+  // --- logo (presigned direct-to-storage upload, one photo) -----------------
+
+  requestLogoUploadUrl(
+    organizationId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(`/organizations/${organizationId}/logo/upload-url`, input);
+  },
+
+  finalizeLogo(
+    organizationId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<OrganizationWithDetails> {
+    return apiClient.post<OrganizationWithDetails>(`/organizations/${organizationId}/logo`, input);
+  },
+
+  removeLogo(organizationId: string): Promise<OrganizationWithDetails> {
+    return apiClient.delete<OrganizationWithDetails>(`/organizations/${organizationId}/logo`);
   },
 
   // --- gallery photos ("صور العيادة") — presigned direct-to-storage upload,

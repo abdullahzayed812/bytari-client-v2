@@ -13,21 +13,27 @@ import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { OrgFormLayout, PermissionSelector } from '../components';
-import { ORG_MANAGEMENT_PERMISSION_KEYS } from '../constants';
+import { permissionGroupsFor } from '../constants';
 import {
   useAssignOrganizationSupervisor,
+  useOrganization,
   useOrganizationSupervisors,
   useUpdateOrganizationSupervisor,
 } from '../hooks';
-import { buildUserIdSchema } from '../validation/schemas';
+import {
+  buildMemberIdentifierSchema,
+  memberIdentifierToInput,
+  type MemberIdentifierFormValues,
+} from '../validation/schemas';
 
 /**
  * Route `/organizations/[organizationId]/supervisors/assign`.
  *
- *  - No `membershipId` param → CREATE: `{ userId: uuid, permissions: string[] }`.
- *    The backend requires the target to be an APPROVED veterinarian, not the
- *    owner, and the actor to hold `supervisor.assign`. None of that is
- *    re-implemented here — the client only collects input.
+ *  - No `membershipId` param → CREATE: `{ userId | email, permissions: string[] }`
+ *    — same email-or-uuid identifier `AddMemberScreen` uses (resolved
+ *    server-side). The backend requires the target to be an APPROVED
+ *    veterinarian, not the owner, and the actor to hold `supervisor.assign`.
+ *    None of that is re-implemented here — the client only collects input.
  *  - With `membershipId` → EDIT: PATCH just `{ permissions: string[] }`.
  *
  * Permission keys are the presentation grouping of the backend
@@ -46,21 +52,23 @@ export default function AssignSupervisorScreen() {
 
   const supervisors = useOrganizationSupervisors(orgId, { enabled: isEdit });
   const existing = isEdit ? supervisors.data?.find((s) => s.id === membershipId) : undefined;
+  const org = useOrganization(orgId);
+  const groups = permissionGroupsFor(org.data?.type);
 
   const assign = useAssignOrganizationSupervisor(orgId);
   const patch = useUpdateOrganizationSupervisor(orgId);
 
-  const schema = useMemo(() => buildUserIdSchema(t), [t]);
-  const { control, handleSubmit } = useForm<{ userId: string }>({
+  const schema = useMemo(() => buildMemberIdentifierSchema(t), [t]);
+  const { control, handleSubmit } = useForm<MemberIdentifierFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { userId: '' },
+    defaultValues: { identifier: '' },
     mode: 'onTouched',
   });
 
   // Selection state is fully owned here after first load, so unchecking every
   // permission in edit mode actually sends `[]` (rather than snapping back to
   // the stored set).
-  const manageable: readonly string[] = ORG_MANAGEMENT_PERMISSION_KEYS;
+  const manageable: readonly string[] = groups.flatMap((g) => g.permissions);
   const [permissions, setPermissions] = useState<string[]>([]);
   const seededFor = useRef<string | null>(null);
   useEffect(() => {
@@ -88,13 +96,13 @@ export default function AssignSupervisorScreen() {
     inFlight.current = false;
   };
 
-  const submitCreate = ({ userId }: { userId: string }) => {
+  const submitCreate = ({ identifier }: MemberIdentifierFormValues) => {
     if (inFlight.current || busy) return;
     inFlight.current = true;
     setFormError(null);
     setServerFields({});
     assign.mutate(
-      { userId: userId.trim(), permissions: effectivePermissions },
+      { ...memberIdentifierToInput(identifier), permissions: effectivePermissions },
       {
         onSuccess: () => finish(t('supervisors.assignSuccess')),
         onError: fail,
@@ -143,14 +151,15 @@ export default function AssignSupervisorScreen() {
         <>
           <FormField
             control={control}
-            name="userId"
-            label={t('supervisors.userIdLabel')}
-            placeholder={t('supervisors.userIdPlaceholder')}
+            name="identifier"
+            label={t('supervisors.identifierLabel')}
+            placeholder={t('supervisors.identifierPlaceholder')}
+            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
-            serverError={serverFields.userId}
+            serverError={serverFields.identifier ?? serverFields.email ?? serverFields.userId}
           />
-          <Caption>{t('supervisors.userIdHint')}</Caption>
+          <Caption>{t('supervisors.identifierHint')}</Caption>
         </>
       )}
 
@@ -160,6 +169,7 @@ export default function AssignSupervisorScreen() {
         value={effectivePermissions}
         onChange={setPermissions}
         disabled={busy}
+        groups={groups}
       />
 
       <View style={{ marginTop: theme.spacing.sm }}>

@@ -58,11 +58,11 @@ export function AdminPendingTasksList({ items }: Props) {
           ]}
         >
           <Badge label={t(`dashboard.tasks.priority.${task.priority}`)} tone={priorityTone(task.priority)} size="sm" />
-          <View style={{ flex: 1, rowGap: 2 }}>
+          <View style={{ flex: 1, minWidth: 0, rowGap: 4 }}>
             <Text variant="bodyMedium" numberOfLines={2}>
               {task.label}
             </Text>
-            <Caption>
+            <Caption style={{ marginTop: 2 }}>
               {(() => {
                 const age = ageSince(task.createdAt);
                 return age.unit === 'hours'

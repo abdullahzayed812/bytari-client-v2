@@ -68,6 +68,7 @@ export default {
     VETERINARY_OFFICE: 'مكتب بيطري',
     VETERINARY_STORE: 'متجر بيطري',
     SYNDICATE: 'نقابة',
+    CHAT_ROOM: 'غرفة دردشة',
   },
   status: {
     PENDING: 'قيد المراجعة',
@@ -97,6 +98,9 @@ export default {
     myVeterinaryOrgsTitle: 'مكاتبي وعياداتي',
     myVeterinaryOrgsEmpty: 'لا توجد مكاتب أو عيادات بعد',
     myVeterinaryOrgsEmptyHint: 'أنشئ مكتباً بيطرياً أو عيادة، أو اطلب من المالك إضافتك عضواً.',
+    sectionClinics: 'العيادات',
+    sectionOffices: 'المكاتب البيطرية',
+    sectionFarms: 'الحقول (دواجن/أغنام/أبقار)',
   },
   card: {
     open: 'فتح {{name}}',
@@ -149,11 +153,14 @@ export default {
     submitSave: 'حفظ التعديلات',
     createSuccess: 'تم إنشاء المؤسسة وهي الآن قيد المراجعة.',
     editSuccess: 'تم حفظ التعديلات.',
+    logoLabel: 'شعار المؤسسة',
+    logoUpdated: 'تم تحديث الشعار.',
+    logoRemoved: 'تمت إزالة الشعار.',
+    logoRemoveCta: 'إزالة الشعار',
     errors: {
       typeRequired: 'يرجى اختيار نوع المؤسسة.',
       nameRequired: 'اسم المؤسسة مطلوب (حرفان على الأقل).',
       tooLong: 'القيمة المُدخلة طويلة جداً.',
-      userIdInvalid: 'أدخل معرّف مستخدم صحيحاً (UUID).',
     },
     imageCount: '{{count}}/{{max}}',
     addImage: 'إضافة صورة',
@@ -162,9 +169,11 @@ export default {
     noImagesYet: 'لم يتم إضافة صور بعد',
   },
   createPicker: {
-    title: 'تسجيل مؤسسة جديدة',
+    title: 'إضافة مؤسسة',
     clinicHint: 'عيادة بيطرية تستقبل الحالات والمواعيد',
     officeHint: 'مكتب بيطري يعرض منتجات وخدمات',
+    linkFarmTitle: 'ربط بحقل دواجن/أغنام/أبقار',
+    linkFarmHint: 'أدخل كود الحقل لتنضم إليه كطبيب مسؤول',
   },
   registration: {
     clinic: {
@@ -244,6 +253,7 @@ export default {
     pendingBody: 'هذه المؤسسة بانتظار اعتماد فريق الإدارة قبل أن تصبح نشطة.',
     rejectionReason: 'سبب الرفض',
     sectionInfo: 'معلومات المؤسسة',
+    sectionSubscription: 'الاشتراك',
     fieldType: 'النوع',
     fieldStatus: 'الحالة',
     fieldDescription: 'الوصف',
@@ -325,9 +335,9 @@ export default {
     updateSuccess: 'تم تحديث صلاحيات المشرف.',
     editingFor: 'تعديل صلاحيات',
     notFound: 'لم يُعثر على هذا المشرف. عُد إلى القائمة وحدّثها.',
-    userIdLabel: 'معرّف المستخدم',
-    userIdPlaceholder: 'مثال: 3fa85f64-5717-4562-b3fc-2c963f66afa6',
-    userIdHint: 'يجب أن يكون المستخدم طبيباً بيطرياً معتمَداً ولا يكون مالك المؤسسة.',
+    identifierLabel: 'البريد الإلكتروني أو معرّف المستخدم',
+    identifierPlaceholder: 'example@email.com أو معرّف المستخدم (UUID)',
+    identifierHint: 'يجب أن يكون المستخدم طبيباً بيطرياً معتمَداً ولا يكون مالك المؤسسة.',
     permissionsLabel: 'الصلاحيات',
     savePermissions: 'حفظ الصلاحيات',
   },
@@ -336,6 +346,7 @@ export default {
     members: 'الأعضاء',
     supervisors: 'المشرفون',
     veterinarians: 'الأطباء البيطريون',
+    chat_room: 'إدارة الغرفة',
   },
   permissions: {
     'organization.read': {
@@ -381,6 +392,14 @@ export default {
     'organization.veterinarian.manage': {
       label: 'إدارة الأطباء البيطريين',
       hint: 'إدارة علاقات المؤسسة بالأطباء البيطريين.',
+    },
+    'chat_room.rules.manage': {
+      label: 'إدارة قوانين الغرفة',
+      hint: 'تعديل قوانين الغرفة وتثبيت / إلغاء تثبيت رسالة.',
+    },
+    'chat_room.message.delete': {
+      label: 'حذف رسائل الأعضاء',
+      hint: 'حذف أي رسالة يرسلها عضو آخر في الغرفة.',
     },
   },
 };

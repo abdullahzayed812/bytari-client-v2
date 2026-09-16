@@ -28,7 +28,7 @@ describe('AssignSupervisorScreen (§29 — permission catalogue mirrors the back
     renderWithProviders(<AssignSupervisorScreen />);
 
     fireEvent.changeText(
-      screen.getByPlaceholderText('مثال: 3fa85f64-5717-4562-b3fc-2c963f66afa6'),
+      screen.getByPlaceholderText('example@email.com أو معرّف المستخدم (UUID)'),
       UUID,
     );
     fireEvent.press(screen.getByText('عرض الأعضاء')); // permissions.member.read.label
@@ -42,16 +42,38 @@ describe('AssignSupervisorScreen (§29 — permission catalogue mirrors the back
     );
   });
 
-  it('create mode → an invalid user id is rejected client-side and never hits the API', async () => {
+  it('create mode → sends { email, permissions } when the identifier is an email', async () => {
+    setSearchParams({ organizationId: 'o1' });
+    assign.mockResolvedValue({ id: 's1' } as never);
+    renderWithProviders(<AssignSupervisorScreen />);
+
+    fireEvent.changeText(
+      screen.getByPlaceholderText('example@email.com أو معرّف المستخدم (UUID)'),
+      'Vet@Example.com',
+    );
+    fireEvent.press(screen.getByText('عرض الأعضاء')); // permissions.member.read.label
+    fireEvent.press(screen.getByRole('button', { name: 'تعيين مشرف' }));
+
+    await waitFor(() =>
+      expect(assign).toHaveBeenCalledWith('o1', {
+        email: 'vet@example.com',
+        permissions: ['member.read'],
+      }),
+    );
+  });
+
+  it('create mode → an invalid identifier is rejected client-side and never hits the API', async () => {
     setSearchParams({ organizationId: 'o1' });
     renderWithProviders(<AssignSupervisorScreen />);
     fireEvent.changeText(
-      screen.getByPlaceholderText('مثال: 3fa85f64-5717-4562-b3fc-2c963f66afa6'),
-      'not-a-uuid',
+      screen.getByPlaceholderText('example@email.com أو معرّف المستخدم (UUID)'),
+      'not-a-uuid-or-email',
     );
     fireEvent.press(screen.getByRole('button', { name: 'تعيين مشرف' }));
     await waitFor(() =>
-      expect(screen.getByText('أدخل معرّف مستخدم صحيحاً (UUID).')).toBeOnTheScreen(),
+      expect(
+        screen.getByText('أدخل بريداً إلكترونياً صحيحاً أو معرّف مستخدم (UUID) صحيحاً.'),
+      ).toBeOnTheScreen(),
     );
     expect(assign).not.toHaveBeenCalled();
   });

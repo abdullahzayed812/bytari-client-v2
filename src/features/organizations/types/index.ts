@@ -10,11 +10,12 @@
 
 // --- controlled vocabularies (exact backend values) -------------------
 /**
- * `SYNDICATE` is real backend-side (`organization.types.ts`'s
- * `ORGANIZATION_TYPES`) but excluded from self-service creation
- * (`createOrganizationBodySchema` — admin-only via `POST /admin/syndicates`)
- * — included here for display (admin dashboard, org-type badges) but
- * deliberately NOT added to `ORG_TYPE_ORDER` (the create-flow type picker).
+ * `SYNDICATE` and `CHAT_ROOM` are real backend-side
+ * (`organization.types.ts`'s `ORGANIZATION_TYPES`) but excluded from
+ * self-service creation (`createOrganizationBodySchema` — admin-only via
+ * `POST /admin/syndicates` / `POST /admin/chat-rooms`) — included here for
+ * display (admin dashboard, org-type badges) but deliberately NOT added to
+ * `ORG_TYPE_ORDER` (the create-flow type picker).
  */
 export const ORGANIZATION_TYPES = [
   'CLINIC',
@@ -22,6 +23,7 @@ export const ORGANIZATION_TYPES = [
   'VETERINARY_OFFICE',
   'VETERINARY_STORE',
   'SYNDICATE',
+  'CHAT_ROOM',
 ] as const;
 export type OrganizationType = (typeof ORGANIZATION_TYPES)[number];
 
@@ -31,6 +33,19 @@ export type FarmSpecies = (typeof FARM_SPECIES)[number];
 
 /** Organization types whose owner MUST be a globally APPROVED veterinarian. */
 export const VET_APPROVAL_REQUIRED_TYPES: readonly OrganizationType[] = ['CLINIC', 'FARM'];
+
+/**
+ * Organization types with a directory profile (address/contact/social fields)
+ * — mirrors the backend's `OrganizationPolicy.assertHasProfileFields`.
+ */
+export const PROFILE_FIELDS_ORG_TYPES: readonly OrganizationType[] = [
+  'CLINIC',
+  'VETERINARY_OFFICE',
+  'VETERINARY_STORE',
+];
+
+/** Narrower than {@link PROFILE_FIELDS_ORG_TYPES} — mirrors `LICENSABLE_TYPES` server-side. */
+export const LICENSABLE_ORG_TYPES: readonly OrganizationType[] = ['CLINIC', 'VETERINARY_OFFICE'];
 
 export const ORGANIZATION_STATUSES = [
   'PENDING',
@@ -297,7 +312,8 @@ export interface UpdateMemberInput {
 }
 
 export interface AssignSupervisorInput {
-  userId: string;
+  userId?: string;
+  email?: string;
   permissions: string[];
 }
 

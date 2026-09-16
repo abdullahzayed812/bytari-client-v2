@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -9,6 +9,7 @@ import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -178,6 +179,64 @@ export default function AdminOrganizationDetailScreen() {
               <Caption>{t('orgs.detail.noMembers')}</Caption>
             )}
           </Section>
+
+          {org.type === 'CHAT_ROOM' ? (
+            <Section spacing="lg">
+              <Label>{t('orgs.chatRoom.section')}</Label>
+              <View style={{ rowGap: theme.spacing.sm }}>
+                <Button
+                  label={t('orgs.chatRoom.edit')}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.organizationEdit(org.id))}
+                />
+                <Button
+                  label={t('orgs.chatRoom.editRules')}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.globalChatRoomEditRules(org.id))}
+                />
+                <Button
+                  label={t('orgs.chatRoom.manageModerators')}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.organizationSupervisors(org.id))}
+                />
+                <Button
+                  label={t('orgs.chatRoom.manageMembers')}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.organizationMembers(org.id))}
+                />
+              </View>
+            </Section>
+          ) : null}
+
+          {org.type === 'SYNDICATE' ? (
+            <Section spacing="lg">
+              <Label>{t('orgs.syndicate.section')}</Label>
+              <View style={{ rowGap: theme.spacing.sm }}>
+                <Button
+                  label={t('orgs.syndicate.viewBranches')}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.syndicateBranches(org.id))}
+                />
+                <Button
+                  label={t('orgs.syndicate.viewAnnouncements')}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.syndicateAnnouncements(org.id))}
+                />
+                <Button
+                  label={t('orgs.syndicate.addAnnouncement')}
+                  variant="primary"
+                  fullWidth
+                  onPress={() => router.push(Routes.syndicateAnnouncementNew(org.id))}
+                />
+              </View>
+            </Section>
+          ) : null}
 
           <Section spacing="lg">
             <View style={{ rowGap: theme.spacing.sm }}>

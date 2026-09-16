@@ -37,6 +37,14 @@ export const Permission = {
   ORGANIZATION_ADMIN_APPROVE: 'organization.admin.approve',
   ORGANIZATION_ADMIN_STATUS: 'organization.admin.status',
   ORGANIZATION_ADMIN_MANAGE: 'organization.admin.manage',
+  // syndicates
+  SYNDICATE_ADMIN_CREATE: 'syndicate.admin.create',
+  SYNDICATE_ANNOUNCEMENT_MANAGE: 'syndicate.announcement.manage',
+  // Global Chat rooms
+  CHAT_ROOM_ADMIN_CREATE: 'chat_room.admin.create',
+  CHAT_ROOM_RULES_MANAGE: 'chat_room.rules.manage',
+  CHAT_ROOM_MESSAGE_DELETE: 'chat_room.message.delete',
+  CONTENT_REPORT_ADMIN_MANAGE: 'content_report.admin.manage',
   // notifications (admin broadcast)
   NOTIFICATION_ADMIN_SEND: 'notification.admin.send',
   // trader registration (admin approval)

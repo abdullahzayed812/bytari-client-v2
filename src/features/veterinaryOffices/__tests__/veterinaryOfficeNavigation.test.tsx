@@ -5,7 +5,7 @@ import OrganizationDetailsScreen from '@/features/organizations/screens/Organiza
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
-import { veterinaryOfficeProductsApi } from '../api';
+import { veterinaryOfficeProductsApi } from '../dashboard/api';
 import { organizationOwnsVeterinaryOfficeProducts } from '../constants';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);

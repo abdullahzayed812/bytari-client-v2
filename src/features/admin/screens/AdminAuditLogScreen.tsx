@@ -31,8 +31,10 @@ export default function AdminAuditLogScreen() {
       loadingMoreLabel={t('common.loadingMore')}
       renderItem={(e) => (
         <AdminRow
-          title={e.action}
-          subtitle={`${e.entityType}${e.entityId ? ` · ${e.entityId.slice(0, 8)}` : ''}`}
+          title={t(`activityActions.${e.action}`, { defaultValue: e.action })}
+          subtitle={`${t(`audit.entityTypes.${e.entityType}`, { defaultValue: e.entityType })}${
+            e.entityId ? ` · ${e.entityId.slice(0, 8)}` : ''
+          }`}
           meta={`${new Date(e.createdAt).toLocaleString()} · ${
             e.actorUserId ? e.actorUserId.slice(0, 8) : t('audit.systemActor')
           }`}

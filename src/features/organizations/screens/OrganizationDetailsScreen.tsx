@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Card, Divider, Icon, type IconName } from '@/components/content';
+import { Badge, Card, Divider, Icon, type IconName } from '@/components/content';
 import {
   ConfirmationDialog,
   EmptyState,
@@ -24,10 +24,13 @@ import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import { OrganizationStatusBadge, OrganizationTypeBadge } from '../components';
 import { orgCapabilities } from '../constants';
 import { useLeaveOrganization, useOrganization } from '../hooks';
+
+const SUBSCRIPTION_TONE = { ACTIVE: 'success', NOT_STARTED: 'neutral', EXPIRED: 'danger' } as const;
 
 /** Route `/organizations/[organizationId]` — organization profile + management entry points. */
 export default function OrganizationDetailsScreen() {
@@ -141,6 +144,42 @@ export default function OrganizationDetailsScreen() {
               ) : null}
             </Card>
           </Section>
+
+          {org.details.subscriptionStatus ? (
+            <Section spacing="xl">
+              <Label>{t('detail.sectionSubscription')}</Label>
+              <Card variant="outlined" padding="md">
+                <Row justify="space-between" align="center">
+                  <Row gap="xs" align="center">
+                    <Icon name="calendar-outline" size="iconMd" color="textMuted" />
+                    <Caption>
+                      {org.details.subscriptionEndDate
+                        ? t('card.subscriptionValidUntil', {
+                            date: formatDate(org.details.subscriptionEndDate),
+                          })
+                        : t('card.subscriptionNotStarted')}
+                    </Caption>
+                  </Row>
+                  <Badge
+                    label={t(`subscriptionStatus.${org.details.subscriptionStatus}`)}
+                    tone={SUBSCRIPTION_TONE[org.details.subscriptionStatus]}
+                    size="sm"
+                  />
+                </Row>
+                {org.myRole === 'OWNER' &&
+                (org.details.subscriptionStatus === 'EXPIRED' ||
+                  org.details.subscriptionStatus === 'NOT_STARTED') ? (
+                  <View style={{ marginTop: theme.spacing.sm }}>
+                    <TextButton
+                      label={t('renewal.title')}
+                      icon="refresh-outline"
+                      onPress={() => router.push(Routes.organizationSubscriptionRenewal(org.id))}
+                    />
+                  </View>
+                ) : null}
+              </Card>
+            </Section>
+          ) : null}
 
           {isFarm && caps.canViewFarmJoinCode ? (
             <Section spacing="xl">

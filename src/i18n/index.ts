@@ -52,6 +52,7 @@ export const NAMESPACES = [
   'vetCourses',
   'syndicates',
   'ads',
+  'globalChat',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

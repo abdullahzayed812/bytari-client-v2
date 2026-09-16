@@ -12,6 +12,7 @@ export const ORG_TYPE_ICON: Record<OrganizationType, IconName> = {
   VETERINARY_OFFICE: 'business-outline',
   VETERINARY_STORE: 'storefront-outline',
   SYNDICATE: 'ribbon-outline',
+  CHAT_ROOM: 'chatbubbles-outline',
 };
 
 export const ORG_TYPE_ORDER: readonly OrganizationType[] = [
@@ -85,6 +86,38 @@ export type OrgManagementPermissionKey =
 /** Flat list of every permission key the mobile supervisor UI can send. */
 export const ORG_MANAGEMENT_PERMISSION_KEYS: readonly OrgManagementPermissionKey[] =
   ORG_PERMISSION_GROUPS.flatMap((g) => [...g.permissions]);
+
+/**
+ * CHAT_ROOM-only supervisor permissions — a global chat room moderator, not
+ * shown for any other organization type (a CLINIC/FARM/etc. supervisor form
+ * has no use for "manage room rules"). Copied VERBATIM from the backend
+ * `ORG_PERMISSION_KEYS` catalogue, same convention as {@link ORG_PERMISSION_GROUPS}.
+ */
+export const CHAT_ROOM_PERMISSION_GROUPS = [
+  {
+    key: 'chat_room',
+    permissions: ['chat_room.rules.manage', 'chat_room.message.delete'],
+  },
+] as const satisfies readonly { key: string; permissions: readonly string[] }[];
+
+export type AnyOrgPermissionGroupKey =
+  | OrgPermissionGroupKey
+  | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key'];
+export type AnyOrgPermissionKey =
+  | OrgManagementPermissionKey
+  | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number];
+
+export interface OrgPermissionGroup {
+  key: AnyOrgPermissionGroupKey;
+  permissions: readonly AnyOrgPermissionKey[];
+}
+
+/** The permission groups to offer in the supervisor-assignment UI for one organization type. */
+export function permissionGroupsFor(type: OrganizationType | undefined): readonly OrgPermissionGroup[] {
+  return type === 'CHAT_ROOM'
+    ? [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS]
+    : ORG_PERMISSION_GROUPS;
+}
 
 export interface OrgCapabilities {
   /** They successfully loaded the detail, so they can read the profile. */

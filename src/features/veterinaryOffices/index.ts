@@ -1,28 +1,42 @@
 /**
  * Veterinary Offices feature (Veterinarian Home → "المكاتب البيطرية").
  *
- * Public browse (any authenticated user, not just members): list → details →
- * products → product details, built on the existing organizations discover
- * infrastructure (`@/features/organizations`).
+ * One feature module, two clearly-separated subfolders:
+ *  - `./browse`    — public discovery (any authenticated user, not just
+ *    members): list → details → products → product details, built on the
+ *    existing organizations discover infrastructure (`@/features/organizations`).
+ *  - `./dashboard` — the office's own members: product catalogue CRUD +
+ *    inventory management, plus the full seller-style Dashboard (home, hidden
+ *    products, follower broadcast, conversations, orders/reports stubs).
+ *    Mirrors `@/features/veterinaryStore` but fully separate — own
+ *    `veterinary_office_products` table, own `/office-products` routes, own
+ *    `VeterinaryOfficeProduct` DTO. No shared tables, DTOs, or business logic
+ *    with Veterinary Store products.
  *
- * Management (the office's own members): its own product catalogue CRUD +
- * inventory, mirroring `@/features/veterinaryStore` but fully separate — own
- * `veterinary_office_products` table, own `/office-products` routes, own
- * `VeterinaryOfficeProduct` DTO. No shared tables, DTOs, or business logic
- * with Veterinary Store products.
+ * Shared, type-only modules (types/constants/validation/utils/dev-data) stay
+ * at this root since both subfolders — and a few external deep-importers
+ * (e.g. `OrganizationDetailsScreen`) — depend on their exact paths.
  */
 export {
   publicVeterinaryOfficeProductsApi,
   publicVeterinaryOfficeProductKeys,
   type PublicVeterinaryOfficeProductsApi,
-  veterinaryOfficeProductsApi,
-  veterinaryOfficeProductKeys,
-  type VeterinaryOfficeProductsApi,
-} from './api';
-export {
   usePublicVeterinaryOfficeProducts,
   usePublicVeterinaryOfficeProduct,
   type UsePublicVeterinaryOfficeProductsParams,
+  PublicVeterinaryOfficeProductCard,
+  type PublicVeterinaryOfficeProductCardProps,
+  VeterinaryOfficesScreen,
+  VeterinaryOfficeDetailsScreen,
+  PublicVeterinaryOfficeProductsScreen,
+  PublicVeterinaryOfficeProductDetailsScreen,
+} from './browse';
+export {
+  veterinaryOfficeProductsApi,
+  veterinaryOfficeProductKeys,
+  type VeterinaryOfficeProductsApi,
+  veterinaryOfficeDashboardApi,
+  veterinaryOfficeDashboardKeys,
   useVeterinaryOfficeProducts,
   useVeterinaryOfficeProduct,
   type UseVeterinaryOfficeProductsParams,
@@ -30,10 +44,11 @@ export {
   useUpdateVeterinaryOfficeProduct,
   useDeleteVeterinaryOfficeProduct,
   useAdjustVeterinaryOfficeStock,
-} from './hooks';
-export {
-  PublicVeterinaryOfficeProductCard,
-  type PublicVeterinaryOfficeProductCardProps,
+  useRemoveVeterinaryOfficeProductImage,
+  useVeterinaryOfficeProductImagePresignProvider,
+  useVeterinaryOfficeDashboard,
+  useSendFollowerBroadcast,
+  useBroadcastImageProvider,
   VeterinaryOfficeProductCard,
   type VeterinaryOfficeProductCardProps,
   VeterinaryOfficeProductCardSkeleton,
@@ -41,16 +56,25 @@ export {
   type VeterinaryOfficeProductFormProps,
   AdjustVeterinaryOfficeStockForm,
   type AdjustVeterinaryOfficeStockFormProps,
-} from './components';
-export {
-  VeterinaryOfficesScreen,
-  VeterinaryOfficeDetailsScreen,
-  PublicVeterinaryOfficeProductsScreen,
-  PublicVeterinaryOfficeProductDetailsScreen,
+  VeterinaryOfficeDashboardShell,
+  VeterinaryOfficeDashboardTabBar,
+  type VeterinaryOfficeDashboardTab,
+  VeterinaryOfficeProductManageCard,
   VeterinaryOfficeProductsScreen,
   VeterinaryOfficeProductFormScreen,
   VeterinaryOfficeProductDetailScreen,
-} from './screens';
+  VeterinaryOfficeDashboardHomeScreen,
+  VeterinaryOfficeProductsManageScreen,
+  VeterinaryOfficeHiddenProductsScreen,
+  SendFollowerMessageScreen,
+  VeterinaryOfficeConversationsScreen,
+  VeterinaryOfficeOrdersScreen,
+  VeterinaryOfficeReportsScreen,
+  type VeterinaryOfficeDashboardSummary,
+  type SendFollowerBroadcastInput,
+  type BroadcastImageUploadUrlInput,
+  type BroadcastImageUploadUrlResult,
+} from './dashboard';
 export {
   organizationOwnsVeterinaryOfficeProducts,
   veterinaryOfficeProductTypeIcon,

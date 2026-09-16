@@ -19,6 +19,8 @@ export {
   useOrganizationSupervisors,
   useCreateOrganization,
   useUpdateOrganization,
+  useRemoveOrganizationLogo,
+  useOrganizationLogoPresignProvider,
   useLeaveOrganization,
   useAddOrganizationMember,
   useUpdateOrganizationMember,
@@ -75,7 +77,6 @@ export {
 export {
   buildCreateOrganizationSchema,
   buildEditOrganizationSchema,
-  buildUserIdSchema,
   buildMemberIdentifierSchema,
   memberIdentifierToInput,
   type CreateOrganizationFormValues,

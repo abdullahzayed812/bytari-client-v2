@@ -4,8 +4,8 @@ import type { VeterinaryOfficeProduct } from '../types';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
-import { publicVeterinaryOfficeProductsApi } from '../api';
-import VeterinaryOfficeDetailsScreen from '../screens/VeterinaryOfficeDetailsScreen';
+import { publicVeterinaryOfficeProductsApi } from '../browse/api';
+import VeterinaryOfficeDetailsScreen from '../browse/screens/VeterinaryOfficeDetailsScreen';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 

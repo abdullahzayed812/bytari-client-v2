@@ -50,6 +50,20 @@ export function useUpdateOrganization(
   });
 }
 
+export function useRemoveOrganizationLogo(
+  organizationId: string,
+): UseMutationResult<OrganizationWithDetails, unknown, void> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['organizations', 'logo', 'remove', organizationId],
+    mutationFn: () => organizationsApi.removeLogo(organizationId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: orgKeys.detail(organizationId) });
+      void qc.invalidateQueries({ queryKey: orgKeys.lists() });
+    },
+  });
+}
+
 export function useLeaveOrganization(
   organizationId: string,
 ): UseMutationResult<{ success: boolean }, unknown, void> {

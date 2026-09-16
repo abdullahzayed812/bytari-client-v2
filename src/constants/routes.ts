@@ -280,6 +280,20 @@ export const Routes = {
   syndicateOfficeLicenses: '/(app)/syndicates/office-licenses',
   syndicateLegalSupport: '/(app)/syndicates/legal-support',
 
+  // Global Chat — public discussion rooms ("الدردشة العامة"). A room is a
+  // CHAT_ROOM organization; its thread reuses the existing `/chat` message
+  // screens' components, not its routes (a room needs its own thread route so
+  // it can show a room header + pinned message + member roster, not a 1:1
+  // conversation header).
+  globalChat: '/(app)/global-chat',
+  globalChatRoom: (organizationId: string) => `/(app)/global-chat/${organizationId}` as const,
+  globalChatRoomThread: (organizationId: string) =>
+    `/(app)/global-chat/${organizationId}/thread` as const,
+  globalChatRoomEditRules: (organizationId: string) =>
+    `/(app)/global-chat/${organizationId}/rules-edit` as const,
+  /** Push with `{ pathname: Routes.globalChatReport, params: { targetType, targetId } }`. */
+  globalChatReport: '/(app)/global-chat/report',
+
   // Veterinarian & Organizations (Mobile Phase 4)
   veterinarian: '/(app)/veterinarian',
   veterinarianApply: '/(app)/veterinarian/apply',
@@ -421,6 +435,8 @@ export const Routes = {
   adminVetCourses: '/(app)/admin/vet-courses',
   /** Veterinary Syndicates — create a main or subordinate syndicate (syndicate.admin.create). */
   adminCreateSyndicate: '/(app)/admin/syndicates/new',
+  /** Global Chat — create a public discussion room (chat_room.admin.create). */
+  adminCreateChatRoom: '/(app)/admin/chat-rooms/new',
   /** Admin dashboard "الخدمات" card — hub linking to the listings + requests queues. */
   adminServicesHub: '/(app)/admin/services-hub',
   /** Admin dashboard "الوظائف المتاحة" card — hub linking to offers + seekers. */

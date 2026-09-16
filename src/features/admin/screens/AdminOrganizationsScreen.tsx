@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
+import { IconButton } from '@/components/actions';
 import { Skeleton } from '@/components/feedback';
 import { Routes } from '@/constants/routes';
+import { Permission } from '@/constants/permissions';
+import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { AdminListScreen, AdminRow, FilterChips } from '../components';
@@ -15,6 +18,7 @@ const FILTERABLE_TYPES = new Set<OrganizationType>([
   'CLINIC',
   'VETERINARY_OFFICE',
   'SYNDICATE',
+  'CHAT_ROOM',
 ]);
 
 function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | 'info' {
@@ -39,12 +43,33 @@ export default function AdminOrganizationsScreen() {
       ? (typeParam as OrganizationType)
       : undefined;
   const [scope, setScope] = useState<'all' | 'pending'>('all');
+  const caps = useCapabilities();
 
   const q = useAdminOrganizations({ pending: scope === 'pending', type });
+
+  const canCreateSyndicate = type === 'SYNDICATE' && caps.can(Permission.SYNDICATE_ADMIN_CREATE);
+  const canCreateChatRoom = type === 'CHAT_ROOM' && caps.can(Permission.CHAT_ROOM_ADMIN_CREATE);
 
   return (
     <AdminListScreen<Organization>
       title={type ? t(`orgs.type.${type}`) : t('orgs.title')}
+      right={
+        canCreateSyndicate ? (
+          <IconButton
+            icon="add"
+            variant="soft"
+            accessibilityLabel={t('orgs.syndicate.createCta')}
+            onPress={() => router.push(Routes.adminCreateSyndicate)}
+          />
+        ) : canCreateChatRoom ? (
+          <IconButton
+            icon="add"
+            variant="soft"
+            accessibilityLabel={t('orgs.chatRoom.createCta')}
+            onPress={() => router.push(Routes.adminCreateChatRoom)}
+          />
+        ) : undefined
+      }
       query={q}
       data={q.organizations}
       keyExtractor={(o) => o.id}

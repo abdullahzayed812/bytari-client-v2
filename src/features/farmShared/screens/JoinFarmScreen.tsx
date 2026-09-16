@@ -6,13 +6,18 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { Alert, useToast } from '@/components/feedback';
+import { Alert, EmptyState, Loading, useToast } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
-import { Caption, Text } from '@/components/typography';
+import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useVeterinarianStatus } from '@/features/auth';
+// Deep imports (not the `@/features/organizations` barrel) — that barrel
+// exports `OrganizationDetailsScreen`, which imports `@/features/farmShared`,
+// so importing the full barrel back from here would create a require cycle.
+import { OrganizationCard } from '@/features/organizations/components';
+import { useOrganizations } from '@/features/organizations/hooks';
 import { fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -35,6 +40,11 @@ export default function JoinFarmScreen() {
   const toast = useToast();
   const vet = useVeterinarianStatus();
   const join = useJoinFarmByCode();
+  const orgs = useOrganizations({ pageSize: 50 });
+  const linkedFarms = useMemo(
+    () => orgs.organizations.filter((o) => o.type === 'FARM'),
+    [orgs.organizations],
+  );
 
   const schema = useMemo(() => buildJoinFarmSchema(t), [t]);
   const { control, handleSubmit } = useForm<JoinFarmFormValues>({
@@ -104,6 +114,25 @@ export default function JoinFarmScreen() {
               onPress={handleSubmit(onSubmit)}
               accessibilityLabel={t('join.cta')}
             />
+          </View>
+        )}
+      </Section>
+
+      <Section spacing="xl">
+        <Label>{t('join.linkedFarmsTitle', { count: linkedFarms.length })}</Label>
+        {orgs.isLoading ? (
+          <Loading />
+        ) : linkedFarms.length === 0 ? (
+          <EmptyState icon="leaf-outline" title={t('join.linkedFarmsEmpty')} />
+        ) : (
+          <View style={{ rowGap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+            {linkedFarms.map((farm) => (
+              <OrganizationCard
+                key={farm.id}
+                organization={farm}
+                onPress={() => router.push(Routes.organizationDetail(farm.id))}
+              />
+            ))}
           </View>
         )}
       </Section>

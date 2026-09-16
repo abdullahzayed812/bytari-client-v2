@@ -8,6 +8,7 @@ import { FlatList, Pressable, useWindowDimensions, View, type ViewToken } from '
 
 import { Icon } from '@/components/content';
 import { Text } from '@/components/typography';
+import { isRTL } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { useAds } from '../hooks';
@@ -64,6 +65,11 @@ function SlideView({ slide, width }: { slide: AdSlide; width: number }) {
   const hasCta = Boolean(slide.ctaLabel && slide.ctaUrl);
 
   return (
+    // Re-assert the real app direction for this slide's own content — it may
+    // render inside `AdCarousel`'s FlatList, which forces `direction: 'ltr'`
+    // on itself purely to work around an RN RTL scrolling bug (see there);
+    // that forced direction otherwise inherits into each item and would flip
+    // this slide's own `start`/`end`-based text alignment.
     <View
       style={{
         width,
@@ -71,6 +77,7 @@ function SlideView({ slide, width }: { slide: AdSlide; width: number }) {
         borderRadius: theme.radius.xl,
         overflow: 'hidden',
         backgroundColor: theme.colors.surfaceMuted,
+        direction: isRTL() ? 'rtl' : 'ltr',
       }}
     >
       <Image
@@ -159,15 +166,25 @@ function AdCarousel({ slides, cardWidth }: { slides: AdSlide[]; cardWidth: numbe
     if (slides.length <= 1) return;
     const id = setInterval(() => {
       const next = (activeIndexRef.current + 1) % slides.length;
-      listRef.current?.scrollToIndex({ index: next, animated: true });
+      listRef.current?.scrollToOffset({ offset: next * cardWidth, animated: true });
       activeIndexRef.current = next;
       setActiveIndex(next);
     }, AUTO_SLIDE_INTERVAL_MS);
     return () => clearInterval(id);
-  }, [slides.length]);
+  }, [slides.length, cardWidth]);
 
   return (
-    <View style={{ rowGap: theme.spacing.sm }}>
+    // `direction: 'ltr'` — this app forces global RTL (`I18nManager.isRTL`)
+    // for Arabic, but a horizontal `FlatList`'s scroll-offset math
+    // (`getItemLayout`/`scrollToOffset`) and viewability tracking
+    // (`onViewableItemsChanged`, which drives the dots below) are computed
+    // against RN's OS-level RTL scroll mirroring and have long-standing bugs
+    // there — content doesn't visually move on a programmatic scroll, and
+    // manual swipes don't update viewability. Forcing this one subtree's
+    // layout direction (a real Yoga style prop, independent of `I18nManager`)
+    // keeps both the list and its dots in one predictable, working LTR
+    // coordinate space; nothing else on the page is affected.
+    <View style={{ rowGap: theme.spacing.sm, direction: 'ltr' }}>
       <FlatList
         ref={listRef}
         data={slides}
