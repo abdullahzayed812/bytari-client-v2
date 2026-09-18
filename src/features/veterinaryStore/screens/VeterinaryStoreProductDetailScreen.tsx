@@ -13,6 +13,7 @@ import {
   useToast,
 } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
+import { ImagePreview, ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -25,13 +26,23 @@ import { formatDate } from '@/utils';
 
 import { AdjustVeterinaryStoreStockForm } from '../components';
 import { VETERINARY_STORE_PRODUCT_STATUS_TONE } from '../constants';
-import { useAdjustVeterinaryStoreStock, useDeleteVeterinaryStoreProduct, useVeterinaryStoreProduct, useUpdateVeterinaryStoreProduct } from '../hooks';
+import {
+  useAdjustVeterinaryStoreStock,
+  useDeleteVeterinaryStoreProduct,
+  useRemoveVeterinaryStoreProductImage,
+  useVeterinaryStoreProduct,
+  useVeterinaryStoreProductImagePresignProvider,
+  useUpdateVeterinaryStoreProduct,
+} from '../hooks';
 import { veterinaryStoreErrorMessage, type AdjustVeterinaryStoreStockFormValues } from '../validation/schemas';
+
+const MAX_PRODUCT_IMAGES = 6;
 
 /**
  * Route `/organizations/[organizationId]/store-products/[productId]`. Sections map 1:1
- * to backend DTO fields (§6) — there is no image / category / vendor-profile
- * data in the backend, so no such sections exist here.
+ * to backend DTO fields (§6) — there is no category / vendor-profile data in
+ * the backend, so no such sections exist here. Images ARE backed (own gallery
+ * table, mirrors Veterinary Office products) and managed below.
  */
 export default function VeterinaryStoreProductDetailScreen() {
   const theme = useTheme();
@@ -50,12 +61,15 @@ export default function VeterinaryStoreProductDetailScreen() {
   const update = useUpdateVeterinaryStoreProduct(orgId);
   const del = useDeleteVeterinaryStoreProduct(orgId);
   const stock = useAdjustVeterinaryStoreStock(orgId);
+  const removeImage = useRemoveVeterinaryStoreProductImage(orgId);
+  const imagePresign = useVeterinaryStoreProductImagePresignProvider(orgId, productId);
 
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [showStock, setShowStock] = useState(false);
   const [stockError, setStockError] = useState<string | null>(null);
   const [stockFields, setStockFields] = useState<Record<string, string>>({});
   const stockInFlight = useRef(false);
+  const [uploadKey, setUploadKey] = useState(0);
 
   const notFound =
     q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
@@ -180,6 +194,58 @@ export default function VeterinaryStoreProductDetailScreen() {
               </Card>
             </Section>
           ) : null}
+
+          <Section spacing="xl">
+            <Label>{t('detail.images')}</Label>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: theme.spacing.sm,
+                marginTop: theme.spacing.sm,
+              }}
+            >
+              {product.images.map((img) => (
+                <ImagePreview
+                  key={img.id}
+                  uri={img.url}
+                  size={96}
+                  onRemove={
+                    canManage
+                      ? () =>
+                          removeImage.mutate(
+                            { productId: product.id, imageId: img.id },
+                            {
+                              onError: (error) =>
+                                toast.show({
+                                  tone: 'danger',
+                                  message: veterinaryStoreErrorMessage(error, t),
+                                }),
+                            },
+                          )
+                      : undefined
+                  }
+                />
+              ))}
+              {canManage && product.images.length < MAX_PRODUCT_IMAGES ? (
+                <ImageUploader
+                  key={uploadKey}
+                  value={null}
+                  provider={imagePresign}
+                  icon="add"
+                  onChange={(result) => {
+                    if (result) {
+                      setUploadKey((k) => k + 1);
+                      toast.show({ tone: 'success', message: t('detail.addImage') });
+                    }
+                  }}
+                />
+              ) : null}
+            </View>
+            {canManage && product.images.length >= MAX_PRODUCT_IMAGES ? (
+              <Caption style={{ marginTop: theme.spacing.xs }}>{t('detail.imageLimitReached')}</Caption>
+            ) : null}
+          </Section>
 
           <Section spacing="xl">
             <Card variant="outlined" padding="md">

@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   AdjustVeterinaryStoreStockInput,
@@ -76,6 +77,34 @@ export const veterinaryStoreProductsApi = {
     return apiClient.post<VeterinaryStoreProduct>(
       `/organizations/${organizationId}/store-products/${productId}/stock`,
       body,
+    );
+  },
+
+  requestImageUploadUrl(
+    organizationId: string,
+    productId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/organizations/${organizationId}/store-products/${productId}/images/upload-url`,
+      input,
+    );
+  },
+
+  addImage(
+    organizationId: string,
+    productId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<VeterinaryStoreProduct> {
+    return apiClient.post<VeterinaryStoreProduct>(
+      `/organizations/${organizationId}/store-products/${productId}/images`,
+      input,
+    );
+  },
+
+  removeImage(organizationId: string, productId: string, imageId: string): Promise<VeterinaryStoreProduct> {
+    return apiClient.delete<VeterinaryStoreProduct>(
+      `/organizations/${organizationId}/store-products/${productId}/images/${imageId}`,
     );
   },
 };

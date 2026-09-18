@@ -12,6 +12,7 @@ import type {
   AdminFarmRenewalRequest,
   AdminListFarmsFilter,
   AdminOrgMember,
+  AdminPendingRenewalRequest,
   AdminUser,
   AdminUserDetail,
   ApproveFarmRenewalInput,
@@ -19,6 +20,7 @@ import type {
   AuditListFilter,
   AuditLogEntry,
   Organization,
+  OrganizationType,
   OrganizationWithDetails,
   OrgListFilter,
   OrgStatusAction,
@@ -212,6 +214,24 @@ export const adminApi = {
     return apiClient.post<AdminFarmRenewalRequest>(
       `/admin/organizations/${organizationId}/subscription-renewals/${requestId}/reject`,
       { reason },
+    );
+  },
+
+  /**
+   * Every PENDING renewal request across every organization, optionally
+   * scoped to one `organizationType` — e.g. the "المكاتب" admin screen only
+   * wants VETERINARY_OFFICE requests, never CLINIC/FARM ones mixed in.
+   */
+  listPendingRenewals(f: {
+    organizationType?: OrganizationType;
+    page: number;
+    pageSize: number;
+  }): Promise<Paginated<AdminPendingRenewalRequest>> {
+    return listPaged<AdminPendingRenewalRequest>(
+      '/admin/organizations/subscription-renewals/pending',
+      f.page,
+      f.pageSize,
+      { type: f.organizationType },
     );
   },
 

@@ -3,6 +3,21 @@ import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/r
 import { petKeys, petsApi } from '../api';
 import type { CreatePetInput, Pet, UpdatePetInput } from '../types';
 
+/** Remove one gallery photo by storage key. Mirrors `useRemoveOrganizationGalleryImage`. */
+export function useRemovePetGalleryImage(
+  petId: string,
+): UseMutationResult<Pet, unknown, string> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['pets', 'gallery', 'remove', petId],
+    mutationFn: (storageKey: string) => petsApi.removeGalleryImage(petId, storageKey),
+    onSuccess: (pet) => {
+      qc.setQueryData(petKeys.detail(petId), pet);
+      void qc.invalidateQueries({ queryKey: petKeys.lists() });
+    },
+  });
+}
+
 /** Create a pet. On success: refetch the lists only (§14 — no global invalidation). */
 export function useCreatePet(): UseMutationResult<Pet, unknown, CreatePetInput> {
   const qc = useQueryClient();

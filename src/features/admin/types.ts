@@ -230,6 +230,11 @@ export interface AdminFarmRenewalRequest {
   updatedAt: string;
 }
 
+/** A pending renewal request from the cross-organization admin queue, with the organization's name attached. */
+export interface AdminPendingRenewalRequest extends AdminFarmRenewalRequest {
+  organizationName: string;
+}
+
 export interface SetFarmSubscriptionInput {
   startDate: string;
   endDate: string;

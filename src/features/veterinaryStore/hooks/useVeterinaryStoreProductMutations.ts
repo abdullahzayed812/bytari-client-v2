@@ -65,3 +65,18 @@ export function useAdjustVeterinaryStoreStock(
     },
   });
 }
+
+export function useRemoveVeterinaryStoreProductImage(
+  organizationId: string,
+): UseMutationResult<VeterinaryStoreProduct, unknown, { productId: string; imageId: string }> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['store-products', 'remove-image', organizationId],
+    mutationFn: ({ productId, imageId }) =>
+      veterinaryStoreProductsApi.removeImage(organizationId, productId, imageId),
+    onSuccess: (_data, { productId }) => {
+      void qc.invalidateQueries({ queryKey: veterinaryStoreProductKeys.detail(organizationId, productId) });
+      void qc.invalidateQueries({ queryKey: veterinaryStoreProductKeys.forOrg(organizationId) });
+    },
+  });
+}

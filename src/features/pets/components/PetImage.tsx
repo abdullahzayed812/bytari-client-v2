@@ -8,11 +8,7 @@ import { SPECIES_ICON } from '../constants';
 import type { PetSpecies } from '../types';
 
 export interface PetImageProps {
-  /**
-   * Image source. The backend has NO image field on an animal yet (§11), so
-   * this is always `null` today — the component renders a species placeholder.
-   * It stays here so a future upload phase is a prop change, not a rewrite.
-   */
+  /** First gallery photo URL (`pet.galleryUrls?.[0]`), or `null`/`undefined` to show the species placeholder. */
   uri?: string | null;
   species: PetSpecies;
   /** Square edge length. */

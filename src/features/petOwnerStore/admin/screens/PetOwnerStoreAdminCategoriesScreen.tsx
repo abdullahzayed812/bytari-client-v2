@@ -1,9 +1,10 @@
+import { Image } from 'expo-image';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button, IconButton, TextButton } from '@/components/actions';
-import { Card } from '@/components/content';
+import { Card, Icon } from '@/components/content';
 import {
   Alert,
   ConfirmationDialog,
@@ -14,6 +15,7 @@ import {
 } from '@/components/feedback';
 import { Input, Switch } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
@@ -21,7 +23,11 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import type { PetStoreCategory } from '../../types';
-import { usePetStoreAdminCategories, usePetStoreAdminCategoryMutations } from '../hooks';
+import {
+  usePetStoreAdminCategories,
+  usePetStoreAdminCategoryMutations,
+  usePetStoreCategoryImagePresignProvider,
+} from '../hooks';
 
 interface Draft {
   id?: string;
@@ -44,6 +50,9 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [toDelete, setToDelete] = useState<PetStoreCategory | null>(null);
+  const [imageUploadKey, setImageUploadKey] = useState(0);
+  const imagePresign = usePetStoreCategoryImagePresignProvider(draft?.id);
+  const draftCategory = draft?.id ? (q.data ?? []).find((c) => c.id === draft.id) : undefined;
 
   const openCreate = (): void => setDraft({ ...EMPTY_DRAFT });
   const openEdit = (c: PetStoreCategory): void =>
@@ -125,6 +134,27 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
                     columnGap: theme.spacing.md,
                   }}
                 >
+                  <View
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: theme.radius.md,
+                      backgroundColor: theme.colors.surfaceAccent,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {c.imageUrl ? (
+                      <Image
+                        source={{ uri: c.imageUrl }}
+                        style={{ width: '100%', height: '100%' }}
+                        contentFit="cover"
+                      />
+                    ) : (
+                      <Icon name="albums-outline" size="iconSm" color="primary" />
+                    )}
+                  </View>
                   <View style={{ flex: 1, rowGap: 2 }}>
                     <Text variant="bodyStrong">{c.name}</Text>
                     <Caption>
@@ -177,6 +207,23 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
               value={draft.showOnHome}
               onValueChange={(showOnHome) => setDraft({ ...draft, showOnHome })}
             />
+            {draft.id ? (
+              <View style={{ rowGap: theme.spacing.xs }}>
+                <Label>{t('admin.categories.fieldImage')}</Label>
+                <ImageUploader
+                  key={imageUploadKey}
+                  value={draftCategory?.imageUrl ?? null}
+                  provider={imagePresign}
+                  shape="square"
+                  size={96}
+                  onChange={(result) => {
+                    if (result) setImageUploadKey((k) => k + 1);
+                  }}
+                />
+              </View>
+            ) : (
+              <Caption>{t('admin.categories.imageAfterCreateHint')}</Caption>
+            )}
             <Button
               label={draft.id ? t('admin.form.submitSave') : t('admin.form.submitCreate')}
               fullWidth

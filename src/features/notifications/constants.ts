@@ -32,6 +32,7 @@ export const NOTIFICATION_TYPE_META: Record<
   INQUIRY_CLOSED: { icon: 'help-buoy-outline', tone: 'neutral' },
   CONTENT_PUBLISHED: { icon: 'library-outline', tone: 'info' },
   ADMIN_ANNOUNCEMENT: { icon: 'megaphone-outline', tone: 'warning' },
+  ORGANIZATION_BROADCAST: { icon: 'megaphone-outline', tone: 'primary' },
 };
 
 const FALLBACK_META = { icon: 'notifications-outline' as IconName, tone: 'neutral' as const };

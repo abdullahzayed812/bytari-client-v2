@@ -1,11 +1,14 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
-import { Badge, Card } from '@/components/content';
+import { Badge, Card, Icon } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -22,6 +25,7 @@ export default function AdminAdCampaignsScreen() {
 
   const q = useAdminAdCampaigns({ placement });
   const campaigns = q.data?.items ?? [];
+  const [viewerImages, setViewerImages] = useState<string[] | null>(null);
 
   return (
     <SafeAreaScreen>
@@ -45,7 +49,11 @@ export default function AdminAdCampaignsScreen() {
         <FlatList
           data={campaigns}
           keyExtractor={(c) => c.id}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const images = item.slides
+              .map((s) => s.imageUrl)
+              .filter((url): url is string => Boolean(url));
+            return (
             <Card
               variant="outlined"
               padding="md"
@@ -60,6 +68,25 @@ export default function AdminAdCampaignsScreen() {
                   columnGap: theme.spacing.sm,
                 }}
               >
+                <Pressable
+                  disabled={images.length === 0}
+                  onPress={() => setViewerImages(images)}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: theme.radius.md,
+                    overflow: 'hidden',
+                    backgroundColor: theme.colors.surfaceAccent,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {images[0] ? (
+                    <Image source={{ uri: images[0] }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                  ) : (
+                    <Icon name="image-outline" size="iconSm" color="textMuted" />
+                  )}
+                </Pressable>
                 <View style={{ flex: 1, rowGap: 4 }}>
                   <Text variant="bodyStrong" numberOfLines={1}>
                     {item.title}
@@ -77,7 +104,8 @@ export default function AdminAdCampaignsScreen() {
                 />
               </View>
             </Card>
-          )}
+            );
+          }}
           ListEmptyComponent={
             <EmptyState
               icon="megaphone-outline"
@@ -95,6 +123,12 @@ export default function AdminAdCampaignsScreen() {
           }}
         />
       )}
+
+      <ImageViewer
+        visible={viewerImages !== null}
+        images={viewerImages ?? []}
+        onClose={() => setViewerImages(null)}
+      />
     </SafeAreaScreen>
   );
 }

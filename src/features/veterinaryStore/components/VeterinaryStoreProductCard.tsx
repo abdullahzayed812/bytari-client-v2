@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
@@ -47,9 +48,18 @@ export function VeterinaryStoreProductCard({ product, onPress }: VeterinaryStore
           backgroundColor: theme.colors.surfaceAccent,
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         }}
       >
-        <Icon name={veterinaryStoreProductTypeIcon(product.productType)} size="iconMd" color="primary" />
+        {product.primaryImageUrl ? (
+          <Image
+            source={{ uri: product.primaryImageUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+          />
+        ) : (
+          <Icon name={veterinaryStoreProductTypeIcon(product.productType)} size="iconMd" color="primary" />
+        )}
       </View>
 
       <View style={{ flex: 1, rowGap: 4 }}>

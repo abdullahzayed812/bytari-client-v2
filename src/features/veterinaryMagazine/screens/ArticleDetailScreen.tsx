@@ -69,6 +69,8 @@ export default function ArticleDetailScreen() {
 
   const article = q.data;
   const mainFile = article?.files.find((f) => f.kind === 'MAIN');
+  const cover = article?.files.find((f) => f.kind === 'COVER');
+  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
   const attachments = article?.files.filter((f) => f.kind === 'ATTACHMENT') ?? [];
   const primaryCategory = article?.categories[0]?.name;
 
@@ -102,7 +104,13 @@ export default function ArticleDetailScreen() {
             justifyContent: 'center',
           }}
         >
-          {q.isLoading || !article ? null : (
+          {q.isLoading || !article ? null : cover && coverUrl.data?.url ? (
+            <Image
+              source={{ uri: coverUrl.data.url }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="cover"
+            />
+          ) : (
             <Icon name="newspaper-outline" size="iconXl" color="primary" />
           )}
           {primaryCategory ? (

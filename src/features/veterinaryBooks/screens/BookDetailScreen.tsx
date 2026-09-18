@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,7 @@ import {
   ContentBody,
   useAddContentComment,
   useContentComments,
+  useContentFileUrl,
   useContentItem,
   useContentRating,
   useSubmitContentRating,
@@ -71,6 +73,8 @@ export default function BookDetailScreen() {
 
   const book = q.data;
   const mainFile = book?.files.find((f) => f.kind === 'MAIN');
+  const cover = book?.files.find((f) => f.kind === 'COVER');
+  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
   const primaryCategory = book?.categories[0]?.name;
 
   const onShare = () => {
@@ -110,7 +114,15 @@ export default function BookDetailScreen() {
             justifyContent: 'center',
           }}
         >
-          {q.isLoading || !book ? null : <Icon name="book-outline" size="iconXl" color="primary" />}
+          {q.isLoading || !book ? null : cover && coverUrl.data?.url ? (
+            <Image
+              source={{ uri: coverUrl.data.url }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="cover"
+            />
+          ) : (
+            <Icon name="book-outline" size="iconXl" color="primary" />
+          )}
           {primaryCategory ? (
             <View
               style={{

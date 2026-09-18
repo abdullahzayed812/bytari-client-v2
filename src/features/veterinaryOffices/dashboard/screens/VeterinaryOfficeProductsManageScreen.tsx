@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, useWindowDimensions, View } from 'react-native';
 
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { Alert, ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useOrganization } from '@/features/organizations';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
@@ -31,6 +32,10 @@ export default function VeterinaryOfficeProductsManageScreen() {
   const toast = useToast();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
+
+  const org = useOrganization(orgId);
+  const canOperate =
+    org.data?.status === 'ACTIVE' && org.data?.details.subscriptionStatus === 'ACTIVE';
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
@@ -72,7 +77,8 @@ export default function VeterinaryOfficeProductsManageScreen() {
     <VeterinaryOfficeDashboardShell organizationId={orgId} active="home">
       <AppHeader title={t('products.title')} showBack />
 
-      <View style={{ paddingHorizontal: theme.screenPadding, paddingBottom: theme.spacing.md }}>
+      <View style={{ paddingHorizontal: theme.screenPadding, paddingBottom: theme.spacing.md, rowGap: theme.spacing.md }}>
+        {canOperate ? null : <Alert tone="warning" message={t('status.actionsDisabledNotice')} />}
         <SearchInput
           value={rawSearch}
           onChangeText={setRawSearch}
@@ -128,6 +134,7 @@ export default function VeterinaryOfficeProductsManageScreen() {
               onEdit={() => router.push(Routes.organizationOfficeProductEdit(orgId, item.id))}
               onDelete={() => setConfirmDeleteId(item.id)}
               onToggleHidden={() => onToggleHidden(item)}
+              readOnly={!canOperate}
             />
           )}
         />

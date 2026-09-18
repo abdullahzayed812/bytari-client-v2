@@ -6,6 +6,27 @@ export default {
     orders: 'الطلبات',
     reports: 'التقارير',
   },
+  status: {
+    pendingTitle: 'قيد المراجعة',
+    pendingBody:
+      'هذا المكتب بانتظار اعتماد فريق الإدارة قبل أن يصبح نشطاً. لا يمكنك إجراء أي عمليات في لوحة التحكم حتى تتم الموافقة.',
+    rejectedTitle: 'تم رفض طلب التسجيل',
+    suspendedTitle: 'المكتب موقوف',
+    suspendedBody: 'تم إيقاف هذا المكتب من قبل الإدارة. لا يمكنك إجراء أي عمليات حالياً.',
+    deactivatedTitle: 'المكتب معطّل',
+    deactivatedBody: 'تم تعطيل هذا المكتب ولا يمكن إجراء أي عمليات عليه.',
+    activeTitle: 'نشط',
+    subscriptionActiveUntil: 'الاشتراك ساري حتى: {{date}}',
+    subscriptionExpiredTitle: 'انتهى الاشتراك',
+    subscriptionRenewalPending: 'تم إرسال طلب تجديد الاشتراك وهو قيد المراجعة من قبل الإدارة.',
+    subscriptionRenewalCta:
+      'انتهى اشتراكك. لا يمكنك إدارة المنتجات أو إرسال رسائل للمتابعين حتى تجدد الاشتراك.',
+    requestRenewal: 'طلب تجديد الاشتراك',
+    notStartedTitle: 'لم يبدأ الاشتراك بعد',
+    notStartedBody:
+      'بانتظار أن تحدد الإدارة فترة اشتراكك. لن تتمكن من إجراء أي عمليات في لوحة التحكم حتى ذلك الحين.',
+    actionsDisabledNotice: 'لا يمكنك تنفيذ هذا الإجراء حالياً — راجع حالة المكتب من الصفحة الرئيسية للوحة التحكم.',
+  },
   home: {
     followersCount: 'عدد المتابعين',
     productsLabel: 'المنتجات',

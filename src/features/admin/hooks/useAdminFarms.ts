@@ -14,10 +14,12 @@ import { adminApi, adminKeys } from '../api';
 import type {
   AdminFarmListItem,
   AdminFarmRenewalRequest,
+  AdminPendingRenewalRequest,
   ApproveFarmRenewalInput,
   FarmSpeciesGroup,
   FarmSubscriptionStatus,
   OrganizationStatus,
+  OrganizationType,
   Paginated,
   SetFarmSubscriptionInput,
 } from '../types';
@@ -73,6 +75,47 @@ export function useAdminFarmRenewals(organizationId: string, options: { enabled?
   return { ...query, requests, pending };
 }
 
+export interface AdminPendingRenewalsParams {
+  /** Scope to one organization type — omit for every type mixed together. */
+  organizationType?: OrganizationType;
+  pageSize?: number;
+  enabled?: boolean;
+}
+
+/**
+ * Cross-organization PENDING renewal requests, optionally scoped to one
+ * organization type (e.g. the "المكاتب" admin screen only wants
+ * VETERINARY_OFFICE requests). Approving/rejecting a row reuses
+ * `useFarmRenewalDecisionMutation` — it's organization-type-agnostic already.
+ */
+export function useAdminPendingRenewals(params: AdminPendingRenewalsParams = {}) {
+  const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+
+  const query = useInfiniteQuery<
+    Paginated<AdminPendingRenewalRequest>,
+    ApiError,
+    InfiniteData<Paginated<AdminPendingRenewalRequest>>,
+    ReturnType<typeof adminKeys.organizations.pendingRenewals>,
+    number
+  >({
+    queryKey: adminKeys.organizations.pendingRenewals(params.organizationType),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      adminApi.listPendingRenewals({
+        organizationType: params.organizationType,
+        page: pageParam,
+        pageSize,
+      }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled: params.enabled ?? true,
+    staleTime: 15_000,
+  });
+
+  const requests = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  return { ...query, requests, total: query.data?.pages[0]?.meta.total ?? 0 };
+}
+
 /** Admin/Supervisor sets a farm's subscription period directly. */
 export function useSetFarmSubscriptionMutation(organizationId: string) {
   const qc = useQueryClient();
@@ -108,6 +151,7 @@ export function useFarmRenewalDecisionMutation(organizationId: string, requestId
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminKeys.farms.renewals(organizationId) });
       void qc.invalidateQueries({ queryKey: adminKeys.organizations.detail(organizationId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.organizations.pendingRenewalsAll() });
       void qc.invalidateQueries({ queryKey: adminKeys.farms.lists() });
     },
   });

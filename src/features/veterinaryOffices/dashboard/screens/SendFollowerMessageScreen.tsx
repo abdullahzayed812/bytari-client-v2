@@ -13,6 +13,7 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
+import { useOrganization } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -32,6 +33,9 @@ export default function SendFollowerMessageScreen() {
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
 
+  const org = useOrganization(orgId);
+  const canOperate =
+    org.data?.status === 'ACTIVE' && org.data?.details.subscriptionStatus === 'ACTIVE';
   const summary = useVeterinaryOfficeDashboard(orgId);
   const send = useSendFollowerBroadcast(orgId);
   const imageProvider = useBroadcastImageProvider(orgId);
@@ -125,13 +129,14 @@ export default function SendFollowerMessageScreen() {
       </Section>
 
       {send.isError ? <Alert tone="danger" message={apiErrorMessage(send.error)} /> : null}
+      {canOperate ? null : <Alert tone="warning" message={t('status.actionsDisabledNotice')} />}
 
       <Section spacing="giant">
         <Button
           label={t('broadcast.form.submit')}
           fullWidth
           loading={send.isPending}
-          disabled={send.isPending}
+          disabled={send.isPending || !canOperate}
           onPress={handleSubmit(onSubmit)}
         />
       </Section>

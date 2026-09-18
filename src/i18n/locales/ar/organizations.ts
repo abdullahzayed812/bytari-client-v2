@@ -157,6 +157,8 @@ export default {
     logoUpdated: 'تم تحديث الشعار.',
     logoRemoved: 'تمت إزالة الشعار.',
     logoRemoveCta: 'إزالة الشعار',
+    galleryLabel: 'صور المعرض',
+    licenseImagesLabel: 'صور الترخيص',
     errors: {
       typeRequired: 'يرجى اختيار نوع المؤسسة.',
       nameRequired: 'اسم المؤسسة مطلوب (حرفان على الأقل).',
@@ -208,6 +210,7 @@ export default {
       licenseInfo: 'معلومات الترخيص',
     },
     fields: {
+      logo: 'شعار المؤسسة (اختياري)',
       description: 'الوصف',
       address: 'العنوان',
       country: 'الدولة',
@@ -253,6 +256,8 @@ export default {
     pendingBody: 'هذه المؤسسة بانتظار اعتماد فريق الإدارة قبل أن تصبح نشطة.',
     rejectionReason: 'سبب الرفض',
     sectionInfo: 'معلومات المؤسسة',
+    photosSection: 'الصور',
+    licenseImagesTitle: 'صور الترخيص',
     sectionSubscription: 'الاشتراك',
     fieldType: 'النوع',
     fieldStatus: 'الحالة',

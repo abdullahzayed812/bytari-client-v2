@@ -83,6 +83,8 @@ export interface Organization {
   decisionReason: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Only populated on admin LIST rows (`GET /admin/organizations`) for CLINIC/VETERINARY_OFFICE/VETERINARY_STORE — a thumbnail for the management screens. `undefined` elsewhere. */
+  logoUrl?: string | null;
 }
 
 /**
@@ -132,6 +134,14 @@ export interface OrganizationDetails extends OrganizationProfile {
    */
   licenseNumber?: string | null;
   licenseDocumentUrls?: string[];
+  /**
+   * Raw R2 storage keys backing {@link OrganizationProfile.galleryUrls} —
+   * owner/admin-only. The gallery removal endpoint is keyed by `storageKey`,
+   * not an id/index, so these are needed to build a working remove button.
+   */
+  galleryKeys?: string[];
+  /** Same as {@link galleryKeys}, for {@link licenseDocumentUrls}. */
+  licenseDocumentKeys?: string[];
 }
 
 export interface OrganizationWithDetails extends Organization {
@@ -212,6 +222,8 @@ export interface MyOrganization extends Organization {
   address?: string | null;
   phone?: string | null;
   logoUrl?: string | null;
+  /** Registration only ever sets gallery/license photos, never a logo — a card falls back to this when `logoUrl` is null. */
+  galleryUrls?: string[];
 }
 
 /**

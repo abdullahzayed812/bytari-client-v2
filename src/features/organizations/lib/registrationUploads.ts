@@ -4,14 +4,28 @@ import type { LocalFile, PresignProvider } from '@/services/files/types';
 import { organizationsApi } from '../api';
 
 /**
- * Registration screens ("تسجيل العيادة" / office registration) pick gallery +
- * license-document photos locally FIRST (before the organization exists —
- * there is nothing to attach them to yet), then upload each one right after
- * `organizationsApi.create` succeeds. Both providers mirror the presigned
- * direct-to-storage seam used everywhere else in the app (`@/services/media`);
- * used imperatively here (a plain loop in the submit handler), not through
- * the single-slot `<ImageUploader>` component.
+ * Registration screens ("تسجيل العيادة" / office registration) pick logo +
+ * gallery + license-document photos locally FIRST (before the organization
+ * exists — there is nothing to attach them to yet), then upload each one
+ * right after `organizationsApi.create` succeeds. All three providers mirror
+ * the presigned direct-to-storage seam used everywhere else in the app
+ * (`@/services/media`); used imperatively here (a plain loop in the submit
+ * handler), not through the single-slot `<ImageUploader>` component.
  */
+function logoProvider(organizationId: string): PresignProvider {
+  return {
+    requestUpload: (file) =>
+      organizationsApi.requestLogoUploadUrl(organizationId, {
+        filename: file.name,
+        mimeType: file.mimeType,
+        size: file.size ?? 0,
+      }),
+    finalizeUpload: async (storageKey, file) => {
+      await organizationsApi.finalizeLogo(organizationId, { storageKey, mimeType: file.mimeType });
+    },
+  };
+}
+
 function galleryProvider(organizationId: string): PresignProvider {
   return {
     requestUpload: (file) =>
@@ -50,6 +64,11 @@ async function uploadAll(files: LocalFile[], provider: PresignProvider): Promise
     // eslint-disable-next-line no-await-in-loop -- sequential by design
     await service.upload(file);
   }
+}
+
+export async function uploadOrganizationLogo(organizationId: string, file: LocalFile): Promise<void> {
+  const service = new FileUploadService(logoProvider(organizationId));
+  await service.upload(file);
 }
 
 export async function uploadGalleryPhotos(organizationId: string, files: LocalFile[]): Promise<void> {

@@ -1,7 +1,8 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Badge, Card, Divider, Icon, type IconName } from '@/components/content';
@@ -13,6 +14,7 @@ import {
   useToast,
 } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -29,6 +31,7 @@ import { formatDate } from '@/utils';
 import { OrganizationStatusBadge, OrganizationTypeBadge } from '../components';
 import { orgCapabilities } from '../constants';
 import { useLeaveOrganization, useOrganization } from '../hooks';
+import { LICENSABLE_ORG_TYPES } from '../types';
 
 const SUBSCRIPTION_TONE = { ACTIVE: 'success', NOT_STARTED: 'neutral', EXPIRED: 'danger' } as const;
 
@@ -42,6 +45,7 @@ export default function OrganizationDetailsScreen() {
   const q = useOrganization(organizationId);
   const leave = useLeaveOrganization(organizationId ?? '');
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
 
   const denied = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
 
@@ -90,19 +94,69 @@ export default function OrganizationDetailsScreen() {
       ) : (
         <>
           <Section spacing="xl">
-            <Heading level={2} numberOfLines={2}>
-              {org.name}
-            </Heading>
-            <Row gap="xs" wrap style={{ marginTop: theme.spacing.sm }}>
-              <OrganizationTypeBadge type={org.type} size="md" />
-              <OrganizationStatusBadge status={org.status} size="md" />
-              {org.myRole ? (
-                <Text variant="caption" color="textMuted">
-                  {t(`role.${org.myRole}`, { defaultValue: org.myRole })}
-                </Text>
+            <Row gap="lg" align="center">
+              {org.details.logoUrl ?? org.details.galleryUrls?.[0] ? (
+                <View
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: theme.radius.pill,
+                    overflow: 'hidden',
+                    backgroundColor: theme.colors.surfaceAccent,
+                  }}
+                >
+                  <Image
+                    source={{ uri: (org.details.logoUrl ?? org.details.galleryUrls?.[0]) as string }}
+                    style={{ width: '100%', height: '100%' }}
+                    contentFit="cover"
+                  />
+                </View>
               ) : null}
+              <View style={{ flex: 1 }}>
+                <Heading level={2} numberOfLines={2}>
+                  {org.name}
+                </Heading>
+                <Row gap="xs" wrap style={{ marginTop: theme.spacing.sm }}>
+                  <OrganizationTypeBadge type={org.type} size="md" />
+                  <OrganizationStatusBadge status={org.status} size="md" />
+                  {org.myRole ? (
+                    <Text variant="caption" color="textMuted">
+                      {t(`role.${org.myRole}`, { defaultValue: org.myRole })}
+                    </Text>
+                  ) : null}
+                </Row>
+              </View>
             </Row>
           </Section>
+
+          {(org.details.galleryUrls?.length ?? 0) > 0 ||
+          (LICENSABLE_ORG_TYPES.includes(org.type) &&
+            (org.details.licenseDocumentUrls?.length ?? 0) > 0) ? (
+            <Section spacing="xl">
+              <Label>{t('detail.photosSection')}</Label>
+              <View style={{ rowGap: theme.spacing.md }}>
+                {org.details.galleryUrls && org.details.galleryUrls.length > 0 ? (
+                  <PhotoThumbnailRow
+                    images={org.details.galleryUrls}
+                    onPress={(index) => setViewer({ images: org.details.galleryUrls ?? [], index })}
+                  />
+                ) : null}
+                {LICENSABLE_ORG_TYPES.includes(org.type) &&
+                org.details.licenseDocumentUrls &&
+                org.details.licenseDocumentUrls.length > 0 ? (
+                  <View style={{ rowGap: theme.spacing.sm }}>
+                    <Caption>{t('detail.licenseImagesTitle')}</Caption>
+                    <PhotoThumbnailRow
+                      images={org.details.licenseDocumentUrls}
+                      onPress={(index) =>
+                        setViewer({ images: org.details.licenseDocumentUrls ?? [], index })
+                      }
+                    />
+                  </View>
+                ) : null}
+              </View>
+            </Section>
+          ) : null}
 
           {org.status === 'PENDING' ? (
             <Section spacing="xl">
@@ -306,6 +360,13 @@ export default function OrganizationDetailsScreen() {
           />
         </>
       )}
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </ScrollScreen>
   );
 }
@@ -318,6 +379,42 @@ function InfoRow({ label, value }: { label: string; value: string }) {
         {value}
       </Text>
     </Row>
+  );
+}
+
+const PHOTO_THUMBNAIL_SIZE = 72;
+
+function PhotoThumbnailRow({
+  images,
+  onPress,
+}: {
+  images: string[];
+  onPress: (index: number) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+      {images.map((uri, index) => (
+        <Pressable
+          key={uri}
+          accessibilityRole="button"
+          accessibilityLabel={`${index + 1}/${images.length}`}
+          onPress={() => onPress(index)}
+          style={({ pressed }) => [
+            {
+              width: PHOTO_THUMBNAIL_SIZE,
+              height: PHOTO_THUMBNAIL_SIZE,
+              borderRadius: theme.radius.md,
+              overflow: 'hidden',
+              backgroundColor: theme.colors.surfaceAccent,
+            },
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        </Pressable>
+      ))}
+    </View>
   );
 }
 

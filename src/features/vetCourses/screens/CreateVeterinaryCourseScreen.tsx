@@ -461,7 +461,7 @@ export default function CreateVeterinaryCourseScreen() {
             <View style={{ rowGap: theme.spacing.xs }}>
               <Label>{t('form.coverImage')}</Label>
               <ImageUploader
-                value={null}
+                value={isEdit ? ((existing.data as VetCourse | undefined)?.coverImageUrl ?? null) : null}
                 provider={imageProvider}
                 shape="square"
                 size={160}

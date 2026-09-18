@@ -11,6 +11,8 @@ export {
   useCreateOrganization,
   useUpdateOrganization,
   useRemoveOrganizationLogo,
+  useRemoveOrganizationGalleryImage,
+  useRemoveOrganizationLicenseDocument,
   useLeaveOrganization,
   useAddOrganizationMember,
   useUpdateOrganizationMember,
@@ -20,6 +22,8 @@ export {
   useRemoveOrganizationSupervisor,
 } from './useOrganizationMutations';
 export { useOrganizationLogoPresignProvider } from './useOrganizationLogoPresignProvider';
+export { useOrganizationGalleryPresignProvider } from './useOrganizationGalleryPresignProvider';
+export { useOrganizationLicenseDocumentPresignProvider } from './useOrganizationLicenseDocumentPresignProvider';
 export {
   useFollowOrganization,
   useUnfollowOrganization,

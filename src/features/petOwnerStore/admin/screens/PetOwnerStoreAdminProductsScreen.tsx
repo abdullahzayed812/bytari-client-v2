@@ -1,13 +1,15 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
-import { Badge, Card, Chip } from '@/components/content';
+import { Badge, Card, Chip, Icon } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -27,6 +29,7 @@ export default function PetOwnerStoreAdminProductsScreen() {
   const [status, setStatus] = useState<PetStoreProductStatus | undefined>();
 
   const q = usePetStoreAdminProducts({ search, status });
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
 
   const header = (
     <View style={{ rowGap: theme.spacing.sm, paddingBottom: theme.spacing.md }}>
@@ -88,6 +91,31 @@ export default function PetOwnerStoreAdminProductsScreen() {
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
               >
+                <Pressable
+                  disabled={!item.primaryImageUrl}
+                  onPress={
+                    item.primaryImageUrl ? () => setViewerImage(item.primaryImageUrl) : undefined
+                  }
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: theme.radius.md,
+                    overflow: 'hidden',
+                    backgroundColor: theme.colors.surfaceAccent,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {item.primaryImageUrl ? (
+                    <Image
+                      source={{ uri: item.primaryImageUrl }}
+                      style={{ width: '100%', height: '100%' }}
+                      contentFit="cover"
+                    />
+                  ) : (
+                    <Icon name="image-outline" size="iconSm" color="textMuted" />
+                  )}
+                </Pressable>
                 <View style={{ flex: 1, rowGap: 4 }}>
                   <Text variant="bodyStrong" numberOfLines={1}>
                     {item.name}
@@ -138,6 +166,12 @@ export default function PetOwnerStoreAdminProductsScreen() {
           }
         />
       )}
+
+      <ImageViewer
+        visible={viewerImage !== null}
+        images={viewerImage ? [viewerImage] : []}
+        onClose={() => setViewerImage(null)}
+      />
     </SafeAreaScreen>
   );
 }

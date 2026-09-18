@@ -566,11 +566,17 @@ export default {
       createdLabel: 'تاريخ الإنشاء',
       noMembers: 'لا يوجد أعضاء بعد.',
       setSubscriptionTitle: 'تحديد فترة اشتراك المؤسسة',
+      imagesSection: 'الصور',
+      galleryTitle: 'صور المعرض',
+      licenseImagesTitle: 'صور الترخيص',
     },
     toast: {
       approved: 'تم اعتماد المؤسسة',
       rejected: 'تم رفض المؤسسة',
       statusChanged: 'تم تحديث حالة المؤسسة',
+    },
+    renewals: {
+      empty: 'لا توجد طلبات تجديد اشتراك معلقة.',
     },
   },
 

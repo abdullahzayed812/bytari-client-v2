@@ -3,8 +3,9 @@
  * (`animal.types.ts`, `animal.schemas.ts`, `animal.constants.ts`) and OpenAPI
  * `phase4` — verified against the real implementation, not assumed.
  *
- * The backend has NO image field on an animal (§11) — `PetImage` renders a
- * placeholder and stays upload-ready for a future phase.
+ * The backend resolves an animal's `gallery_keys` to `galleryUrls: string[]`
+ * (same pattern as organizations) — `PetImage` falls back to a species icon
+ * when empty.
  */
 
 // --- controlled vocabularies (exact backend values, §12) ---------------
@@ -62,6 +63,8 @@ export interface Pet {
   ageEstimate?: PetAgeEstimate | null;
   /** Resolved R2 photo URLs — the client never builds them. */
   galleryUrls?: string[];
+  /** Raw storage keys backing {@link galleryUrls}, same order — needed to remove a specific photo. */
+  galleryKeys?: string[];
   createdAt: string;
   updatedAt: string;
 }

@@ -1,12 +1,14 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Badge, Card } from '@/components/content';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -47,6 +49,7 @@ export default function AdminOrganizationDetailScreen() {
   const setSubscription = useSetFarmSubscriptionMutation(organizationId);
   const [pending, setPending] = useState<Pending>(null);
   const [subscriptionDialog, setSubscriptionDialog] = useState(false);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
 
   const done = (message: string) => {
     toast.show({ message, tone: 'success' });
@@ -102,6 +105,37 @@ export default function AdminOrganizationDetailScreen() {
               ) : null}
             </View>
           </Section>
+
+          {(org.details.galleryUrls?.length ?? 0) > 0 ||
+          (org.details.licenseDocumentUrls?.length ?? 0) > 0 ? (
+            <Section spacing="lg">
+              <Label>{t('orgs.detail.imagesSection')}</Label>
+              <View style={{ rowGap: theme.spacing.md }}>
+                {org.details.galleryUrls && org.details.galleryUrls.length > 0 ? (
+                  <View style={{ rowGap: theme.spacing.sm }}>
+                    <Caption>{t('orgs.detail.galleryTitle')}</Caption>
+                    <ImageThumbnailRow
+                      images={org.details.galleryUrls}
+                      onPress={(index) => setViewer({ images: org.details.galleryUrls ?? [], index })}
+                    />
+                  </View>
+                ) : null}
+                {SUBSCRIPTION_CAPABLE_TYPES.has(org.type) &&
+                org.details.licenseDocumentUrls &&
+                org.details.licenseDocumentUrls.length > 0 ? (
+                  <View style={{ rowGap: theme.spacing.sm }}>
+                    <Caption>{t('orgs.detail.licenseImagesTitle')}</Caption>
+                    <ImageThumbnailRow
+                      images={org.details.licenseDocumentUrls}
+                      onPress={(index) =>
+                        setViewer({ images: org.details.licenseDocumentUrls ?? [], index })
+                      }
+                    />
+                  </View>
+                ) : null}
+              </View>
+            </Section>
+          ) : null}
 
           <Section spacing="lg">
             <Card variant="outlined" padding="md">
@@ -348,6 +382,13 @@ export default function AdminOrganizationDetailScreen() {
         }
         onCancel={() => setSubscriptionDialog(false)}
       />
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </ScrollScreen>
   );
 }
@@ -359,6 +400,42 @@ function Row({ label, value }: { label: string; value: string }) {
       <Text variant="caption" style={{ flexShrink: 1, textAlign: 'right' }}>
         {value}
       </Text>
+    </View>
+  );
+}
+
+const THUMBNAIL_SIZE = 72;
+
+function ImageThumbnailRow({
+  images,
+  onPress,
+}: {
+  images: string[];
+  onPress: (index: number) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+      {images.map((uri, index) => (
+        <Pressable
+          key={uri}
+          accessibilityRole="button"
+          accessibilityLabel={`${index + 1}/${images.length}`}
+          onPress={() => onPress(index)}
+          style={({ pressed }) => [
+            {
+              width: THUMBNAIL_SIZE,
+              height: THUMBNAIL_SIZE,
+              borderRadius: theme.radius.md,
+              overflow: 'hidden',
+              backgroundColor: theme.colors.surfaceAccent,
+            },
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        </Pressable>
+      ))}
     </View>
   );
 }

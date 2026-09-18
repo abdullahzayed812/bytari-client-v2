@@ -14,12 +14,16 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { ReasonPromptDialog, SubscriptionDatesDialog } from '../components';
+import {
+  ReasonPromptDialog,
+  RenewalApproveDialog,
+  RenewalRejectDialog,
+  SubscriptionDatesDialog,
+} from '../components';
 import {
   useAdminFarmRenewals,
   useAdminOrganization,
   useAdminOrganizationMembers,
-  useFarmRenewalDecisionMutation,
   useOrgDecisionMutation,
   useSetFarmSubscriptionMutation,
 } from '../hooks';
@@ -411,70 +415,3 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function RenewalApproveDialog({
-  visible,
-  organizationId,
-  requestId,
-  onDone,
-  onError,
-  onCancel,
-}: {
-  visible: boolean;
-  organizationId: string;
-  requestId: string | null;
-  onDone: () => void;
-  onError: (e: unknown) => void;
-  onCancel: () => void;
-}) {
-  const { t } = useTranslation('admin');
-  const decide = useFarmRenewalDecisionMutation(organizationId, requestId ?? '');
-  return (
-    <SubscriptionDatesDialog
-      visible={visible}
-      title={t('farms.detail.approveRenewalTitle')}
-      confirmLabel={t('farms.detail.approveRenewal')}
-      loading={decide.isPending}
-      onConfirm={(dates) =>
-        decide.mutate({ decision: 'approve', ...dates }, { onSuccess: onDone, onError })
-      }
-      onCancel={onCancel}
-    />
-  );
-}
-
-function RenewalRejectDialog({
-  visible,
-  organizationId,
-  requestId,
-  onDone,
-  onError,
-  onCancel,
-}: {
-  visible: boolean;
-  organizationId: string;
-  requestId: string | null;
-  onDone: () => void;
-  onError: (e: unknown) => void;
-  onCancel: () => void;
-}) {
-  const { t } = useTranslation('admin');
-  const decide = useFarmRenewalDecisionMutation(organizationId, requestId ?? '');
-  return (
-    <ReasonPromptDialog
-      visible={visible}
-      title={t('farms.detail.rejectRenewalTitle')}
-      message={t('farms.detail.rejectRenewalBody')}
-      label={t('orgs.reasonLabel')}
-      placeholder={t('orgs.reasonPlaceholder')}
-      confirmLabel={t('farms.detail.rejectRenewal')}
-      cancelLabel={t('common.cancel')}
-      required
-      destructive
-      loading={decide.isPending}
-      onConfirm={(reason) =>
-        decide.mutate({ decision: 'reject', reason }, { onSuccess: onDone, onError })
-      }
-      onCancel={onCancel}
-    />
-  );
-}

@@ -34,6 +34,8 @@ export const NOTIFICATION_TYPES = [
   'INQUIRY_CLOSED',
   'CONTENT_PUBLISHED',
   'ADMIN_ANNOUNCEMENT',
+  // organization → its followers (Veterinary Office Dashboard "إرسال رسالة للمتابعين")
+  'ORGANIZATION_BROADCAST',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 

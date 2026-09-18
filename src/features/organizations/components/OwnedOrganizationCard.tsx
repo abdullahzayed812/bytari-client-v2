@@ -64,8 +64,12 @@ export function OwnedOrganizationCard({
       ]}
     >
       <View style={{ height: 140, backgroundColor: theme.colors.surfaceAccent }}>
-        {org.logoUrl ? (
-          <Image source={{ uri: org.logoUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        {org.logoUrl ?? org.galleryUrls?.[0] ? (
+          <Image
+            source={{ uri: (org.logoUrl ?? org.galleryUrls?.[0]) as string }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+          />
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={ORG_TYPE_ICON[org.type]} size="iconXl" color="primary" />

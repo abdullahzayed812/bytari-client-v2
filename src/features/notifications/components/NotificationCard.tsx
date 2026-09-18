@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
@@ -8,6 +9,12 @@ import { formatDate } from '@/utils';
 
 import { notificationMeta } from '../constants';
 import type { AppNotification } from '../types';
+
+function broadcastImageUrl(n: AppNotification): string | null {
+  if (n.type !== 'ORGANIZATION_BROADCAST') return null;
+  const url = n.data?.imageUrl;
+  return typeof url === 'string' ? url : null;
+}
 
 export interface NotificationCardProps {
   notification: AppNotification;
@@ -24,6 +31,7 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
   const { t, i18n } = useTranslation('notifications');
   const meta = notificationMeta(n.type);
   const unread = !n.read;
+  const imageUrl = broadcastImageUrl(n);
 
   return (
     <Pressable
@@ -52,9 +60,14 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
           backgroundColor: theme.colors.surface,
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         }}
       >
-        <Icon name={meta.icon} size="iconMd" color="primary" />
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        ) : (
+          <Icon name={meta.icon} size="iconMd" color="primary" />
+        )}
       </View>
 
       <View style={{ flex: 1, rowGap: 2 }}>

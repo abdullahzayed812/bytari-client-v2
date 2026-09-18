@@ -64,6 +64,36 @@ export function useRemoveOrganizationLogo(
   });
 }
 
+export function useRemoveOrganizationGalleryImage(
+  organizationId: string,
+): UseMutationResult<OrganizationWithDetails, unknown, string> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['organizations', 'gallery', 'remove', organizationId],
+    mutationFn: (storageKey: string) =>
+      organizationsApi.removeGalleryImage(organizationId, storageKey),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: orgKeys.detail(organizationId) });
+      void qc.invalidateQueries({ queryKey: orgKeys.lists() });
+    },
+  });
+}
+
+export function useRemoveOrganizationLicenseDocument(
+  organizationId: string,
+): UseMutationResult<OrganizationWithDetails, unknown, string> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['organizations', 'license-documents', 'remove', organizationId],
+    mutationFn: (storageKey: string) =>
+      organizationsApi.removeLicenseDocument(organizationId, storageKey),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: orgKeys.detail(organizationId) });
+      void qc.invalidateQueries({ queryKey: orgKeys.lists() });
+    },
+  });
+}
+
 export function useLeaveOrganization(
   organizationId: string,
 ): UseMutationResult<{ success: boolean }, unknown, void> {

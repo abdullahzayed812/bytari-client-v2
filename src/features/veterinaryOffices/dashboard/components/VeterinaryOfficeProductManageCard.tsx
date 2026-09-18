@@ -22,6 +22,8 @@ export interface VeterinaryOfficeProductManageCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onToggleHidden: () => void;
+  /** Hides the حذف/إخفاء-إظهار/تعديل action row — office is pending approval or subscription isn't active. */
+  readOnly?: boolean;
 }
 
 /**
@@ -37,6 +39,7 @@ export function VeterinaryOfficeProductManageCard({
   onEdit,
   onDelete,
   onToggleHidden,
+  readOnly,
 }: VeterinaryOfficeProductManageCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOfficeDashboard');
@@ -136,26 +139,28 @@ export function VeterinaryOfficeProductManageCard({
         </View>
       </Pressable>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: theme.spacing.md,
-          paddingBottom: theme.spacing.md,
-          paddingTop: theme.spacing.xs,
-          borderTopWidth: theme.sizes.hairline,
-          borderTopColor: theme.colors.divider,
-        }}
-      >
-        <TextButton label={t('card.delete')} icon="trash-outline" tone="danger" onPress={onDelete} />
-        <TextButton
-          label={t(product.isHidden ? 'card.show' : 'card.hide')}
-          icon={product.isHidden ? 'eye-outline' : 'eye-off-outline'}
-          tone="muted"
-          onPress={onToggleHidden}
-        />
-        <TextButton label={t('card.edit')} icon="create-outline" tone="primary" onPress={onEdit} />
-      </View>
+      {readOnly ? null : (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: theme.spacing.md,
+            paddingBottom: theme.spacing.md,
+            paddingTop: theme.spacing.xs,
+            borderTopWidth: theme.sizes.hairline,
+            borderTopColor: theme.colors.divider,
+          }}
+        >
+          <TextButton label={t('card.delete')} icon="trash-outline" tone="danger" onPress={onDelete} />
+          <TextButton
+            label={t(product.isHidden ? 'card.show' : 'card.hide')}
+            icon={product.isHidden ? 'eye-outline' : 'eye-off-outline'}
+            tone="muted"
+            onPress={onToggleHidden}
+          />
+          <TextButton label={t('card.edit')} icon="create-outline" tone="primary" onPress={onEdit} />
+        </View>
+      )}
     </View>
   );
 }

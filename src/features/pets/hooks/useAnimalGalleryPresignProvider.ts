@@ -1,15 +1,19 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import type { PresignProvider } from '@/services/files/types';
 
-import { petsApi } from '../api/petsApi';
+import { petKeys, petsApi } from '../api';
 
 /**
- * `PresignProvider` for an animal's photo gallery (up to 8 photos) — the Add
- * Lost / Adoption / Mating Animal forms. Requests a presigned URL, the
- * uploader `PUT`s the bytes, then this registers the photo on the animal.
+ * `PresignProvider` for an animal's photo gallery (up to 8 photos) — used by
+ * the Add Lost/Adoption/Mating Animal form and the Edit Pet screen. Requests
+ * a presigned URL, the uploader `PUT`s the bytes, then this registers the
+ * photo on the animal and refreshes the pet's cached detail/list so the new
+ * photo shows up immediately.
  */
 export function useAnimalGalleryPresignProvider(petId: string | undefined): PresignProvider {
+  const qc = useQueryClient();
   return useMemo<PresignProvider>(
     () => ({
       requestUpload: (file) => {
@@ -22,9 +26,11 @@ export function useAnimalGalleryPresignProvider(petId: string | undefined): Pres
       },
       finalizeUpload: async (storageKey, file) => {
         if (!petId) throw new Error('useAnimalGalleryPresignProvider: petId is required');
-        await petsApi.finalizeGalleryImage(petId, { storageKey, mimeType: file.mimeType });
+        const pet = await petsApi.finalizeGalleryImage(petId, { storageKey, mimeType: file.mimeType });
+        qc.setQueryData(petKeys.detail(petId), pet);
+        void qc.invalidateQueries({ queryKey: petKeys.lists() });
       },
     }),
-    [petId],
+    [petId, qc],
   );
 }

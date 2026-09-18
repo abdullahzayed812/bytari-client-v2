@@ -22,9 +22,11 @@ export { useAdminAuditLog } from './useAdminAuditLog';
 export {
   useAdminFarms,
   useAdminFarmRenewals,
+  useAdminPendingRenewals,
   useSetFarmSubscriptionMutation,
   useFarmRenewalDecisionMutation,
   type AdminFarmsParams,
+  type AdminPendingRenewalsParams,
 } from './useAdminFarms';
 export {
   useAdminTraderApplications,

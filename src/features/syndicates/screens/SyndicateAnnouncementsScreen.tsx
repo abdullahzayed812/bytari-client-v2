@@ -1,10 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
@@ -25,6 +27,7 @@ export default function SyndicateAnnouncementsScreen() {
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const q = useSyndicateAnnouncements(organizationId);
   const access = useMySyndicateAccess(organizationId);
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
 
   return (
     <SafeAreaScreen>
@@ -56,6 +59,7 @@ export default function SyndicateAnnouncementsScreen() {
             <AnnouncementCard
               announcement={item}
               onPress={() => router.push(Routes.syndicateAnnouncementDetails(item.id))}
+              onImagePress={item.imageUrl ? () => setViewerImage(item.imageUrl) : undefined}
             />
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
@@ -70,6 +74,12 @@ export default function SyndicateAnnouncementsScreen() {
           }}
         />
       )}
+
+      <ImageViewer
+        visible={viewerImage !== null}
+        images={viewerImage ? [viewerImage] : []}
+        onClose={() => setViewerImage(null)}
+      />
     </SafeAreaScreen>
   );
 }

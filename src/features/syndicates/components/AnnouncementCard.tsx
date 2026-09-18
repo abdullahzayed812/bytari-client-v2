@@ -15,12 +15,14 @@ import { SyndicateAnnouncementTypeBadge } from './badges';
 export interface AnnouncementCardProps {
   announcement: SyndicateAnnouncement;
   onPress: () => void;
+  /** Opens a full-screen `ImageViewer` for the announcement's photo, if present. Tapping the image calls this instead of `onPress`. */
+  onImagePress?: () => void;
   /** Fixed card width — pass when rendered inside a horizontal carousel. */
   width?: number;
 }
 
 /** An announcement card, matching both the home-screen carousel and "الإعلانات والتبليغات" list. */
-export function AnnouncementCard({ announcement, onPress, width }: AnnouncementCardProps) {
+export function AnnouncementCard({ announcement, onPress, onImagePress, width }: AnnouncementCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
 
@@ -42,7 +44,11 @@ export function AnnouncementCard({ announcement, onPress, width }: AnnouncementC
         pressed && { opacity: 0.9 },
       ]}
     >
-      <View style={{ height: 140, backgroundColor: theme.colors.surfaceAccent }}>
+      <Pressable
+        disabled={!announcement.imageUrl || !onImagePress}
+        onPress={onImagePress}
+        style={{ height: 140, backgroundColor: theme.colors.surfaceAccent }}
+      >
         {announcement.imageUrl ? (
           <Image source={{ uri: announcement.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
         ) : (
@@ -57,7 +63,7 @@ export function AnnouncementCard({ announcement, onPress, width }: AnnouncementC
         <View style={{ position: 'absolute', top: theme.spacing.sm, insetInlineEnd: theme.spacing.sm }}>
           <SyndicateAnnouncementTypeBadge type={announcement.type} />
         </View>
-      </View>
+      </Pressable>
 
       <View style={{ padding: theme.spacing.md, rowGap: 4 }}>
         <Text variant="bodyStrong" numberOfLines={2}>

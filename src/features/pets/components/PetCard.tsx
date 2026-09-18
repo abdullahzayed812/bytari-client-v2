@@ -54,7 +54,7 @@ export function PetCard({ pet, onPress }: PetCardProps) {
         pressed && { opacity: 0.85 },
       ]}
     >
-      <PetImage uri={null} species={pet.species} size={60} />
+      <PetImage uri={pet.galleryUrls?.[0] ?? null} species={pet.species} size={60} />
 
       <View style={{ flex: 1, rowGap: 4 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>

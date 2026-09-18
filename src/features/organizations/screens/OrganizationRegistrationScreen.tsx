@@ -23,7 +23,11 @@ import { LocalImagePicker, RegistrationSectionHeader } from '../components';
 import { COUNTRIES_AR } from '../data/countries';
 import { devRegistrationDefaults } from '../data/devDefaults';
 import { useCreateOrganization } from '../hooks';
-import { uploadGalleryPhotos, uploadLicenseDocuments } from '../lib/registrationUploads';
+import {
+  uploadGalleryPhotos,
+  uploadLicenseDocuments,
+  uploadOrganizationLogo,
+} from '../lib/registrationUploads';
 import type { CreateOrganizationDetailsInput } from '../types';
 import {
   buildRegistrationSchema,
@@ -32,6 +36,7 @@ import {
 } from '../validation/schemas';
 
 const COUNTRY_OPTIONS = COUNTRIES_AR.map((c) => ({ label: c, value: c }));
+const LOGO_IMAGE_MAX = 1;
 const LICENSE_IMAGES_MAX = 3;
 const GALLERY_IMAGES_MAX = 5;
 
@@ -45,8 +50,8 @@ interface Props {
  * Shared "تسجيل العيادة" / "تسجيل المكتب" registration screen. The backend
  * requires admin/supervisor approval before either becomes ACTIVE (identical
  * lifecycle to Farms) — the full profile is captured here in one submission
- * (`details` on create), since the owner cannot `PATCH` while PENDING. Gallery
- * + license-document photos are picked locally first, then uploaded in a loop
+ * (`details` on create), since the owner cannot `PATCH` while PENDING. Logo +
+ * gallery + license-document photos are picked locally first, then uploaded
  * right after creation succeeds (`../lib/registrationUploads`).
  *
  * Field sets differ slightly per the reference screenshots: CLINIC shows
@@ -87,6 +92,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
   const imagesTitle = t(isClinic ? 'registration.clinic.imagesTitle' : 'registration.office.imagesTitle');
   const vetGated = isClinic && !vet.isApproved;
 
+  const [logoImage, setLogoImage] = useState<LocalFile[]>([]);
   const [licenseImages, setLicenseImages] = useState<LocalFile[]>([]);
   const [galleryImages, setGalleryImages] = useState<LocalFile[]>([]);
   const [licenseImagesError, setLicenseImagesError] = useState<string | null>(null);
@@ -154,19 +160,25 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
       },
       {
         onSuccess: async (org) => {
-          try {
-            await uploadLicenseDocuments(org.id, licenseImages);
-            if (galleryImages.length > 0) {
-              await uploadGalleryPhotos(org.id, galleryImages);
-            }
-            toast.show({ tone: 'success', message: t('registration.success') });
-          } catch {
-            toast.show({ tone: 'warning', message: t('registration.uploadPartialError') });
-          }
+          // Each image group uploads independently — one group failing (e.g.
+          // a transient network error) must not block the others from being
+          // attempted, since they're unrelated uploads against an already-created org.
+          const results = await Promise.allSettled([
+            logoImage[0] ? uploadOrganizationLogo(org.id, logoImage[0]) : Promise.resolve(),
+            uploadLicenseDocuments(org.id, licenseImages),
+            galleryImages.length > 0 ? uploadGalleryPhotos(org.id, galleryImages) : Promise.resolve(),
+          ]);
+          const hasFailure = results.some((r) => r.status === 'rejected');
+          toast.show({
+            tone: hasFailure ? 'warning' : 'success',
+            message: hasFailure ? t('registration.uploadPartialError') : t('registration.success'),
+          });
           void refreshSession();
           setSubmitting(false);
           inFlight.current = false;
-          router.replace(Routes.organizationDetail(org.id));
+          router.replace(
+            isClinic ? Routes.organizationDetail(org.id) : Routes.vetOfficeDashboard(org.id),
+          );
         },
         onError: (error) => {
           setServerFields(fieldErrors(error));
@@ -235,6 +247,13 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
             multiline
             numberOfLines={3}
             serverError={serverFields.description}
+          />
+          <LocalImagePicker
+            label={t('registration.fields.logo')}
+            files={logoImage}
+            onChange={setLogoImage}
+            max={LOGO_IMAGE_MAX}
+            disabled={submitting}
           />
 
           <RegistrationSectionHeader icon="call-outline" title={t('registration.sections.contactInfo')} required />
@@ -348,7 +367,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
           />
           <LocalImagePicker
             label={t('registration.fields.licenseImages')}
-            hint={licenseImagesError ?? undefined}
+            error={licenseImagesError ?? undefined}
             files={licenseImages}
             onChange={(files) => {
               setLicenseImages(files);

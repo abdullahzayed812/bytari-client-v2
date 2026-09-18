@@ -11,3 +11,7 @@ export {
   type VeterinaryOfficeDashboardTab,
 } from './VeterinaryOfficeDashboardTabBar';
 export { VeterinaryOfficeProductManageCard } from './VeterinaryOfficeProductManageCard';
+export {
+  VeterinaryOfficeStatusCard,
+  type VeterinaryOfficeStatusCardProps,
+} from './VeterinaryOfficeStatusCard';

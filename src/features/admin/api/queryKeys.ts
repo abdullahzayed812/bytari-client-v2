@@ -2,6 +2,7 @@ import type {
   AdminAnimalsFilter,
   AdminListFarmsFilter,
   AuditListFilter,
+  OrganizationType,
   OrgListFilter,
   SupervisorListFilter,
   UserListFilter,
@@ -47,6 +48,9 @@ export const adminKeys = {
       [...adminKeys.organizations.details(), organizationId] as const,
     members: (organizationId: string) =>
       [...adminKeys.organizations.detail(organizationId), 'members'] as const,
+    pendingRenewalsAll: () => [...adminKeys.organizations.all, 'pending-renewals'] as const,
+    pendingRenewals: (organizationType?: OrganizationType) =>
+      [...adminKeys.organizations.pendingRenewalsAll(), organizationType ?? 'all'] as const,
   },
 
   farms: {

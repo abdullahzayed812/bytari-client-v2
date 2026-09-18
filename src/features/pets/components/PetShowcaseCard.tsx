@@ -121,7 +121,7 @@ export function PetShowcaseCard({ pet, width, onPress }: PetShowcaseCardProps) {
         </View>
       </View>
 
-      <PetImage uri={null} species={pet.species} size={92} rounded="lg" />
+      <PetImage uri={pet.galleryUrls?.[0] ?? null} species={pet.species} size={92} rounded="lg" />
     </Pressable>
   );
 }

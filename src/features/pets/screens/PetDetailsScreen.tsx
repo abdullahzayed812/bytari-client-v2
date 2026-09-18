@@ -92,7 +92,7 @@ export default function PetDetailsScreen() {
         <>
           <Section spacing="xl">
             <Row gap="lg" align="center">
-              <PetImage uri={null} species={pet.species} size={88} rounded="xl" />
+              <PetImage uri={pet.galleryUrls?.[0] ?? null} species={pet.species} size={88} rounded="xl" />
               <View style={{ flex: 1, rowGap: 4 }}>
                 <Heading level={2} numberOfLines={1}>
                   {pet.name}

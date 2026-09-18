@@ -4,4 +4,6 @@ export {
   useUpdateVeterinaryStoreProduct,
   useDeleteVeterinaryStoreProduct,
   useAdjustVeterinaryStoreStock,
+  useRemoveVeterinaryStoreProductImage,
 } from './useVeterinaryStoreProductMutations';
+export { useVeterinaryStoreProductImagePresignProvider } from './useVeterinaryStoreProductImagePresignProvider';

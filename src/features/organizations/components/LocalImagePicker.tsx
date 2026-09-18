@@ -13,6 +13,7 @@ import { useTheme } from '@/theme';
 export interface LocalImagePickerProps {
   label: string;
   hint?: string;
+  error?: string;
   files: LocalFile[];
   onChange: (files: LocalFile[]) => void;
   max: number;
@@ -31,6 +32,7 @@ const TILE_SIZE = 88;
 export function LocalImagePicker({
   label,
   hint,
+  error,
   files,
   onChange,
   max,
@@ -123,7 +125,7 @@ export function LocalImagePicker({
           </Pressable>
         ) : null}
       </View>
-      {hint ? <Caption>{hint}</Caption> : null}
+      {error ? <Caption color="danger">{error}</Caption> : hint ? <Caption>{hint}</Caption> : null}
     </View>
   );
 }

@@ -9,3 +9,4 @@ export {
   useUpdatePetStoreOrderStatus,
 } from './usePetStoreAdmin';
 export { usePetStoreProductImagePresignProvider } from './usePetStoreProductImagePresignProvider';
+export { usePetStoreCategoryImagePresignProvider } from './usePetStoreCategoryImagePresignProvider';
