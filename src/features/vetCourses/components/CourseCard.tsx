@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { Icon } from '@/components/content';
+import { Badge, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import type { PublicVetCourse } from '../types';
 import { formatCourseDateRange, formatCourseDuration } from '../utils';
 
-import { VetCoursePriceBadge, VetCourseTypeBadge } from './badges';
+import { VetCoursePriceBadge, VetCourseSeatsBadge, VetCourseTypeBadge } from './badges';
 
 function Row({ icon, children }: { icon: Parameters<typeof Icon>[0]['name']; children: string }) {
   return (
@@ -83,7 +83,14 @@ export function CourseCard({ course, onPress }: CourseCardProps) {
             columnGap: theme.spacing.sm,
           }}
         >
-          <VetCoursePriceBadge price={course.price} />
+          <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+            <VetCoursePriceBadge price={course.price} />
+            {course.isRegistered ? (
+              <Badge label={t('registrationState.REGISTERED')} tone="info" size="sm" />
+            ) : (
+              <VetCourseSeatsBadge capacity={course.capacity} remainingSeats={course.remainingSeats} />
+            )}
+          </View>
           <Button label={t('courses.viewDetails')} variant="primary" size="sm" onPress={onPress} />
         </View>
       </View>

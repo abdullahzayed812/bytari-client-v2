@@ -13,7 +13,7 @@ import { Routes } from '@/constants/routes';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { VetCourseLocationModeBadge, VetCourseTypeBadge } from '../components';
+import { VetCourseLocationModeBadge, VetCourseSeatsBadge, VetCourseTypeBadge } from '../components';
 import { useVetCourse } from '../hooks';
 import { formatCourseDateRange } from '../utils';
 
@@ -141,12 +141,15 @@ export default function VeterinaryCourseDetailsScreen() {
                     value={
                       course.capacity == null
                         ? t('details.seatsUnlimited')
-                        : t('details.seatsValue', {
+                        : `${t('details.seatsValue', {
                             total: course.capacity,
                             remaining: course.remainingSeats ?? 0,
-                          })
+                          })}\n${t('details.seatsRegistered', { count: course.registrationCount })}`
                     }
                   />
+                  <View style={{ alignSelf: 'flex-start' }}>
+                    <VetCourseSeatsBadge capacity={course.capacity} remainingSeats={course.remainingSeats} />
+                  </View>
                   <InfoRow
                     icon="pricetag-outline"
                     label={t('details.price')}
@@ -190,8 +193,16 @@ export default function VeterinaryCourseDetailsScreen() {
                 backgroundColor: theme.colors.background,
               }}
             >
+              {/* The server derives `registrationState` (and re-enforces it on submit). */}
               <Button
-                label={t('details.register')}
+                label={
+                  course.registrationState === 'OPEN'
+                    ? t('details.register')
+                    : t(`registrationState.${course.registrationState}`)
+                }
+                variant={course.registrationState === 'OPEN' ? 'primary' : 'outline'}
+                leftIcon={course.registrationState === 'REGISTERED' ? 'checkmark-circle' : undefined}
+                disabled={course.registrationState !== 'OPEN'}
                 fullWidth
                 onPress={() => router.push(Routes.vetCourseRegister(course.id))}
               />

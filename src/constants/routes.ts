@@ -12,6 +12,8 @@ export const Routes = {
   /** Mandatory email-verification step, between registration and `authRegisterSuccess`. `AuthRedirector` also routes here on its own whenever `status === 'pending-verification'`. */
   authVerifyEmail: '/(auth)/verify-email',
   authRegisterSuccess: '/(auth)/register-success',
+  /** The only screen a veterinarian-registered account sees until an admin approves it. `AuthRedirector` pins `status === 'pending-approval'` here. */
+  authVeterinarianPending: '/(auth)/veterinarian-pending',
 
   home: '/(app)/(tabs)',
   account: '/(app)/(tabs)/account',

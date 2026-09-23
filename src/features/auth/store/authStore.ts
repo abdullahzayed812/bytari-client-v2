@@ -55,10 +55,28 @@ interface AuthState {
   refreshSession: () => Promise<void>;
 }
 
-/** `authenticated` for an ACTIVE user, `pending-verification` for an unverified one. */
-function statusForUser(user: User): Extract<AuthStatus, 'authenticated' | 'pending-verification'> {
-  return user.status === 'PENDING_VERIFICATION' ? 'pending-verification' : 'authenticated';
+type SessionStatus = Extract<AuthStatus, 'authenticated' | 'pending-verification' | 'pending-approval'>;
+
+/**
+ * Maps the server's `accessState` onto the app lifecycle. The server enforces
+ * the same gate on every request — this only keeps the UI in step with it.
+ */
+function statusForSession(session: SessionSnapshot): SessionStatus {
+  switch (session.accessState) {
+    case 'EMAIL_VERIFICATION_REQUIRED':
+      return 'pending-verification';
+    case 'VETERINARIAN_APPROVAL_REQUIRED':
+      return 'pending-approval';
+    case 'FULL':
+      return 'authenticated';
+    default:
+      // Older backend without `accessState`.
+      return session.user.status === 'PENDING_VERIFICATION' ? 'pending-verification' : 'authenticated';
+  }
 }
+
+/** Session-holding states whose token can still expire / be revoked. */
+const SESSION_STATUSES: readonly AuthStatus[] = ['authenticated', 'pending-verification', 'pending-approval'];
 
 let initializePromise: Promise<void> | null = null;
 
@@ -98,7 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     await tokenStorage.saveTokens(result.tokens);
     set({ tokens: result.tokens, user: result.user });
     const session = await authApi.me();
-    set({ session, user: session.user, status: statusForUser(session.user) });
+    set({ session, user: session.user, status: statusForSession(session) });
   }
 
   async function teardown(): Promise<void> {
@@ -130,7 +148,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           });
           try {
             const session = await authApi.me();
-            set({ session, user: session.user, status: statusForUser(session.user) });
+            set({ session, user: session.user, status: statusForSession(session) });
           } catch (error) {
             // Access token likely expired — attempt exactly one refresh.
             if (isApiError(error) && error.isAuthError) {
@@ -138,7 +156,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
               await tokenStorage.saveTokens(tokens);
               set({ tokens });
               const session = await authApi.me();
-              set({ session, user: session.user, status: statusForUser(session.user) });
+              set({ session, user: session.user, status: statusForSession(session) });
             } else {
               throw error;
             }
@@ -193,11 +211,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
       await teardown();
     },
 
+    // Also re-evaluates the onboarding gate: a `pending-approval` session flips
+    // to `authenticated` the moment an admin approves (AuthRedirector follows).
     refreshSession: async () => {
-      if (get().status !== 'authenticated') return;
+      const current = get().status;
+      if (current !== 'authenticated' && current !== 'pending-approval') return;
       try {
         const session = await authApi.me();
-        set({ session, user: session.user });
+        set({ session, user: session.user, status: statusForSession(session) });
       } catch (error) {
         if (isApiError(error) && error.isAuthError) await teardown();
       }
@@ -232,7 +253,7 @@ configureApiAuth({
     // Includes `pending-verification`: that token IS real (just scoped — see
     // `AuthResult`'s doc comment), so it can still genuinely expire/get
     // revoked, and a dead session must not be left sitting in state forever.
-    if (status === 'bootstrapping' || status === 'authenticated' || status === 'pending-verification') {
+    if (status === 'bootstrapping' || SESSION_STATUSES.includes(status)) {
       log.info('session expired — forcing sign-out');
       void tokenStorage.clearTokens();
       useAuthStore.setState({
@@ -250,5 +271,7 @@ export const selectIsAuthenticated = (s: AuthState): boolean => s.status === 'au
 export const selectIsBootstrapping = (s: AuthState): boolean => s.status === 'bootstrapping';
 export const selectRequiresEmailVerification = (s: AuthState): boolean =>
   s.status === 'pending-verification';
+export const selectRequiresVeterinarianApproval = (s: AuthState): boolean =>
+  s.status === 'pending-approval';
 export const selectSession = (s: AuthState): SessionSnapshot | null => s.session;
 export type { AuthState };

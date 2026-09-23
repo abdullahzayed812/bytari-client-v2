@@ -17,6 +17,19 @@ export type UserStatus = 'ACTIVE' | 'PENDING_VERIFICATION' | 'SUSPENDED' | 'DEAC
 /** Backend `veterinarian_status` — `NOT_APPLIED` is the "never applied" state. */
 export type VeterinarianStatus = 'NOT_APPLIED' | 'PENDING' | 'APPROVED' | 'REJECTED';
 
+/**
+ * Which self-registration path created the account. `VETERINARIAN` signups skip
+ * email verification but are gated by admin approval instead.
+ */
+export type RegistrationType = 'PET_OWNER' | 'VETERINARIAN';
+
+/**
+ * Backend `accessStateFor(user)` — the server-enforced onboarding gate.
+ * Anything but `FULL` may only use the onboarding allowlist (`/auth/me`,
+ * logout, avatar, veterinarian documents/apply/status).
+ */
+export type AccessState = 'FULL' | 'EMAIL_VERIFICATION_REQUIRED' | 'VETERINARIAN_APPROVAL_REQUIRED';
+
 /** Backend `trader_status` (Poultry Markets module) — per-USER, no role component. */
 export type TraderStatus = 'NOT_REGISTERED' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 
@@ -52,6 +65,8 @@ export interface User {
   status: UserStatus;
   veterinarianStatus: VeterinarianStatus;
   traderStatus: TraderStatus;
+  /** Absent on responses from a pre-`registration_type` backend — treat as `PET_OWNER`. */
+  registrationType?: RegistrationType;
   createdAt: string;
   updatedAt: string;
 }
@@ -79,6 +94,8 @@ export interface RegisterInput {
   gender?: Gender;
   /** Optional — 2-letter ISO-3166 alpha-2, uppercase. */
   country?: string;
+  /** `PET_OWNER` (default) → email verification; `VETERINARIAN` → admin approval, no email code. */
+  accountType?: RegistrationType;
 }
 
 export interface LoginInput {
@@ -104,7 +121,8 @@ export interface AuthResult {
 }
 
 export interface RegisterResult extends AuthResult {
-  codeExpiresInSeconds: number;
+  /** `null` for a VETERINARIAN registration — no code is emailed. */
+  codeExpiresInSeconds: number | null;
 }
 
 /** `POST /auth/resend-verification` (200) — always this shape, even for an unknown/already-verified email (anti-enumeration). */
@@ -133,6 +151,8 @@ export interface LogoutAllResult {
  */
 export interface SessionSnapshot {
   user: User;
+  /** Server-computed onboarding gate. Absent on an older backend — derive from `user.status`. */
+  accessState?: AccessState;
   roles: RoleKey[];
   permissions: string[];
   isAdmin: boolean;
@@ -164,4 +184,11 @@ export type AuthStatus =
   | 'bootstrapping'
   | 'authenticated'
   | 'pending-verification'
+  /**
+   * A VETERINARIAN-registered account whose application is not APPROVED yet
+   * (not submitted / PENDING / REJECTED). The session is valid, but the server
+   * refuses every non-allowlisted call (403 `VETERINARIAN_ACCOUNT_PENDING_APPROVAL`);
+   * `AuthRedirector` confines the UI to the pending-approval screen.
+   */
+  | 'pending-approval'
   | 'unauthenticated';

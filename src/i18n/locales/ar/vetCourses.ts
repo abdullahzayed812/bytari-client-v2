@@ -40,6 +40,19 @@ export default {
     notFound: 'الدورة غير متاحة',
   },
 
+  seats: {
+    available: '{{count}} مقاعد متاحة',
+    full: 'مكتملة - لا توجد مقاعد متاحة',
+    unlimited: 'مقاعد غير محدودة',
+  },
+
+  registrationState: {
+    OPEN: 'التسجيل',
+    REGISTERED: 'مسجّل',
+    FULL: 'مكتملة',
+    CLOSED: 'التسجيل مغلق',
+  },
+
   details: {
     screenTitle: 'تفاصيل الدورة',
     titleByType: {
@@ -57,6 +70,7 @@ export default {
     seats: 'عدد المقاعد',
     seatsValue: '{{total}} مقعد (المتبقي {{remaining}} مقعد)',
     seatsUnlimited: 'غير محدود',
+    seatsRegistered: 'عدد المسجلين: {{count}}',
     price: 'السعر',
     priceFree: 'مجانية',
     priceValue: '{{amount}} د.ع',

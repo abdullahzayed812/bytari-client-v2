@@ -4,14 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
-import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { Card } from '@/components/content';
+import { ConfirmationDialog, Loading, Skeleton, useToast } from '@/components/feedback';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
-import { Label } from '@/components/typography';
+import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import {
   useAdminApproveVetCourse,
   useAdminCancelVetCourse,
   useAdminRejectVetCourse,
+  useAdminVetCourseRegistrations,
   useAdminVetCourses,
 } from '@/features/vetCourses';
 import type { VetCourse, VetCourseModerationStatus, VetCourseType } from '@/features/vetCourses';
@@ -43,6 +45,9 @@ type DetailKey =
   | 'capacity'
   | 'price'
   | 'registrationCount'
+  | 'remainingSeats'
+  | 'unlimited'
+  | 'full'
   | 'description'
   | 'rejectionReason'
   | 'submittedAt';
@@ -93,6 +98,7 @@ export default function AdminVetCoursesScreen() {
   const [cancelling, setCancelling] = useState<VetCourse | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<VetCourse | null>(null);
+  const [registrantsOf, setRegistrantsOf] = useState<VetCourse | null>(null);
 
   const dt = (key: DetailKey) => t(`vetCourses.details.${key}`);
   const detailFields = (c: VetCourse) => [
@@ -108,6 +114,15 @@ export default function AdminVetCoursesScreen() {
     { label: dt('capacity'), value: c.capacity?.toString() ?? null },
     { label: dt('price'), value: c.price },
     { label: dt('registrationCount'), value: c.registrationCount?.toString() ?? '0' },
+    {
+      label: dt('remainingSeats'),
+      value:
+        c.capacity == null
+          ? dt('unlimited')
+          : (c.remainingSeats ?? 0) > 0
+            ? String(c.remainingSeats)
+            : `0 · ${dt('full')}`,
+    },
     { label: dt('description'), value: c.description },
     { label: dt('rejectionReason'), value: c.rejectionReason },
     { label: dt('submittedAt'), value: formatDate(c.createdAt) },
@@ -187,7 +202,13 @@ export default function AdminVetCoursesScreen() {
           <AdminRow
             title={c.title}
             subtitle={`${c.organizingBody} · ${tv(`type.${c.type}`)}`}
-            meta={`${t('vetCourses.submittedAt')}: ${formatDate(c.createdAt)}`}
+            meta={
+              c.status === 'APPROVED'
+                ? c.capacity != null
+                  ? t('vetCourses.seatsMeta', { registered: c.registrationCount ?? 0, capacity: c.capacity })
+                  : t('vetCourses.seatsMetaUnlimited', { registered: c.registrationCount ?? 0 })
+                : `${t('vetCourses.submittedAt')}: ${formatDate(c.createdAt)}`
+            }
             image={{
               uri: c.coverImageUrl ?? null,
               fallbackIcon: 'school-outline',
@@ -287,6 +308,18 @@ export default function AdminVetCoursesScreen() {
               if (c) router.push(Routes.vetCourseEdit(c.id));
             }}
           />
+          {detail?.status === 'APPROVED' ? (
+            <Button
+              label={t('vetCourses.registrations.open')}
+              variant="outline"
+              leftIcon="people-outline"
+              onPress={() => {
+                const c = detail;
+                setDetail(null);
+                setRegistrantsOf(c);
+              }}
+            />
+          ) : null}
         </View>
 
         {detail?.status === 'PENDING' ? (
@@ -325,6 +358,8 @@ export default function AdminVetCoursesScreen() {
         ) : null}
       </AdminDetailModal>
 
+      <RegistrantsModal course={registrantsOf} onClose={() => setRegistrantsOf(null)} />
+
       <ImageViewer
         visible={viewer !== null}
         images={viewer?.images ?? []}
@@ -332,5 +367,64 @@ export default function AdminVetCoursesScreen() {
         onClose={() => setViewer(null)}
       />
     </>
+  );
+}
+
+/**
+ * Read-only registrant list for one course/seminar
+ * (`GET /admin/vet-courses/:id/registrations`, `vet_course.read`), with the
+ * capacity / registered / available summary on top.
+ */
+function RegistrantsModal({ course, onClose }: { course: VetCourse | null; onClose: () => void }) {
+  const { t } = useTranslation('admin');
+  const q = useAdminVetCourseRegistrations(course?.id);
+  const registered = q.data ? q.total : (course?.registrationCount ?? 0);
+  const capacity = course?.capacity;
+
+  return (
+    <AdminDetailModal
+      visible={course != null}
+      onClose={onClose}
+      title={course ? `${t('vetCourses.registrations.title')} · ${course.title}` : ''}
+      fields={[]}
+    >
+      <Text variant="bodyStrong">
+        {capacity != null
+          ? t('vetCourses.registrations.summary', {
+              registered,
+              remaining: Math.max(0, capacity - registered),
+              capacity,
+            })
+          : t('vetCourses.seatsMetaUnlimited', { registered })}
+      </Text>
+      {q.isLoading ? (
+        <Loading />
+      ) : q.registrations.length === 0 ? (
+        <Caption color="textMuted">{t('vetCourses.registrations.empty')}</Caption>
+      ) : (
+        q.registrations.map((r) => (
+          <Card key={r.id} variant="outlined" padding="sm">
+            <View style={{ rowGap: 2 }}>
+              <Text variant="bodyStrong">{r.fullName}</Text>
+              <Caption color="textSecondary">
+                {[r.phone, r.email, r.governorate, r.specialty].filter(Boolean).join(' · ')}
+              </Caption>
+              {r.notes ? <Caption color="textMuted">{r.notes}</Caption> : null}
+              <Caption color="textMuted">
+                {`${t('vetCourses.registrations.registeredAt')}: ${formatDate(r.createdAt)}`}
+              </Caption>
+            </View>
+          </Card>
+        ))
+      )}
+      {q.hasNextPage ? (
+        <Button
+          label={t('vetCourses.registrations.loadMore')}
+          variant="ghost"
+          loading={q.isFetchingNextPage}
+          onPress={() => void q.fetchNextPage()}
+        />
+      ) : null}
+    </AdminDetailModal>
   );
 }

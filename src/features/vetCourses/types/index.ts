@@ -54,9 +54,17 @@ export interface VetCourse {
   rejectionReason: string | null;
   cancelledAt: string | null;
   registrationCount?: number;
+  /** `capacity - registrationCount`; null = unlimited. */
+  remainingSeats?: number | null;
   createdAt: string;
   updatedAt: string;
 }
+
+/**
+ * The caller's registration state, computed server-side: REGISTERED wins,
+ * then FULL (no seats left), then CLOSED (past the registration cutoff).
+ */
+export type VetCourseRegistrationState = 'OPEN' | 'REGISTERED' | 'FULL' | 'CLOSED';
 
 export interface PublicVetCourse {
   id: string;
@@ -74,7 +82,10 @@ export interface PublicVetCourse {
   locationMode: VetCourseLocationMode;
   locationDetails: string;
   capacity: number | null;
+  registrationCount: number;
   remainingSeats: number | null;
+  isRegistered: boolean;
+  registrationState: VetCourseRegistrationState;
   price: string | null;
   registrationDeadline: string | null;
   topics: string[];

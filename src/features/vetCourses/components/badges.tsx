@@ -55,3 +55,24 @@ export function MyVetCourseStatusBadge({
   const { t } = useTranslation('vetCourses');
   return <Badge label={t(`myCourses.status.${status}`)} tone={MY_COURSE_STATUS_TONE[status]} size={size} />;
 }
+
+/**
+ * "8 مقاعد متاحة" / "مكتملة" / "غير محدود" — driven by the server-computed
+ * `remainingSeats` (null = unlimited capacity).
+ */
+export function VetCourseSeatsBadge({
+  capacity,
+  remainingSeats,
+  size = 'sm',
+}: {
+  capacity: number | null;
+  remainingSeats: number | null;
+  size?: 'sm' | 'md';
+}) {
+  const { t } = useTranslation('vetCourses');
+  if (capacity == null || remainingSeats == null) {
+    return <Badge label={t('seats.unlimited')} tone="neutral" size={size} />;
+  }
+  if (remainingSeats <= 0) return <Badge label={t('seats.full')} tone="danger" size={size} />;
+  return <Badge label={t('seats.available', { count: remainingSeats })} tone="success" size={size} />;
+}

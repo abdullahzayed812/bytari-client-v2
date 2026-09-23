@@ -14,6 +14,7 @@ export default {
   invalidCredentials: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
   accountInactive: 'هذا الحساب موقوف أو معطّل. تواصل مع الدعم.',
   emailVerificationRequired: 'يجب تفعيل بريدك الإلكتروني أولاً.',
+  veterinarianPendingApproval: 'حسابك كطبيب بيطري بانتظار موافقة الإدارة.',
   invalidVerificationCode: 'الرمز الذي أدخلته غير صحيح.',
   verificationCodeExpired: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.',
   tooManyVerificationAttempts: 'محاولات كثيرة جداً. اطلب رمزاً جديداً وحاول مرة أخرى.',

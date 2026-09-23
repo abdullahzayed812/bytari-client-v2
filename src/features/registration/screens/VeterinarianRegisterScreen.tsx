@@ -147,12 +147,10 @@ export default function VeterinarianRegisterScreen() {
       { note: undefined, subType: values.subType, documents },
       {
         onSuccess: () => {
-          // Email is still unverified — `RegistrationSuccessScreen` comes
-          // AFTER the verify-email step, not before it.
-          router.replace({
-            pathname: Routes.authVerifyEmail,
-            params: { outcome: 'veterinarian-pending' },
-          });
+          // Veterinarians skip email verification — the account is gated by
+          // admin approval instead, so the next (and only) stop is the
+          // pending-approval screen until an admin approves.
+          router.replace(Routes.authVeterinarianPending);
         },
         onError: (error) => {
           setStage('apply-error');
@@ -175,6 +173,8 @@ export default function VeterinarianRegisterScreen() {
         phone: phone ? phone : null,
         gender: values.gender,
         country: values.country,
+        // No email verification for veterinarians — admin approval gates the account instead.
+        accountType: 'VETERINARIAN',
       },
       {
         onSuccess: async () => {

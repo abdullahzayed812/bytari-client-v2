@@ -17,6 +17,7 @@ import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { IRAQ_GOVERNORATES } from '@/features/vetServices';
 import { apiErrorMessage } from '@/lib/apiError';
+import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 
 import { VetCourseTypeBadge } from '../components';
@@ -42,6 +43,13 @@ const EMPTY: FormValues = {
   specialty: 'طب عام',
   notes: '',
 };
+
+/** Registration-specific 409s get their own message instead of the generic "conflict". */
+const REGISTRATION_ERROR_KEYS = {
+  VET_COURSE_CAPACITY_FULL: 'details.capacityFull',
+  VET_COURSE_ALREADY_REGISTERED: 'details.alreadyRegistered',
+  VET_COURSE_NOT_OPEN: 'details.notOpen',
+} as const;
 
 /** Route `/(app)/vet-courses/[courseId]/register` — "التسجيل في الدورة" (reference screenshot 3). */
 export default function VeterinaryCourseRegistrationScreen() {
@@ -86,7 +94,15 @@ export default function VeterinaryCourseRegistrationScreen() {
         toast.show({ message: t('registration.success'), tone: 'success' });
         router.replace(Routes.vetCourseMy);
       },
-      onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      onError: (e) => {
+        const key =
+          e instanceof ApiError
+            ? REGISTRATION_ERROR_KEYS[e.code as keyof typeof REGISTRATION_ERROR_KEYS]
+            : undefined;
+        toast.show({ message: key ? t(key) : apiErrorMessage(e), tone: 'danger' });
+        // Seats / registration state changed under us — refresh the course.
+        if (key) void q.refetch();
+      },
     });
   };
 
@@ -103,6 +119,22 @@ export default function VeterinaryCourseRegistrationScreen() {
       <SafeAreaScreen>
         <AppHeader title={t('registration.title')} showBack />
         <EmptyState icon="school-outline" title={t('courses.notFound')} />
+      </SafeAreaScreen>
+    );
+  }
+  // Reached via a stale link / back-stack after the course filled up or the caller registered.
+  // (Skipped once our own submit succeeded — the refetch flips us to REGISTERED just before we navigate away.)
+  if (course.registrationState !== 'OPEN' && !register.isSuccess) {
+    const message =
+      course.registrationState === 'REGISTERED'
+        ? t('details.alreadyRegistered')
+        : course.registrationState === 'FULL'
+          ? t('details.capacityFull')
+          : t('details.notOpen');
+    return (
+      <SafeAreaScreen>
+        <AppHeader title={t('registration.title')} showBack />
+        <EmptyState icon="school-outline" title={t(`registrationState.${course.registrationState}`)} message={message} />
       </SafeAreaScreen>
     );
   }

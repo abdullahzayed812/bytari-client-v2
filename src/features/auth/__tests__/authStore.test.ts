@@ -176,4 +176,49 @@ describe('auth store — session lifecycle', () => {
     expect(useAuthStore.getState().session?.isAdmin).toBe(true);
     expect(useAuthStore.getState().tokens?.accessToken).toBe('a1');
   });
+
+  it('register as VETERINARIAN → "pending-approval" (no email-verification step)', async () => {
+    const vetUser: User = { ...snapshot.user, status: 'ACTIVE', veterinarianStatus: 'NOT_APPLIED', registrationType: 'VETERINARIAN' };
+    register.mockResolvedValueOnce({ user: vetUser, tokens: authResult.tokens, codeExpiresInSeconds: null });
+    me.mockResolvedValueOnce({
+      ...snapshot,
+      user: vetUser,
+      accessState: 'VETERINARIAN_APPROVAL_REQUIRED',
+      veterinarian: { status: 'NOT_APPLIED', approved: false },
+    });
+    await useAuthStore.getState().register({
+      email: 'v@x.c', password: 'p', firstName: 'a', lastName: 'b', accountType: 'VETERINARIAN',
+    });
+    expect(register).toHaveBeenCalledWith(expect.objectContaining({ accountType: 'VETERINARIAN' }));
+    expect(useAuthStore.getState().status).toBe('pending-approval');
+  });
+
+  it('login + app restart for a pending vet stay "pending-approval"', async () => {
+    const gated = { ...snapshot, accessState: 'VETERINARIAN_APPROVAL_REQUIRED' as const };
+    me.mockResolvedValue(gated);
+    await useAuthStore.getState().login({ email: 'a', password: 'b' });
+    expect(useAuthStore.getState().status).toBe('pending-approval');
+
+    useAuthStore.setState({ status: 'bootstrapping', user: null, session: null, tokens: null });
+    await useAuthStore.getState().initialize();
+    expect(useAuthStore.getState().status).toBe('pending-approval');
+  });
+
+  it('refreshSession → a pending vet flips to "authenticated" once the admin approves', async () => {
+    me.mockResolvedValueOnce({ ...snapshot, accessState: 'VETERINARIAN_APPROVAL_REQUIRED' });
+    await useAuthStore.getState().login({ email: 'a', password: 'b' });
+    expect(useAuthStore.getState().status).toBe('pending-approval');
+
+    me.mockResolvedValueOnce({ ...snapshot, accessState: 'FULL' });
+    await useAuthStore.getState().refreshSession();
+    expect(useAuthStore.getState().status).toBe('authenticated');
+  });
+
+  it('a pending-approval session is torn down on logout like any other', async () => {
+    me.mockResolvedValueOnce({ ...snapshot, accessState: 'VETERINARIAN_APPROVAL_REQUIRED' });
+    await useAuthStore.getState().login({ email: 'a', password: 'b' });
+    await useAuthStore.getState().logout();
+    expect(logout).toHaveBeenCalled();
+    expect(useAuthStore.getState().status).toBe('unauthenticated');
+  });
 });

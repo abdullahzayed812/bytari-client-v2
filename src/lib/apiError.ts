@@ -27,6 +27,8 @@ export function apiErrorMessage(error: unknown): string {
       return t('sessionExpired');
     case ApiErrorCode.ACCOUNT_INACTIVE:
       return t('accountInactive');
+    case ApiErrorCode.VETERINARIAN_ACCOUNT_PENDING_APPROVAL:
+      return t('veterinarianPendingApproval');
     case ApiErrorCode.FORBIDDEN:
     case ApiErrorCode.PERMISSION_DENIED:
       return t('forbidden');

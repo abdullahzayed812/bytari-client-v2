@@ -25,6 +25,12 @@ export interface UseAuth {
    * perform their own redirect.
    */
   requiresEmailVerification: boolean;
+  /**
+   * `status === 'pending-approval'` — a veterinarian-registered account whose
+   * application is not approved yet. `AuthRedirector` confines the UI to the
+   * pending-approval screen; the server refuses every other API on its own.
+   */
+  requiresVeterinarianApproval: boolean;
   /** App-start session restore in progress — gate the UI on this (§8). */
   isBootstrapping: boolean;
   /** Alias of `isBootstrapping` for call sites that think in "loading". */
@@ -60,6 +66,7 @@ export function useAuth(): UseAuth {
       session,
       isAuthenticated: status === 'authenticated',
       requiresEmailVerification: status === 'pending-verification',
+      requiresVeterinarianApproval: status === 'pending-approval',
       isBootstrapping,
       isLoading: isBootstrapping,
       initialize,
