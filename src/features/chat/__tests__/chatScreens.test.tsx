@@ -89,6 +89,7 @@ beforeEach(() => {
     firstName: 'سارة',
     lastName: 'ن',
     veterinarianStatus: 'APPROVED',
+    avatarUrl: null,
   });
 });
 afterEach(() => jest.restoreAllMocks());

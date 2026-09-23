@@ -1,16 +1,20 @@
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Button } from '@/components/actions';
+import { Button, IconButton } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
+import { Label } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import {
   useAdminApproveVetCourse,
   useAdminCancelVetCourse,
   useAdminRejectVetCourse,
   useAdminVetCourses,
 } from '@/features/vetCourses';
-import type { VetCourse, VetCourseModerationStatus } from '@/features/vetCourses';
+import type { VetCourse, VetCourseModerationStatus, VetCourseType } from '@/features/vetCourses';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -45,17 +49,41 @@ type DetailKey =
 
 /**
  * `/admin/vet-courses` — the Veterinarian Courses & Seminars moderation
- * queue. Approve / reject / cancel are backend-authorised (`vet_course.approve`
- * / `vet_course.reject`; ADMIN or VET_COURSES supervisor).
+ * queue. Reached from TWO separate dashboard cards ("Courses" / "Seminars"),
+ * each passing a `?type=COURSE`/`?type=SEMINAR` route param — `AdminVetCoursesScreen`
+ * always scopes its list (and its "add" button) to that one `type`, so the
+ * two entities never mix in the same screen. No `type` param (a stale deep
+ * link) falls back to the original mixed moderation-queue view.
+ *
+ * Approve / reject / cancel are backend-authorised (`vet_course.approve` /
+ * `vet_course.reject`; ADMIN or VET_COURSES supervisor). Create / edit reuse
+ * the SAME `/vet-courses` self-service endpoints a veterinarian uses
+ * (`CreateVeterinaryCourseScreen`) — the backend now also accepts ADMIN there
+ * (see `VetCourseService.create`/`.update`) rather than this screen talking
+ * to a second, parallel admin-only API.
  */
 export default function AdminVetCoursesScreen() {
   const { t } = useTranslation('admin');
   const { t: tv } = useTranslation('vetCourses');
   const theme = useTheme();
   const toast = useToast();
+  const { type } = useLocalSearchParams<{ type?: VetCourseType }>();
 
   const [status, setStatus] = useState<VetCourseModerationStatus | undefined>('PENDING');
-  const q = useAdminVetCourses({ status });
+  const q = useAdminVetCourses({ status, type });
+
+  const title =
+    type === 'COURSE'
+      ? t('vetCourses.titleCourses')
+      : type === 'SEMINAR'
+        ? t('vetCourses.titleSeminars')
+        : t('vetCourses.title');
+  const addLabel = type === 'SEMINAR' ? t('vetCourses.addSeminar') : t('vetCourses.addCourse');
+  const goCreate = () =>
+    router.push({
+      pathname: Routes.vetCourseNew,
+      params: { origin: 'admin', ...(type ? { type } : {}) },
+    });
   const approve = useAdminApproveVetCourse();
   const reject = useAdminRejectVetCourse();
   const cancel = useAdminCancelVetCourse();
@@ -63,6 +91,7 @@ export default function AdminVetCoursesScreen() {
   const [approving, setApproving] = useState<VetCourse | null>(null);
   const [rejecting, setRejecting] = useState<VetCourse | null>(null);
   const [cancelling, setCancelling] = useState<VetCourse | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<VetCourse | null>(null);
 
   const dt = (key: DetailKey) => t(`vetCourses.details.${key}`);
@@ -127,7 +156,10 @@ export default function AdminVetCoursesScreen() {
   return (
     <>
       <AdminListScreen<VetCourse>
-        title={t('vetCourses.title')}
+        title={title}
+        right={
+          <IconButton icon="add" variant="soft" accessibilityLabel={addLabel} onPress={goCreate} />
+        }
         query={q}
         data={q.courses}
         keyExtractor={(c) => c.id}
@@ -156,17 +188,31 @@ export default function AdminVetCoursesScreen() {
             title={c.title}
             subtitle={`${c.organizingBody} · ${tv(`type.${c.type}`)}`}
             meta={`${t('vetCourses.submittedAt')}: ${formatDate(c.createdAt)}`}
+            image={{
+              uri: c.coverImageUrl ?? null,
+              fallbackIcon: 'school-outline',
+              onPress: c.coverImageUrl
+                ? () => setViewer({ images: [c.coverImageUrl as string], index: 0 })
+                : undefined,
+            }}
             onPress={() => setDetail(c)}
             badge={{ label: t(`vetCourses.status.${c.status}`), tone: STATUS_TONE[c.status] }}
             actions={
-              c.status === 'PENDING' ? (
-                <>
-                  <Button label={t('vetCourses.approve')} variant="primary" onPress={() => setApproving(c)} />
-                  <Button label={t('vetCourses.reject')} variant="danger" onPress={() => setRejecting(c)} />
-                </>
-              ) : c.status === 'APPROVED' && !c.cancelledAt ? (
-                <Button label={t('vetCourses.cancel')} variant="danger" onPress={() => setCancelling(c)} />
-              ) : undefined
+              <>
+                <Button
+                  label={t('vetCourses.edit')}
+                  variant="outline"
+                  onPress={() => router.push(Routes.vetCourseEdit(c.id))}
+                />
+                {c.status === 'PENDING' ? (
+                  <>
+                    <Button label={t('vetCourses.approve')} variant="primary" onPress={() => setApproving(c)} />
+                    <Button label={t('vetCourses.reject')} variant="danger" onPress={() => setRejecting(c)} />
+                  </>
+                ) : c.status === 'APPROVED' && !c.cancelledAt ? (
+                  <Button label={t('vetCourses.cancel')} variant="danger" onPress={() => setCancelling(c)} />
+                ) : null}
+              </>
             }
           />
         )}
@@ -216,6 +262,33 @@ export default function AdminVetCoursesScreen() {
         title={detail ? detail.title : t('vetCourses.details.title')}
         fields={detail ? detailFields(detail) : []}
       >
+        <View style={{ rowGap: theme.spacing.xs, marginTop: theme.spacing.sm }}>
+          <Label>{t('vetCourses.details.cover')}</Label>
+          <ImageThumbnailRow
+            images={detail?.coverImageUrl ? [detail.coverImageUrl] : []}
+            size={96}
+            fallbackIcon="school-outline"
+            emptyLabel={t('vetCourses.details.noCover')}
+            onPress={() =>
+              detail?.coverImageUrl
+                ? setViewer({ images: [detail.coverImageUrl], index: 0 })
+                : undefined
+            }
+          />
+        </View>
+
+        <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+          <Button
+            label={t('vetCourses.edit')}
+            variant="outline"
+            onPress={() => {
+              const c = detail;
+              setDetail(null);
+              if (c) router.push(Routes.vetCourseEdit(c.id));
+            }}
+          />
+        </View>
+
         {detail?.status === 'PENDING' ? (
           <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
             <Button
@@ -251,6 +324,13 @@ export default function AdminVetCoursesScreen() {
           </View>
         ) : null}
       </AdminDetailModal>
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </>
   );
 }

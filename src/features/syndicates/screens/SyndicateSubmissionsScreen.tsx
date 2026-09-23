@@ -9,6 +9,7 @@ import { Card, Chip, Icon } from '@/components/content';
 import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
 import { Caption, Text } from '@/components/typography';
@@ -34,6 +35,7 @@ export default function SyndicateSubmissionsScreen() {
   const q = useSyndicateSubmissions(organizationId, { kind });
   const [responding, setResponding] = useState<SyndicateSubmission | null>(null);
   const [closing, setClosing] = useState<SyndicateSubmission | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
 
   return (
     <SafeAreaScreen>
@@ -70,6 +72,16 @@ export default function SyndicateSubmissionsScreen() {
               <Text variant="body" numberOfLines={4}>
                 {item.message}
               </Text>
+              {item.attachmentUrls.length > 0 ? (
+                <View style={{ rowGap: theme.spacing.xs }}>
+                  <Caption color="textMuted">{t('management.attachmentsLabel')}</Caption>
+                  <ImageThumbnailRow
+                    images={item.attachmentUrls}
+                    size={64}
+                    onPress={(index) => setViewer({ images: item.attachmentUrls, index })}
+                  />
+                </View>
+              ) : null}
               {item.responseText ? (
                 <View style={{ rowGap: 2 }}>
                   <Caption color="textMuted">{t('mySubmissions.responseLabel')}</Caption>
@@ -97,6 +109,13 @@ export default function SyndicateSubmissionsScreen() {
       <RespondDialog organizationId={organizationId} submission={responding} onClose={() => setResponding(null)} />
 
       <CloseConfirmDialog organizationId={organizationId} submission={closing} onClose={() => setClosing(null)} />
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </SafeAreaScreen>
   );
 }

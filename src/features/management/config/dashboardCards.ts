@@ -90,7 +90,14 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     id: 'courses',
     icon: 'school-outline',
     tint: dashboardTint(3),
-    route: Routes.adminVetCourses,
+    route: { pathname: Routes.adminVetCourses, params: { type: 'COURSE' } },
+    show: (c) => c.isAdmin || c.isSupervisorOf('VET_COURSES') || c.can('vet_course.read'),
+  },
+  {
+    id: 'seminars',
+    icon: 'easel-outline',
+    tint: dashboardTint(6),
+    route: { pathname: Routes.adminVetCourses, params: { type: 'SEMINAR' } },
     show: (c) => c.isAdmin || c.isSupervisorOf('VET_COURSES') || c.can('vet_course.read'),
   },
   {

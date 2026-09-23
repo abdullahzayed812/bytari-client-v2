@@ -47,6 +47,12 @@ export interface AdminUser {
   firstName: string;
   lastName: string;
   phone: string | null;
+  /**
+   * The account's profile photo, resolved server-side from `users.avatar_key`
+   * (public CDN URL or a short-lived signed R2 GET). `null` when the user never
+   * uploaded one — the raw storage key is never sent.
+   */
+  avatarUrl: string | null;
   status: UserStatus;
   veterinarianStatus: VeterinarianStatus;
   createdAt: string;
@@ -77,10 +83,35 @@ export interface UserRolesResult {
 
 // --- veterinarian applications -------------------------------------
 
+export const VET_APPLICATION_DOCUMENT_KINDS = [
+  'LICENSE_OR_ID',
+  'ADDITIONAL_ID',
+  'STUDENT_ID_FRONT',
+  'STUDENT_ID_BACK',
+] as const;
+export type VetApplicationDocumentKind = (typeof VET_APPLICATION_DOCUMENT_KINDS)[number];
+
+/**
+ * One identity / licence document attached to a veterinarian application.
+ * `downloadUrl` is a SHORT-LIVED signed R2 GET URL minted per request by the
+ * backend and returned ONLY on the admin projection (`GET
+ * /admin/veterinarians/pending`, gated by `veterinarian.read`). The raw storage
+ * key is never sent. `mimeType` is `image/*` or `application/pdf`.
+ */
+export interface VetApplicationDocument {
+  kind: VetApplicationDocumentKind;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+  downloadUrl: string;
+}
+
 export interface PendingVetApplication {
   id: string;
   userId: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  subType: 'VETERINARIAN' | 'STUDENT';
   note: string | null;
   decidedBy: string | null;
   decidedAt: string | null;
@@ -88,6 +119,8 @@ export interface PendingVetApplication {
   createdAt: string;
   updatedAt: string;
   user: { id: string; email: string; firstName: string; lastName: string };
+  /** Restricted — see {@link VetApplicationDocument}. Empty for legacy rows. */
+  documents: VetApplicationDocument[];
 }
 
 // --- organizations (admin surface) --------------------------------
@@ -197,6 +230,11 @@ export interface AdminFarmListItem {
   supervisors: { userId: string; name: string }[];
   /** `POULTRY` | `SHEEP` | `CATTLE` | `MIXED` | `null` (legacy farms). */
   farmSpecies?: 'POULTRY' | 'SHEEP' | 'CATTLE' | 'MIXED' | null;
+  /**
+   * The farm's photo (`farm_details.image_key`) resolved server-side; `null`
+   * when the owner never uploaded one. The raw storage key is never sent.
+   */
+  imageUrl?: string | null;
 }
 
 /** Which farm family the admin list is scoped to. */
@@ -329,6 +367,7 @@ export type AdminDashboardCardId =
   | 'offices'
   | 'vetApprovals'
   | 'courses'
+  | 'seminars'
   | 'services'
   | 'content'
   | 'syndicate'

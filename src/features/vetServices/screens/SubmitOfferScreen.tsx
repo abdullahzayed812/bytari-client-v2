@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/actions';
 import { EmptyState, useToast } from '@/components/feedback';
 import { Input, Switch } from '@/components/forms';
+import { MultiImagePicker } from '@/components/media';
 import { Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { DateTimeField } from '@/features/clinicAppointments';
 import { OrgFormLayout } from '@/features/organizations';
-import { AnimalGalleryPicker } from '@/features/publications';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 
@@ -122,7 +122,7 @@ export default function SubmitOfferScreen() {
         maxLength={2000}
       />
 
-      <AnimalGalleryPicker
+      <MultiImagePicker
         provider={imageProvider}
         onChange={setImageKeys}
         max={4}

@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, StatusBar, useWindowDimensions, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -55,7 +55,13 @@ export function ImageViewer({ visible, images, initialIndex = 0, onClose }: Imag
       statusBarTranslucent
     >
       <StatusBar barStyle="light-content" />
-      <View style={{ flex: 1, backgroundColor: 'black' }}>
+      {/*
+        A React Native `Modal` renders into its own native view hierarchy, so the
+        app-root `GestureHandlerRootView` (AppProviders) does NOT reach inside it
+        on Android — without this wrapper the pinch / pan / double-tap gestures
+        below silently do nothing there. Cheap and harmless on iOS/web.
+      */}
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'black' }}>
         <ZoomableImage
           key={index}
           uri={images[Math.min(index, images.length - 1)] as string}
@@ -113,7 +119,7 @@ export function ImageViewer({ visible, images, initialIndex = 0, onClose }: Imag
             />
           </View>
         ) : null}
-      </View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }

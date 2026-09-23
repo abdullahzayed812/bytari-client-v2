@@ -5,5 +5,6 @@ export {
   useCloseThread,
   useSetSenderBlocked,
 } from './useThreadMutations';
+export { useThreadAttachmentProvider } from './useThreadAttachmentProvider';
 export { useThreadRealtime } from './useThreadRealtime';
 export { useAiSettings, useUpdateAiSettings } from './useAiSettings';

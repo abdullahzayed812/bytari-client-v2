@@ -9,6 +9,8 @@ export { useAuth, type UseAuth } from './hooks/useAuth';
 export {
   useLoginMutation,
   useRegisterMutation,
+  useVerifyEmailMutation,
+  useResendVerificationMutation,
   useLogoutMutation,
   useLogoutAllMutation,
 } from './hooks/useAuthMutations';
@@ -23,6 +25,7 @@ export {
   useAuthStore,
   selectIsAuthenticated,
   selectIsBootstrapping,
+  selectRequiresEmailVerification,
   selectSession,
   type AuthState,
 } from './store';
@@ -32,9 +35,12 @@ export type {
   AuthStatus,
   AuthTokens,
   AuthResult,
+  RegisterResult,
+  ResendVerificationResult,
   RefreshResult,
   LoginInput,
   RegisterInput,
+  VerifyEmailInput,
   RoleKey,
   SessionSnapshot,
   SupervisorDomain,

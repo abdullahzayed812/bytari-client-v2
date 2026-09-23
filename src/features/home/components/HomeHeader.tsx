@@ -132,7 +132,9 @@ export function HomeHeader() {
           icon="swap-horizontal-outline"
           label={mode.canSwitchMode ? t('header.switchToVetA11y') : t('header.becomeVetA11y')}
           onPress={() =>
-            mode.canSwitchMode ? mode.setMode('veterinarian') : router.push(Routes.veterinarian)
+            mode.canSwitchMode
+              ? mode.setMode('veterinarian')
+              : router.push(Routes.veterinarianApply)
           }
         />
       </View>

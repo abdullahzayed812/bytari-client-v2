@@ -1,4 +1,4 @@
-import type { CourseBrowseFilter, VetCourseModerationStatus } from '../types';
+import type { CourseBrowseFilter, VetCourseModerationStatus, VetCourseType } from '../types';
 
 /** One `all` prefix invalidates the whole Courses & Seminars feature after any mutation. */
 export const vetCourseKeys = {
@@ -18,8 +18,8 @@ export const vetCourseKeys = {
   registration: (id: string) => [...vetCourseKeys.registrations(), 'detail', id] as const,
 
   // --- moderation (ADMIN / VET_COURSES supervisor) ---
-  adminCourseList: (status?: VetCourseModerationStatus) =>
-    [...vetCourseKeys.courses(), 'admin', { status: status ?? null }] as const,
+  adminCourseList: (status?: VetCourseModerationStatus, type?: VetCourseType) =>
+    [...vetCourseKeys.courses(), 'admin', { status: status ?? null, type: type ?? null }] as const,
   adminCourseRegistrations: (courseId: string) =>
     [...vetCourseKeys.registrations(), 'admin', 'for-course', courseId] as const,
 };

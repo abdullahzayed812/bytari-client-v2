@@ -9,6 +9,8 @@ export const Routes = {
   authAccountType: '/(auth)/account-type',
   authRegister: '/(auth)/register',
   authRegisterVeterinarian: '/(auth)/register-veterinarian',
+  /** Mandatory email-verification step, between registration and `authRegisterSuccess`. `AuthRedirector` also routes here on its own whenever `status === 'pending-verification'`. */
+  authVerifyEmail: '/(auth)/verify-email',
   authRegisterSuccess: '/(auth)/register-success',
 
   home: '/(app)/(tabs)',

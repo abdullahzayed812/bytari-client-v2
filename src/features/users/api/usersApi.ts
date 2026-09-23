@@ -15,6 +15,12 @@ export interface UserSummary {
   firstName: string;
   lastName: string;
   veterinarianStatus: 'NOT_APPLIED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  /**
+   * The user's profile photo, resolved server-side from `users.avatar_key`
+   * (public CDN URL or a short-lived signed R2 GET); `null` when they never
+   * uploaded one. The raw storage key never leaves the server.
+   */
+  avatarUrl: string | null;
 }
 
 export const usersApi = {

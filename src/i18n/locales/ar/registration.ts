@@ -57,6 +57,23 @@ export default {
       studentIdBackRequired: 'صورة ظهر هوية الطالب مطلوبة.',
     },
   },
+  verifyEmail: {
+    title: 'تفعيل البريد الإلكتروني',
+    subtitle: 'أرسلنا رمزاً مكوناً من 6 أرقام إلى {{email}}. أدخله لتفعيل حسابك.',
+    codeLabel: 'رمز التفعيل',
+    codePlaceholder: '000000',
+    submit: 'تفعيل',
+    resendPrompt: 'لم يصلك الرمز؟',
+    resend: 'إعادة الإرسال',
+    resendIn: 'إعادة الإرسال بعد {{seconds}} ث',
+    resendSuccess: 'تم إرسال رمز جديد إلى بريدك الإلكتروني.',
+    errors: {
+      invalidCode: 'الرمز الذي أدخلته غير صحيح.',
+      expiredCode: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.',
+      tooManyAttempts: 'محاولات كثيرة جداً. اطلب رمزاً جديداً وحاول مرة أخرى.',
+      codeRequired: 'يرجى إدخال الرمز المكوّن من 6 أرقام.',
+    },
+  },
   success: {
     ownerTitle: 'تم إنشاء حسابك بنجاح',
     ownerBody: 'أهلاً بك في بيطري! يمكنك الآن البدء بإضافة حيواناتك واستخدام التطبيق.',

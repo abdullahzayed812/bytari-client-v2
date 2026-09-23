@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/files/types';
 
 import { SUPPORT_KIND_META } from '../constants';
 import type {
@@ -36,6 +37,7 @@ function normalizeMessage(raw: unknown): ThreadMessage {
     senderUserId: (r.senderUserId as string | null) ?? null,
     source: r.source as ThreadMessage['source'],
     body: (r.body as string | null) ?? null,
+    imageUrls: Array.isArray(r.imageUrls) ? (r.imageUrls as string[]) : [],
     deletedAt: (r.deletedAt as string | null) ?? null,
     createdAt: String(r.createdAt ?? ''),
   };
@@ -48,7 +50,8 @@ function normalizeMessage(raw: unknown): ThreadMessage {
  * server-derived, never in a body.
  *
  *   GET  /<slug>?page&pageSize&status                 listMine (own threads only)
- *   POST /<slug>                                      create ({ body, animalId? } | { body })
+ *   POST /<slug>                                      create ({ body, animalId?, imageKeys? } | { body })
+ *   POST /<slug>/attachments/upload-url               presign one first-message photo (400 for SUPPORT)
  *   GET  /<slug>/:id                                  CREATOR or RESPONDER (else 404)
  *   GET  /<slug>/:id/messages?page&pageSize           CREATOR or RESPONDER
  *   POST /<slug>/:id/messages                         { body }
@@ -100,6 +103,19 @@ export function makeThreadApi(kind: ThreadKind) {
       return normalizeMessage(
         await apiClient.post<unknown>(`/${slug}/${threadId}/messages`, { body: input.body }),
       );
+    },
+
+    /**
+     * Presign ONE first-message photo. Standalone by design — it is callable
+     * before the thread exists, so the create screen can stage photos and pass
+     * the resulting `storageKey`s as `imageKeys`. 400s for SUPPORT.
+     */
+    requestAttachmentUploadUrl(input: {
+      filename: string;
+      mimeType: string;
+      size: number;
+    }): Promise<PresignedUpload> {
+      return apiClient.post<PresignedUpload>(`/${slug}/attachments/upload-url`, input);
     },
 
     close(threadId: string): Promise<Thread> {

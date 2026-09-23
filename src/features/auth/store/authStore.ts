@@ -11,8 +11,10 @@ import type {
   AuthTokens,
   LoginInput,
   RegisterInput,
+  ResendVerificationResult,
   SessionSnapshot,
   User,
+  VerifyEmailInput,
 } from '../types';
 
 const log = createLogger('auth-store');
@@ -20,9 +22,11 @@ const log = createLogger('auth-store');
 /**
  * The single source of truth for the authentication session (§21).
  *
- *   status: 'bootstrapping'  → app just launched, restoring persisted session
- *         | 'authenticated'  → a valid session + `/auth/me` snapshot are loaded
- *         | 'unauthenticated'→ no session; show the auth flow
+ *   status: 'bootstrapping'         → app just launched, restoring persisted session
+ *         | 'authenticated'         → a valid session + `/auth/me` snapshot are loaded
+ *         | 'pending-verification'  → registered but the email is not verified yet
+ *                                     (see `AuthStatus`'s own doc comment)
+ *         | 'unauthenticated'       → no session; show the auth flow
  *
  * No screen keeps its own auth state. Tokens live in `expo-secure-store` (via
  * `tokenStorage`); only the in-memory mirror is here and it is never persisted
@@ -31,7 +35,7 @@ const log = createLogger('auth-store');
 interface AuthState {
   status: AuthStatus;
   user: User | null;
-  /** Authoritative identity + capability snapshot from `GET /auth/me`. */
+  /** Authoritative identity + capability snapshot from `GET /auth/me`. Populated even `pending-verification` — `/auth/me` is allowlisted for that state. */
   session: SessionSnapshot | null;
   /** In-memory mirror of the secure-store token pair. */
   tokens: AuthTokens | null;
@@ -39,11 +43,21 @@ interface AuthState {
   /** App-start session restore. Idempotent — safe to call repeatedly. */
   initialize: () => Promise<void>;
   login: (input: LoginInput) => Promise<void>;
+  /** Does NOT reach `authenticated` on its own — see `AuthResult`/`AuthStatus` doc comments. Screens read `email` back off `user`/`session`, not this call's return value. */
   register: (input: RegisterInput) => Promise<void>;
+  /** Completes registration: correct code → `ACTIVE` + a full, unrestricted session. */
+  verifyEmail: (input: VerifyEmailInput) => Promise<void>;
+  /** Thin passthrough — the screen uses the result to drive its own resend-cooldown countdown. */
+  resendVerification: (email: string) => Promise<ResendVerificationResult>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   /** Re-pull `/auth/me` (after vet approval, role change, resume). */
   refreshSession: () => Promise<void>;
+}
+
+/** `authenticated` for an ACTIVE user, `pending-verification` for an unverified one. */
+function statusForUser(user: User): Extract<AuthStatus, 'authenticated' | 'pending-verification'> {
+  return user.status === 'PENDING_VERIFICATION' ? 'pending-verification' : 'authenticated';
 }
 
 let initializePromise: Promise<void> | null = null;
@@ -73,12 +87,18 @@ async function runLogoutTasks(): Promise<void> {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => {
-  /** Persist tokens + load the `/auth/me` snapshot, then mark authenticated. */
+  /**
+   * Persist tokens + load the `/auth/me` snapshot, then mark
+   * `authenticated` OR `pending-verification` depending on `session.user.status`
+   * (NOT always `authenticated` — a `register()` token is real but scoped;
+   * see `AuthResult`'s doc comment). `/auth/me` itself is allowlisted for a
+   * `PENDING_VERIFICATION` account, so this always succeeds either way.
+   */
   async function establishSession(result: AuthResult): Promise<void> {
     await tokenStorage.saveTokens(result.tokens);
     set({ tokens: result.tokens, user: result.user });
     const session = await authApi.me();
-    set({ session, user: session.user, status: 'authenticated' });
+    set({ session, user: session.user, status: statusForUser(session.user) });
   }
 
   async function teardown(): Promise<void> {
@@ -110,7 +130,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           });
           try {
             const session = await authApi.me();
-            set({ session, user: session.user, status: 'authenticated' });
+            set({ session, user: session.user, status: statusForUser(session.user) });
           } catch (error) {
             // Access token likely expired — attempt exactly one refresh.
             if (isApiError(error) && error.isAuthError) {
@@ -118,7 +138,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
               await tokenStorage.saveTokens(tokens);
               set({ tokens });
               const session = await authApi.me();
-              set({ session, user: session.user, status: 'authenticated' });
+              set({ session, user: session.user, status: statusForUser(session.user) });
             } else {
               throw error;
             }
@@ -138,10 +158,19 @@ export const useAuthStore = create<AuthState>((set, get) => {
       await establishSession(result);
     },
 
+    // NOTE: this genuinely does not always leave `status: 'authenticated'` —
+    // see `AuthState.register`'s doc comment.
     register: async (input) => {
       const result = await authApi.register(input);
       await establishSession(result);
     },
+
+    verifyEmail: async (input) => {
+      const result = await authApi.verifyEmail(input);
+      await establishSession(result);
+    },
+
+    resendVerification: (email) => authApi.resendVerification(email),
 
     logout: async () => {
       const { tokens } = get();
@@ -200,7 +229,10 @@ configureApiAuth({
 
   onSessionExpired: () => {
     const { status } = useAuthStore.getState();
-    if (status === 'bootstrapping' || status === 'authenticated') {
+    // Includes `pending-verification`: that token IS real (just scoped — see
+    // `AuthResult`'s doc comment), so it can still genuinely expire/get
+    // revoked, and a dead session must not be left sitting in state forever.
+    if (status === 'bootstrapping' || status === 'authenticated' || status === 'pending-verification') {
       log.info('session expired — forcing sign-out');
       void tokenStorage.clearTokens();
       useAuthStore.setState({
@@ -216,5 +248,7 @@ configureApiAuth({
 // --- selectors ----------------------------------------------------------
 export const selectIsAuthenticated = (s: AuthState): boolean => s.status === 'authenticated';
 export const selectIsBootstrapping = (s: AuthState): boolean => s.status === 'bootstrapping';
+export const selectRequiresEmailVerification = (s: AuthState): boolean =>
+  s.status === 'pending-verification';
 export const selectSession = (s: AuthState): SessionSnapshot | null => s.session;
 export type { AuthState };

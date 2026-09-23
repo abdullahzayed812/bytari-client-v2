@@ -122,6 +122,12 @@ export type FarmSubscriptionStatus = (typeof FARM_SUBSCRIPTION_STATUSES)[number]
 export interface OrganizationDetails extends OrganizationProfile {
   /** FARM organizations only. */
   joinCode?: string;
+  /**
+   * FARM only — the farm's photo (`farm_details.image_key`) resolved
+   * server-side. FARM has no directory profile, so `logoUrl` / `galleryUrls`
+   * are always empty for it and this is the one image it carries.
+   */
+  imageUrl?: string | null;
   /** FARM / VETERINARY_OFFICE / CLINIC — admin/supervisor-controlled subscription period. */
   subscriptionStartDate?: string | null;
   subscriptionEndDate?: string | null;

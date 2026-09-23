@@ -1,7 +1,14 @@
 import { useMemo } from 'react';
 
 import { useAuthStore } from '../store';
-import type { LoginInput, RegisterInput, SessionSnapshot, User } from '../types';
+import type {
+  LoginInput,
+  RegisterInput,
+  ResendVerificationResult,
+  SessionSnapshot,
+  User,
+  VerifyEmailInput,
+} from '../types';
 
 /**
  * The public authentication interface for the whole app. Screens use this —
@@ -11,6 +18,13 @@ export interface UseAuth {
   user: User | null;
   session: SessionSnapshot | null;
   isAuthenticated: boolean;
+  /**
+   * `status === 'pending-verification'` — registered but the email is not
+   * verified yet. `AuthRedirector` already routes to the verify-email screen
+   * on its own; screens read this for in-place UI (e.g. a banner), not to
+   * perform their own redirect.
+   */
+  requiresEmailVerification: boolean;
   /** App-start session restore in progress — gate the UI on this (§8). */
   isBootstrapping: boolean;
   /** Alias of `isBootstrapping` for call sites that think in "loading". */
@@ -19,6 +33,8 @@ export interface UseAuth {
   initialize: () => Promise<void>;
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
+  verifyEmail: (input: VerifyEmailInput) => Promise<void>;
+  resendVerification: (email: string) => Promise<ResendVerificationResult>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -31,6 +47,8 @@ export function useAuth(): UseAuth {
   const initialize = useAuthStore((s) => s.initialize);
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
+  const verifyEmail = useAuthStore((s) => s.verifyEmail);
+  const resendVerification = useAuthStore((s) => s.resendVerification);
   const logout = useAuthStore((s) => s.logout);
   const logoutAll = useAuthStore((s) => s.logoutAll);
   const refreshSession = useAuthStore((s) => s.refreshSession);
@@ -41,14 +59,29 @@ export function useAuth(): UseAuth {
       user,
       session,
       isAuthenticated: status === 'authenticated',
+      requiresEmailVerification: status === 'pending-verification',
       isBootstrapping,
       isLoading: isBootstrapping,
       initialize,
       login,
       register,
+      verifyEmail,
+      resendVerification,
       logout,
       logoutAll,
       refreshSession,
     };
-  }, [status, user, session, initialize, login, register, logout, logoutAll, refreshSession]);
+  }, [
+    status,
+    user,
+    session,
+    initialize,
+    login,
+    register,
+    verifyEmail,
+    resendVerification,
+    logout,
+    logoutAll,
+    refreshSession,
+  ]);
 }

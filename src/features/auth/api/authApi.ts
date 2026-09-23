@@ -7,7 +7,10 @@ import type {
   LogoutResult,
   RefreshResult,
   RegisterInput,
+  RegisterResult,
+  ResendVerificationResult,
   SessionSnapshot,
+  VerifyEmailInput,
 } from '../types';
 
 /**
@@ -19,14 +22,47 @@ import type {
  * `server/src/openapi/phase2.ts`.
  */
 export const authApi = {
-  /** `POST /auth/register` → 201 `{ user, tokens }`. Errors: 409 dup, 422, 429. */
-  register(input: RegisterInput): Promise<AuthResult> {
-    return apiClient.post<AuthResult>('/auth/register', input, { anonymous: true });
+  /**
+   * `POST /auth/register` → 201 `{ user, tokens, codeExpiresInSeconds }`. The
+   * account starts `PENDING_VERIFICATION` — `tokens` IS present (see
+   * `RegisterResult`'s doc comment) but is scoped, not a normal session.
+   * Errors: 409 dup, 422, 429.
+   */
+  register(input: RegisterInput): Promise<RegisterResult> {
+    return apiClient.post<RegisterResult>('/auth/register', input, { anonymous: true });
   },
 
-  /** `POST /auth/login` → 200 `{ user, tokens }`. Errors: 401 creds, 403 inactive, 422, 429. */
+  /**
+   * `POST /auth/login` → 200 `{ user, tokens }`. Errors: 401 creds, 403
+   * `ACCOUNT_INACTIVE` (suspended/deactivated) or 403
+   * `EMAIL_VERIFICATION_REQUIRED` (correct password, unverified — NO tokens
+   * issued either way), 422, 429.
+   */
   login(input: LoginInput): Promise<AuthResult> {
     return apiClient.post<AuthResult>('/auth/login', input, { anonymous: true });
+  },
+
+  /**
+   * `POST /auth/verify-email` → 200 `{ user, tokens }` — a normal,
+   * unrestricted session (same shape `login` returns). Errors: 400
+   * `INVALID_VERIFICATION_CODE` / `VERIFICATION_CODE_EXPIRED`, 429
+   * `TOO_MANY_VERIFICATION_ATTEMPTS`.
+   */
+  verifyEmail(input: VerifyEmailInput): Promise<AuthResult> {
+    return apiClient.post<AuthResult>('/auth/verify-email', input, { anonymous: true });
+  },
+
+  /**
+   * `POST /auth/resend-verification` → always 200 (anti-enumeration — see
+   * `ResendVerificationResult`'s doc comment). Errors: 429 `RATE_LIMITED`
+   * (cooldown not yet elapsed).
+   */
+  resendVerification(email: string): Promise<ResendVerificationResult> {
+    return apiClient.post<ResendVerificationResult>(
+      '/auth/resend-verification',
+      { email },
+      { anonymous: true },
+    );
   },
 
   /**

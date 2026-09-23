@@ -123,6 +123,7 @@ describe('MedicalTimelineScreen (§13, §23) — scope-aware', () => {
       firstName: 'ريم',
       lastName: 'أحمد',
       veterinarianStatus: 'APPROVED',
+      avatarUrl: null,
     });
   });
   afterEach(() => jest.restoreAllMocks());

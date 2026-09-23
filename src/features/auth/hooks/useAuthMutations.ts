@@ -1,7 +1,7 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 
 import { useAuthStore } from '../store';
-import type { LoginInput, RegisterInput } from '../types';
+import type { LoginInput, RegisterInput, ResendVerificationResult, VerifyEmailInput } from '../types';
 
 /**
  * Thin React Query wrappers over the store's auth actions so screens get
@@ -16,6 +16,23 @@ export function useLoginMutation(): UseMutationResult<void, unknown, LoginInput>
 export function useRegisterMutation(): UseMutationResult<void, unknown, RegisterInput> {
   const register = useAuthStore((s) => s.register);
   return useMutation({ mutationKey: ['auth', 'register'], mutationFn: register });
+}
+
+export function useVerifyEmailMutation(): UseMutationResult<void, unknown, VerifyEmailInput> {
+  const verifyEmail = useAuthStore((s) => s.verifyEmail);
+  return useMutation({ mutationKey: ['auth', 'verify-email'], mutationFn: verifyEmail });
+}
+
+export function useResendVerificationMutation(): UseMutationResult<
+  ResendVerificationResult,
+  unknown,
+  string
+> {
+  const resendVerification = useAuthStore((s) => s.resendVerification);
+  return useMutation({
+    mutationKey: ['auth', 'resend-verification'],
+    mutationFn: resendVerification,
+  });
 }
 
 export function useLogoutMutation(): UseMutationResult<void, unknown, void> {

@@ -17,10 +17,17 @@ export type RegistrationTFn = TFunction<'registration'>;
 
 const PHONE_RE = /^\+?[0-9][0-9\s\-()]{5,23}$/;
 
-const documentRefSchema = z.object({
-  storageKey: z.string().min(1),
-  filename: z.string().min(1),
+/**
+ * A document picked LOCALLY (`LocalImageUploader`, not yet uploaded — see
+ * `DocumentUploadTile`). Mirrors `LocalFile` (`@/services/files/types`); kept
+ * as its own zod shape here rather than importing that interface, since the
+ * upload itself happens later, outside RHF, in `VeterinarianRegisterScreen`.
+ */
+const localFileSchema = z.object({
+  uri: z.string().min(1),
+  name: z.string().min(1),
   mimeType: z.string().min(1),
+  size: z.number().optional(),
 });
 
 function buildPersonalShape(t: RegistrationTFn) {
@@ -78,10 +85,10 @@ export function buildVeterinarianSchema(t: RegistrationTFn) {
     .object({
       ...buildPersonalShape(t),
       subType: z.enum(['VETERINARIAN', 'STUDENT']),
-      licenseOrId: documentRefSchema.optional(),
-      additionalId: documentRefSchema.optional(),
-      studentIdFront: documentRefSchema.optional(),
-      studentIdBack: documentRefSchema.optional(),
+      licenseOrId: localFileSchema.optional(),
+      additionalId: localFileSchema.optional(),
+      studentIdFront: localFileSchema.optional(),
+      studentIdBack: localFileSchema.optional(),
     })
     .superRefine((values, ctx) => {
       if (values.password !== values.confirmPassword) {

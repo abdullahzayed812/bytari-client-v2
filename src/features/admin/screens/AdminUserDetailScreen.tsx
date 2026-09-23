@@ -7,6 +7,7 @@ import { Button } from '@/components/actions';
 import { Badge, Card, Chip } from '@/components/content';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { useAuth } from '@/hooks';
@@ -17,8 +18,11 @@ import { ReasonPromptDialog } from '../components';
 import { useAdminUser, useUserRoleMutation, useUserStatusMutation } from '../hooks';
 import { ROLE_KEYS, type RoleKey, type UserStatus, type UserStatusAction } from '../types';
 
-function statusTone(status: UserStatus): 'success' | 'warning' | 'danger' {
-  return status === 'ACTIVE' ? 'success' : status === 'SUSPENDED' ? 'warning' : 'danger';
+function statusTone(status: UserStatus): 'success' | 'info' | 'warning' | 'danger' {
+  if (status === 'ACTIVE') return 'success';
+  if (status === 'PENDING_VERIFICATION') return 'info';
+  if (status === 'SUSPENDED') return 'warning';
+  return 'danger';
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -44,6 +48,7 @@ export default function AdminUserDetailScreen() {
   const roleMut = useUserRoleMutation(userId);
 
   const [pendingAction, setPendingAction] = useState<UserStatusAction | null>(null);
+  const [avatarViewer, setAvatarViewer] = useState(false);
   const isSelf = session?.user.id === userId;
 
   const runStatus = (reason?: string) => {
@@ -93,22 +98,36 @@ export default function AdminUserDetailScreen() {
       ) : (
         <>
           <Section spacing="lg">
-            <View style={{ rowGap: theme.spacing.xs }}>
-              <Text variant="heading">
-                {`${q.data.firstName} ${q.data.lastName}`.trim() || q.data.email}
-              </Text>
-              <Caption>{q.data.email}</Caption>
-              <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: 4 }}>
-                <Badge
-                  label={t(`users.status.${q.data.status}`)}
-                  tone={statusTone(q.data.status)}
-                  size="sm"
-                />
-                <Badge
-                  label={t(`users.vetStatus.${q.data.veterinarianStatus}`)}
-                  tone="neutral"
-                  size="sm"
-                />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                columnGap: theme.spacing.md,
+              }}
+            >
+              <ImageThumbnailRow
+                images={q.data.avatarUrl ? [q.data.avatarUrl] : []}
+                size={64}
+                fallbackIcon="person-outline"
+                onPress={() => (q.data?.avatarUrl ? setAvatarViewer(true) : undefined)}
+              />
+              <View style={{ flex: 1, rowGap: theme.spacing.xs }}>
+                <Text variant="heading">
+                  {`${q.data.firstName} ${q.data.lastName}`.trim() || q.data.email}
+                </Text>
+                <Caption>{q.data.email}</Caption>
+                <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: 4 }}>
+                  <Badge
+                    label={t(`users.status.${q.data.status}`)}
+                    tone={statusTone(q.data.status)}
+                    size="sm"
+                  />
+                  <Badge
+                    label={t(`users.vetStatus.${q.data.veterinarianStatus}`)}
+                    tone="neutral"
+                    size="sm"
+                  />
+                </View>
               </View>
             </View>
           </Section>
@@ -214,6 +233,12 @@ export default function AdminUserDetailScreen() {
         loading={statusMut.isPending}
         onConfirm={(reason) => runStatus(reason || undefined)}
         onCancel={() => setPendingAction(null)}
+      />
+
+      <ImageViewer
+        visible={avatarViewer}
+        images={q.data?.avatarUrl ? [q.data.avatarUrl] : []}
+        onClose={() => setAvatarViewer(false)}
       />
     </ScrollScreen>
   );

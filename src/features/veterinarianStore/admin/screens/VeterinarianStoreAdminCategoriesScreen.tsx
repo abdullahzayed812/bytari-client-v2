@@ -14,6 +14,7 @@ import {
 } from '@/components/feedback';
 import { Input, Switch } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageThumbnailRow, ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
@@ -21,7 +22,11 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import type { VetStoreCategory } from '../../types';
-import { useVetStoreAdminCategories, useVetStoreAdminCategoryMutations } from '../hooks';
+import {
+  useVetStoreAdminCategories,
+  useVetStoreAdminCategoryMutations,
+  useVetStoreCategoryImagePresignProvider,
+} from '../hooks';
 
 interface Draft {
   id?: string;
@@ -44,6 +49,12 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [toDelete, setToDelete] = useState<VetStoreCategory | null>(null);
+  // Remounts the uploader after a successful replace so it drops its local
+  // preview and re-reads the freshly invalidated `imageUrl`.
+  const [imageUploadKey, setImageUploadKey] = useState(0);
+
+  const imagePresign = useVetStoreCategoryImagePresignProvider(draft?.id);
+  const draftCategory = (q.data ?? []).find((c) => c.id === draft?.id);
 
   const openCreate = (): void => setDraft({ ...EMPTY_DRAFT });
   const openEdit = (c: VetStoreCategory): void =>
@@ -125,6 +136,12 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
                     columnGap: theme.spacing.md,
                   }}
                 >
+                  <ImageThumbnailRow
+                    images={c.imageUrl ? [c.imageUrl] : []}
+                    size={44}
+                    fallbackIcon="albums-outline"
+                    placeholderWhenEmpty
+                  />
                   <View style={{ flex: 1, rowGap: 2 }}>
                     <Text variant="bodyStrong">{c.name}</Text>
                     <Caption>
@@ -177,6 +194,23 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
               value={draft.showOnHome}
               onValueChange={(showOnHome) => setDraft({ ...draft, showOnHome })}
             />
+            {draft.id ? (
+              <View style={{ rowGap: theme.spacing.xs }}>
+                <Label>{t('admin.categories.fieldImage')}</Label>
+                <ImageUploader
+                  key={imageUploadKey}
+                  value={draftCategory?.imageUrl ?? null}
+                  provider={imagePresign}
+                  shape="square"
+                  size={96}
+                  onChange={(result) => {
+                    if (result) setImageUploadKey((k) => k + 1);
+                  }}
+                />
+              </View>
+            ) : (
+              <Caption>{t('admin.categories.imageAfterCreateHint')}</Caption>
+            )}
             <Button
               label={draft.id ? t('admin.form.submitSave') : t('admin.form.submitCreate')}
               fullWidth

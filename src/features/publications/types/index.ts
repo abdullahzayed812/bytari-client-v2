@@ -99,6 +99,14 @@ export interface AnimalPublication extends PublicationListingFields {
   rejectionReason: string | null;
   createdAt: string;
   updatedAt: string;
+  /**
+   * The joined animal summary, including `galleryUrls`, so a moderator sees the
+   * animal's photos before approving / rejecting. Present on the moderation
+   * list / detail (`GET /admin/animal-publications[/:id]`); ABSENT on the
+   * approve / reject responses and on the owner's per-animal listing, which
+   * return the bare publication.
+   */
+  animal?: PublicationAnimal;
 }
 
 /**

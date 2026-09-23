@@ -119,6 +119,10 @@ export const adminAdsApi = {
       input,
     );
   },
+
+  removeSlideImage(campaignId: string, slideId: string): Promise<AdSlide> {
+    return apiClient.delete<AdSlide>(`/admin/ads/${campaignId}/slides/${slideId}/image`);
+  },
 };
 
 export type AdminAdsApi = typeof adminAdsApi;

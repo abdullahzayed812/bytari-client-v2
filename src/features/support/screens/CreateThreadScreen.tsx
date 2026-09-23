@@ -8,6 +8,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Alert, useToast } from '@/components/feedback';
 import { FormField, Select } from '@/components/forms';
+import { MultiImagePicker } from '@/components/media';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { OrgFormLayout } from '@/features/organizations';
@@ -18,7 +19,8 @@ import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { SUPPORT_KIND_META, kindFromSlug } from '../constants';
-import { useCreateThread } from '../hooks';
+import { useCreateThread, useThreadAttachmentProvider } from '../hooks';
+import { MAX_THREAD_IMAGES } from '../types';
 import {
   buildConsultationSchema,
   buildInquirySchema,
@@ -30,6 +32,11 @@ import {
  * Route `/support/[kind]/create`. Consultation: message + OPTIONAL owned-animal
  * (backend rejects an animal you don't own). Inquiry: message only, APPROVED
  * vets only (backend authoritative; the client only shows a hint).
+ *
+ * Both kinds accept up to `MAX_THREAD_IMAGES` photos on the first message —
+ * each is presigned and uploaded to R2 as it is picked, and only its
+ * `storageKey` is submitted. SUPPORT ("تواصل معنا") has no attachment
+ * capability on the backend, so the section is hidden for it.
  */
 export default function CreateThreadScreen() {
   const theme = useTheme();
@@ -57,9 +64,13 @@ export default function CreateThreadScreen() {
 
   const create = useCreateThread(kind);
   const pets = usePets({ pageSize: 50, enabled: isConsultation });
+  const attachmentProvider = useThreadAttachmentProvider(kind);
   const inFlight = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
+  const [imageKeys, setImageKeys] = useState<string[]>([]);
+
+  const supportsAttachments = kind !== 'SUPPORT';
 
   const blockedByVetGate =
     meta.createRequiresApprovedVet && !caps.isApprovedVeterinarian && !caps.isAdmin;
@@ -69,9 +80,16 @@ export default function CreateThreadScreen() {
     inFlight.current = true;
     setFormError(null);
     setServerFields({});
+    const attachments = supportsAttachments && imageKeys.length > 0 ? imageKeys : undefined;
     const payload = isConsultation
-      ? { body: values.body.trim(), animalId: values.animalId?.trim() || undefined }
-      : { body: values.body.trim() };
+      ? {
+          body: values.body.trim(),
+          animalId: values.animalId?.trim() || undefined,
+          imageKeys: attachments,
+        }
+      : supportsAttachments
+        ? { body: values.body.trim(), imageKeys: attachments }
+        : { body: values.body.trim() };
     create.mutate(payload, {
       onSuccess: (thread) => {
         toast.show({ tone: 'success', message: t('form.success') });
@@ -121,6 +139,16 @@ export default function CreateThreadScreen() {
               error={fieldState.error?.message ?? serverFields.animalId}
             />
           )}
+        />
+      ) : null}
+
+      {supportsAttachments ? (
+        <MultiImagePicker
+          provider={attachmentProvider}
+          onChange={setImageKeys}
+          max={MAX_THREAD_IMAGES}
+          label={t('form.attachmentsLabel')}
+          hint={t('form.attachmentsHint', { count: imageKeys.length, max: MAX_THREAD_IMAGES })}
         />
       ) : null}
 

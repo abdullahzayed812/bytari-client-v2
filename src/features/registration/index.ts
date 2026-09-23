@@ -9,6 +9,7 @@ export {
   AccountTypeScreen,
   PetOwnerRegisterScreen,
   VeterinarianRegisterScreen,
+  VerifyEmailScreen,
   RegistrationSuccessScreen,
 } from './screens';
 export {
@@ -19,8 +20,9 @@ export {
   SocialLoginButtons,
 } from './components';
 export {
-  useAvatarPresignProvider,
-  useVeterinarianDocumentPresignProvider,
+  uploadRegistrationAvatar,
+  uploadRegistrationDocument,
+  type UploadedVeterinarianDocument,
   useSubmitVeterinarianApplication,
 } from './hooks';
 export { profileApi, type ProfileApi } from './api/profileApi';

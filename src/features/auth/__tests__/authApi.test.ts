@@ -10,7 +10,7 @@ describe('authApi — endpoint wrappers', () => {
   afterAll(() => jest.restoreAllMocks());
 
   it('register → POST /auth/register (anonymous)', async () => {
-    post.mockResolvedValueOnce({ user: {}, tokens: {} });
+    post.mockResolvedValueOnce({ user: {}, tokens: {}, codeExpiresInSeconds: 600 });
     await authApi.register({
       email: 'a@b.c',
       password: 'longenough1',
@@ -18,6 +18,27 @@ describe('authApi — endpoint wrappers', () => {
       lastName: 'B',
     });
     expect(post).toHaveBeenCalledWith('/auth/register', expect.any(Object), { anonymous: true });
+  });
+
+  it('verifyEmail → POST /auth/verify-email (anonymous)', async () => {
+    post.mockResolvedValueOnce({ user: {}, tokens: {} });
+    await authApi.verifyEmail({ email: 'a@b.c', code: '123456' });
+    expect(post).toHaveBeenCalledWith(
+      '/auth/verify-email',
+      { email: 'a@b.c', code: '123456' },
+      { anonymous: true },
+    );
+  });
+
+  it('resendVerification → POST /auth/resend-verification (anonymous)', async () => {
+    post.mockResolvedValueOnce({ codeExpiresInSeconds: 600, resendAvailableInSeconds: 60 });
+    const result = await authApi.resendVerification('a@b.c');
+    expect(post).toHaveBeenCalledWith(
+      '/auth/resend-verification',
+      { email: 'a@b.c' },
+      { anonymous: true },
+    );
+    expect(result.resendAvailableInSeconds).toBe(60);
   });
 
   it('login → POST /auth/login (anonymous)', async () => {

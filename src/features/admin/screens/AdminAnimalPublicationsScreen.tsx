@@ -4,6 +4,8 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
+import { Label } from '@/components/typography';
 import {
   useAdminAnimalPublications,
   useAdminApprovePublication,
@@ -46,6 +48,9 @@ type DetailKey =
   | 'rejectionReason'
   | 'submittedAt'
   | 'reviewedAt'
+  | 'animalName'
+  | 'gallery'
+  | 'noImages'
   | 'yes'
   | 'no';
 
@@ -77,11 +82,16 @@ export default function AdminAnimalPublicationsScreen() {
   const [approving, setApproving] = useState<AnimalPublication | null>(null);
   const [rejecting, setRejecting] = useState<AnimalPublication | null>(null);
   const [detail, setDetail] = useState<AnimalPublication | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
+
+  /** Photos the owner attached to the listing's animal — `[]` when none. */
+  const photos = (p: AnimalPublication): string[] => p.animal?.galleryUrls ?? [];
 
   const dt = (key: DetailKey) => t(`animalPublications.details.${key}`);
   const detailFields = (p: AnimalPublication) => [
     { label: dt('kind'), value: t(`animalPublications.kind.${p.kind}`) },
     { label: dt('status'), value: t(`animalPublications.status.${p.status}`) },
+    { label: dt('animalName'), value: p.animal?.name },
     { label: dt('contactName'), value: p.contactName },
     { label: dt('contactPhone'), value: p.contactPhone },
     { label: dt('city'), value: p.city },
@@ -185,8 +195,15 @@ export default function AdminAnimalPublicationsScreen() {
         renderItem={(p) => (
           <AdminRow
             title={t(`animalPublications.kind.${p.kind}`)}
-            subtitle={p.contactName || p.note || undefined}
+            subtitle={p.animal?.name || p.contactName || p.note || undefined}
             meta={`${t('animalPublications.submittedAt')}: ${formatDate(p.createdAt)}`}
+            image={{
+              uri: photos(p)[0] ?? null,
+              fallbackIcon: 'paw-outline',
+              accessibilityLabel: dt('gallery'),
+              onPress:
+                photos(p).length > 0 ? () => setViewer({ images: photos(p), index: 0 }) : undefined,
+            }}
             onPress={() => setDetail(p)}
             badge={{
               label: t(`animalPublications.status.${p.status}`),
@@ -248,6 +265,18 @@ export default function AdminAnimalPublicationsScreen() {
         }
         fields={detail ? detailFields(detail) : []}
       >
+        <View style={{ rowGap: theme.spacing.xs, marginTop: theme.spacing.sm }}>
+          <Label>{dt('gallery')}</Label>
+          <ImageThumbnailRow
+            images={detail ? photos(detail) : []}
+            emptyLabel={dt('noImages')}
+            fallbackIcon="paw-outline"
+            onPress={(index) =>
+              detail ? setViewer({ images: photos(detail), index }) : undefined
+            }
+          />
+        </View>
+
         {detail?.status === 'PENDING' ? (
           <View
             style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}
@@ -273,6 +302,13 @@ export default function AdminAnimalPublicationsScreen() {
           </View>
         ) : null}
       </AdminDetailModal>
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </>
   );
 }

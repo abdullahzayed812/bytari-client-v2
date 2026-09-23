@@ -6,6 +6,13 @@ import { useAuth } from '@/hooks';
 /**
  * The single authentication routing seam (§11, §24).
  *
+ * - `pending-verification` (anywhere but the verify screen itself) → send to
+ *   `/(auth)/verify-email`. Checked FIRST, ahead of the other two rules, so a
+ *   `PENDING_VERIFICATION` session parked inside `(app)` (a stale token from
+ *   before this flow existed, or one that outlives an app restart) can never
+ *   fall through to "authenticated → let them stay" — the backend already
+ *   refuses every non-allowlisted call for that status; this keeps the UI in
+ *   sync with that instead of leaving the user stuck on a broken screen.
  * - Unauthenticated inside `(app)`  → send to the auth flow.
  * - Authenticated inside `(auth)`   → send to the app.
  * - During `bootstrapping`          → do nothing (the splash is shown; avoids
@@ -14,7 +21,7 @@ import { useAuth } from '@/hooks';
  * Nothing else in the tree performs auth redirects. Renders nothing.
  */
 export function AuthRedirector() {
-  const { isAuthenticated, isBootstrapping } = useAuth();
+  const { isAuthenticated, isBootstrapping, requiresEmailVerification } = useAuth();
   const segments = useSegments();
 
   useEffect(() => {
@@ -22,13 +29,16 @@ export function AuthRedirector() {
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
+    const onVerifyEmailScreen = inAuthGroup && segments[1] === 'verify-email';
 
-    if (!isAuthenticated && inAppGroup) {
+    if (requiresEmailVerification) {
+      if (!onVerifyEmailScreen) router.replace('/(auth)/verify-email');
+    } else if (!isAuthenticated && inAppGroup) {
       router.replace('/(auth)/sign-in');
     } else if (isAuthenticated && (inAuthGroup || group === undefined)) {
       router.replace('/(app)/(tabs)');
     }
-  }, [isAuthenticated, isBootstrapping, segments]);
+  }, [isAuthenticated, isBootstrapping, requiresEmailVerification, segments]);
 
   return null;
 }

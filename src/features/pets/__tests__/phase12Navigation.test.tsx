@@ -63,6 +63,7 @@ beforeEach(() => {
     firstName: 'س',
     lastName: 'ع',
     veterinarianStatus: 'NOT_APPLIED',
+    avatarUrl: null,
   });
 });
 afterAll(() => {

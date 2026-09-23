@@ -109,13 +109,27 @@ function dateToTime(d: Date): string {
  * one shared multi-step form for a COURSE / SEMINAR / WORKSHOP, with `type`
  * as a form field rather than three separate creation screens. Editing loads
  * the creator's existing course first (`getMyCourse`).
+ *
+ * ALSO the screen `AdminVetCoursesScreen`'s "add" button opens — the backend
+ * accepts an ADMIN creator/editor on the same `/vet-courses` endpoints (see
+ * `VetCourseService.create`/`.update`), so this one form serves both
+ * self-service vets and admin-authored submissions rather than a second,
+ * duplicated admin form. `?origin=admin` (set only by that entry point)
+ * routes success back to the admin list instead of the vet's own "دوراتي";
+ * `?type=` pre-selects COURSE/SEMINAR to match whichever dashboard card was
+ * tapped.
  */
 export default function CreateVeterinaryCourseScreen() {
   const theme = useTheme();
   const { t } = useTranslation('vetCourses');
   const toast = useToast();
-  const { courseId } = useLocalSearchParams<{ courseId?: string }>();
+  const { courseId, type: typeParam, origin } = useLocalSearchParams<{
+    courseId?: string;
+    type?: VetCourseType;
+    origin?: string;
+  }>();
   const isEdit = Boolean(courseId);
+  const isAdminOrigin = origin === 'admin';
   const existing = useVetCourse(courseId, { manage: true });
   const create = useCreateVetCourse();
   const update = useUpdateVetCourse();
@@ -155,7 +169,7 @@ export default function CreateVeterinaryCourseScreen() {
 
   const { control, handleSubmit, trigger, setValue, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: EMPTY,
+    defaultValues: typeParam ? { ...EMPTY, type: typeParam } : EMPTY,
     mode: 'onTouched',
   });
 
@@ -232,7 +246,11 @@ export default function CreateVeterinaryCourseScreen() {
       create.mutate(input, {
         onSuccess: () => {
           toast.show({ message: t('form.created'), tone: 'success' });
-          router.replace(Routes.vetCourseMy);
+          // Admin-authored: back to the admin list it was opened from.
+          // Self-service vet: funnel to "دوراتي" to see the new PENDING
+          // submission, same as before, regardless of where they entered from.
+          if (isAdminOrigin) router.back();
+          else router.replace(Routes.vetCourseMy);
         },
         onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
       });

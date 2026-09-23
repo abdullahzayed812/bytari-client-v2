@@ -6,17 +6,18 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Alert } from '@/components/feedback';
+import { Alert, useToast } from '@/components/feedback';
 import { Checkbox, FormField, SegmentedControl } from '@/components/forms';
 import { Row, ScrollScreen, Section } from '@/components/layout';
-import { ImageUploader } from '@/components/media';
+import { LocalImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { authErrorMessage, fieldErrors, useRegisterMutation } from '@/features/auth';
-import type { ApplyForVeterinarianInput } from '@/features/veterinarian';
+import type { ApplyForVeterinarianInput, VeterinarianDocumentKind } from '@/features/veterinarian';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
+import type { LocalFile } from '@/services/files/types';
 import { useTheme } from '@/theme';
 
 import {
@@ -26,22 +27,41 @@ import {
   TermsAndConditionsModal,
 } from '../components';
 import { devVeterinarianDefaults } from '../data/devDefaults';
-import { useAvatarPresignProvider, useSubmitVeterinarianApplication } from '../hooks';
+import {
+  uploadRegistrationAvatar,
+  uploadRegistrationDocument,
+  useSubmitVeterinarianApplication,
+} from '../hooks';
 import { buildVeterinarianSchema, type VeterinarianFormValues } from '../validation/schemas';
 
 type SubmitStage = 'form' | 'apply-error';
 
-function buildDocuments(values: VeterinarianFormValues): ApplyForVeterinarianInput['documents'] {
-  if (values.subType === 'VETERINARIAN') {
-    const docs: ApplyForVeterinarianInput['documents'] = [];
-    if (values.licenseOrId) docs.push({ kind: 'LICENSE_OR_ID', ...values.licenseOrId });
-    if (values.additionalId) docs.push({ kind: 'ADDITIONAL_ID', ...values.additionalId });
-    return docs;
-  }
-  const docs: ApplyForVeterinarianInput['documents'] = [];
-  if (values.studentIdFront) docs.push({ kind: 'STUDENT_ID_FRONT', ...values.studentIdFront });
-  if (values.studentIdBack) docs.push({ kind: 'STUDENT_ID_BACK', ...values.studentIdBack });
-  return docs;
+/** Upload every staged document slot for `values.subType`, batched, right after `register()` succeeds. */
+async function uploadDocuments(
+  values: VeterinarianFormValues,
+): Promise<ApplyForVeterinarianInput['documents']> {
+  const slots: Array<{ kind: VeterinarianDocumentKind; file?: LocalFile }> =
+    values.subType === 'VETERINARIAN'
+      ? [
+          { kind: 'LICENSE_OR_ID', file: values.licenseOrId },
+          { kind: 'ADDITIONAL_ID', file: values.additionalId },
+        ]
+      : [
+          { kind: 'STUDENT_ID_FRONT', file: values.studentIdFront },
+          { kind: 'STUDENT_ID_BACK', file: values.studentIdBack },
+        ];
+  const staged = slots.filter(
+    (slot): slot is { kind: VeterinarianDocumentKind; file: LocalFile } => Boolean(slot.file),
+  );
+  const uploaded = await Promise.all(
+    staged.map((slot) => uploadRegistrationDocument(slot.kind, slot.file)),
+  );
+  return uploaded.map(({ kind, storageKey, filename, mimeType }) => ({
+    kind,
+    storageKey,
+    filename,
+    mimeType,
+  }));
 }
 
 /**
@@ -50,24 +70,31 @@ function buildDocuments(values: VeterinarianFormValues): ApplyForVeterinarianInp
  * fields as `PetOwnerRegisterScreen` plus a `subType` toggle and the two
  * document slots it requires.
  *
- * Submit does two network calls in sequence:
+ * The avatar and every document slot are picked LOCALLY (`LocalImageUploader`
+ * / `DocumentUploadTile`) — there is no account, and so no session, to upload
+ * them with until `register()` returns. Submit then runs, in sequence:
  *   1. `register()` — creates + signs the user in (same as the pet-owner flow).
- *   2. `apply()` — submits the veterinarian application with the uploaded
+ *   2. Upload the avatar (best-effort, non-fatal) and every staged document
+ *      (required — a failure here routes to the same `apply-error` retry UI
+ *      as an `apply()` failure, since the files are still sitting in RHF
+ *      state and safe to re-upload).
+ *   3. `apply()` — submits the veterinarian application with the uploaded
  *      document storage keys.
- * If (1) fails, nothing else runs. If (2) fails AFTER (1) already succeeded,
- * the account exists — retrying re-runs ONLY the apply mutation (never
- * `register()` again), reusing the document refs already sitting in RHF state.
+ * If (1) fails, nothing else runs. If (2) or (3) fails AFTER (1) already
+ * succeeded, the account exists — retrying re-runs (2) and (3) only (never
+ * `register()` again).
  */
 export default function VeterinarianRegisterScreen() {
   const theme = useTheme();
   const { t } = useTranslation('registration');
   const { t: tAuth } = useTranslation('auth');
+  const toast = useToast();
   const schema = useMemo(() => buildVeterinarianSchema(t), [t]);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const [stage, setStage] = useState<SubmitStage>('form');
   const [termsModalVisible, setTermsModalVisible] = useState(false);
-  const avatarProvider = useAvatarPresignProvider();
+  const [avatarFile, setAvatarFile] = useState<LocalFile | null>(null);
 
   const { control, handleSubmit, watch, resetField, getValues, setValue } =
     useForm<VeterinarianFormValues>({
@@ -107,13 +134,23 @@ export default function VeterinarianRegisterScreen() {
   const register = useRegisterMutation();
   const applyMutation = useSubmitVeterinarianApplication();
 
-  const submitApplication = (values: VeterinarianFormValues) => {
+  const submitApplication = async (values: VeterinarianFormValues) => {
+    let documents: ApplyForVeterinarianInput['documents'];
+    try {
+      documents = await uploadDocuments(values);
+    } catch (error) {
+      setStage('apply-error');
+      setFormError(apiErrorMessage(error));
+      return;
+    }
     applyMutation.mutate(
-      { note: undefined, subType: values.subType, documents: buildDocuments(values) },
+      { note: undefined, subType: values.subType, documents },
       {
         onSuccess: () => {
+          // Email is still unverified — `RegistrationSuccessScreen` comes
+          // AFTER the verify-email step, not before it.
           router.replace({
-            pathname: Routes.authRegisterSuccess,
+            pathname: Routes.authVerifyEmail,
             params: { outcome: 'veterinarian-pending' },
           });
         },
@@ -140,7 +177,16 @@ export default function VeterinarianRegisterScreen() {
         country: values.country,
       },
       {
-        onSuccess: () => submitApplication(values),
+        onSuccess: async () => {
+          if (avatarFile) {
+            try {
+              await uploadRegistrationAvatar(avatarFile);
+            } catch (error) {
+              toast.show({ message: apiErrorMessage(error), tone: 'warning' });
+            }
+          }
+          await submitApplication(values);
+        },
         onError: (error) => {
           setServerFields(fieldErrors(error));
           setFormError(authErrorMessage(error, 'register'));
@@ -151,7 +197,7 @@ export default function VeterinarianRegisterScreen() {
 
   const retryApplyOnly = () => {
     setFormError(null);
-    submitApplication(getValues());
+    void submitApplication(getValues());
   };
 
   const busy = register.isPending || applyMutation.isPending;
@@ -192,12 +238,11 @@ export default function VeterinarianRegisterScreen() {
         <Label color="primary">{t('petOwner.personalInfoSection')}</Label>
 
         <View style={{ alignItems: 'center' }}>
-          <ImageUploader
+          <LocalImageUploader
             shape="circle"
             size={96}
-            provider={avatarProvider}
-            value={null}
-            onChange={() => undefined}
+            value={avatarFile}
+            onChange={setAvatarFile}
             label={t('petOwner.photoLabel')}
           />
         </View>
@@ -305,7 +350,6 @@ export default function VeterinarianRegisterScreen() {
                 name="licenseOrId"
                 render={({ field: { value, onChange }, fieldState }) => (
                   <DocumentUploadTile
-                    kind="LICENSE_OR_ID"
                     label={t('veterinarian.licenseOrIdLabel')}
                     required
                     value={value ?? null}
@@ -319,7 +363,6 @@ export default function VeterinarianRegisterScreen() {
                 name="additionalId"
                 render={({ field: { value, onChange }, fieldState }) => (
                   <DocumentUploadTile
-                    kind="ADDITIONAL_ID"
                     label={t('veterinarian.additionalIdLabel')}
                     value={value ?? null}
                     onChange={onChange}
@@ -335,7 +378,6 @@ export default function VeterinarianRegisterScreen() {
                 name="studentIdFront"
                 render={({ field: { value, onChange }, fieldState }) => (
                   <DocumentUploadTile
-                    kind="STUDENT_ID_FRONT"
                     label={t('veterinarian.studentIdFrontLabel')}
                     required
                     value={value ?? null}
@@ -349,7 +391,6 @@ export default function VeterinarianRegisterScreen() {
                 name="studentIdBack"
                 render={({ field: { value, onChange }, fieldState }) => (
                   <DocumentUploadTile
-                    kind="STUDENT_ID_BACK"
                     label={t('veterinarian.studentIdBackLabel')}
                     required
                     value={value ?? null}

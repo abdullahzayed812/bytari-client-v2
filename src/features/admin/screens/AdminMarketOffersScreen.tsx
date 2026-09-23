@@ -5,6 +5,8 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
+import { Label } from '@/components/typography';
 import {
   useAdminDeleteEggOffer,
   useAdminDeletePoultryOffer,
@@ -27,6 +29,7 @@ export default function AdminMarketOffersScreen() {
   const theme = useTheme();
   const toast = useToast();
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [kind, setKind] = useState<Kind>(params.kind === 'egg' ? 'egg' : 'poultry');
 
   const isEgg = kind === 'egg';
@@ -87,18 +90,39 @@ export default function AdminMarketOffersScreen() {
           <AdminRow
             title={[o.governorate, o.district].filter(Boolean).join(' - ')}
             subtitle={o.phone}
+            image={{
+              uri: o.imageUrls[0] ?? null,
+              fallbackIcon: isEgg ? 'egg-outline' : 'nutrition-outline',
+              onPress:
+                o.imageUrls.length > 0
+                  ? () => setViewer({ images: o.imageUrls, index: 0 })
+                  : undefined,
+            }}
             badge={{
               label: t(`marketOffers.status.${o.status}`),
               tone: o.status === 'ACTIVE' ? 'success' : 'danger',
             }}
             actions={
-              o.status === 'ACTIVE' ? (
-                <Button
-                  label={t('marketOffers.deleteAction')}
-                  variant="danger"
-                  onPress={() => setPendingDelete(o.id)}
-                />
-              ) : undefined
+              <>
+                {o.imageUrls.length > 0 ? (
+                  // `width: '100%'` — `AdminRow`'s `actions` slot is a wrapping flex ROW.
+                  <View style={{ width: '100%', rowGap: theme.spacing.xs }}>
+                    <Label>{t('marketOffers.images')}</Label>
+                    <ImageThumbnailRow
+                      images={o.imageUrls}
+                      size={64}
+                      onPress={(index) => setViewer({ images: o.imageUrls, index })}
+                    />
+                  </View>
+                ) : null}
+                {o.status === 'ACTIVE' ? (
+                  <Button
+                    label={t('marketOffers.deleteAction')}
+                    variant="danger"
+                    onPress={() => setPendingDelete(o.id)}
+                  />
+                ) : null}
+              </>
             }
           />
         )}
@@ -114,6 +138,13 @@ export default function AdminMarketOffersScreen() {
         loading={del.isPending}
         onConfirm={onDelete}
         onCancel={() => setPendingDelete(null)}
+      />
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
       />
     </>
   );

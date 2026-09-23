@@ -1,7 +1,13 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
-import type { Paginated, VetCourse, VetCourseModerationStatus, VetCourseRegistration } from '../types';
+import type {
+  Paginated,
+  VetCourse,
+  VetCourseModerationStatus,
+  VetCourseRegistration,
+  VetCourseType,
+} from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
   const m = (meta ?? {}) as Partial<ApiPageMeta>;
@@ -24,12 +30,12 @@ export const adminVetCoursesApi = {
   async listCourses(
     page: number,
     pageSize: number,
-    filter: { status?: VetCourseModerationStatus } = {},
+    filter: { status?: VetCourseModerationStatus; type?: VetCourseType } = {},
   ): Promise<Paginated<VetCourse>> {
     const env = await apiClient.requestEnvelope<VetCourse[]>({
       method: 'GET',
       url: '/admin/vet-courses',
-      params: { page, pageSize, status: filter.status },
+      params: { page, pageSize, status: filter.status, type: filter.type },
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },

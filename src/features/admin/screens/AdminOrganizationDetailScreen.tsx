@@ -1,14 +1,13 @@
-import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Badge, Card } from '@/components/content';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
-import { ImageViewer } from '@/components/media';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -400,42 +399,6 @@ function Row({ label, value }: { label: string; value: string }) {
       <Text variant="caption" style={{ flexShrink: 1, textAlign: 'right' }}>
         {value}
       </Text>
-    </View>
-  );
-}
-
-const THUMBNAIL_SIZE = 72;
-
-function ImageThumbnailRow({
-  images,
-  onPress,
-}: {
-  images: string[];
-  onPress: (index: number) => void;
-}) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-      {images.map((uri, index) => (
-        <Pressable
-          key={uri}
-          accessibilityRole="button"
-          accessibilityLabel={`${index + 1}/${images.length}`}
-          onPress={() => onPress(index)}
-          style={({ pressed }) => [
-            {
-              width: THUMBNAIL_SIZE,
-              height: THUMBNAIL_SIZE,
-              borderRadius: theme.radius.md,
-              overflow: 'hidden',
-              backgroundColor: theme.colors.surfaceAccent,
-            },
-            pressed && { opacity: 0.8 },
-          ]}
-        >
-          <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
-        </Pressable>
-      ))}
     </View>
   );
 }

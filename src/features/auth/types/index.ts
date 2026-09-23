@@ -6,7 +6,13 @@
  */
 
 // --- enums (exact backend values) ---------------------------------------
-export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'DEACTIVATED';
+/**
+ * `PENDING_VERIFICATION` — a self-registered account whose email is not
+ * confirmed yet. `AuthRedirector` treats it as its own `AuthStatus`
+ * (`'pending-verification'`), distinct from both `authenticated` and
+ * `unauthenticated` — see that type below.
+ */
+export type UserStatus = 'ACTIVE' | 'PENDING_VERIFICATION' | 'SUSPENDED' | 'DEACTIVATED';
 
 /** Backend `veterinarian_status` — `NOT_APPLIED` is the "never applied" state. */
 export type VeterinarianStatus = 'NOT_APPLIED' | 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -80,10 +86,31 @@ export interface LoginInput {
   password: string;
 }
 
-/** `POST /auth/register` (201) and `POST /auth/login` (200). */
+export interface VerifyEmailInput {
+  email: string;
+  code: string;
+}
+
+/**
+ * `POST /auth/register` (201) — carries a real `{ user, tokens }` session
+ * (see `AuthService.register`'s backend doc comment for exactly why), PLUS
+ * `codeExpiresInSeconds` for the verify screen's countdown. `POST
+ * /auth/login` (200, only for an already-ACTIVE account) and `POST
+ * /auth/verify-email` (200) both return the plain `AuthResult` shape.
+ */
 export interface AuthResult {
   user: User;
   tokens: AuthTokens;
+}
+
+export interface RegisterResult extends AuthResult {
+  codeExpiresInSeconds: number;
+}
+
+/** `POST /auth/resend-verification` (200) — always this shape, even for an unknown/already-verified email (anti-enumeration). */
+export interface ResendVerificationResult {
+  codeExpiresInSeconds: number;
+  resendAvailableInSeconds: number;
 }
 
 /** `POST /auth/refresh` (200) — **tokens only, no user**. */
@@ -121,5 +148,20 @@ export interface SessionSnapshot {
 }
 
 // --- session state ------------------------------------------------
-/** Explicit lifecycle — `bootstrapping` prevents the login/app flicker (§8/§21). */
-export type AuthStatus = 'bootstrapping' | 'authenticated' | 'unauthenticated';
+/**
+ * Explicit lifecycle — `bootstrapping` prevents the login/app flicker
+ * (§8/§21).
+ *
+ * `pending-verification`: the session's `user.status` is
+ * `PENDING_VERIFICATION` — a registration-time token is held (it works for a
+ * small self-service allowlist: avatar upload, veterinarian documents +
+ * apply, `/auth/me`, refresh) but this is DELIBERATELY NOT `authenticated` —
+ * `AuthRedirector` routes here to the verify-email screen instead of the main
+ * app, and every other protected call the app might otherwise make is
+ * refused server-side anyway (401 `EMAIL_VERIFICATION_REQUIRED`).
+ */
+export type AuthStatus =
+  | 'bootstrapping'
+  | 'authenticated'
+  | 'pending-verification'
+  | 'unauthenticated';

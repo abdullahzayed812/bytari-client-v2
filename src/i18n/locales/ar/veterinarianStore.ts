@@ -185,6 +185,8 @@ export default {
       fieldName: 'الاسم',
       fieldShowOnHome: 'إظهار في الصفحة الرئيسية',
       fieldSortOrder: 'الترتيب',
+      fieldImage: 'صورة التصنيف',
+      imageAfterCreateHint: 'يمكنك إضافة صورة بعد إنشاء التصنيف.',
       productCount: '{{count}} منتج',
       created: 'تمت إضافة التصنيف',
       saved: 'تم الحفظ',

@@ -5,6 +5,7 @@ import { View } from 'react-native';
 
 import { Badge } from '@/components/content';
 import { Skeleton } from '@/components/feedback';
+import { ImageViewer } from '@/components/media';
 import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -45,65 +46,79 @@ export default function AdminFarmsScreen() {
   const speciesGroup: FarmSpeciesGroup = species === 'LIVESTOCK' ? 'LIVESTOCK' : 'POULTRY';
   const isPoultry = speciesGroup === 'POULTRY';
   const [scope, setScope] = useState<Scope>('all');
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
 
   const q = useAdminFarms({ ...scopeFilter(scope), speciesGroup });
 
   return (
-    <AdminListScreen
-      title={isPoultry ? t('farms.titlePoultry') : t('farms.titleLivestock')}
-      query={q}
-      data={q.farms}
-      keyExtractor={(f) => f.organizationId}
-      skeletonRow={
-        <View style={{ rowGap: 8, padding: theme.spacing.md }}>
-          <Skeleton width="60%" height={16} />
-          <Skeleton width="40%" height={12} />
-        </View>
-      }
-      emptyIcon={isPoultry ? 'egg-outline' : 'paw-outline'}
-      emptyTitle={t('farms.empty')}
-      emptyMessage={t('farms.emptyHint')}
-      loadingMoreLabel={t('common.loadingMore')}
-      filterBar={
-        <FilterChips<Scope>
-          value={scope}
-          onChange={(v) => setScope(v ?? 'all')}
-          options={[
-            { value: 'all', label: t('farms.tab.all') },
-            { value: 'pending', label: t('farms.tab.pending') },
-            { value: 'active', label: t('farms.tab.active') },
-            { value: 'rejected', label: t('orgs.status.REJECTED') },
-            { value: 'expired', label: t('farms.tab.expired') },
-          ]}
-        />
-      }
-      renderItem={(f) => (
-        <AdminRow
-          title={f.name}
-          subtitle={`${t('farms.ownerLabel')}: ${f.ownerName}`}
-          meta={
-            f.subscriptionEndDate
-              ? t('farms.subscriptionUntil', { date: formatDate(f.subscriptionEndDate) })
-              : undefined
-          }
-          badge={{ label: t(`orgs.status.${f.status}`), tone: statusTone(f.status) }}
-          actions={
-            f.status === 'ACTIVE' ? (
-              <>
-                <Badge
-                  label={t(`farms.subscriptionStatus.${f.subscriptionStatus}`)}
-                  tone={f.subscriptionStatus === 'EXPIRED' ? 'danger' : 'success'}
-                  size="sm"
-                />
-                {f.hasOpenRenewalRequest ? (
-                  <Badge label={t('farms.renewalPendingBadge')} tone="warning" size="sm" />
-                ) : null}
-              </>
-            ) : undefined
-          }
-          onPress={() => router.push(Routes.adminFarm(f.organizationId))}
-        />
-      )}
-    />
+    <>
+      <AdminListScreen
+        title={isPoultry ? t('farms.titlePoultry') : t('farms.titleLivestock')}
+        query={q}
+        data={q.farms}
+        keyExtractor={(f) => f.organizationId}
+        skeletonRow={
+          <View style={{ rowGap: 8, padding: theme.spacing.md }}>
+            <Skeleton width="60%" height={16} />
+            <Skeleton width="40%" height={12} />
+          </View>
+        }
+        emptyIcon={isPoultry ? 'egg-outline' : 'paw-outline'}
+        emptyTitle={t('farms.empty')}
+        emptyMessage={t('farms.emptyHint')}
+        loadingMoreLabel={t('common.loadingMore')}
+        filterBar={
+          <FilterChips<Scope>
+            value={scope}
+            onChange={(v) => setScope(v ?? 'all')}
+            options={[
+              { value: 'all', label: t('farms.tab.all') },
+              { value: 'pending', label: t('farms.tab.pending') },
+              { value: 'active', label: t('farms.tab.active') },
+              { value: 'rejected', label: t('orgs.status.REJECTED') },
+              { value: 'expired', label: t('farms.tab.expired') },
+            ]}
+          />
+        }
+        renderItem={(f) => (
+          <AdminRow
+            title={f.name}
+            subtitle={`${t('farms.ownerLabel')}: ${f.ownerName}`}
+            meta={
+              f.subscriptionEndDate
+                ? t('farms.subscriptionUntil', { date: formatDate(f.subscriptionEndDate) })
+                : undefined
+            }
+            image={{
+              uri: f.imageUrl ?? null,
+              fallbackIcon: 'home-outline',
+              onPress: f.imageUrl ? () => setViewerImage(f.imageUrl as string) : undefined,
+            }}
+            badge={{ label: t(`orgs.status.${f.status}`), tone: statusTone(f.status) }}
+            actions={
+              f.status === 'ACTIVE' ? (
+                <>
+                  <Badge
+                    label={t(`farms.subscriptionStatus.${f.subscriptionStatus}`)}
+                    tone={f.subscriptionStatus === 'EXPIRED' ? 'danger' : 'success'}
+                    size="sm"
+                  />
+                  {f.hasOpenRenewalRequest ? (
+                    <Badge label={t('farms.renewalPendingBadge')} tone="warning" size="sm" />
+                  ) : null}
+                </>
+              ) : undefined
+            }
+            onPress={() => router.push(Routes.adminFarm(f.organizationId))}
+          />
+        )}
+      />
+
+      <ImageViewer
+        visible={viewerImage !== null}
+        images={viewerImage ? [viewerImage] : []}
+        onClose={() => setViewerImage(null)}
+      />
+    </>
   );
 }

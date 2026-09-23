@@ -135,6 +135,7 @@ export default {
     filterInquiries: 'الاستفسارات',
     respond: 'الرد',
     close: 'إغلاق',
+    attachmentsLabel: 'المرفقات',
     closeConfirmTitle: 'إغلاق العنصر',
     closeConfirmBody: 'سيتم إغلاق هذا الطلب/الاستفسار.',
     responseLabel: 'نص الرد',

@@ -3,7 +3,7 @@ import { ApiError } from '@/services/api/errors';
 import { authApi } from '../api';
 import { tokenStorage } from '../services';
 import { useAuthStore } from '../store';
-import type { AuthResult, SessionSnapshot } from '../types';
+import type { AuthResult, RegisterResult, SessionSnapshot, User } from '../types';
 
 const snapshot: SessionSnapshot = {
   user: {
@@ -31,6 +31,12 @@ const authResult: AuthResult = {
   tokens: { accessToken: 'a1', refreshToken: 'r1', tokenType: 'Bearer', expiresIn: 900 },
 };
 
+/** `POST /auth/register`'s default mock — /auth/me still needs its own `snapshot` mock per test. */
+const registerResult: RegisterResult = { ...authResult, codeExpiresInSeconds: 600 };
+
+const pendingUser: User = { ...snapshot.user, status: 'PENDING_VERIFICATION' };
+const pendingSnapshot: SessionSnapshot = { ...snapshot, user: pendingUser };
+
 const authError = (code: string) =>
   new ApiError({ code: code as never, message: 'x', status: 401 });
 
@@ -48,7 +54,7 @@ describe('auth store — session lifecycle', () => {
     jest.clearAllMocks();
     me.mockResolvedValue(snapshot);
     login.mockResolvedValue(authResult);
-    register.mockResolvedValue(authResult);
+    register.mockResolvedValue(registerResult);
     refresh.mockResolvedValue({ tokens: authResult.tokens });
     logout.mockResolvedValue({ success: true });
     logoutAll.mockResolvedValue({ success: true, revokedSessions: 2 });
@@ -107,7 +113,8 @@ describe('auth store — session lifecycle', () => {
     expect(useAuthStore.getState().status).toBe('unauthenticated');
   });
 
-  it('register → establishes a session like login', async () => {
+  it('register → does NOT reach "authenticated" — the account starts PENDING_VERIFICATION', async () => {
+    me.mockResolvedValueOnce(pendingSnapshot);
     await useAuthStore.getState().register({
       email: 'new@user.com',
       password: 'longenough1',
@@ -115,7 +122,28 @@ describe('auth store — session lifecycle', () => {
       lastName: 'User',
     });
     expect(register).toHaveBeenCalled();
+    // the token IS persisted (register()'s token is real, just scoped)…
+    expect(useAuthStore.getState().tokens?.accessToken).toBe('a1');
+    // …but the store deliberately does NOT call it "authenticated".
+    expect(useAuthStore.getState().status).toBe('pending-verification');
+    expect(useAuthStore.getState().user?.status).toBe('PENDING_VERIFICATION');
+  });
+
+  it('verifyEmail → establishes a normal session, same as login', async () => {
+    const verifyEmail = jest.spyOn(authApi, 'verifyEmail').mockResolvedValueOnce(authResult);
+    await useAuthStore.getState().verifyEmail({ email: 'new@user.com', code: '123456' });
+    expect(verifyEmail).toHaveBeenCalledWith({ email: 'new@user.com', code: '123456' });
     expect(useAuthStore.getState().status).toBe('authenticated');
+    expect(useAuthStore.getState().tokens?.accessToken).toBe('a1');
+  });
+
+  it('resendVerification → thin passthrough to authApi', async () => {
+    const resend = jest
+      .spyOn(authApi, 'resendVerification')
+      .mockResolvedValueOnce({ codeExpiresInSeconds: 600, resendAvailableInSeconds: 45 });
+    const result = await useAuthStore.getState().resendVerification('new@user.com');
+    expect(resend).toHaveBeenCalledWith('new@user.com');
+    expect(result.resendAvailableInSeconds).toBe(45);
   });
 
   it('logout → clears session + tokens and calls the backend', async () => {

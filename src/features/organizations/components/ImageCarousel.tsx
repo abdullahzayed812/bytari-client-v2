@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useCallback, useState } from 'react';
 import {
   Dimensions,
+  Pressable,
   ScrollView,
   View,
   type NativeScrollEvent,
@@ -9,6 +10,7 @@ import {
 } from 'react-native';
 
 import { Icon } from '@/components/content';
+import { ImageViewer } from '@/components/media';
 import { BackButton } from '@/components/navigation';
 import { useTheme } from '@/theme';
 
@@ -17,17 +19,24 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface ImageCarouselProps {
   images: string[];
+  /**
+   * Tap a photo to open the shared full-screen `ImageViewer` (pinch/double-tap
+   * zoom, swipe between photos). On by default — pass `false` only where a tap
+   * must do something else.
+   */
+  enableViewer?: boolean;
 }
 
 /**
  * Full-bleed hero carousel with dot pagination and a floating back button —
  * the Clinic Details top section. Falls back to a single placeholder tile
  * (no dots) when the clinic has no gallery photos yet — real empty state,
- * never a fake stock photo.
+ * never a fake stock photo. Tapping a photo opens the shared `ImageViewer`.
  */
-export function ImageCarousel({ images }: ImageCarouselProps) {
+export function ImageCarousel({ images, enableViewer = true }: ImageCarouselProps) {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
@@ -43,14 +52,21 @@ export function ImageCarousel({ images }: ImageCarouselProps) {
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={onScroll}
         >
-          {images.map((uri) => (
-            <Image
+          {images.map((uri, index) => (
+            <Pressable
               key={uri}
-              source={uri}
-              style={{ width: SCREEN_WIDTH, height: HEIGHT }}
-              contentFit="cover"
-              accessibilityIgnoresInvertColors
-            />
+              accessibilityRole={enableViewer ? 'imagebutton' : 'image'}
+              accessibilityLabel={`${index + 1}/${images.length}`}
+              disabled={!enableViewer}
+              onPress={() => setViewerIndex(index)}
+            >
+              <Image
+                source={uri}
+                style={{ width: SCREEN_WIDTH, height: HEIGHT }}
+                contentFit="cover"
+                accessibilityIgnoresInvertColors
+              />
+            </Pressable>
           ))}
         </ScrollView>
       ) : (
@@ -97,6 +113,13 @@ export function ImageCarousel({ images }: ImageCarouselProps) {
           ))}
         </View>
       ) : null}
+
+      <ImageViewer
+        visible={viewerIndex !== null}
+        images={images}
+        initialIndex={viewerIndex ?? 0}
+        onClose={() => setViewerIndex(null)}
+      />
     </View>
   );
 }

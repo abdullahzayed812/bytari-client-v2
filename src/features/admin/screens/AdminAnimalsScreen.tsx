@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Text } from '@/components/typography';
 import { useDebouncedValue } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
@@ -35,6 +36,7 @@ export default function AdminAnimalsScreen() {
   const del = useAdminDeleteAnimal();
 
   const [pendingDelete, setPendingDelete] = useState<AdminAnimal | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<AdminAnimal | null>(null);
 
   const onDelete = () => {
@@ -93,6 +95,14 @@ export default function AdminAnimalsScreen() {
             title={a.name}
             subtitle={[a.species, a.breed].filter(Boolean).join(' · ')}
             meta={`${t('adminAnimals.owner')}: ${a.ownerName ?? t('adminAnimals.noOwner')}`}
+            image={{
+              uri: a.galleryUrls[0] ?? null,
+              fallbackIcon: 'paw-outline',
+              onPress:
+                a.galleryUrls.length > 0
+                  ? () => setViewer({ images: a.galleryUrls, index: 0 })
+                  : undefined,
+            }}
             onPress={() => setDetail(a)}
             badge={{
               label: t(`adminAnimals.status.${a.status}`),
@@ -159,23 +169,24 @@ export default function AdminAnimalsScreen() {
           <Text variant="overline" color="textMuted">
             {t('adminAnimals.details.gallery')}
           </Text>
-          {detail && detail.galleryUrls.length > 0 ? (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-              {detail.galleryUrls.map((uri) => (
-                <Image
-                  key={uri}
-                  source={{ uri }}
-                  style={{ width: 88, height: 88, borderRadius: theme.radius.md }}
-                />
-              ))}
-            </View>
-          ) : (
-            <Text variant="body" color="textSecondary">
-              {t('adminAnimals.details.noImages')}
-            </Text>
-          )}
+          <ImageThumbnailRow
+            images={detail?.galleryUrls ?? []}
+            size={88}
+            fallbackIcon="paw-outline"
+            emptyLabel={t('adminAnimals.details.noImages')}
+            onPress={(index) =>
+              detail ? setViewer({ images: detail.galleryUrls, index }) : undefined
+            }
+          />
         </View>
       </AdminDetailModal>
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </>
   );
 }

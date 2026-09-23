@@ -2617,6 +2617,17 @@ depends on one.
   markup execution. `USER` messages from the signed-in user align end; everyone
   else aligns start with a role label / resolved name; `SYSTEM` is centred and
   muted; a soft-deleted message shows a placeholder, never the original body.
+- **Image attachments (added by the image audit).** CONSULTATION / INQUIRY
+  accept up to `MAX_THREAD_IMAGES` (6) photos on the thread's **first** message
+  — the backend has had `POST /<slug>/attachments/upload-url` + `imageKeys` on
+  create and `imageUrls` on every message DTO since Phase 13; only the mobile
+  wiring was missing. `CreateThreadScreen` stages them through the shared
+  `MultiImagePicker` (presign → direct R2 `PUT` → storage keys), and
+  `MessageBubble` renders `message.imageUrls` as `ImageThumbnailRow`
+  thumbnails that open the shared `ImageViewer`. A soft-deleted message hides
+  its attachments along with its body. SUPPORT ("تواصل معنا") has
+  `maxAttachmentImages: 0` server-side, so the picker is hidden for it.
+  Follow-up messages stay body-only for every kind.
 - **Nothing sensitive is logged or sent to analytics** — no consultation
   descriptions, inquiry content, message bodies, or private URLs. Errors go
   through `supportErrorMessage`, which maps known codes

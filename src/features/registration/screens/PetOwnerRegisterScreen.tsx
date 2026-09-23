@@ -6,36 +6,47 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Alert } from '@/components/feedback';
+import { Alert, useToast } from '@/components/feedback';
 import { Checkbox, FormField } from '@/components/forms';
 import { Row, ScrollScreen, Section } from '@/components/layout';
-import { ImageUploader } from '@/components/media';
+import { LocalImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { authErrorMessage, fieldErrors, useRegisterMutation } from '@/features/auth';
+import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
+import type { LocalFile } from '@/services/files/types';
 import { useTheme } from '@/theme';
 
 import { CountrySelect, GenderRadioGroup, TermsAndConditionsModal } from '../components';
 import { devPetOwnerDefaults } from '../data/devDefaults';
-import { useAvatarPresignProvider } from '../hooks';
+import { uploadRegistrationAvatar } from '../hooks';
 import { buildPetOwnerSchema, type PetOwnerFormValues } from '../validation/schemas';
 
 /**
  * Route `/(auth)/register` (A-06) — Pet Owner registration. A single,
  * long-scroll form (not a wizard), following the same RHF + zod +
  * `authErrorMessage`/`fieldErrors` pattern as the rest of the auth screens.
+ *
+ * The photo is picked LOCALLY (`LocalImageUploader`) — there is no account,
+ * and so no session, to upload it with until `register()` returns. It is
+ * uploaded right after that succeeds, using the token `register()` DOES
+ * return (real, but scoped to registration self-service — see
+ * `AuthResult`'s doc comment); a failed upload is a non-blocking toast, never
+ * a reason to fail the whole registration. `AuthRedirector` takes it from
+ * here to the verify-email screen once `register()` resolves.
  */
 export default function PetOwnerRegisterScreen() {
   const theme = useTheme();
   const { t } = useTranslation('registration');
   const { t: tAuth } = useTranslation('auth');
+  const toast = useToast();
   const schema = useMemo(() => buildPetOwnerSchema(t), [t]);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const [termsModalVisible, setTermsModalVisible] = useState(false);
-  const avatarProvider = useAvatarPresignProvider();
+  const [avatarFile, setAvatarFile] = useState<LocalFile | null>(null);
 
   const { control, handleSubmit, setValue } = useForm<PetOwnerFormValues>({
     resolver: zodResolver(schema),
@@ -74,8 +85,17 @@ export default function PetOwnerRegisterScreen() {
         country: values.country,
       },
       {
-        onSuccess: () => {
-          router.replace({ pathname: Routes.authRegisterSuccess, params: { outcome: 'owner' } });
+        onSuccess: async () => {
+          if (avatarFile) {
+            try {
+              await uploadRegistrationAvatar(avatarFile);
+            } catch (error) {
+              toast.show({ message: apiErrorMessage(error), tone: 'warning' });
+            }
+          }
+          // `AuthRedirector` takes it from here — the store already flipped
+          // to `pending-verification` inside `register.mutate`'s promise.
+          router.replace({ pathname: Routes.authVerifyEmail, params: { outcome: 'owner' } });
         },
         onError: (error) => {
           setServerFields(fieldErrors(error));
@@ -95,12 +115,11 @@ export default function PetOwnerRegisterScreen() {
         <Label color="primary">{t('petOwner.personalInfoSection')}</Label>
 
         <View style={{ alignItems: 'center' }}>
-          <ImageUploader
+          <LocalImageUploader
             shape="circle"
             size={96}
-            provider={avatarProvider}
-            value={null}
-            onChange={() => undefined}
+            value={avatarFile}
+            onChange={setAvatarFile}
             label={t('petOwner.photoLabel')}
           />
         </View>

@@ -6,6 +6,7 @@ import { Card, Icon } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SegmentedControl } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
@@ -69,6 +70,7 @@ export default function MySyndicateSubmissionsScreen() {
 function SubmissionRow({ submission }: { submission: SyndicateSubmission }) {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   return (
     <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
@@ -84,6 +86,13 @@ function SubmissionRow({ submission }: { submission: SyndicateSubmission }) {
       <Text variant="body" numberOfLines={3}>
         {submission.message}
       </Text>
+      {submission.attachmentUrls.length > 0 ? (
+        <ImageThumbnailRow
+          images={submission.attachmentUrls}
+          size={64}
+          onPress={setViewerIndex}
+        />
+      ) : null}
       <Caption color="textMuted">
         {t('mySubmissions.submittedOn')}: {formatDate(submission.createdAt)}
       </Caption>
@@ -95,6 +104,13 @@ function SubmissionRow({ submission }: { submission: SyndicateSubmission }) {
           </Text>
         </View>
       ) : null}
+
+      <ImageViewer
+        visible={viewerIndex !== null}
+        images={submission.attachmentUrls}
+        initialIndex={viewerIndex ?? 0}
+        onClose={() => setViewerIndex(null)}
+      />
     </Card>
   );
 }

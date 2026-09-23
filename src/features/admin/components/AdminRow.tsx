@@ -15,8 +15,15 @@ export interface AdminRowProps {
    * Optional leading thumbnail. `onPress` (if given) is called instead of the
    * row's own `onPress` when the thumbnail itself is tapped — e.g. to open a
    * full-screen `ImageViewer` rather than navigating to the detail screen.
+   * `accessibilityLabel` defaults to the row `title`; pass a distinct one when
+   * the row is also pressable, so the two targets stay distinguishable.
    */
-  image?: { uri: string | null; fallbackIcon?: IconName; onPress?: () => void };
+  image?: {
+    uri: string | null;
+    fallbackIcon?: IconName;
+    onPress?: () => void;
+    accessibilityLabel?: string;
+  };
   /** Trailing action buttons (rendered below the row when present). */
   actions?: ReactNode;
   onPress?: () => void;
@@ -46,7 +53,7 @@ export function AdminRow({
         {image ? (
           <Pressable
             accessibilityRole={image.onPress ? 'imagebutton' : undefined}
-            accessibilityLabel={image.onPress ? title : undefined}
+            accessibilityLabel={image.onPress ? (image.accessibilityLabel ?? title) : undefined}
             disabled={!image.onPress}
             onPress={image.onPress}
             style={{

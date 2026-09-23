@@ -11,9 +11,10 @@ import type { PresignedUpload } from '@/services/files/types';
  *                                      → 200 updated public user (sets the avatar)
  *
  * NOTE: both endpoints require an authenticated session. During the
- * registration screens the photo is picked *before* the account exists, so an
- * upload attempted before `register()` succeeds will fail with 401 — the
- * picker surfaces that as a non-blocking toast (see `useAvatarPresignProvider`).
+ * registration screens the photo is picked LOCALLY, *before* the account
+ * exists (`LocalImageUploader`), and only uploaded through these two calls
+ * right after `register()` succeeds — see `uploadRegistrationAvatar`
+ * (`../lib/deferredUploads.ts`), which is what actually calls them.
  */
 export interface RequestAvatarUploadUrlInput {
   filename: string;

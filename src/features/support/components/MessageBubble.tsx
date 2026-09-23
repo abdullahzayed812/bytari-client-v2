@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Icon } from '@/components/content';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Caption, Text } from '@/components/typography';
 import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
@@ -21,6 +23,8 @@ export interface MessageBubbleProps {
  * else (SUPERVISOR / ADMIN / AI) aligns to the start with a small role label;
  * SYSTEM is centred and muted. A soft-deleted message shows a placeholder.
  * Bodies are rendered as PLAIN TEXT (RN `<Text>` never executes markup — §35).
+ * Attachments (CONSULTATION / INQUIRY first message) render as thumbnails that
+ * open the shared full-screen `ImageViewer`; a soft-deleted message hides them.
  */
 export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   const theme = useTheme();
@@ -28,6 +32,8 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   const meta = MESSAGE_SOURCE_META[message.source];
   const mine = message.source === 'USER' && message.senderUserId === currentUserId;
   const align: 'start' | 'end' | 'center' = mine ? 'end' : meta.align;
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const images = message.deletedAt ? [] : (message.imageUrls ?? []);
 
   if (message.source === 'SYSTEM' || align === 'center') {
     return (
@@ -73,11 +79,31 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
         >
           {message.deletedAt ? t('message.deleted') : message.body}
         </Text>
+
+        {images.length > 0 ? (
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <ImageThumbnailRow
+              images={images}
+              size={72}
+              onPress={setViewerIndex}
+              accessibilityLabelFor={(index, total) =>
+                t('message.attachmentA11y', { index: index + 1, total })
+              }
+            />
+          </View>
+        ) : null}
       </View>
 
       <Caption style={{ alignSelf: align === 'end' ? 'flex-end' : 'flex-start' }}>
         {formatDate(message.createdAt)}
       </Caption>
+
+      <ImageViewer
+        visible={viewerIndex !== null}
+        images={images}
+        initialIndex={viewerIndex ?? 0}
+        onClose={() => setViewerIndex(null)}
+      />
     </View>
   );
 }

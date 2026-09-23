@@ -12,10 +12,18 @@
  * CONSULTATION / INQUIRY **system-supervisor** domain assignment who is an
  * approved vet. No relationship → 404. Every mutation is backend-authorised.
  *
+ * Image attachments: CONSULTATION / INQUIRY only, and only on the thread's
+ * FIRST message — the client presigns each photo against
+ * `POST /<slug>/attachments/upload-url`, uploads it straight to R2, then sends
+ * the returned storage keys as `imageKeys` on create. SUPPORT has no
+ * attachment capability (`maxAttachmentImages: 0`); follow-up messages are
+ * body-only for every kind.
+ *
  * NOT in the backend (documented in MOBILE_ARCHITECTURE.md, never mocked):
- * title / description / category fields, attachments, message edit/delete by
- * the user, search / category filters, admin status-change or supervisor
- * reassignment endpoints, reopening a CLOSED thread.
+ * title / description / category fields, attachments on FOLLOW-UP messages,
+ * message edit/delete by the user, search / category filters, admin
+ * status-change or supervisor reassignment endpoints, reopening a CLOSED
+ * thread.
  *
  * A thread is OPEN and freely writable by the creator by default. Only a
  * responder CLOSING it, or manually muting the creator (`POST /:id/block`),
@@ -32,6 +40,9 @@ export type ThreadStatus = (typeof THREAD_STATUSES)[number];
 /** Who a message came from. `senderUserId` is `null` for AI / SYSTEM. */
 export const MESSAGE_SOURCES = ['USER', 'SUPERVISOR', 'ADMIN', 'AI', 'SYSTEM'] as const;
 export type MessageSource = (typeof MESSAGE_SOURCES)[number];
+
+/** Backend `MAX_MESSAGE_IMAGES` — the per-thread cap on first-message photos. */
+export const MAX_THREAD_IMAGES = 6;
 
 export const THREAD_KIND_SLUGS = ['consultations', 'inquiries', 'support-messages'] as const;
 export type ThreadKindSlug = (typeof THREAD_KIND_SLUGS)[number];
@@ -61,6 +72,12 @@ export interface ThreadMessage {
   source: MessageSource;
   /** `null` for a soft-deleted message. */
   body: string | null;
+  /**
+   * Resolved attachment URLs (public CDN or short-lived signed R2 GET) — the
+   * raw storage key never leaves the server. `[]` for messages with no photos
+   * and for every SUPPORT message.
+   */
+  imageUrls: string[];
   deletedAt: string | null;
   createdAt: string;
 }
@@ -70,9 +87,13 @@ export interface ThreadMessage {
 export interface CreateConsultationInput {
   body: string;
   animalId?: string | null;
+  /** Storage keys from `POST /consultations/attachments/upload-url`. Max {@link MAX_THREAD_IMAGES}. */
+  imageKeys?: string[];
 }
 export interface CreateInquiryInput {
   body: string;
+  /** Storage keys from `POST /inquiries/attachments/upload-url`. Max {@link MAX_THREAD_IMAGES}. */
+  imageKeys?: string[];
 }
 /** "تواصل معنا" — a support message to the administration. Body only. */
 export interface CreateSupportInput {

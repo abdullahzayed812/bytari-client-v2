@@ -109,7 +109,7 @@ export default function ServicesHubScreen() {
               icon="ribbon-outline"
               label={t('services.becomeVet')}
               hint={t('services.becomeVetHint')}
-              onPress={() => router.push(Routes.veterinarian)}
+              onPress={() => router.push(Routes.veterinarianApply)}
             />
           )}
         </View>

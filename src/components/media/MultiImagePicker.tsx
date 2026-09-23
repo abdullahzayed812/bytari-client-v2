@@ -4,7 +4,6 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { useToast } from '@/components/feedback';
-import { ImagePreview } from '@/components/media';
 import { Label, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import {
@@ -16,6 +15,8 @@ import {
 } from '@/services/media';
 import { useTheme } from '@/theme';
 
+import { ImagePreview } from './ImagePreview';
+
 const TILE_SIZE = 84;
 
 interface GalleryItem {
@@ -25,7 +26,7 @@ interface GalleryItem {
   status: 'uploading' | 'done' | 'error';
 }
 
-export interface AnimalGalleryPickerProps {
+export interface MultiImagePickerProps {
   provider: PresignProvider;
   onChange: (storageKeys: string[]) => void;
   max?: number;
@@ -35,20 +36,24 @@ export interface AnimalGalleryPickerProps {
 }
 
 /**
- * Multi-photo picker for the "Add Lost / Adoption / Mating Animal" forms —
- * "يمكنك إضافة أكثر من صورة واضحة للحيوان". Uploads sequentially through the
- * existing presigned-upload seam (`useMediaUpload`); each tile shows its own
- * progress / error / retry, same visual language as the single-image
+ * The shared multi-photo field: pick several photos at once, upload each one
+ * sequentially through the presigned-upload seam (`useMediaUpload`), and hand
+ * the caller the finished storage keys. Each tile shows its own progress /
+ * error / retry, in the same visual language as the single-image
  * `ImageUploader`.
+ *
+ * Used by every form that accepts more than one photo (Lost / Adoption /
+ * Mating listings, vet-service listings / requests / offers, consultation and
+ * inquiry attachments). Do not hand-roll another one.
  */
-export function AnimalGalleryPicker({
+export function MultiImagePicker({
   provider,
   onChange,
   max = 8,
   disabled,
   label,
   hint,
-}: AnimalGalleryPickerProps) {
+}: MultiImagePickerProps) {
   const theme = useTheme();
   const { t } = useTranslation('common');
   const toast = useToast();

@@ -11,12 +11,24 @@ import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
 import { adminVetCoursesApi, vetCourseKeys } from '../api';
-import type { Paginated, VetCourse, VetCourseModerationStatus, VetCourseRegistration } from '../types';
+import type {
+  Paginated,
+  VetCourse,
+  VetCourseModerationStatus,
+  VetCourseRegistration,
+  VetCourseType,
+} from '../types';
 
 const PAGE = AppConfig.defaultPageSize;
 
-/** `GET /admin/vet-courses` — the course/seminar/workshop moderation queue (defaults to PENDING). */
-export function useAdminVetCourses(filter: { status?: VetCourseModerationStatus } = {}) {
+/**
+ * `GET /admin/vet-courses` — the course/seminar/workshop moderation queue.
+ * `type` scopes this to ONE dedicated screen (Courses vs Seminars) so the two
+ * never mix in the same list — `AdminVetCoursesScreen` always passes it.
+ */
+export function useAdminVetCourses(
+  filter: { status?: VetCourseModerationStatus; type?: VetCourseType } = {},
+) {
   const query = useInfiniteQuery<
     Paginated<VetCourse>,
     unknown,
@@ -24,7 +36,7 @@ export function useAdminVetCourses(filter: { status?: VetCourseModerationStatus 
     ReturnType<typeof vetCourseKeys.adminCourseList>,
     number
   >({
-    queryKey: vetCourseKeys.adminCourseList(filter.status),
+    queryKey: vetCourseKeys.adminCourseList(filter.status, filter.type),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetCoursesApi.listCourses(pageParam, PAGE, filter),
     getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),

@@ -8,6 +8,7 @@ import { Badge, Card, Chip } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -25,6 +26,7 @@ export default function VeterinarianStoreAdminProductsScreen() {
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
   const [status, setStatus] = useState<VetStoreProductStatus | undefined>();
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
 
   const q = useVetStoreAdminProducts({ search, status });
 
@@ -88,6 +90,15 @@ export default function VeterinarianStoreAdminProductsScreen() {
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
               >
+                <ImageThumbnailRow
+                  images={item.primaryImageUrl ? [item.primaryImageUrl] : []}
+                  size={44}
+                  fallbackIcon="pricetag-outline"
+                  placeholderWhenEmpty
+                  onPress={() =>
+                    item.primaryImageUrl ? setViewerImage(item.primaryImageUrl) : undefined
+                  }
+                />
                 <View style={{ flex: 1, rowGap: 4 }}>
                   <Text variant="bodyStrong" numberOfLines={1}>
                     {item.name}
@@ -138,6 +149,12 @@ export default function VeterinarianStoreAdminProductsScreen() {
           }
         />
       )}
+
+      <ImageViewer
+        visible={viewerImage !== null}
+        images={viewerImage ? [viewerImage] : []}
+        onClose={() => setViewerImage(null)}
+      />
     </SafeAreaScreen>
   );
 }

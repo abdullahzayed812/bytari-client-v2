@@ -15,6 +15,7 @@ describe('UserName', () => {
       firstName: 'منى',
       lastName: 'عادل',
       veterinarianStatus: 'APPROVED',
+      avatarUrl: null,
     });
     renderWithProviders(<UserName userId="u1" />);
     await waitFor(() => expect(screen.getByText('منى عادل')).toBeOnTheScreen());

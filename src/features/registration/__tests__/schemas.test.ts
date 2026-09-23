@@ -48,7 +48,7 @@ describe('buildPetOwnerSchema', () => {
 
 describe('buildVeterinarianSchema', () => {
   const schema = buildVeterinarianSchema(t);
-  const doc = { storageKey: 'k', filename: 'f.jpg', mimeType: 'image/jpeg' };
+  const doc = { uri: 'file:///f.jpg', name: 'f.jpg', mimeType: 'image/jpeg' };
 
   it('requires licenseOrId for subType VETERINARIAN', () => {
     const result = schema.safeParse({ ...BASE, subType: 'VETERINARIAN' });

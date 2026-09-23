@@ -1,11 +1,13 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { EmptyState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
@@ -21,6 +23,7 @@ export default function SyndicateAnnouncementDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const q = useSyndicateAnnouncement(id);
   const announcement = q.data;
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   return (
     <SafeAreaScreen>
@@ -33,7 +36,14 @@ export default function SyndicateAnnouncementDetailsScreen() {
         <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.huge }}>
           <View style={{ height: 220, backgroundColor: theme.colors.surfaceAccent }}>
             {announcement.imageUrl ? (
-              <Image source={{ uri: announcement.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+              <Pressable
+                accessibilityRole="imagebutton"
+                accessibilityLabel={announcement.title}
+                onPress={() => setViewerOpen(true)}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <Image source={{ uri: announcement.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+              </Pressable>
             ) : (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="megaphone-outline" size="iconXl" color="textMuted" />
@@ -55,6 +65,12 @@ export default function SyndicateAnnouncementDetailsScreen() {
               {announcement.body}
             </Text>
           </View>
+
+          <ImageViewer
+            visible={viewerOpen}
+            images={announcement.imageUrl ? [announcement.imageUrl] : []}
+            onClose={() => setViewerOpen(false)}
+          />
         </ScrollView>
       )}
     </SafeAreaScreen>

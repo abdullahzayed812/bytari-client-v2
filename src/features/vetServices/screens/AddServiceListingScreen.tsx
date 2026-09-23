@@ -7,9 +7,9 @@ import { Button } from '@/components/actions';
 import { Chip } from '@/components/content';
 import { EmptyState, useToast } from '@/components/feedback';
 import { Input, Select, Switch } from '@/components/forms';
+import { MultiImagePicker } from '@/components/media';
 import { Label, Text } from '@/components/typography';
 import { OrgFormLayout } from '@/features/organizations';
-import { AnimalGalleryPicker } from '@/features/publications';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -228,7 +228,7 @@ export default function AddServiceListingScreen() {
         hint={t('fields.detailsHint')}
       />
 
-      <AnimalGalleryPicker
+      <MultiImagePicker
         provider={imageProvider}
         onChange={setImageKeys}
         max={6}

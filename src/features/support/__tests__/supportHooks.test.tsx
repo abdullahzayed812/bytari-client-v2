@@ -95,6 +95,7 @@ describe('useThreadMessages', () => {
       senderUserId: 'u1',
       source: 'USER',
       body: id,
+      imageUrls: [],
       deletedAt: null,
       createdAt: '2026-01-01',
     });
@@ -121,6 +122,7 @@ describe('thread mutations — cache invalidation (no optimistic writes)', () =>
   it('useSendMessage invalidates messages + detail + both list scopes', async () => {
     jest.spyOn(consultationApi, 'sendMessage').mockResolvedValueOnce({
       id: 'm9',
+      imageUrls: [],
       threadId: 'c1',
       senderUserId: 'u1',
       source: 'USER',

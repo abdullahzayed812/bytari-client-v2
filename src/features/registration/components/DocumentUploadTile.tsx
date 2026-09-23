@@ -1,40 +1,30 @@
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { ImageUploader } from '@/components/media';
+import { LocalImageUploader } from '@/components/media';
 import { Caption, Label } from '@/components/typography';
-import type { VeterinarianDocumentKind } from '@/features/veterinarian';
+import type { LocalFile } from '@/services/files/types';
 import { useTheme } from '@/theme';
 
-import { useVeterinarianDocumentPresignProvider } from '../hooks';
-import type { DocumentRef } from '../types';
-
 export interface DocumentUploadTileProps {
-  kind: VeterinarianDocumentKind;
   label: string;
   required?: boolean;
-  value: DocumentRef | null;
-  onChange: (ref: DocumentRef | null) => void;
+  value: LocalFile | null;
+  onChange: (file: LocalFile | null) => void;
   error?: string;
 }
 
 /**
  * One document-photo slot in the veterinarian application (license/ID, student
- * ID front/back, …). Wraps `ImageUploader`, bound to a per-kind presign
- * provider that has no `finalizeUpload` — the resulting storage key is kept
- * here, in RHF state, until the final batched `apply()` call.
+ * ID front/back, …). Stages the picked file locally (`LocalImageUploader`) —
+ * there is no account, and so no session, to upload it with yet. The staged
+ * file sits here in RHF state until `VeterinarianRegisterScreen`'s submit
+ * handler uploads every staged document right after `register()` succeeds,
+ * batched into the same `apply()` call.
  */
-export function DocumentUploadTile({
-  kind,
-  label,
-  required,
-  value,
-  onChange,
-  error,
-}: DocumentUploadTileProps) {
+export function DocumentUploadTile({ label, required, value, onChange, error }: DocumentUploadTileProps) {
   const { t } = useTranslation('registration');
   const theme = useTheme();
-  const { provider, toDocumentRef } = useVeterinarianDocumentPresignProvider(kind);
 
   return (
     <View style={{ rowGap: theme.spacing.xs }}>
@@ -55,13 +45,12 @@ export function DocumentUploadTile({
           <Caption>{t('veterinarian.maxSizeHint')}</Caption>
         </View>
 
-        <ImageUploader
-          value={null}
-          provider={provider}
+        <LocalImageUploader
+          value={value}
+          onChange={onChange}
           shape="square"
           size={64}
           icon="arrow-up-outline"
-          onChange={(result) => onChange(result ? toDocumentRef(result) : null)}
         />
       </View>
 

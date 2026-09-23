@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import {
   useAdminApproveVetServiceRequest,
   useAdminRejectVetServiceRequest,
@@ -64,6 +65,7 @@ export default function AdminVetServiceRequestsScreen() {
 
   const [approving, setApproving] = useState<ServiceRequest | null>(null);
   const [rejecting, setRejecting] = useState<ServiceRequest | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<ServiceRequest | null>(null);
 
   const dt = (key: DetailKey) => t(`vetServiceRequests.details.${key}`);
@@ -147,6 +149,14 @@ export default function AdminVetServiceRequestsScreen() {
             title={r.title}
             subtitle={`${r.petOwner.firstName} ${r.petOwner.lastName} · ${tv(`serviceType.${r.serviceType}`)}`}
             meta={`${r.requestNumber} · ${formatDate(r.createdAt)}`}
+            image={{
+              uri: r.imageUrls[0] ?? null,
+              fallbackIcon: 'paw-outline',
+              onPress:
+                r.imageUrls.length > 0
+                  ? () => setViewer({ images: r.imageUrls, index: 0 })
+                  : undefined,
+            }}
             onPress={() => setDetail(r)}
             badge={{ label: t(`vetServiceRequests.status.${r.status}`), tone: STATUS_TONE[r.status] }}
             actions={
@@ -201,20 +211,15 @@ export default function AdminVetServiceRequestsScreen() {
         title={detail ? detail.title : t('vetServiceRequests.details.title')}
         fields={detail ? detailFields(detail) : []}
       >
-        {detail && detail.imageUrls.length > 0 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: theme.spacing.sm }}>
-            <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-              {detail.imageUrls.map((uri) => (
-                <Image
-                  key={uri}
-                  source={{ uri }}
-                  style={{ width: 96, height: 96, borderRadius: theme.radius.md }}
-                  resizeMode="cover"
-                />
-              ))}
-            </View>
-          </ScrollView>
-        ) : null}
+        <View style={{ marginTop: theme.spacing.sm }}>
+          <ImageThumbnailRow
+            images={detail?.imageUrls ?? []}
+            size={96}
+            onPress={(index) =>
+              detail ? setViewer({ images: detail.imageUrls, index }) : undefined
+            }
+          />
+        </View>
         {detail?.status === 'PENDING' ? (
           <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
             <Button
@@ -238,6 +243,13 @@ export default function AdminVetServiceRequestsScreen() {
           </View>
         ) : null}
       </AdminDetailModal>
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </>
   );
 }

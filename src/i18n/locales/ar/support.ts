@@ -71,6 +71,8 @@ export default {
     animalLabel: 'الحيوان (اختياري)',
     animalPlaceholder: 'اختر حيواناً',
     animalNone: 'بدون حيوان',
+    attachmentsLabel: 'الصور المرفقة (اختياري)',
+    attachmentsHint: '{{count}}/{{max}} صور — تُرفق مع الرسالة الأولى فقط.',
     submit: 'إرسال',
     success: 'تم إنشاء المحادثة.',
     vetGate: 'إنشاء الاستفسارات متاح للأطباء البيطريين المعتمَدين فقط.',
@@ -100,6 +102,7 @@ export default {
     placeholder: 'اكتب رسالة…',
     send: 'إرسال',
     deleted: 'تم حذف الرسالة',
+    attachmentA11y: 'صورة مرفقة {{index}} من {{total}}',
     source: {
       SUPERVISOR: 'رد الإدارة',
       ADMIN: 'رد الإدارة',

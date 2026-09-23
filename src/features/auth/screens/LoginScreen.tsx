@@ -17,6 +17,8 @@ import { Routes } from '@/constants/routes';
 import { SocialLoginButtons } from '@/features/registration/components/SocialLoginButtons';
 import { useTheme } from '@/theme';
 
+import { ApiError, ApiErrorCode } from '@/services/api';
+
 import { AuthScreenLayout, DevAccountPicker, FormField } from '../components';
 import { authErrorMessage, fieldErrors } from '../errors';
 import { useLoginMutation } from '../hooks';
@@ -44,10 +46,18 @@ export default function LoginScreen() {
   const submit = (values: LoginFormValues) => {
     setFormError(null);
     setServerFields({});
+    const email = values.email.trim();
     login.mutate(
-      { email: values.email.trim(), password: values.password },
+      { email, password: values.password },
       {
         onError: (error) => {
+          // Correct password, unverified account — no session was issued
+          // (see `authStore.login`). Route straight to the verify screen
+          // instead of showing this as a generic sign-in error.
+          if (error instanceof ApiError && error.code === ApiErrorCode.EMAIL_VERIFICATION_REQUIRED) {
+            router.replace({ pathname: Routes.authVerifyEmail, params: { email } });
+            return;
+          }
           setServerFields(fieldErrors(error));
           setFormError(authErrorMessage(error, 'login'));
         },

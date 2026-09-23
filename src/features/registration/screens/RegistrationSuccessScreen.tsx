@@ -46,8 +46,9 @@ function ConfettiDots() {
 }
 
 /**
- * Route `/(auth)/register-success` (A-10). The user is ALREADY authenticated
- * by the time this renders (`register()` establishes the session), so the
+ * Route `/(auth)/register-success` (A-10). Reached only AFTER
+ * `VerifyEmailScreen` — the user is fully authenticated by the time this
+ * renders (`verifyEmail()` establishes an unrestricted session), so the
  * primary action routes to the app home, not to sign-in.
  *
  * The secondary action is a deliberately lower-emphasis "back to Welcome" link.

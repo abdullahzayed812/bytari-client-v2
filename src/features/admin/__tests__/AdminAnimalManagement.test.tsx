@@ -36,6 +36,23 @@ const PENDING_PUB = {
   updatedAt: '2026-02-01T00:00:00.000Z',
 };
 
+/** The same request as it really arrives from `/admin/animal-publications` — with the joined animal. */
+const PENDING_PUB_WITH_PHOTOS = {
+  ...PENDING_PUB,
+  animal: {
+    id: 'a1',
+    name: 'مشمش',
+    species: 'CAT',
+    breed: null,
+    sex: 'FEMALE',
+    dateOfBirth: null,
+    color: null,
+    distinguishingFeatures: null,
+    ageEstimate: null,
+    galleryUrls: ['https://cdn.example/r2/pet-1.jpg', 'https://cdn.example/r2/pet-2.jpg'],
+  },
+};
+
 const ANIMAL = {
   id: 'an1',
   name: 'ريكس',
@@ -101,6 +118,35 @@ describe('AdminAnimalPublicationsScreen — moderation queue', () => {
     fireEvent.changeText(screen.getByPlaceholderText('اكتب سبب الرفض…'), 'بيانات ناقصة');
     fireEvent.press(screen.getByText('تأكيد الرفض'));
     await waitFor(() => expect(reject).toHaveBeenCalledWith('pub1', 'بيانات ناقصة'));
+  });
+
+  it('shows the animal photos on the row and in the details modal, and opens the viewer', async () => {
+    listPub.mockResolvedValue({
+      items: [PENDING_PUB_WITH_PHOTOS],
+      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+    renderWithProviders(<AdminAnimalPublicationsScreen />);
+    // the row subtitle prefers the animal's name once the join is present
+    await waitFor(() => expect(screen.getByText('مشمش')).toBeTruthy());
+
+    // row thumbnail opens the shared full-screen viewer
+    fireEvent.press(screen.getByLabelText('صور الحيوان'));
+    await waitFor(() => expect(screen.getByLabelText('Close')).toBeTruthy());
+    fireEvent.press(screen.getByLabelText('Close'));
+
+    // the details modal lists every photo as its own tappable thumbnail
+    fireEvent.press(screen.getByText('مشمش'));
+    await waitFor(() => expect(screen.getByLabelText('1/2')).toBeTruthy());
+    expect(screen.getByLabelText('2/2')).toBeTruthy();
+    fireEvent.press(screen.getByLabelText('2/2'));
+    await waitFor(() => expect(screen.getByText('2 / 2')).toBeTruthy());
+  });
+
+  it('shows the no-photos copy when the listed animal has no gallery', async () => {
+    renderWithProviders(<AdminAnimalPublicationsScreen />);
+    await waitFor(() => expect(screen.getByText('أحمد')).toBeTruthy());
+    fireEvent.press(screen.getByText('أحمد'));
+    await waitFor(() => expect(screen.getByText('لا توجد صور مرفقة')).toBeTruthy());
   });
 
   it('opens a details modal from a row with the full request fields', async () => {

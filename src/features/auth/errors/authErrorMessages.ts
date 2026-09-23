@@ -34,6 +34,14 @@ export function authErrorMessage(error: unknown, context: AuthErrorContext = 'ge
       return t('invalidCredentials');
     case ApiErrorCode.ACCOUNT_INACTIVE:
       return t('accountInactive');
+    case ApiErrorCode.EMAIL_VERIFICATION_REQUIRED:
+      return t('emailVerificationRequired');
+    case ApiErrorCode.INVALID_VERIFICATION_CODE:
+      return t('invalidVerificationCode');
+    case ApiErrorCode.VERIFICATION_CODE_EXPIRED:
+      return t('verificationCodeExpired');
+    case ApiErrorCode.TOO_MANY_VERIFICATION_ATTEMPTS:
+      return t('tooManyVerificationAttempts');
     case ApiErrorCode.INVALID_TOKEN:
     case ApiErrorCode.INVALID_REFRESH_TOKEN:
       return t('sessionExpired');

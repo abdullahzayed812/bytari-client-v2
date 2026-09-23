@@ -1,6 +1,6 @@
-export { useAvatarPresignProvider } from './useAvatarPresignProvider';
 export {
-  useVeterinarianDocumentPresignProvider,
-  type UseVeterinarianDocumentPresignProvider,
-} from './useVeterinarianDocumentPresignProvider';
+  uploadRegistrationAvatar,
+  uploadRegistrationDocument,
+  type UploadedVeterinarianDocument,
+} from '../lib/deferredUploads';
 export { useSubmitVeterinarianApplication } from './useSubmitVeterinarianApplication';

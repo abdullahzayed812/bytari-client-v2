@@ -7,6 +7,7 @@ import { Button } from '@/components/actions';
 import { Badge, Card } from '@/components/content';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -60,6 +61,7 @@ export default function AdminFarmDetailScreen() {
 
   const [orgPending, setOrgPending] = useState<OrgPending>(null);
   const [subscriptionDialog, setSubscriptionDialog] = useState(false);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [approvingRequestId, setApprovingRequestId] = useState<string | null>(null);
   const [rejectingRequestId, setRejectingRequestId] = useState<string | null>(null);
 
@@ -130,6 +132,23 @@ export default function AdminFarmDetailScreen() {
                 </Text>
               ) : null}
             </View>
+          </Section>
+
+          {/* The farm's own photo (`farm_details.image_key`) — FARM has no
+              directory profile, so this is the single image it carries. */}
+          <Section spacing="lg">
+            <Label>{t('orgs.detail.imagesSection')}</Label>
+            <ImageThumbnailRow
+              images={org.details.imageUrl ? [org.details.imageUrl] : []}
+              size={96}
+              fallbackIcon="home-outline"
+              emptyLabel={t('farms.detail.noImage')}
+              onPress={() =>
+                org.details.imageUrl
+                  ? setViewer({ images: [org.details.imageUrl], index: 0 })
+                  : undefined
+              }
+            />
           </Section>
 
           <Section spacing="lg">
@@ -399,6 +418,13 @@ export default function AdminFarmDetailScreen() {
         }}
         onError={fail}
         onCancel={() => setRejectingRequestId(null)}
+      />
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
       />
     </ScrollScreen>
   );

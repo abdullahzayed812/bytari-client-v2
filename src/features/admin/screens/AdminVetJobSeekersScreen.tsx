@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 
-import { Button } from '@/components/actions';
+import { Button, TextButton } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
+import { Label } from '@/components/typography';
 import {
   useAdminApproveVetJobSeeker,
   useAdminRejectVetJobSeeker,
@@ -58,6 +60,7 @@ export default function AdminVetJobSeekersScreen() {
 
   const [approving, setApproving] = useState<VetJobSeekerProfile | null>(null);
   const [rejecting, setRejecting] = useState<VetJobSeekerProfile | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<VetJobSeekerProfile | null>(null);
 
   const dt = (key: DetailKey) => t(`vetJobSeekers.details.${key}`);
@@ -135,6 +138,13 @@ export default function AdminVetJobSeekersScreen() {
             title={`${p.user.firstName} ${p.user.lastName}`}
             subtitle={`${p.specialty} · ${p.governorate}`}
             meta={`${t('vetJobSeekers.submittedAt')}: ${formatDate(p.createdAt)}`}
+            image={{
+              uri: p.photoUrl ?? null,
+              fallbackIcon: 'person-outline',
+              onPress: p.photoUrl
+                ? () => setViewer({ images: [p.photoUrl as string], index: 0 })
+                : undefined,
+            }}
             onPress={() => setDetail(p)}
             badge={{ label: t(`vetJobSeekers.status.${p.status}`), tone: STATUS_TONE[p.status] }}
             actions={
@@ -189,6 +199,26 @@ export default function AdminVetJobSeekersScreen() {
         title={detail ? `${detail.user.firstName} ${detail.user.lastName}` : t('vetJobSeekers.details.title')}
         fields={detail ? detailFields(detail) : []}
       >
+        <View style={{ rowGap: theme.spacing.xs, marginTop: theme.spacing.sm }}>
+          <Label>{t('vetJobSeekers.details.photo')}</Label>
+          <ImageThumbnailRow
+            images={detail?.photoUrl ? [detail.photoUrl] : []}
+            size={96}
+            fallbackIcon="person-outline"
+            emptyLabel={t('vetJobSeekers.details.noPhoto')}
+            onPress={() =>
+              detail?.photoUrl ? setViewer({ images: [detail.photoUrl], index: 0 }) : undefined
+            }
+          />
+          {detail?.cvUrl ? (
+            <TextButton
+              label={t('vetJobSeekers.details.openCv')}
+              icon="document-text-outline"
+              onPress={() => void Linking.openURL(detail.cvUrl as string)}
+            />
+          ) : null}
+        </View>
+
         {detail?.status === 'PENDING' ? (
           <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
             <Button
@@ -212,6 +242,13 @@ export default function AdminVetJobSeekersScreen() {
           </View>
         ) : null}
       </AdminDetailModal>
+
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
+      />
     </>
   );
 }

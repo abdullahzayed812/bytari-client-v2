@@ -6,11 +6,11 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { useToast } from '@/components/feedback';
 import { Input, Select, Switch } from '@/components/forms';
+import { MultiImagePicker } from '@/components/media';
 import { Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { DateTimeField } from '@/features/clinicAppointments';
 import { OrgFormLayout } from '@/features/organizations';
-import { AnimalGalleryPicker } from '@/features/publications';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -150,7 +150,7 @@ export default function RequestServiceScreen() {
         maxLength={1000}
       />
 
-      <AnimalGalleryPicker
+      <MultiImagePicker
         provider={imageProvider}
         onChange={setImageKeys}
         max={4}

@@ -3,12 +3,14 @@ import { View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Card } from '@/components/content';
+import { useToast } from '@/components/feedback';
 import { ImageUploader } from '@/components/media';
 import { Caption, Text } from '@/components/typography';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import type { AdSlide } from '../../types';
-import { useAdSlideImagePresignProvider } from '../hooks';
+import { useAdminAdSlideMutations, useAdSlideImagePresignProvider } from '../hooks';
 
 export interface AdSlideRowProps {
   campaignId: string;
@@ -34,7 +36,9 @@ export function AdSlideRow({
 }: AdSlideRowProps) {
   const theme = useTheme();
   const { t } = useTranslation('ads');
+  const toast = useToast();
   const imageProvider = useAdSlideImagePresignProvider(campaignId, slide.id);
+  const { removeSlideImage } = useAdminAdSlideMutations(campaignId);
 
   return (
     <Card variant="outlined" padding="md">
@@ -44,7 +48,17 @@ export function AdSlideRow({
           provider={imageProvider}
           shape="square"
           size={64}
-          onChange={() => undefined}
+          // A picked/replaced image is already persisted by `imageProvider`'s
+          // own `finalizeUpload` (+ query invalidation) — `onChange` firing
+          // with a result there is a no-op. `null` is the one case this
+          // component must still act on: `ImageUploader`'s own "remove" tap,
+          // which is purely local state with no server call of its own.
+          onChange={(result) => {
+            if (result !== null) return;
+            removeSlideImage.mutate(slide.id, {
+              onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+            });
+          }}
         />
 
         <View style={{ flex: 1, rowGap: 2 }}>

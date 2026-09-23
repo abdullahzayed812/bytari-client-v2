@@ -37,12 +37,10 @@ export {
   PublicationForm,
   PublicationListingFieldsForm,
   AnimalProfileFields,
-  AnimalGalleryPicker,
   type AnimalCardProps,
   type PublicationFormProps,
   type PublicationListingFieldsFormProps,
   type AnimalProfileFieldsProps,
-  type AnimalGalleryPickerProps,
 } from './components';
 export {
   PublicationsBrowseScreen,

@@ -5,6 +5,7 @@ import { ApiError } from '@/services/api';
 
 import { adKeys } from '../../api';
 import type {
+  AdSlide,
   AdSlideContentInput,
   AdminAdCampaign,
   CreateAdCampaignInput,
@@ -100,6 +101,10 @@ export function useAdminAdSlideMutations(campaignId: string) {
     mutationFn: (slideIds) => adminAdsApi.reorderSlides(campaignId, slideIds),
     onSuccess: invalidate,
   });
+  const removeSlideImage = useMutation<AdSlide, ApiError, string>({
+    mutationFn: (slideId) => adminAdsApi.removeSlideImage(campaignId, slideId),
+    onSuccess: invalidate,
+  });
 
-  return { addSlide, updateSlide, removeSlide, reorderSlides };
+  return { addSlide, updateSlide, removeSlide, reorderSlides, removeSlideImage };
 }
