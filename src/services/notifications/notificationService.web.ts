@@ -20,6 +20,12 @@ export type { NotificationService } from './notificationService';
 const log = createLogger('notifications');
 
 export const notificationService: NotificationService = {
+  async ensureAndroidChannel() {
+    /* no-op on web */
+  },
+  setActiveConversation() {
+    /* no-op on web */
+  },
   async getPermissionStatus() {
     return 'denied';
   },
@@ -34,6 +40,9 @@ export const notificationService: NotificationService = {
   },
   async unregisterDevice() {
     /* no-op on web */
+  },
+  onTokenRefresh() {
+    return () => undefined;
   },
   onForegroundNotification() {
     return () => undefined;

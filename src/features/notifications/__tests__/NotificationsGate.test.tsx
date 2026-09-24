@@ -2,9 +2,11 @@ import { render, waitFor } from '@testing-library/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/features/auth/store';
+import { notificationsApi } from '@/features/notifications/api/notificationsApi';
 import { NotificationsGate } from '@/providers/NotificationsGate';
 import { notificationService } from '@/services/notifications';
 import { makeTestQueryClient } from '@/test-utils/render';
+import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 jest.mock('@/services/realtime', () => ({
@@ -12,9 +14,11 @@ jest.mock('@/services/realtime', () => ({
 }));
 jest.mock('@/services/notifications', () => ({
   notificationService: {
+    ensureAndroidChannel: jest.fn().mockResolvedValue(undefined),
     getDevicePushToken: jest.fn(),
     registerDevice: jest.fn(),
     unregisterDevice: jest.fn(),
+    onTokenRefresh: jest.fn(() => () => undefined),
     onNotificationTap: jest.fn(() => () => undefined),
     getInitialNotification: jest.fn().mockResolvedValue(null),
     setBadgeCount: jest.fn(),
@@ -109,5 +113,50 @@ describe('NotificationsGate — device lifecycle', () => {
     authed();
     mount();
     await waitFor(() => expect(svc.setBadgeCount).toHaveBeenCalled());
+  });
+
+  it('a push tap marks that notification read and deep-links to its entity', async () => {
+    svc.getDevicePushToken.mockResolvedValue(null);
+    resetRouterMock();
+    const markRead = jest
+      .spyOn(notificationsApi, 'markRead')
+      .mockResolvedValue({} as Awaited<ReturnType<typeof notificationsApi.markRead>>);
+    let tap: ((n: { data: Record<string, unknown> }) => void) | undefined;
+    svc.onNotificationTap.mockImplementation((handler) => {
+      tap = handler as typeof tap;
+      return () => undefined;
+    });
+    authed();
+    mount();
+    await waitFor(() => expect(tap).toBeDefined());
+
+    tap?.({
+      data: { type: 'VET_COURSE_APPROVED', entityId: 'course-1', notificationId: 'n-42' },
+    });
+
+    await waitFor(() => expect(markRead).toHaveBeenCalledWith('n-42'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/vet-courses/course-1');
+    markRead.mockRestore();
+  });
+
+  it('re-registers the device when FCM rotates the token', async () => {
+    svc.getDevicePushToken.mockResolvedValue({ token: 'fcm-old', platform: 'android' });
+    svc.registerDevice.mockResolvedValue('device-1');
+    let refresh: ((t: { token: string; platform: 'android' }) => void) | undefined;
+    svc.onTokenRefresh.mockImplementation((handler) => {
+      refresh = handler as typeof refresh;
+      return () => undefined;
+    });
+    authed();
+    mount();
+    await waitFor(() => expect(svc.registerDevice).toHaveBeenCalledTimes(1));
+
+    refresh?.({ token: 'fcm-new', platform: 'android' });
+    await waitFor(() =>
+      expect(svc.registerDevice).toHaveBeenLastCalledWith({
+        token: 'fcm-new',
+        platform: 'android',
+      }),
+    );
   });
 });

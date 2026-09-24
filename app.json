@@ -18,11 +18,12 @@
       }
     },
     "android": {
-      "package": "com.bytari.mobile",
+      "package": "com.petcare.bytari",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +34,13 @@
       "expo-router",
       "expo-secure-store",
       "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "color": "#0BAA55",
+          "defaultChannel": "default"
+        }
+      ],
       "expo-font",
       [
         "expo-image-picker",

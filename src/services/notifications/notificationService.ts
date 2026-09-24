@@ -28,22 +28,49 @@ import type {
  *  - Real device tokens require a Dev Client or production build with Firebase
  *    configured (`google-services.json` / `GoogleService-Info.plist`). Expo Go
  *    cannot obtain an FCM token on SDK 53+.
+ *  - The backend delivers through Firebase Admin (FCM) directly, so it needs
+ *    an FCM registration token. On Android `getDevicePushTokenAsync` returns
+ *    exactly that. On iOS it returns a raw APNs token, which FCM rejects — iOS
+ *    registration is therefore skipped until the app obtains an FCM token on
+ *    iOS (e.g. `@react-native-firebase/messaging`), see MOBILE_ARCHITECTURE.md.
  *  - Notification payloads are never logged.
  */
 const log = createLogger('notifications');
+
+/**
+ * Android channel every push is posted to. The backend sets the same id
+ * (`server/src/infra/push/firebase-push-provider.ts` `ANDROID_CHANNEL_ID`) —
+ * keep them identical.
+ */
+export const ANDROID_CHANNEL_ID = 'default';
+
+/**
+ * The chat conversation currently on screen (set by the chat thread screen).
+ * A foreground push for that same conversation is not shown — the realtime
+ * message already appears in the open thread.
+ */
+let activeConversationId: string | null = null;
 
 function toPlatform(): DevicePlatform {
   return Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';
 }
 
-// Foreground presentation — a sensible default; feature phases can refine.
+// Foreground presentation. The in-app inbox / unread badge update via
+// realtime independently; this only decides whether the OS banner shows.
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: true,
-  }),
+  handleNotification: async (notification) => {
+    const data = (notification.request.content.data ?? {}) as Record<string, unknown>;
+    const viewingSameChat =
+      data.type === 'CHAT_MESSAGE_RECEIVED' &&
+      activeConversationId !== null &&
+      data.conversationId === activeConversationId;
+    return {
+      shouldShowBanner: !viewingSameChat,
+      shouldShowList: !viewingSameChat,
+      shouldPlaySound: false,
+      shouldSetBadge: true,
+    };
+  },
 });
 
 function parse(notification: Notifications.Notification): ReceivedNotification {
@@ -53,6 +80,25 @@ function parse(notification: Notifications.Notification): ReceivedNotification {
 }
 
 export const notificationService = {
+  /** Create the Android channel up-front so pushes that arrive before any token fetch land in it. */
+  async ensureAndroidChannel(): Promise<void> {
+    if (Platform.OS !== 'android') return;
+    try {
+      await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
+        name: 'General',
+        importance: Notifications.AndroidImportance.HIGH,
+      });
+    } catch (error) {
+      log.warn('android channel setup failed', {
+        reason: error instanceof Error ? error.message : 'unknown',
+      });
+    }
+  },
+
+  setActiveConversation(conversationId: string | null): void {
+    activeConversationId = conversationId;
+  },
+
   async getPermissionStatus(): Promise<PushPermissionStatus> {
     const { status } = await Notifications.getPermissionsAsync();
     return status as PushPermissionStatus;
@@ -69,18 +115,20 @@ export const notificationService = {
     return requested.status as PushPermissionStatus;
   },
 
-  /** Native FCM/APNs device token. `null` when unavailable (no permission / Expo Go / simulator). */
+  /**
+   * Native FCM device token. `null` when unavailable (no permission / Expo Go /
+   * simulator) and on iOS (APNs token — not deliverable via FCM, see header).
+   */
   async getDevicePushToken(): Promise<DevicePushToken | null> {
     try {
       if (!Device.isDevice) return null;
+      if (Platform.OS === 'ios') {
+        log.info('iOS push registration skipped — needs an FCM token, not an APNs token');
+        return null;
+      }
       if ((await this.requestPermission()) !== 'granted') return null;
 
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'General',
-          importance: Notifications.AndroidImportance.DEFAULT,
-        });
-      }
+      await this.ensureAndroidChannel();
       const result = await Notifications.getDevicePushTokenAsync();
       return { token: String(result.data), platform: toPlatform() };
     } catch (error) {
@@ -127,6 +175,18 @@ export const notificationService = {
         reason: error instanceof Error ? error.message : 'unknown',
       });
     }
+  },
+
+  /**
+   * FCM rotates tokens (app data cleared, restore on a new device…). Returns
+   * an unsubscribe. Android only — iOS registration is disabled (see header).
+   */
+  onTokenRefresh(handler: (token: DevicePushToken) => void): () => void {
+    if (Platform.OS !== 'android') return () => undefined;
+    const sub = Notifications.addPushTokenListener((t) =>
+      handler({ token: String(t.data), platform: toPlatform() }),
+    );
+    return () => sub.remove();
   },
 
   /** Foreground receipt listener. Returns an unsubscribe. */

@@ -200,3 +200,18 @@ src/
 - Consume `@/theme` tokens and `@/components` — no raw hex / font sizes /
   spacing numbers in screens.
 - No API calls or business logic in screen files.
+
+## Web production build & deployment
+
+```bash
+EXPO_PUBLIC_API_BASE_URL=https://api.bytari.com \
+EXPO_PUBLIC_REALTIME_URL=wss://api.bytari.com \
+EXPO_PUBLIC_ENVIRONMENT=production npm run build:web   # → dist/ (static)
+docker build -t bytari-web .                            # nginx image serving dist/ on :8080
+```
+
+`EXPO_PUBLIC_*` values are baked into the bundle and are public — never put a
+secret in them. A production build refuses non-`https`/`wss` or local API URLs.
+The image is deployed to `https://bytari.com` by `.github/workflows/deploy-web.yml`;
+the full VPS runbook lives in the server repo: `docs/deployment.md`.
+

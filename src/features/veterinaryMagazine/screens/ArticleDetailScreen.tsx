@@ -43,7 +43,12 @@ export default function ArticleDetailScreen() {
   const addComment = useAddContentComment(id);
   const [commentDraft, setCommentDraft] = useState('');
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  // Called before the early returns so the hook order is identical on every render.
+  const cover = q.data?.files.find((f) => f.kind === 'COVER');
+  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
+
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
@@ -69,8 +74,6 @@ export default function ArticleDetailScreen() {
 
   const article = q.data;
   const mainFile = article?.files.find((f) => f.kind === 'MAIN');
-  const cover = article?.files.find((f) => f.kind === 'COVER');
-  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
   const attachments = article?.files.filter((f) => f.kind === 'ATTACHMENT') ?? [];
   const primaryCategory = article?.categories[0]?.name;
 
@@ -154,7 +157,8 @@ export default function ArticleDetailScreen() {
                 accessibilityLabel={t('detail.bookmarkA11y')}
                 onPress={() =>
                   bookmark.mutate(!article.isBookmarked, {
-                    onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                    onError: (error) =>
+                      toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                   })
                 }
               />
@@ -329,7 +333,11 @@ function ArticleAttachmentImage({ contentId, fileId }: { contentId: string; file
       }}
     >
       {download.data?.url ? (
-        <Image source={{ uri: download.data.url }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        <Image
+          source={{ uri: download.data.url }}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+        />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Loading />

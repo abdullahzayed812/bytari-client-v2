@@ -31,25 +31,53 @@ function pick(value: string | undefined, extraKey: string, fallback?: string): s
   return fallback;
 }
 
-const DEV_DEFAULTS = {
-  apiBaseUrl: 'http://localhost:3000',
-  realtimeUrl: 'ws://localhost:3000',
-} as const;
+/**
+ * Local fallbacks for a dev build only. `__DEV__` is statically `false` in a
+ * release bundle, so these strings are dead-code-eliminated there and a
+ * release build without `EXPO_PUBLIC_API_BASE_URL` fails fast instead of
+ * silently talking to localhost.
+ */
+const DEV_DEFAULTS = __DEV__
+  ? ({ apiBaseUrl: 'http://localhost:3000', realtimeUrl: 'ws://localhost:3000' } as const)
+  : ({ apiBaseUrl: undefined, realtimeUrl: undefined } as const);
 
-const schema = z.object({
-  /** Backend API origin, WITHOUT the `/api/v1` suffix. */
-  apiBaseUrl: z.string().url(),
-  apiVersion: z.string().default('v1'),
-  /** WebSocket origin for the realtime gateway. */
-  realtimeUrl: z.string().url(),
-  realtimePath: z.string().startsWith('/').default('/realtime'),
-  environment: z.enum(['development', 'staging', 'production']).default('development'),
-  requestTimeoutMs: z.coerce.number().int().positive().default(20_000),
-  debugLogging: z
-    .enum(['true', 'false'])
-    .transform((v) => v === 'true')
-    .default('false'),
-});
+const LOCAL_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/;
+
+const schema = z
+  .object({
+    /** Backend API origin, WITHOUT the `/api/v1` suffix. */
+    apiBaseUrl: z.string().url(),
+    apiVersion: z.string().default('v1'),
+    /** WebSocket origin for the realtime gateway. */
+    realtimeUrl: z.string().url(),
+    realtimePath: z.string().startsWith('/').default('/realtime'),
+    environment: z.enum(['development', 'staging', 'production']).default('development'),
+    requestTimeoutMs: z.coerce.number().int().positive().default(20_000),
+    debugLogging: z
+      .enum(['true', 'false'])
+      .transform((v) => v === 'true')
+      .default('false'),
+  })
+  // A production build must talk to a public, TLS-protected backend.
+  .superRefine((v, ctx) => {
+    if (v.environment !== 'production') return;
+    const api = new URL(v.apiBaseUrl);
+    const rt = new URL(v.realtimeUrl);
+    if (api.protocol !== 'https:' || LOCAL_HOST.test(api.hostname)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['apiBaseUrl'],
+        message: 'production requires a public https:// URL',
+      });
+    }
+    if (rt.protocol !== 'wss:' || LOCAL_HOST.test(rt.hostname)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['realtimeUrl'],
+        message: 'production requires a public wss:// URL',
+      });
+    }
+  });
 
 function load() {
   const parsed = schema.safeParse({

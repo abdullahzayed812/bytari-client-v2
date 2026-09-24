@@ -67,7 +67,11 @@ export default function TreatmentsScreen() {
           paddingTop: theme.spacing.sm,
         }}
       >
-        <Chip label={t('health.tab.all')} selected={scope === 'ALL'} onPress={() => setScope('ALL')} />
+        <Chip
+          label={t('health.tab.all')}
+          selected={scope === 'ALL'}
+          onPress={() => setScope('ALL')}
+        />
         <Chip
           label={t('health.tab.vaccinations')}
           selected={scope === 'VACCINATION'}
@@ -89,25 +93,36 @@ export default function TreatmentsScreen() {
         }}
       >
         {!flock ? (
-          <EmptyState icon="medkit-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="medkit-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : events.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : events.isError ? (
           <ErrorState error={events.error} onRetry={() => void events.refetch()} />
         ) : events.events.length === 0 ? (
-          <EmptyState icon="medkit-outline" title={t('health.empty')} message={t('health.emptyHint')} />
+          <EmptyState
+            icon="medkit-outline"
+            title={t('health.empty')}
+            message={t('health.emptyHint')}
+          />
         ) : (
           <>
             {(scope === 'ALL' || scope === 'VACCINATION') && vaccinations.length > 0 ? (
               <View style={{ rowGap: theme.spacing.sm }}>
-                <SectionTitle icon="shield-checkmark-outline" label={t('health.vaccinationsSection')} />
+                <SectionTitle
+                  icon="shield-checkmark-outline"
+                  label={t('health.vaccinationsSection')}
+                />
                 {vaccinations.map((e) => (
                   <HealthEventCard
                     key={e.id}
                     event={e}
                     onPress={() =>
                       router.push({
-                        pathname: Routes.poultryFarmSectionItem(orgId, 'treatments', e.id),
+                        pathname: Routes.poultryFarmSectionItem(orgId, 'treatments', e.id) as never,
                         params: { flockId: flock?.id },
                       })
                     }
@@ -124,7 +139,7 @@ export default function TreatmentsScreen() {
                     event={e}
                     onPress={() =>
                       router.push({
-                        pathname: Routes.poultryFarmSectionItem(orgId, 'treatments', e.id),
+                        pathname: Routes.poultryFarmSectionItem(orgId, 'treatments', e.id) as never,
                         params: { flockId: flock?.id },
                       })
                     }
@@ -166,7 +181,13 @@ export default function TreatmentsScreen() {
   );
 }
 
-function SectionTitle({ icon, label }: { icon: Parameters<typeof Icon>[0]['name']; label: string }) {
+function SectionTitle({
+  icon,
+  label,
+}: {
+  icon: Parameters<typeof Icon>[0]['name'];
+  label: string;
+}) {
   const theme = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
@@ -227,16 +248,31 @@ function AddHealthEventDialog({
   const valid = kind !== null && name.trim().length > 0 && isValidIsoDate(eventDate);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={t('health.form.title')} dismissable={!loading}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
+    <Modal
+      visible={visible}
+      onClose={onCancel}
+      title={t('health.form.title')}
+      dismissable={!loading}
+    >
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Select<PoultryHealthEventKind>
           label={t('health.form.kindLabel')}
           value={kind}
-          options={POULTRY_HEALTH_EVENT_KINDS.map((k) => ({ value: k, label: t(`health.kind.${k}`) }))}
+          options={POULTRY_HEALTH_EVENT_KINDS.map((k) => ({
+            value: k,
+            label: t(`health.kind.${k}`),
+          }))}
           onChange={setKind}
         />
         <Input label={t('health.form.nameLabel')} value={name} onChangeText={setName} />
-        <DateFieldInput label={t('health.form.dateLabel')} value={eventDate} onChangeText={setEventDate} />
+        <DateFieldInput
+          label={t('health.form.dateLabel')}
+          value={eventDate}
+          onChangeText={setEventDate}
+        />
         {kind === 'VACCINATION' ? (
           <>
             <Input label={t('health.form.doseLabel')} value={dose} onChangeText={setDose} />
@@ -255,7 +291,11 @@ function AddHealthEventDialog({
         ) : null}
         {kind === 'TREATMENT' ? (
           <>
-            <Input label={t('health.form.medicationLabel')} value={medication} onChangeText={setMedication} />
+            <Input
+              label={t('health.form.medicationLabel')}
+              value={medication}
+              onChangeText={setMedication}
+            />
             <Input
               label={t('health.form.casesCountLabel')}
               keyboardType="number-pad"
@@ -265,16 +305,31 @@ function AddHealthEventDialog({
             <Select<PoultryHealthEventStatus>
               label={t('health.statusLabel')}
               value={status}
-              options={POULTRY_HEALTH_EVENT_STATUSES.map((s) => ({ value: s, label: t(`health.status.${s}`) }))}
+              options={POULTRY_HEALTH_EVENT_STATUSES.map((s) => ({
+                value: s,
+                label: t(`health.status.${s}`),
+              }))}
               onChange={setStatus}
             />
           </>
         ) : null}
-        <Input label={t('health.form.notesLabel')} multiline numberOfLines={3} value={notes} onChangeText={setNotes} />
+        <Input
+          label={t('health.form.notesLabel')}
+          multiline
+          numberOfLines={3}
+          value={notes}
+          onChangeText={setNotes}
+        />
 
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Button label={t('common.cancel')} variant="ghost" fullWidth onPress={onCancel} disabled={loading} />
+            <Button
+              label={t('common.cancel')}
+              variant="ghost"
+              fullWidth
+              onPress={onCancel}
+              disabled={loading}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Button

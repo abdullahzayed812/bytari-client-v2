@@ -17,7 +17,12 @@ import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { DateFieldInput, PoultryCaseCard, isValidIsoDate } from '../components';
-import { useCreatePoultryCase, usePoultryCaseSummary, usePoultryCases, usePoultryFlocks } from '../hooks';
+import {
+  useCreatePoultryCase,
+  usePoultryCaseSummary,
+  usePoultryCases,
+  usePoultryFlocks,
+} from '../hooks';
 import type { PoultryCaseSex, PoultryCaseStatus } from '../types';
 import { POULTRY_CASE_SEXES } from '../types';
 
@@ -77,7 +82,11 @@ export default function IndividualCasesScreen() {
           selected={scope === 'UNDER_TREATMENT'}
           onPress={() => setScope('UNDER_TREATMENT')}
         />
-        <Chip label={t('cases.tab.all')} selected={scope === 'ALL'} onPress={() => setScope('ALL')} />
+        <Chip
+          label={t('cases.tab.all')}
+          selected={scope === 'ALL'}
+          onPress={() => setScope('ALL')}
+        />
       </ScrollView>
 
       <ScrollView
@@ -89,13 +98,21 @@ export default function IndividualCasesScreen() {
         }}
       >
         {!flock ? (
-          <EmptyState icon="pulse-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="pulse-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : list.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : list.isError ? (
           <ErrorState error={list.error} onRetry={() => void list.refetch()} />
         ) : list.cases.length === 0 ? (
-          <EmptyState icon="pulse-outline" title={t('cases.empty')} message={t('cases.emptyHint')} />
+          <EmptyState
+            icon="pulse-outline"
+            title={t('cases.empty')}
+            message={t('cases.emptyHint')}
+          />
         ) : (
           list.cases.map((c) => (
             <PoultryCaseCard
@@ -103,7 +120,7 @@ export default function IndividualCasesScreen() {
               item={c}
               onPress={() =>
                 router.push({
-                  pathname: Routes.poultryFarmSectionItem(orgId, 'cases', c.id),
+                  pathname: Routes.poultryFarmSectionItem(orgId, 'cases', c.id) as never,
                   params: { flockId: flock?.id },
                 })
               }
@@ -219,18 +236,42 @@ function AddCaseDialog({
   const valid = isValidIsoDate(startedOn);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={t('cases.form.title')} dismissable={!loading}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
-        <Input label={t('cases.form.animalTagLabel')} value={animalTag} onChangeText={setAnimalTag} />
+    <Modal
+      visible={visible}
+      onClose={onCancel}
+      title={t('cases.form.title')}
+      dismissable={!loading}
+    >
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Input
+          label={t('cases.form.animalTagLabel')}
+          value={animalTag}
+          onChangeText={setAnimalTag}
+        />
         <Select<PoultryCaseSex>
           label={t('cases.form.sexLabel')}
           value={sex}
           options={POULTRY_CASE_SEXES.map((s) => ({ value: s, label: t(`cases.sex.${s}`) }))}
           onChange={setSex}
         />
-        <Input label={t('cases.form.diagnosisLabel')} value={diagnosis} onChangeText={setDiagnosis} />
-        <Input label={t('cases.form.treatmentLabel')} value={treatment} onChangeText={setTreatment} />
-        <DateFieldInput label={t('cases.form.startedLabel')} value={startedOn} onChangeText={setStartedOn} />
+        <Input
+          label={t('cases.form.diagnosisLabel')}
+          value={diagnosis}
+          onChangeText={setDiagnosis}
+        />
+        <Input
+          label={t('cases.form.treatmentLabel')}
+          value={treatment}
+          onChangeText={setTreatment}
+        />
+        <DateFieldInput
+          label={t('cases.form.startedLabel')}
+          value={startedOn}
+          onChangeText={setStartedOn}
+        />
         <DateFieldInput
           label={t('cases.form.nextFollowupLabel')}
           value={nextFollowupOn}
@@ -238,7 +279,13 @@ function AddCaseDialog({
         />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Button label={t('common.cancel')} variant="ghost" fullWidth onPress={onCancel} disabled={loading} />
+            <Button
+              label={t('common.cancel')}
+              variant="ghost"
+              fullWidth
+              onPress={onCancel}
+              disabled={loading}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Button

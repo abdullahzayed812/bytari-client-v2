@@ -1,0 +1,15 @@
+node_modules
+dist
+android
+ios
+.expo
+.expo-export-check
+coverage
+.git
+.env
+.env.*
+!.env.example
+*.log
+Dockerfile
+.dockerignore
+**/__tests__

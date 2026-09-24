@@ -1385,7 +1385,8 @@ export const en: TranslationResources = {
       seekerCreated: 'Your ad was sent for review',
       seekerSaved: 'Changes saved',
 
-      applyReviewNote: 'You can cancel or edit your ad or applications at any time before final approval.',
+      applyReviewNote:
+        'You can cancel or edit your ad or applications at any time before final approval.',
       applySubmitted: 'Your application was submitted successfully',
 
       errors: {
@@ -1413,22 +1414,25 @@ export const en: TranslationResources = {
       deleteConfirmTitle: 'Delete the ad',
       deleteConfirmBody: 'This ad will be permanently deleted.',
       noteTitle: 'Important note',
-      noteBody: 'You can cancel or edit your ads or applications at any time before final approval.',
+      noteBody:
+        'You can cancel or edit your ads or applications at any time before final approval.',
     },
     applicants: {
       title: 'Job applicants',
       empty: 'No applicants',
-      emptyHint: "Applications for this job will appear here.",
+      emptyHint: 'Applications for this job will appear here.',
       accept: 'Accept',
       reject: 'Reject',
       acceptConfirmTitle: 'Accept applicant',
-      acceptConfirmBody: 'A conversation will open between you and the applicant to communicate directly.',
+      acceptConfirmBody:
+        'A conversation will open between you and the applicant to communicate directly.',
       rejectConfirmTitle: 'Reject applicant',
       rejectConfirmBody: 'The applicant will not be told any further details.',
       contact: 'Contact',
       endHiring: 'End hiring',
       endHiringConfirmTitle: 'End hiring',
-      endHiringConfirmBody: 'The conversation with the applicant will be closed. You can review past messages later.',
+      endHiringConfirmBody:
+        'The conversation with the applicant will be closed. You can review past messages later.',
       toast: { accepted: 'Applicant accepted', rejected: 'Applicant rejected' },
     },
   },
@@ -1666,10 +1670,11 @@ export const en: TranslationResources = {
         officeLicenses: 'Offices & clinics licensing',
       },
       branchesCardTitle: 'Syndicate branches by governorate',
-      branchesCardSubtitle: 'Browse every veterinary syndicate branch across Iraq, including the Kurdistan Region',
+      branchesCardSubtitle:
+        'Browse every veterinary syndicate branch across Iraq, including the Kurdistan Region',
       contactInfo: 'Contact information',
       details: 'Syndicate details',
-      headOfficerLabel: "Head of syndicate",
+      headOfficerLabel: 'Head of syndicate',
       manageSupervisors: 'Responsible supervisors',
       termLabel: '{{start}} - {{end}}',
       notFound: 'This syndicate is unavailable',
@@ -1724,7 +1729,8 @@ export const en: TranslationResources = {
       attachmentsLabel: 'Attach an image (optional)',
       attachmentsHint: 'Up to 5 images - 5MB each',
       addAttachment: 'Tap to upload an image, or drag and drop it here',
-      privacyNote: 'Every inquiry is confidential and used only to respond to you and improve our services.',
+      privacyNote:
+        'Every inquiry is confidential and used only to respond to you and improve our services.',
       submit: 'Send inquiry',
       submitting: 'Sending…',
       success: 'Your inquiry was sent successfully',
@@ -1783,7 +1789,8 @@ export const en: TranslationResources = {
       renewItem2: 'A copy of a valid practice license.',
       renewItem3: 'If the profession has lapsed, a certificate proving it is active.',
       renewItem4: 'Payment of the prescribed fees.',
-      processingTime: 'Processing time: 3 to 5 business days after completing the requirements and paying the fees.',
+      processingTime:
+        'Processing time: 3 to 5 business days after completing the requirements and paying the fees.',
       note: 'You can follow up on your request from your account in the app to verify the requirements before issuing or renewing the ID.',
     },
     officeLicenses: {
@@ -1799,7 +1806,8 @@ export const en: TranslationResources = {
       renewItem1: 'A copy of the current license.',
       renewItem2: 'A valid report on the safety of the office and its devices/equipment.',
       renewItem3: 'Payment of the prescribed fees.',
-      processingTime: 'Processing time: 5 to 10 business days after completing the requirements and paying the fees.',
+      processingTime:
+        'Processing time: 5 to 10 business days after completing the requirements and paying the fees.',
       note: 'You can follow up on your request from your account in the app to verify the requirements before issuing or renewing the license.',
     },
     legalSupport: {
@@ -1871,7 +1879,8 @@ export const en: TranslationResources = {
     },
     admin: {
       title: 'Ad Management',
-      placementsHint: 'Choose which section to manage ads for. One permission governs every section.',
+      placementsHint:
+        'Choose which section to manage ads for. One permission governs every section.',
       add: 'Add campaign',
       empty: 'No ad campaigns yet',
       emptyHint: 'Add your first ad campaign for this section.',
@@ -1919,7 +1928,8 @@ export const en: TranslationResources = {
         deactivateSuccess: 'Campaign deactivated.',
         deleteCta: 'Delete campaign',
         deleteConfirmTitle: 'Delete campaign',
-        deleteConfirmBody: 'The campaign and all its slides will be deleted. It can be restored later.',
+        deleteConfirmBody:
+          'The campaign and all its slides will be deleted. It can be restored later.',
         deleteSuccess: 'Campaign deleted.',
         restoreCta: 'Restore campaign',
         restoreSuccess: 'Campaign restored.',
@@ -2401,7 +2411,8 @@ export const en: TranslationResources = {
         invalidUrl: 'Enter a valid link.',
       },
       submit: 'Submit registration request',
-      success: 'Your registration request was submitted successfully and will be reviewed by the admin team.',
+      success:
+        'Your registration request was submitted successfully and will be reviewed by the admin team.',
       uploadPartialError:
         'The registration request was created, but some photos failed to upload. You can add them later from the organization’s edit page.',
     },
@@ -3840,7 +3851,8 @@ export const en: TranslationResources = {
         publish: 'Publish',
         archive: 'Archive',
         delete: 'Delete',
-        deleteConfirm: 'This item will be deleted. It can be restored later by a site administrator.',
+        deleteConfirm:
+          'This item will be deleted. It can be restored later by a site administrator.',
         restore: 'Restore',
       },
       categories: {
@@ -4416,6 +4428,368 @@ export const en: TranslationResources = {
       hint: 'Alerts about your account, consultations and organizations.',
       unread: '{{count}} unread',
     },
+    types: {
+      ACCOUNT_STATUS_CHANGED: {
+        title: 'Account status changed',
+        body: 'Your account status was updated.',
+      },
+      VETERINARIAN_APPLICATION_SUBMITTED: {
+        title: 'New veterinarian application',
+        body: 'A veterinarian submitted a registration for review.',
+      },
+      VETERINARIAN_APPROVED: {
+        title: 'Your account is approved',
+        body: 'Your veterinarian application has been approved.',
+      },
+      VETERINARIAN_REJECTED: {
+        title: 'Application not approved',
+        body: 'Your veterinarian application was rejected. See the details in the app.',
+      },
+      ORGANIZATION_SUBMITTED: {
+        title: 'New organization to review',
+        body: 'A new organization is waiting for approval.',
+      },
+      ORGANIZATION_APPROVED: {
+        title: 'Organization approved',
+        body: 'Your organization has been approved.',
+      },
+      ORGANIZATION_REJECTED: {
+        title: 'Organization not approved',
+        body: 'Your organization request was rejected.',
+      },
+      ORGANIZATION_SUSPENDED: {
+        title: 'Organization suspended',
+        body: 'Your organization has been suspended.',
+      },
+      ORGANIZATION_ACTIVATED: {
+        title: 'Organization re-activated',
+        body: 'Your organization has been re-activated.',
+      },
+      ORGANIZATION_DEACTIVATED: {
+        title: 'Organization deactivated',
+        body: 'Your organization has been deactivated.',
+      },
+      ORGANIZATION_MEMBER_ADDED: {
+        title: 'Added to an organization',
+        body: 'You were added to an organization.',
+      },
+      ORGANIZATION_MEMBER_REMOVED: {
+        title: 'Removed from an organization',
+        body: 'You were removed from an organization.',
+      },
+      ORGANIZATION_ROLE_CHANGED: {
+        title: 'Your role changed',
+        body: 'Your role or membership status in an organization was updated.',
+      },
+      ORGANIZATION_SUPERVISOR_ASSIGNED: {
+        title: 'Supervisor assignment',
+        body: 'You were assigned as an organization supervisor.',
+      },
+      SUBSCRIPTION_UPDATED: {
+        title: 'Subscription updated',
+        body: "Your organization's subscription period was updated.",
+      },
+      SUBSCRIPTION_EXPIRING: {
+        title: 'Subscription expiring soon',
+        body: "Your organization's subscription ends soon. You can request a renewal in the app.",
+      },
+      SUBSCRIPTION_EXPIRED: {
+        title: 'Subscription expired',
+        body: "Your organization's subscription has ended. Request a renewal to keep using the services.",
+      },
+      SUBSCRIPTION_RENEWAL_REQUESTED: {
+        title: 'Renewal request',
+        body: 'An organization requested a subscription renewal.',
+      },
+      SUBSCRIPTION_RENEWAL_APPROVED: {
+        title: 'Renewal approved',
+        body: 'Your subscription renewal was approved.',
+      },
+      SUBSCRIPTION_RENEWAL_REJECTED: {
+        title: 'Renewal not approved',
+        body: 'Your subscription renewal request was rejected.',
+      },
+      FARM_MEMBER_JOINED: {
+        title: 'New farm member',
+        body: 'A new member joined your farm.',
+      },
+      FARM_APPOINTMENT_CREATED: {
+        title: 'New appointment',
+        body: 'A new appointment was added to the farm.',
+      },
+      TRADER_APPLICATION_SUBMITTED: {
+        title: 'New trader application',
+        body: 'A user submitted a trader registration for review.',
+      },
+      TRADER_APPROVED: {
+        title: 'Trader account approved',
+        body: 'You can now use the poultry market as a trader.',
+      },
+      TRADER_REJECTED: {
+        title: 'Trader application not approved',
+        body: 'Your trader registration was rejected.',
+      },
+      TRADER_SUSPENDED: {
+        title: 'Trader account suspended',
+        body: 'Your trader account has been suspended.',
+      },
+      TRADER_REACTIVATED: {
+        title: 'Trader account re-activated',
+        body: 'Your trader account has been re-activated.',
+      },
+      SYSTEM_SUPERVISOR_ASSIGNED: {
+        title: 'Supervisor assignment',
+        body: 'You were assigned as a system supervisor.',
+      },
+      CHAT_MESSAGE_RECEIVED: {
+        title: 'New message',
+        body: 'You have a new message.',
+      },
+      CONSULTATION_CREATED: {
+        title: 'New consultation',
+        body: 'A new consultation was submitted.',
+      },
+      CONSULTATION_MESSAGE_RECEIVED: {
+        title: 'New consultation reply',
+        body: 'There is a new message on a consultation.',
+      },
+      CONSULTATION_CLOSED: {
+        title: 'Consultation closed',
+        body: 'Your consultation has been closed.',
+      },
+      INQUIRY_CREATED: {
+        title: 'New inquiry',
+        body: 'A new inquiry was submitted.',
+      },
+      INQUIRY_MESSAGE_RECEIVED: {
+        title: 'New inquiry reply',
+        body: 'There is a new message on an inquiry.',
+      },
+      INQUIRY_CLOSED: {
+        title: 'Inquiry closed',
+        body: 'Your inquiry has been closed.',
+      },
+      SUPPORT_CREATED: {
+        title: 'New support message',
+        body: 'A new support message was submitted.',
+      },
+      SUPPORT_MESSAGE_RECEIVED: {
+        title: 'New support reply',
+        body: 'There is a new message on a support request.',
+      },
+      SUPPORT_CLOSED: {
+        title: 'Support request closed',
+        body: 'Your support request has been closed.',
+      },
+      VET_SERVICE_LISTING_SUBMITTED: {
+        title: 'New service to review',
+        body: 'A veterinarian submitted a service listing for approval.',
+      },
+      VET_SERVICE_LISTING_APPROVED: {
+        title: 'Service approved',
+        body: 'Your service listing is now public.',
+      },
+      VET_SERVICE_LISTING_REJECTED: {
+        title: 'Service not approved',
+        body: 'Your service listing needs changes before it can be published.',
+      },
+      VET_SERVICE_REQUEST_SUBMITTED: {
+        title: 'New service request to review',
+        body: 'A user submitted a service request for approval.',
+      },
+      VET_SERVICE_REQUEST_APPROVED: {
+        title: 'Request approved',
+        body: 'Your service request is now public.',
+      },
+      VET_SERVICE_REQUEST_REJECTED: {
+        title: 'Request not approved',
+        body: 'Your service request needs changes before it can be published.',
+      },
+      VET_SERVICE_OFFER_RECEIVED: {
+        title: 'New offer on your request',
+        body: 'A veterinarian made an offer on your request.',
+      },
+      VET_SERVICE_OFFER_ACCEPTED: {
+        title: 'Offer accepted',
+        body: 'Your offer was accepted and a conversation is open.',
+      },
+      VET_SERVICE_OFFER_REJECTED: {
+        title: 'Offer declined',
+        body: 'The requester chose a different offer.',
+      },
+      VET_SERVICE_LISTING_REQUEST_RECEIVED: {
+        title: 'New request for your service',
+        body: 'A user requested your service.',
+      },
+      VET_SERVICE_LISTING_REQUEST_ACCEPTED: {
+        title: 'Request accepted',
+        body: 'The veterinarian accepted your request and a conversation is open.',
+      },
+      VET_SERVICE_LISTING_REQUEST_REJECTED: {
+        title: 'Request declined',
+        body: 'The veterinarian declined your service request.',
+      },
+      VET_SERVICE_DEAL_COMPLETED: {
+        title: 'Service completed',
+        body: 'The service has been marked as completed.',
+      },
+      VET_COURSE_SUBMITTED: {
+        title: 'Course/seminar to review',
+        body: 'A veterinarian submitted a course or seminar for approval.',
+      },
+      VET_COURSE_APPROVED: {
+        title: 'Course/seminar approved',
+        body: 'Your course or seminar is now public.',
+      },
+      VET_COURSE_REJECTED: {
+        title: 'Course/seminar not approved',
+        body: 'Your course or seminar needs changes before it can be published.',
+      },
+      VET_COURSE_REGISTRATION_CONFIRMED: {
+        title: 'Registration confirmed',
+        body: 'Your registration was confirmed.',
+      },
+      VET_COURSE_REGISTRATION_RECEIVED: {
+        title: 'New registration',
+        body: 'A new participant registered for your course or seminar.',
+      },
+      VET_COURSE_CAPACITY_REACHED: {
+        title: 'Fully booked',
+        body: 'All seats in your course or seminar are taken.',
+      },
+      VET_COURSE_CANCELLED: {
+        title: 'Cancelled',
+        body: 'A course or seminar you registered for was cancelled.',
+      },
+      VET_JOB_OFFER_SUBMITTED: {
+        title: 'Job post to review',
+        body: 'A job post was submitted for approval.',
+      },
+      VET_JOB_OFFER_APPROVED: {
+        title: 'Job post approved',
+        body: 'Your job post is now public.',
+      },
+      VET_JOB_OFFER_REJECTED: {
+        title: 'Job post not approved',
+        body: 'Your job post needs changes before it can be published.',
+      },
+      VET_JOB_SEEKER_PROFILE_SUBMITTED: {
+        title: 'Job-seeker profile to review',
+        body: 'A job-seeker profile was submitted for approval.',
+      },
+      VET_JOB_SEEKER_PROFILE_APPROVED: {
+        title: 'Profile approved',
+        body: 'Your job-seeker profile is now public.',
+      },
+      VET_JOB_SEEKER_PROFILE_REJECTED: {
+        title: 'Profile not approved',
+        body: 'Your job-seeker profile needs changes.',
+      },
+      VET_JOB_APPLICATION_RECEIVED: {
+        title: 'New job application',
+        body: 'Someone applied to your job post.',
+      },
+      VET_JOB_APPLICATION_ACCEPTED: {
+        title: 'Application accepted',
+        body: 'Your job application was accepted and a conversation is open.',
+      },
+      VET_JOB_APPLICATION_REJECTED: {
+        title: 'Application not accepted',
+        body: 'Your job application was rejected.',
+      },
+      STORE_ORDER_PLACED: {
+        title: 'New order',
+        body: 'A new order was received.',
+      },
+      STORE_ORDER_STATUS_CHANGED: {
+        title: 'Order updated',
+        body: 'Your order status was updated.',
+      },
+      SYNDICATE_ANNOUNCEMENT_PUBLISHED: {
+        title: 'New syndicate announcement',
+        body: 'A syndicate you follow published a new announcement.',
+      },
+      SYNDICATE_SUBMISSION_CREATED: {
+        title: 'New submission to review',
+        body: 'A member submitted a new request or inquiry.',
+      },
+      SYNDICATE_SUBMISSION_RESPONDED: {
+        title: 'Your submission was answered',
+        body: 'The syndicate responded to your request or inquiry.',
+      },
+      CONTENT_PUBLISHED: {
+        title: 'New content',
+        body: 'New content is available.',
+      },
+      PUBLICATION_SUBMITTED: {
+        title: 'New post to review',
+        body: 'An animal post was submitted for approval.',
+      },
+      PUBLICATION_APPROVED: {
+        title: 'Post approved',
+        body: 'Your post is now visible to everyone.',
+      },
+      PUBLICATION_REJECTED: {
+        title: 'Post not approved',
+        body: 'Your post was rejected.',
+      },
+      PUBLICATION_ADOPTION_REQUESTED: {
+        title: 'Adoption request',
+        body: 'Someone is interested in adopting your listed animal.',
+      },
+      PUBLICATION_MATING_REQUESTED: {
+        title: 'Mating request',
+        body: 'Someone is interested in mating with your listed animal.',
+      },
+      PUBLICATION_SIGHTING_REPORTED: {
+        title: 'Sighting reported',
+        body: 'Someone reported a sighting of your lost animal.',
+      },
+      TRANSFER_REQUEST_RECEIVED: {
+        title: 'Ownership transfer request',
+        body: 'Someone wants to transfer an animal to you.',
+      },
+      TRANSFER_REQUEST_ACCEPTED: {
+        title: 'Transfer accepted',
+        body: 'Your ownership transfer request was accepted.',
+      },
+      TRANSFER_REQUEST_REJECTED: {
+        title: 'Transfer declined',
+        body: 'Your ownership transfer request was declined.',
+      },
+      CLINIC_APPOINTMENT_REQUESTED: {
+        title: 'New appointment request',
+        body: 'A pet owner requested an appointment.',
+      },
+      CLINIC_APPOINTMENT_CONFIRMED: {
+        title: 'Appointment confirmed',
+        body: 'The appointment was confirmed.',
+      },
+      CLINIC_APPOINTMENT_REJECTED: {
+        title: 'Appointment declined',
+        body: 'The clinic declined your appointment request.',
+      },
+      CLINIC_APPOINTMENT_RESCHEDULE_PROPOSED: {
+        title: 'New time proposed',
+        body: 'The clinic proposed a different date/time.',
+      },
+      CLINIC_APPOINTMENT_CANCELLED: {
+        title: 'Appointment cancelled',
+        body: 'An appointment was cancelled.',
+      },
+      CLINIC_APPOINTMENT_COMPLETED: {
+        title: 'Appointment completed',
+        body: 'Your appointment has been marked as completed.',
+      },
+      ADMIN_ANNOUNCEMENT: {
+        title: 'Announcement',
+        body: 'You have a new announcement.',
+      },
+      ORGANIZATION_BROADCAST: {
+        title: 'Message from an organization you follow',
+        body: 'An organization you follow sent a message.',
+      },
+    },
   },
   showcase: {
     title: 'Design System',
@@ -4483,30 +4857,122 @@ export const en: TranslationResources = {
         logout: 'Log out',
       },
       cards: {
-        poultry: { title: 'Poultry', subtitle: 'Manage poultry and veterinary services', unit: 'active farms' },
+        poultry: {
+          title: 'Poultry',
+          subtitle: 'Manage poultry and veterinary services',
+          unit: 'active farms',
+        },
         pets: { title: 'Pets', subtitle: 'Manage pet records and cases', unit: 'registered pets' },
-        consultations: { title: 'Consultations', subtitle: 'Manage online veterinary consultations', unit: 'open consultations' },
-        inquiries: { title: 'Inquiries', subtitle: "Manage and respond to customers' inquiries", unit: 'open inquiries' },
-        ads: { title: 'Main ads', subtitle: 'Manage system ads and announcements', unit: 'ad campaigns' },
-        clinics: { title: 'Clinics', subtitle: 'Manage clinics and appointments', unit: 'active clinics' },
-        offices: { title: 'Offices', subtitle: 'Manage offices, branches, and departments', unit: 'active offices' },
-        vetApprovals: { title: 'Veterinarian approvals', subtitle: 'Review veterinarian approval requests', unit: 'approved veterinarians' },
-        livestock: { title: 'Sheep & cattle', subtitle: 'Manage sheep, cattle, and their services', unit: 'active farms' },
-        courses: { title: 'Courses', subtitle: 'Manage veterinary courses', unit: 'approved courses' },
-        seminars: { title: 'Seminars', subtitle: 'Manage veterinary seminars', unit: 'approved seminars' },
-        services: { title: 'Services', subtitle: 'Manage the veterinary services offered', unit: 'active services' },
-        content: { title: 'Books & magazines', subtitle: 'Manage scientific content', unit: 'published items' },
-        syndicate: { title: 'Veterinary syndicate', subtitle: 'Manage syndicate data and memberships', unit: 'active organizations' },
-        petOwners: { title: 'Pet owners', subtitle: 'Manage pet owner accounts', unit: 'active users' },
-        veterinarians: { title: 'Veterinarians', subtitle: 'Manage veterinarians in the system', unit: 'active veterinarians' },
-        chats: { title: 'Chats', subtitle: 'Oversee conversations and messages', unit: 'logged conversations' },
-        jobs: { title: 'Available jobs', subtitle: 'Manage jobs and career opportunities', unit: 'active jobs' },
-        supervisors: { title: 'Supervisors', subtitle: 'Manage supervisors and system oversight', unit: 'registered supervisors' },
-        petOwnerStore: { title: 'Pet owners store', subtitle: 'Manage the pet owners supply store', unit: 'active products' },
-        veterinarianStore: { title: 'Veterinarian store', subtitle: 'Manage the veterinarian supply store', unit: 'active products' },
-        users: { title: 'User management', subtitle: 'Manage user accounts and permissions', unit: 'active users' },
-        userMessages: { title: 'User messages', subtitle: 'Manage and respond to user messages', unit: 'open messages' },
-        broadcasts: { title: 'Send a message', subtitle: 'Send messages and notifications to users', unit: 'messages sent' },
+        consultations: {
+          title: 'Consultations',
+          subtitle: 'Manage online veterinary consultations',
+          unit: 'open consultations',
+        },
+        inquiries: {
+          title: 'Inquiries',
+          subtitle: "Manage and respond to customers' inquiries",
+          unit: 'open inquiries',
+        },
+        ads: {
+          title: 'Main ads',
+          subtitle: 'Manage system ads and announcements',
+          unit: 'ad campaigns',
+        },
+        clinics: {
+          title: 'Clinics',
+          subtitle: 'Manage clinics and appointments',
+          unit: 'active clinics',
+        },
+        offices: {
+          title: 'Offices',
+          subtitle: 'Manage offices, branches, and departments',
+          unit: 'active offices',
+        },
+        vetApprovals: {
+          title: 'Veterinarian approvals',
+          subtitle: 'Review veterinarian approval requests',
+          unit: 'approved veterinarians',
+        },
+        livestock: {
+          title: 'Sheep & cattle',
+          subtitle: 'Manage sheep, cattle, and their services',
+          unit: 'active farms',
+        },
+        courses: {
+          title: 'Courses',
+          subtitle: 'Manage veterinary courses',
+          unit: 'approved courses',
+        },
+        seminars: {
+          title: 'Seminars',
+          subtitle: 'Manage veterinary seminars',
+          unit: 'approved seminars',
+        },
+        services: {
+          title: 'Services',
+          subtitle: 'Manage the veterinary services offered',
+          unit: 'active services',
+        },
+        content: {
+          title: 'Books & magazines',
+          subtitle: 'Manage scientific content',
+          unit: 'published items',
+        },
+        syndicate: {
+          title: 'Veterinary syndicate',
+          subtitle: 'Manage syndicate data and memberships',
+          unit: 'active organizations',
+        },
+        petOwners: {
+          title: 'Pet owners',
+          subtitle: 'Manage pet owner accounts',
+          unit: 'active users',
+        },
+        veterinarians: {
+          title: 'Veterinarians',
+          subtitle: 'Manage veterinarians in the system',
+          unit: 'active veterinarians',
+        },
+        chats: {
+          title: 'Chats',
+          subtitle: 'Oversee conversations and messages',
+          unit: 'logged conversations',
+        },
+        jobs: {
+          title: 'Available jobs',
+          subtitle: 'Manage jobs and career opportunities',
+          unit: 'active jobs',
+        },
+        supervisors: {
+          title: 'Supervisors',
+          subtitle: 'Manage supervisors and system oversight',
+          unit: 'registered supervisors',
+        },
+        petOwnerStore: {
+          title: 'Pet owners store',
+          subtitle: 'Manage the pet owners supply store',
+          unit: 'active products',
+        },
+        veterinarianStore: {
+          title: 'Veterinarian store',
+          subtitle: 'Manage the veterinarian supply store',
+          unit: 'active products',
+        },
+        users: {
+          title: 'User management',
+          subtitle: 'Manage user accounts and permissions',
+          unit: 'active users',
+        },
+        userMessages: {
+          title: 'User messages',
+          subtitle: 'Manage and respond to user messages',
+          unit: 'open messages',
+        },
+        broadcasts: {
+          title: 'Send a message',
+          subtitle: 'Send messages and notifications to users',
+          unit: 'messages sent',
+        },
       },
       activity: {
         empty: 'No activity yet',
@@ -4601,12 +5067,14 @@ export const en: TranslationResources = {
       VETERINARY_STORE_PRODUCT_CREATED: 'A product was added to a veterinary store',
       VETERINARY_STORE_PRODUCT_UPDATED: 'A veterinary store product was updated',
       VETERINARY_STORE_PRODUCT_DEACTIVATED: 'A veterinary store product was deleted',
-      VETERINARY_STORE_PRODUCT_INVENTORY_ADJUSTED: "A veterinary store product's inventory was adjusted",
+      VETERINARY_STORE_PRODUCT_INVENTORY_ADJUSTED:
+        "A veterinary store product's inventory was adjusted",
       VETERINARY_STORE_PRODUCT_IMAGE_UPDATED: "A veterinary store product's image was updated",
       VETERINARY_OFFICE_PRODUCT_CREATED: 'A product was added to a veterinary office',
       VETERINARY_OFFICE_PRODUCT_UPDATED: 'A veterinary office product was updated',
       VETERINARY_OFFICE_PRODUCT_DEACTIVATED: 'A veterinary office product was deleted',
-      VETERINARY_OFFICE_PRODUCT_INVENTORY_ADJUSTED: "A veterinary office product's inventory was adjusted",
+      VETERINARY_OFFICE_PRODUCT_INVENTORY_ADJUSTED:
+        "A veterinary office product's inventory was adjusted",
       VETERINARY_OFFICE_PRODUCT_IMAGE_UPDATED: "A veterinary office product's image was updated",
       PET_STORE_PRODUCT_CREATED: 'A product was added to the pet owners store',
       PET_STORE_PRODUCT_UPDATED: 'A pet owners store product was updated',
@@ -4798,7 +5266,7 @@ export const en: TranslationResources = {
 
       // Global Chat rooms
       CHAT_ROOM_CREATED: 'A chat room was created',
-      CHAT_ROOM_RULES_UPDATED: 'A chat room\'s rules were updated',
+      CHAT_ROOM_RULES_UPDATED: "A chat room's rules were updated",
       CHAT_ROOM_JOINED: 'A member joined a chat room',
       CHAT_ROOM_LEFT: 'A member left a chat room',
       CHAT_ROOM_MESSAGE_PINNED: 'A message was pinned in a chat room',
@@ -4834,7 +5302,8 @@ export const en: TranslationResources = {
       },
     },
     broadcast: {
-      intro: "Send a message or notification to the system's users. It's sent immediately to the chosen audience.",
+      intro:
+        "Send a message or notification to the system's users. It's sent immediately to the chosen audience.",
       target: {
         all: 'All users',
         petOwners: 'Pet owners',
@@ -5404,10 +5873,15 @@ export const en: TranslationResources = {
       rejectTitle: 'Reject the course',
       rejectBody: 'This course will not appear to users. Its creator will be told the reason.',
       cancelTitle: 'Cancel the course',
-      cancelBody: 'This course will be hidden from users and registrants will be notified of the cancellation.',
+      cancelBody:
+        'This course will be hidden from users and registrants will be notified of the cancellation.',
       reasonLabel: 'Rejection reason',
       reasonPlaceholder: 'Write the rejection reason…',
-      toast: { approved: 'Course approved', rejected: 'Course rejected', cancelled: 'Course cancelled' },
+      toast: {
+        approved: 'Course approved',
+        rejected: 'Course rejected',
+        cancelled: 'Course cancelled',
+      },
       details: {
         title: 'Course details',
         creator: 'Creator',
@@ -5936,7 +6410,8 @@ export const en: TranslationResources = {
       moderationNote: 'The service starts as “Under review” and is not public before approval.',
     },
     addRequest: {
-      intro: 'Explain what you need clearly to get relevant offers. The request is reviewed before it is public.',
+      intro:
+        'Explain what you need clearly to get relevant offers. The request is reviewed before it is public.',
       success: 'The request was submitted for review.',
       submit: 'Publish request',
       moderationNote: 'The request starts as “Under review” and is not public before approval.',
@@ -5983,7 +6458,10 @@ export const en: TranslationResources = {
         reject: { title: 'Reject', body: 'This will be permanently rejected. Continue?' },
         cancel: { title: 'Cancel request', body: 'The request will be cancelled. Continue?' },
         withdraw: { title: 'Withdraw offer', body: 'Your offer will be withdrawn. Continue?' },
-        complete: { title: 'Finish request', body: 'Confirm finishing the request and marking it complete?' },
+        complete: {
+          title: 'Finish request',
+          body: 'Confirm finishing the request and marking it complete?',
+        },
       },
     },
     deal: {
@@ -5999,8 +6477,14 @@ export const en: TranslationResources = {
       completedNote: 'This request has been finished.',
       closedNote: 'This conversation has been stopped.',
       confirm: {
-        complete: { title: 'Finish request', body: 'Confirm finishing the request and marking it complete?' },
-        close: { title: 'Stop conversation', body: 'You will not be able to send new messages after stopping. Continue?' },
+        complete: {
+          title: 'Finish request',
+          body: 'Confirm finishing the request and marking it complete?',
+        },
+        close: {
+          title: 'Stop conversation',
+          body: 'You will not be able to send new messages after stopping. Continue?',
+        },
       },
     },
   },
@@ -6178,7 +6662,8 @@ export const en: TranslationResources = {
         'This office is awaiting admin approval before it becomes active. You cannot perform any dashboard actions until it is approved.',
       rejectedTitle: 'Registration rejected',
       suspendedTitle: 'Office suspended',
-      suspendedBody: 'This office has been suspended by the admin team. You cannot perform any actions right now.',
+      suspendedBody:
+        'This office has been suspended by the admin team. You cannot perform any actions right now.',
       deactivatedTitle: 'Office deactivated',
       deactivatedBody: 'This office has been deactivated and no actions can be performed on it.',
       activeTitle: 'Active',
@@ -6191,7 +6676,8 @@ export const en: TranslationResources = {
       notStartedTitle: 'Subscription not started yet',
       notStartedBody:
         'Waiting for the admin team to set your subscription period. You cannot perform any dashboard actions until then.',
-      actionsDisabledNotice: 'You cannot perform this action right now — check the office status on the dashboard home screen.',
+      actionsDisabledNotice:
+        'You cannot perform this action right now — check the office status on the dashboard home screen.',
     },
     tabBar: {
       home: 'Home',
@@ -6228,7 +6714,8 @@ export const en: TranslationResources = {
       hideSuccess: 'Product hidden.',
       deleteSuccess: 'Product deleted.',
       deleteConfirmTitle: 'Delete product',
-      deleteConfirmBody: 'The product will be removed from the store and drop out of the active list.',
+      deleteConfirmBody:
+        'The product will be removed from the store and drop out of the active list.',
       deleteConfirmCta: 'Delete product',
       cancel: 'Cancel',
     },

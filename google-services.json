@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "464510229099",
+    "project_id": "bytari",
+    "storage_bucket": "bytari.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464510229099:android:30b1aa85a2c45f2c706f2e",
+        "android_client_info": {
+          "package_name": "com.petcare.bytari"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBzz_8jA8OKGeWOQjw58OCrN3-9LIXEzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

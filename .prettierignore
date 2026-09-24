@@ -4,3 +4,7 @@ dist
 web-build
 coverage
 *.log
+# Firebase-generated client config — keep byte-identical to the console download.
+google-services.json
+android
+ios

@@ -95,7 +95,7 @@ export default function OrganizationDetailsScreen() {
         <>
           <Section spacing="xl">
             <Row gap="lg" align="center">
-              {org.details.logoUrl ?? org.details.galleryUrls?.[0] ? (
+              {(org.details.logoUrl ?? org.details.galleryUrls?.[0]) ? (
                 <View
                   style={{
                     width: 64,
@@ -106,7 +106,9 @@ export default function OrganizationDetailsScreen() {
                   }}
                 >
                   <Image
-                    source={{ uri: (org.details.logoUrl ?? org.details.galleryUrls?.[0]) as string }}
+                    source={{
+                      uri: (org.details.logoUrl ?? org.details.galleryUrls?.[0]) as string,
+                    }}
                     style={{ width: '100%', height: '100%' }}
                     contentFit="cover"
                   />
@@ -285,7 +287,7 @@ export default function OrganizationDetailsScreen() {
                   label={t('detail.veterinarians')}
                   onPress={() =>
                     router.push({
-                      pathname: Routes.organizationMembers(org.id),
+                      pathname: Routes.organizationMembers(org.id) as never,
                       params: { roleKey: 'VETERINARIAN' },
                     })
                   }

@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Platform, View } from 'react-native';
 
@@ -17,6 +17,7 @@ import { Routes } from '@/constants/routes';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
+import { notificationService } from '@/services/notifications';
 import { useTheme } from '@/theme';
 
 import { ConversationTitle, MessageBubble, MessageComposer } from '../components';
@@ -56,6 +57,15 @@ export default function ConversationThreadScreen() {
   const lastMarkedRef = useRef<string | null>(null);
 
   const conversation = conversationQ.data;
+
+  // While this thread is on screen, a foreground push for it is not shown.
+  useFocusEffect(
+    useCallback(() => {
+      if (!id) return undefined;
+      notificationService.setActiveConversation(id);
+      return () => notificationService.setActiveConversation(null);
+    }, [id]),
+  );
 
   // Mark the newest counterpart message read (once per id).
   useEffect(() => {

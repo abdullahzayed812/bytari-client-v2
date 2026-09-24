@@ -5,7 +5,11 @@ import { Routes } from '@/constants/routes';
 import { onBeforeLogout } from '@/features/auth/store/authStore';
 import { useChatListRealtime } from '@/features/chat/hooks';
 import { notificationHref } from '@/features/notifications/constants';
-import { useNotificationRealtime, useUnreadCount } from '@/features/notifications/hooks';
+import {
+  useMarkNotificationRead,
+  useNotificationRealtime,
+  useUnreadCount,
+} from '@/features/notifications/hooks';
 import type { AppNotification } from '@/features/notifications/types';
 import { useAuth } from '@/hooks';
 import { createLogger } from '@/lib/logger';
@@ -25,16 +29,24 @@ const log = createLogger('notifications-gate');
  *    on `notification.created` / `notification.read`; `useChatListRealtime()`
  *    refreshes the conversation list on `chat.conversation.created`.
  *  - OS badge (§28): mirrors the unread count onto the app icon.
+ *  - Token rotation: FCM may issue a new token at any time; it is
+ *    re-registered (the backend upserts by token, so this is idempotent).
  *  - Push taps (§30): foreground/background taps and a cold-start launch
- *    notification resolve to an in-app destination once navigation is ready.
+ *    notification resolve to an in-app destination once navigation is ready,
+ *    and mark that notification read (`data.notificationId`).
  */
 export function NotificationsGate() {
   const { isAuthenticated } = useAuth();
   const registeredDeviceId = useRef<string | null>(null);
   const coldStartHandled = useRef(false);
+  const { mutate: markRead } = useMarkNotificationRead();
 
   useNotificationRealtime();
   useChatListRealtime();
+
+  useEffect(() => {
+    void notificationService.ensureAndroidChannel();
+  }, []);
 
   // --- OS badge mirrors the unread count ---
   const { data: unread = 0 } = useUnreadCount();
@@ -60,6 +72,19 @@ export function NotificationsGate() {
       }
     })();
 
+    const offRefresh = notificationService.onTokenRefresh((token) => {
+      void notificationService
+        .registerDevice(token)
+        .then((id) => {
+          if (!cancelled && id) registeredDeviceId.current = id;
+        })
+        .catch((error: unknown) => {
+          log.warn('refreshed token registration failed', {
+            reason: error instanceof Error ? error.message : 'unknown',
+          });
+        });
+    });
+
     const off = onBeforeLogout(async () => {
       const id = registeredDeviceId.current;
       registeredDeviceId.current = null;
@@ -68,6 +93,7 @@ export function NotificationsGate() {
 
     return () => {
       cancelled = true;
+      offRefresh();
       off();
     };
   }, [isAuthenticated]);
@@ -81,6 +107,8 @@ export function NotificationsGate() {
         entityId: (n.data.entityId as string | null) ?? null,
         data: n.data,
       });
+      const notificationId = n.data.notificationId;
+      if (typeof notificationId === 'string' && notificationId) markRead(notificationId);
       router.push((href ?? Routes.notifications) as never);
     };
 
@@ -97,7 +125,7 @@ export function NotificationsGate() {
     }
 
     return sub;
-  }, [isAuthenticated]);
+  }, [isAuthenticated, markRead]);
 
   return null;
 }

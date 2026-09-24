@@ -47,7 +47,12 @@ export default function BookDetailScreen() {
   const addComment = useAddContentComment(id);
   const [commentDraft, setCommentDraft] = useState('');
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  // Called before the early returns so the hook order is identical on every render.
+  const cover = q.data?.files.find((f) => f.kind === 'COVER');
+  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
+
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
@@ -73,15 +78,14 @@ export default function BookDetailScreen() {
 
   const book = q.data;
   const mainFile = book?.files.find((f) => f.kind === 'MAIN');
-  const cover = book?.files.find((f) => f.kind === 'COVER');
-  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
   const primaryCategory = book?.categories[0]?.name;
 
   const onShare = () => {
     if (!book) return;
     void shareText(book.title).then((outcome) => {
       if (outcome === 'copied') toast.show({ tone: 'success', message: tc('share.copied') });
-      else if (outcome === 'unavailable') toast.show({ tone: 'info', message: tc('share.unavailable') });
+      else if (outcome === 'unavailable')
+        toast.show({ tone: 'info', message: tc('share.unavailable') });
     });
   };
 
@@ -164,7 +168,8 @@ export default function BookDetailScreen() {
                 accessibilityLabel={t('detail.favoriteA11y')}
                 onPress={() =>
                   favorite.mutate(!book.isBookmarked, {
-                    onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                    onError: (error) =>
+                      toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                   })
                 }
               />
@@ -236,13 +241,25 @@ export default function BookDetailScreen() {
                 </Row>
                 <View style={{ marginTop: theme.spacing.lg, rowGap: theme.spacing.md }}>
                   {book.authorName ? (
-                    <InfoRow icon="person-outline" label={t('detail.author')} value={book.authorName} />
+                    <InfoRow
+                      icon="person-outline"
+                      label={t('detail.author')}
+                      value={book.authorName}
+                    />
                   ) : null}
                   {primaryCategory ? (
-                    <InfoRow icon="pricetag-outline" label={t('detail.category')} value={primaryCategory} />
+                    <InfoRow
+                      icon="pricetag-outline"
+                      label={t('detail.category')}
+                      value={primaryCategory}
+                    />
                   ) : null}
                   {book.language ? (
-                    <InfoRow icon="language-outline" label={t('detail.language')} value={book.language} />
+                    <InfoRow
+                      icon="language-outline"
+                      label={t('detail.language')}
+                      value={book.language}
+                    />
                   ) : null}
                   {book.pageCount != null ? (
                     <InfoRow
@@ -286,7 +303,8 @@ export default function BookDetailScreen() {
                   leftIcon={book.isLiked ? 'heart' : 'heart-outline'}
                   onPress={() =>
                     like.mutate(!book.isLiked, {
-                      onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                      onError: (error) =>
+                        toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                     })
                   }
                   accessibilityLabel={t('detail.likeA11y')}

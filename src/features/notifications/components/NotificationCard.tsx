@@ -7,7 +7,7 @@ import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { notificationMeta } from '../constants';
+import { localizedNotificationText, notificationMeta } from '../constants';
 import type { AppNotification } from '../types';
 
 function broadcastImageUrl(n: AppNotification): string | null {
@@ -32,11 +32,12 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
   const meta = notificationMeta(n.type);
   const unread = !n.read;
   const imageUrl = broadcastImageUrl(n);
+  const { title, body } = localizedNotificationText(n, t, i18n.language);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t(unread ? 'card.a11yUnread' : 'card.a11yRead', { title: n.title })}
+      accessibilityLabel={t(unread ? 'card.a11yUnread' : 'card.a11yRead', { title })}
       onPress={onPress}
       style={({ pressed }) => [
         {
@@ -64,7 +65,11 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
         }}
       >
         {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+          <Image
+            source={{ uri: imageUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+          />
         ) : (
           <Icon name={meta.icon} size="iconMd" color="primary" />
         )}
@@ -90,12 +95,12 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
             style={{ flex: 1 }}
             numberOfLines={2}
           >
-            {n.title}
+            {title}
           </Text>
         </View>
-        {n.body ? (
+        {body ? (
           <Text variant="body" color="textSecondary" numberOfLines={3}>
-            {n.body}
+            {body}
           </Text>
         ) : null}
         <Caption>{formatDate(n.createdAt, i18n.language)}</Caption>

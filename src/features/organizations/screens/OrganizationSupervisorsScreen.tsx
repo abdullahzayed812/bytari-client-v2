@@ -106,7 +106,7 @@ export default function OrganizationSupervisorsScreen() {
                         accessibilityLabel={t('supervisors.editPermissions')}
                         onPress={() =>
                           router.push({
-                            pathname: Routes.organizationSupervisorsAssign(orgId),
+                            pathname: Routes.organizationSupervisorsAssign(orgId) as never,
                             params: { membershipId: sup.id },
                           })
                         }
