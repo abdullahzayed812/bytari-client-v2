@@ -29,9 +29,14 @@ import { useAuth } from '@/hooks';
  * Nothing else in the tree performs auth redirects. Renders nothing.
  */
 export function AuthRedirector() {
-  const { isAuthenticated, isBootstrapping, requiresEmailVerification, requiresVeterinarianApproval } =
-    useAuth();
-  const segments = useSegments();
+  const {
+    isAuthenticated,
+    isBootstrapping,
+    requiresEmailVerification,
+    requiresVeterinarianApproval,
+  } = useAuth();
+  // Widened: the typed-routes tuple from .expo/types is absent in CI.
+  const segments: string[] = useSegments();
 
   useEffect(() => {
     if (isBootstrapping) return;
@@ -44,7 +49,8 @@ export function AuthRedirector() {
       if (!onVerifyEmailScreen) router.replace('/(auth)/verify-email');
     } else if (requiresVeterinarianApproval) {
       const allowed =
-        (inAuthGroup && (segments[1] === 'veterinarian-pending' || segments[1] === 'register-veterinarian')) ||
+        (inAuthGroup &&
+          (segments[1] === 'veterinarian-pending' || segments[1] === 'register-veterinarian')) ||
         (inAppGroup && segments[1] === 'veterinarian' && segments[2] === 'apply');
       if (!allowed) router.replace('/(auth)/veterinarian-pending');
     } else if (!isAuthenticated && inAppGroup) {
@@ -52,7 +58,13 @@ export function AuthRedirector() {
     } else if (isAuthenticated && (inAuthGroup || group === undefined)) {
       router.replace('/(app)/(tabs)');
     }
-  }, [isAuthenticated, isBootstrapping, requiresEmailVerification, requiresVeterinarianApproval, segments]);
+  }, [
+    isAuthenticated,
+    isBootstrapping,
+    requiresEmailVerification,
+    requiresVeterinarianApproval,
+    segments,
+  ]);
 
   return null;
 }
