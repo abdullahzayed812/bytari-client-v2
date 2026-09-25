@@ -45,8 +45,8 @@ jobs:
         run: npm test -- --ci
       - name: Web production build
         env:
-          EXPO_PUBLIC_API_BASE_URL: https://api.bytari.com
-          EXPO_PUBLIC_REALTIME_URL: wss://api.bytari.com
+          EXPO_PUBLIC_API_BASE_URL: https://api.baytari.com
+          EXPO_PUBLIC_REALTIME_URL: wss://api.baytari.com
           EXPO_PUBLIC_ENVIRONMENT: production
           NODE_ENV: production
         run: npm run build:web

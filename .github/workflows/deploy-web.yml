@@ -1,4 +1,4 @@
-# Production deploy of Expo Web (https://bytari.com).
+# Production deploy of Expo Web (https://baytari.com).
 #
 #   git tag v1.4.0 && git push origin v1.4.0      → CI → web image → VPS deploy
 #   Actions → "Deploy Web" → Run workflow          → redeploy a ref manually
@@ -9,8 +9,8 @@
 # this one only swaps the web image.
 #
 # Optional repository VARIABLES (public values, baked into the bundle):
-#   EXPO_PUBLIC_API_BASE_URL (default https://api.bytari.com)
-#   EXPO_PUBLIC_REALTIME_URL (default wss://api.bytari.com)
+#   EXPO_PUBLIC_API_BASE_URL (default https://api.baytari.com)
+#   EXPO_PUBLIC_REALTIME_URL (default wss://api.baytari.com)
 name: Deploy Web
 
 on:
@@ -55,8 +55,8 @@ jobs:
           context: .
           push: true
           build-args: |
-            EXPO_PUBLIC_API_BASE_URL=${{ vars.EXPO_PUBLIC_API_BASE_URL || 'https://api.bytari.com' }}
-            EXPO_PUBLIC_REALTIME_URL=${{ vars.EXPO_PUBLIC_REALTIME_URL || 'wss://api.bytari.com' }}
+            EXPO_PUBLIC_API_BASE_URL=${{ vars.EXPO_PUBLIC_API_BASE_URL || 'https://api.baytari.com' }}
+            EXPO_PUBLIC_REALTIME_URL=${{ vars.EXPO_PUBLIC_REALTIME_URL || 'wss://api.baytari.com' }}
           tags: |
             ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}
             ${{ env.IMAGE }}:sha-${{ github.sha }}
@@ -84,5 +84,5 @@ jobs:
         run: ssh vps "cd /opt/bytari && deploy/scripts/deploy.sh --web-tag '${{ needs.image.outputs.tag }}'"
       - name: Verify from the internet
         run: |
-          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors -o /dev/null https://bytari.com/
-          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors -o /dev/null https://bytari.com/pets
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors -o /dev/null https://baytari.com/
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors -o /dev/null https://baytari.com/pets

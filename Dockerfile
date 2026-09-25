@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Bytari Expo Web — production image (served at https://bytari.com).
+# Bytari Expo Web — production image (served at https://baytari.com).
 #
 #   build   : `expo export --platform web` → static files in /app/dist
 #   runtime : unprivileged nginx serving /app/dist (no Node, no node_modules)
@@ -19,9 +19,9 @@ RUN npm ci --no-audit --no-fund
 
 COPY . .
 
-ARG EXPO_PUBLIC_API_BASE_URL=https://api.bytari.com
+ARG EXPO_PUBLIC_API_BASE_URL=https://api.baytari.com
 ARG EXPO_PUBLIC_API_VERSION=v1
-ARG EXPO_PUBLIC_REALTIME_URL=wss://api.bytari.com
+ARG EXPO_PUBLIC_REALTIME_URL=wss://api.baytari.com
 ARG EXPO_PUBLIC_REALTIME_PATH=/realtime
 ARG EXPO_PUBLIC_ENVIRONMENT=production
 ARG EXPO_PUBLIC_REQUEST_TIMEOUT_MS=20000
