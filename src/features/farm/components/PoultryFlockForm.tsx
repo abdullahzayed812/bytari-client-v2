@@ -98,7 +98,7 @@ export function PoultryFlockForm({
           name="targetPricePerKg"
           label={t('poultry.fieldTargetPrice')}
           hint={t('poultry.targetPriceHint')}
-          placeholder="0"
+          placeholder="0.00"
           keyboardType="decimal-pad"
           required
           serverError={serverFields.targetPricePerKg}

@@ -182,14 +182,33 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     renderWithProviders(<PoultryFlockFormScreen />);
     await waitFor(() => expect(screen.getByDisplayValue('قطيع الشمال')).toBeOnTheScreen());
     expect(screen.getByDisplayValue('500')).toBeOnTheScreen();
+    // The owner sees the sale price field (the estimated-profit input) and must fill it.
+    await screen.findByText(/سعر البيع المتوقع/);
+    const price = screen.getByPlaceholderText('0.00');
+    fireEvent.changeText(price, '3.25');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ التعديلات' }));
     await waitFor(() =>
       expect(update).toHaveBeenCalledWith(
         'o1',
         'f1',
-        expect.objectContaining({ name: 'قطيع الشمال', birdCount: 500 }),
+        expect.objectContaining({ name: 'قطيع الشمال', birdCount: 500, targetPricePerKg: 3.25 }),
       ),
     );
+  });
+
+  it('a farm veterinarian edits without seeing or sending the sale price', async () => {
+    setSearchParams({ organizationId: 'o1', flockId: 'f1' });
+    getOrg.mockResolvedValue({ id: 'o1', type: 'FARM', myRole: 'VETERINARIAN' } as never);
+    detail.mockResolvedValue(flock());
+    update.mockResolvedValueOnce(flock());
+    renderWithProviders(<PoultryFlockFormScreen />);
+    await waitFor(() => expect(screen.getByDisplayValue('قطيع الشمال')).toBeOnTheScreen());
+    await waitFor(() => expect(getOrg).toHaveBeenCalled());
+    expect(screen.queryByText(/سعر البيع المتوقع/)).toBeNull();
+    expect(screen.queryByPlaceholderText('0.00')).toBeNull();
+    fireEvent.press(screen.getByRole('button', { name: 'حفظ التعديلات' }));
+    await waitFor(() => expect(update).toHaveBeenCalled());
+    expect(update.mock.calls[0]?.[2]).not.toHaveProperty('targetPricePerKg', expect.anything());
   });
 
   it('maps a 409 POULTRY_FLOCK_NOT_ACTIVE to the closed-flock message', async () => {

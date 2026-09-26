@@ -95,7 +95,7 @@ export function SheepBatchForm({
           name="targetPricePerKg"
           label={t('batchForm.fieldTargetPrice')}
           hint={t('batchForm.targetPriceHint')}
-          placeholder="0"
+          placeholder="0.00"
           keyboardType="decimal-pad"
           required
           serverError={serverFields.targetPricePerKg}

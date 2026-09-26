@@ -32,7 +32,14 @@ const office: PublicOrganizationDetail = {
   reviewsCount: 128,
   createdAt: '',
   veterinarians: [],
-  engagement: { isFollowing: false, followersCount: 1245, rating: 4.8, reviewsCount: 128 },
+  engagement: {
+    isFollowing: false,
+    followersCount: 1245,
+    isLiked: false,
+    likesCount: 12,
+    rating: 4.8,
+    reviewsCount: 128,
+  },
 };
 
 const product = (over: Partial<VeterinaryOfficeProduct> = {}): VeterinaryOfficeProduct => ({
@@ -63,12 +70,14 @@ const product = (over: Partial<VeterinaryOfficeProduct> = {}): VeterinaryOfficeP
 describe('VeterinaryOfficeDetailsScreen', () => {
   const getPublic = jest.spyOn(organizationsApi, 'getPublic');
   const follow = jest.spyOn(organizationsApi, 'follow');
+  const like = jest.spyOn(organizationsApi, 'like');
   const listProducts = jest.spyOn(publicVeterinaryOfficeProductsApi, 'list');
 
   beforeEach(() => {
     resetRouterMock();
     getPublic.mockReset();
     follow.mockReset();
+    like.mockReset();
     listProducts.mockReset().mockResolvedValue({
       items: [],
       meta: { page: 1, pageSize: 6, total: 0, totalPages: 1 },
@@ -120,12 +129,24 @@ describe('VeterinaryOfficeDetailsScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/o1/products/p1');
   });
 
-  it('pressing إعجاب follows the office', async () => {
+  it('pressing إعجاب likes the office (a like, not a follow) and shows the like count', async () => {
+    getPublic.mockResolvedValue(office);
+    like.mockResolvedValue({ success: true });
+    renderWithProviders(<VeterinaryOfficeDetailsScreen />);
+    await waitFor(() => expect(screen.getByText('مكتب الرحمة البيطري')).toBeOnTheScreen());
+    expect(screen.getByText('12')).toBeOnTheScreen();
+    expect(screen.queryByText('1245')).toBeNull();
+    fireEvent.press(screen.getByRole('button', { name: 'إعجاب' }));
+    await waitFor(() => expect(like).toHaveBeenCalledWith('o1'));
+    expect(follow).not.toHaveBeenCalled();
+  });
+
+  it('the متابعة chip follows the office', async () => {
     getPublic.mockResolvedValue(office);
     follow.mockResolvedValue({ success: true });
     renderWithProviders(<VeterinaryOfficeDetailsScreen />);
     await waitFor(() => expect(screen.getByText('مكتب الرحمة البيطري')).toBeOnTheScreen());
-    fireEvent.press(screen.getByRole('button', { name: 'إعجاب' }));
+    fireEvent.press(screen.getByRole('button', { name: 'متابعة' }));
     await waitFor(() => expect(follow).toHaveBeenCalledWith('o1'));
   });
 });

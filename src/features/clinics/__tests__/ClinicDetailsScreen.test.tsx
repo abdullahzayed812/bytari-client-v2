@@ -31,7 +31,14 @@ const base: PublicOrganizationDetail = {
   reviewsCount: 0,
   createdAt: '',
   veterinarians: [{ id: 'v1', firstName: 'أحمد', lastName: 'محمد' }],
-  engagement: { isFollowing: false, followersCount: 1248, rating: 4.8, reviewsCount: 126 },
+  engagement: {
+    isFollowing: false,
+    followersCount: 1248,
+    isLiked: false,
+    likesCount: 37,
+    rating: 4.8,
+    reviewsCount: 126,
+  },
 };
 
 describe('ClinicDetailsScreen', () => {
@@ -56,7 +63,9 @@ describe('ClinicDetailsScreen', () => {
     expect(screen.getByText('د. أحمد محمد')).toBeOnTheScreen();
     expect(screen.getByText('فحص، تطعيم')).toBeOnTheScreen();
     expect(screen.getByText('4.8')).toBeOnTheScreen();
-    expect(screen.getByText('1248')).toBeOnTheScreen();
+    // The likes figure is the real like count — not the follower count.
+    expect(screen.getByText('37')).toBeOnTheScreen();
+    expect(screen.queryByText('1248')).toBeNull();
   });
 
   it('a non-existent / non-ACTIVE clinic shows the not-found state, not a raw error', async () => {

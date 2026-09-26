@@ -11,6 +11,7 @@ let mockSegments: string[] = [];
 jest.mock('expo-router', () => ({
   router: { replace: (...a: unknown[]) => mockReplace(...a) },
   useSegments: () => mockSegments,
+  usePathname: () => '/',
 }));
 
 const session = (over: Partial<SessionSnapshot> = {}): SessionSnapshot => ({
@@ -36,7 +37,12 @@ const session = (over: Partial<SessionSnapshot> = {}): SessionSnapshot => ({
 });
 
 function setAuth(
-  status: 'bootstrapping' | 'authenticated' | 'unauthenticated' | 'pending-approval' | 'pending-verification',
+  status:
+    | 'bootstrapping'
+    | 'authenticated'
+    | 'unauthenticated'
+    | 'pending-approval'
+    | 'pending-verification',
   snap?: SessionSnapshot,
 ) {
   useAuthStore.setState({
@@ -111,12 +117,15 @@ describe('AuthRedirector — veterinarian pending-approval gate', () => {
     [['(auth)', 'sign-in']],
     [['(auth)', 'verify-email']],
     [[]],
-  ])('pending vet on %j (manual navigation / restart) → pinned to the pending screen', (segments) => {
-    setAuth('pending-approval', pendingVet());
-    mockSegments = segments;
-    render(<AuthRedirector />);
-    expect(mockReplace).toHaveBeenCalledWith('/(auth)/veterinarian-pending');
-  });
+  ])(
+    'pending vet on %j (manual navigation / restart) → pinned to the pending screen',
+    (segments) => {
+      setAuth('pending-approval', pendingVet());
+      mockSegments = segments;
+      render(<AuthRedirector />);
+      expect(mockReplace).toHaveBeenCalledWith('/(auth)/veterinarian-pending');
+    },
+  );
 
   it.each([
     [['(auth)', 'veterinarian-pending']],

@@ -27,11 +27,20 @@ describe('buildPoultryFlockSchema — mirrors the backend', () => {
     birdType: 'CHICKEN' as const,
     birdCount: '500',
     arrivalDate: '2026-01-02',
+    targetPricePerKg: '2.5',
     notes: '',
   };
 
   it('accepts a valid flock', () => {
     expect(schema.safeParse(valid).success).toBe(true);
+  });
+
+  it('requires a valid sale price (the estimated-profit input) unless the viewer cannot see financials', () => {
+    expect(schema.safeParse({ ...valid, targetPricePerKg: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...valid, targetPricePerKg: 'abc' }).success).toBe(false);
+    expect(schema.safeParse({ ...valid, targetPricePerKg: '1.234' }).success).toBe(false);
+    const noPrice = buildPoultryFlockSchema(t, { requirePrice: false });
+    expect(noPrice.safeParse({ ...valid, targetPricePerKg: '' }).success).toBe(true);
   });
 
   it('requires name / bird count / arrival date', () => {
