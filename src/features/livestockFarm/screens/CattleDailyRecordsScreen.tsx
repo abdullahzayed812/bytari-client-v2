@@ -52,7 +52,10 @@ export default function CattleDailyRecordsScreen() {
   const activeBatches = useCattleBatches(orgId, { status: 'ACTIVE', pageSize: 1 });
   const batch = activeBatches.batches[0];
 
-  const records = useCattleDailyRecords(orgId, batch?.id, { pageSize: 100, enabled: Boolean(batch) });
+  const records = useCattleDailyRecords(orgId, batch?.id, {
+    pageSize: 100,
+    enabled: Boolean(batch),
+  });
   const create = useCreateCattleDailyRecord(orgId, batch?.id ?? '');
   const update = useUpdateCattleDailyRecord(orgId, batch?.id ?? '');
   const remove = useDeleteCattleDailyRecord(orgId, batch?.id ?? '');
@@ -63,17 +66,26 @@ export default function CattleDailyRecordsScreen() {
   const items = records.data?.items ?? [];
   const todayRecorded = items.some((r) => r.recordDate === businessToday());
   const full = items.length >= DAILY_RECORDS_PER_BATCH;
-  const onError = (error: unknown) => toast.show({ tone: 'danger', message: apiErrorMessage(error) });
+  const onError = (error: unknown) =>
+    toast.show({ tone: 'danger', message: apiErrorMessage(error) });
 
   return (
     <SafeAreaScreen>
       <AppHeader title={t('daily.title')} showBack />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge, rowGap: theme.spacing.md }}
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          paddingBottom: theme.spacing.huge,
+          rowGap: theme.spacing.md,
+        }}
       >
         {!batch ? (
-          <EmptyState icon="clipboard-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="clipboard-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : records.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : records.isError ? (
@@ -98,7 +110,13 @@ export default function CattleDailyRecordsScreen() {
       {batch && canManage ? (
         <View style={{ padding: theme.screenPadding }}>
           <Button
-            label={full ? tf('daily.limitReached') : todayRecorded ? tf('daily.alreadyToday') : t('batch.addDaily')}
+            label={
+              full
+                ? tf('daily.limitReached')
+                : todayRecorded
+                  ? tf('daily.alreadyToday')
+                  : t('batch.addDaily')
+            }
             variant="primary"
             fullWidth
             leftIcon="add"

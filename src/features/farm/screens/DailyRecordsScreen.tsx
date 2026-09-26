@@ -17,7 +17,10 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
 import { Caption, Text } from '@/components/typography';
-import { DailyRecordWeekStrip, DAILY_RECORDS_PER_BATCH } from '@/features/farmShared/components/DailyRecordWeekStrip';
+import {
+  DailyRecordWeekStrip,
+  DAILY_RECORDS_PER_BATCH,
+} from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
@@ -70,7 +73,8 @@ export default function DailyRecordsScreen() {
   const todayRecorded = items.some((r) => r.recordDate === today);
   const full = items.length >= DAILY_RECORDS_PER_BATCH;
 
-  const onError = (error: unknown) => toast.show({ tone: 'danger', message: apiErrorMessage(error) });
+  const onError = (error: unknown) =>
+    toast.show({ tone: 'danger', message: apiErrorMessage(error) });
 
   return (
     <SafeAreaScreen>
@@ -85,7 +89,11 @@ export default function DailyRecordsScreen() {
         }}
       >
         {!flock ? (
-          <EmptyState icon="clipboard-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="clipboard-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : records.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : records.isError ? (
@@ -110,7 +118,13 @@ export default function DailyRecordsScreen() {
       {flock && canManage ? (
         <View style={{ padding: theme.screenPadding }}>
           <Button
-            label={full ? tf('daily.limitReached') : todayRecorded ? tf('daily.alreadyToday') : t('batch.addDaily')}
+            label={
+              full
+                ? tf('daily.limitReached')
+                : todayRecorded
+                  ? tf('daily.alreadyToday')
+                  : t('batch.addDaily')
+            }
             variant="primary"
             fullWidth
             leftIcon="add"
@@ -123,7 +137,9 @@ export default function DailyRecordsScreen() {
       <AddDailyRecordDialog
         visible={formOpen || editing != null}
         initial={editing}
-        title={editing ? tf('daily.editTitle', { day: editing.dayNumber ?? '' }) : t('batch.addDaily')}
+        title={
+          editing ? tf('daily.editTitle', { day: editing.dayNumber ?? '' }) : t('batch.addDaily')
+        }
         loading={create.isPending || update.isPending}
         onCancel={() => {
           setFormOpen(false);
@@ -315,14 +331,26 @@ function AddDailyRecordDialog({
               onChangeText={setExpenseAmount}
             />
           </FieldRow>
-          <Input label={t('daily.notes')} multiline numberOfLines={3} value={notes} onChangeText={setNotes} />
+          <Input
+            label={t('daily.notes')}
+            multiline
+            numberOfLines={3}
+            value={notes}
+            onChangeText={setNotes}
+          />
         </FieldGroup>
 
         <Divider spacing="xs" />
 
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Button label={t('common.cancel')} variant="ghost" fullWidth onPress={onCancel} disabled={loading} />
+            <Button
+              label={t('common.cancel')}
+              variant="ghost"
+              fullWidth
+              onPress={onCancel}
+              disabled={loading}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Button

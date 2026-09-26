@@ -83,14 +83,35 @@ export function LivestockDailyRecordDialog({
   }, [visible, initial]);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={title ?? t('batch.addDaily')} dismissable={!loading}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <Modal
+      visible={visible}
+      onClose={onCancel}
+      title={title ?? t('batch.addDaily')}
+      dismissable={!loading}
+    >
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         {initial ? null : <Caption>{tf('daily.autoDate')}</Caption>}
 
         <FieldGroup icon="nutrition-outline" label={t('daily.consumptionSection')}>
           <FieldRow>
-            <Input label={t('daily.feed')} hint={t('daily.feedUnit')} keyboardType="decimal-pad" value={feedKg} onChangeText={setFeedKg} />
-            <Input label={t('daily.water')} hint={t('daily.waterUnit')} keyboardType="decimal-pad" value={waterLiters} onChangeText={setWaterLiters} />
+            <Input
+              label={t('daily.feed')}
+              hint={t('daily.feedUnit')}
+              keyboardType="decimal-pad"
+              value={feedKg}
+              onChangeText={setFeedKg}
+            />
+            <Input
+              label={t('daily.water')}
+              hint={t('daily.waterUnit')}
+              keyboardType="decimal-pad"
+              value={waterLiters}
+              onChangeText={setWaterLiters}
+            />
           </FieldRow>
           <Select<FeedType>
             label={t('daily.feedType')}
@@ -105,36 +126,75 @@ export function LivestockDailyRecordDialog({
             <Select<LivestockAppetite>
               label={t('daily.appetite')}
               value={appetite}
-              options={LIVESTOCK_APPETITE_LEVELS.map((a) => ({ value: a, label: t(`daily.appetiteLevels.${a}`) }))}
+              options={LIVESTOCK_APPETITE_LEVELS.map((a) => ({
+                value: a,
+                label: t(`daily.appetiteLevels.${a}`),
+              }))}
               onChange={setAppetite}
             />
             <Select<LivestockActivity>
               label={t('daily.activity')}
               value={activity}
-              options={LIVESTOCK_ACTIVITY_LEVELS.map((a) => ({ value: a, label: t(`daily.activityLevels.${a}`) }))}
+              options={LIVESTOCK_ACTIVITY_LEVELS.map((a) => ({
+                value: a,
+                label: t(`daily.activityLevels.${a}`),
+              }))}
               onChange={setActivity}
             />
           </FieldRow>
           <FieldRow>
-            <Input label={t('daily.mortality')} hint={t('daily.mortalityUnit')} keyboardType="number-pad" value={mortalityCount} onChangeText={setMortalityCount} />
-            <Input label={t('daily.mortalityCause')} value={mortalityCause} onChangeText={setMortalityCause} />
+            <Input
+              label={t('daily.mortality')}
+              hint={t('daily.mortalityUnit')}
+              keyboardType="number-pad"
+              value={mortalityCount}
+              onChangeText={setMortalityCount}
+            />
+            <Input
+              label={t('daily.mortalityCause')}
+              value={mortalityCause}
+              onChangeText={setMortalityCause}
+            />
           </FieldRow>
-          <Input label={t('daily.sickCasesCount')} keyboardType="number-pad" value={sickCasesCount} onChangeText={setSickCasesCount} />
+          <Input
+            label={t('daily.sickCasesCount')}
+            keyboardType="number-pad"
+            value={sickCasesCount}
+            onChangeText={setSickCasesCount}
+          />
         </FieldGroup>
 
         <FieldGroup icon="wallet-outline" label={t('daily.otherSection')}>
           <FieldRow>
             <Input label={t('daily.treatment')} value={treatment} onChangeText={setTreatment} />
-            <Input label={t('daily.expense')} hint={t('daily.expenseUnit')} keyboardType="decimal-pad" value={expenseAmount} onChangeText={setExpenseAmount} />
+            <Input
+              label={t('daily.expense')}
+              hint={t('daily.expenseUnit')}
+              keyboardType="decimal-pad"
+              value={expenseAmount}
+              onChangeText={setExpenseAmount}
+            />
           </FieldRow>
-          <Input label={t('daily.notes')} multiline numberOfLines={3} value={notes} onChangeText={setNotes} />
+          <Input
+            label={t('daily.notes')}
+            multiline
+            numberOfLines={3}
+            value={notes}
+            onChangeText={setNotes}
+          />
         </FieldGroup>
 
         <Divider spacing="xs" />
 
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Button label={t('common.cancel')} variant="ghost" fullWidth onPress={onCancel} disabled={loading} />
+            <Button
+              label={t('common.cancel')}
+              variant="ghost"
+              fullWidth
+              onPress={onCancel}
+              disabled={loading}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Button
@@ -166,7 +226,15 @@ export function LivestockDailyRecordDialog({
   );
 }
 
-function FieldGroup({ icon, label, children }: { icon: IconName; label: string; children: ReactNode }) {
+function FieldGroup({
+  icon,
+  label,
+  children,
+}: {
+  icon: IconName;
+  label: string;
+  children: ReactNode;
+}) {
   const theme = useTheme();
   return (
     <View style={{ rowGap: theme.spacing.sm }}>

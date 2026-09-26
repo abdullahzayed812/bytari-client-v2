@@ -41,7 +41,7 @@ type SubmitStage = 'form' | 'apply-error';
 async function uploadDocuments(
   values: VeterinarianFormValues,
 ): Promise<ApplyForVeterinarianInput['documents']> {
-  const slots: Array<{ kind: VeterinarianDocumentKind; file?: LocalFile }> =
+  const slots: { kind: VeterinarianDocumentKind; file?: LocalFile }[] =
     values.subType === 'VETERINARIAN'
       ? [
           { kind: 'LICENSE_OR_ID', file: values.licenseOrId },
@@ -51,8 +51,8 @@ async function uploadDocuments(
           { kind: 'STUDENT_ID_FRONT', file: values.studentIdFront },
           { kind: 'STUDENT_ID_BACK', file: values.studentIdBack },
         ];
-  const staged = slots.filter(
-    (slot): slot is { kind: VeterinarianDocumentKind; file: LocalFile } => Boolean(slot.file),
+  const staged = slots.filter((slot): slot is { kind: VeterinarianDocumentKind; file: LocalFile } =>
+    Boolean(slot.file),
   );
   const uploaded = await Promise.all(
     staged.map((slot) => uploadRegistrationDocument(slot.kind, slot.file)),

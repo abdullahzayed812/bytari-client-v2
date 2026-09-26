@@ -155,7 +155,8 @@ export default function VeterinaryOfficeDetailsScreen() {
     const url = shareUrlFor(Routes.veterinaryOfficeDetail(org.id));
     void shareText(org.name + (org.address ? `\n${org.address}` : ''), url).then((outcome) => {
       if (outcome === 'copied') toast.show({ message: tc('share.copied'), tone: 'success' });
-      else if (outcome === 'unavailable') toast.show({ message: tc('share.unavailable'), tone: 'info' });
+      else if (outcome === 'unavailable')
+        toast.show({ message: tc('share.unavailable'), tone: 'info' });
     });
   };
 
@@ -220,7 +221,9 @@ export default function VeterinaryOfficeDetailsScreen() {
             <Row gap="xs" style={{ marginTop: theme.spacing.sm }}>
               <Text variant="bodyStrong">{org.engagement.rating}</Text>
               <RatingStars value={org.engagement.rating} size="sm" />
-              <Caption>{torg('clinicDetail.reviewsCount', { count: org.engagement.reviewsCount })}</Caption>
+              <Caption>
+                {torg('clinicDetail.reviewsCount', { count: org.engagement.reviewsCount })}
+              </Caption>
             </Row>
           ) : null}
 
@@ -243,12 +246,24 @@ export default function VeterinaryOfficeDetailsScreen() {
               <ActionButton icon="call" label={t('detail.call')} onPress={onCall} />
             ) : null}
             {org.whatsapp ? (
-              <ActionButton icon="logo-whatsapp" label={t('detail.whatsapp')} onPress={onWhatsapp} />
+              <ActionButton
+                icon="logo-whatsapp"
+                label={t('detail.whatsapp')}
+                onPress={onWhatsapp}
+              />
             ) : null}
             {org.address ? (
-              <ActionButton icon="navigate-outline" label={t('detail.directions')} onPress={onDirections} />
+              <ActionButton
+                icon="navigate-outline"
+                label={t('detail.directions')}
+                onPress={onDirections}
+              />
             ) : null}
-            <ActionButton icon="chatbubble-outline" label={t('detail.message')} onPress={onMessage} />
+            <ActionButton
+              icon="chatbubble-outline"
+              label={t('detail.message')}
+              onPress={onMessage}
+            />
             <ActionButton
               icon={isLiked ? 'heart' : 'heart-outline'}
               label={isLiked ? torg('clinicDetail.liked') : t('detail.like')}
@@ -284,11 +299,19 @@ export default function VeterinaryOfficeDetailsScreen() {
                     icon="location-outline"
                     label={t('detail.address')}
                     value={org.address}
-                    onPress={() => void Linking.openURL(mapsUrl(org.address as string, org.latitude, org.longitude))}
+                    onPress={() =>
+                      void Linking.openURL(
+                        mapsUrl(org.address as string, org.latitude, org.longitude),
+                      )
+                    }
                   />
                 ) : null}
                 {org.workingHours ? (
-                  <InfoRow icon="time-outline" label={t('detail.workingHours')} value={org.workingHours} />
+                  <InfoRow
+                    icon="time-outline"
+                    label={t('detail.workingHours')}
+                    value={org.workingHours}
+                  />
                 ) : null}
               </View>
             </Card>
@@ -311,7 +334,9 @@ export default function VeterinaryOfficeDetailsScreen() {
                   {torg('clinicDetail.likes')}
                 </Text>
               </View>
-              <View style={{ width: theme.sizes.hairline, backgroundColor: theme.colors.divider }} />
+              <View
+                style={{ width: theme.sizes.hairline, backgroundColor: theme.colors.divider }}
+              />
               <View style={{ alignItems: 'center', rowGap: 2 }}>
                 {org.engagement.rating != null ? (
                   <>
@@ -407,7 +432,13 @@ export default function VeterinaryOfficeDetailsScreen() {
         <Section spacing="giant">
           <Row gap="md">
             {org.phone ? (
-              <Button label={t('detail.call')} variant="outline" leftIcon="call" onPress={onCall} fullWidth />
+              <Button
+                label={t('detail.call')}
+                variant="outline"
+                leftIcon="call"
+                onPress={onCall}
+                fullWidth
+              />
             ) : null}
             <Button
               label={t('detail.directContact')}

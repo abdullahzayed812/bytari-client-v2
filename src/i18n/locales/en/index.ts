@@ -5852,7 +5852,8 @@ export const en: TranslationResources = {
       },
       remove: 'Delete listing',
       removeTitle: 'Delete listing',
-      removeBody: 'This listing is permanently removed from public lists and the action is audited.',
+      removeBody:
+        'This listing is permanently removed from public lists and the action is audited.',
       details: {
         title: 'Request details',
         kind: 'Type',

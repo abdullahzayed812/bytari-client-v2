@@ -35,7 +35,10 @@ function galleryProvider(organizationId: string): PresignProvider {
         size: file.size ?? 0,
       }),
     finalizeUpload: async (storageKey, file) => {
-      await organizationsApi.addGalleryImage(organizationId, { storageKey, mimeType: file.mimeType });
+      await organizationsApi.addGalleryImage(organizationId, {
+        storageKey,
+        mimeType: file.mimeType,
+      });
     },
   };
 }
@@ -61,17 +64,22 @@ function licenseDocumentProvider(organizationId: string): PresignProvider {
 async function uploadAll(files: LocalFile[], provider: PresignProvider): Promise<void> {
   const service = new FileUploadService(provider);
   for (const file of files) {
-     
     await service.upload(file);
   }
 }
 
-export async function uploadOrganizationLogo(organizationId: string, file: LocalFile): Promise<void> {
+export async function uploadOrganizationLogo(
+  organizationId: string,
+  file: LocalFile,
+): Promise<void> {
   const service = new FileUploadService(logoProvider(organizationId));
   await service.upload(file);
 }
 
-export async function uploadGalleryPhotos(organizationId: string, files: LocalFile[]): Promise<void> {
+export async function uploadGalleryPhotos(
+  organizationId: string,
+  files: LocalFile[],
+): Promise<void> {
   await uploadAll(files, galleryProvider(organizationId));
 }
 

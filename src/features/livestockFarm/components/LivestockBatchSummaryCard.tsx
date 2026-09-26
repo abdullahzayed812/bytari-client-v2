@@ -30,7 +30,14 @@ interface Props {
 }
 
 /** The "الدفعة رقم N" card — server-computed. Shared by Sheep and Cattle Farms (mirrors `BatchSummaryCard`). */
-export function LivestockBatchSummaryCard({ summary, canManage, onAddDaily, onWeeklyReport, onSell, selling }: Props) {
+export function LivestockBatchSummaryCard({
+  summary,
+  canManage,
+  onAddDaily,
+  onWeeklyReport,
+  onSell,
+  selling,
+}: Props) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
   const isActive = summary.status === 'ACTIVE';
@@ -42,14 +49,20 @@ export function LivestockBatchSummaryCard({ summary, canManage, onAddDaily, onWe
         ? t('batch.ageWeeks', { count: summary.ageWeeks })
         : t('batch.ageDays', { count: summary.ageDays });
 
-  const weightText = summary.averageWeightKg ? `${summary.averageWeightKg}kg` : t('batch.notAvailable');
+  const weightText = summary.averageWeightKg
+    ? `${summary.averageWeightKg}kg`
+    : t('batch.notAvailable');
   const profitText =
     summary.estimatedProfit == null
       ? t('batch.noProfit')
       : `${summary.estimatedProfit.toLocaleString()} ${t('batch.profitUnit')}`;
 
   const cells = [
-    { icon: 'people-outline' as const, label: t('batch.currentCount'), value: summary.currentHeadCount.toLocaleString() },
+    {
+      icon: 'people-outline' as const,
+      label: t('batch.currentCount'),
+      value: summary.currentHeadCount.toLocaleString(),
+    },
     { icon: 'calendar-outline' as const, label: t('batch.age'), value: ageText },
     { icon: 'scale-outline' as const, label: t('batch.avgWeight'), value: weightText },
     ...(summary.financialsVisible === false
@@ -71,9 +84,14 @@ export function LivestockBatchSummaryCard({ summary, canManage, onAddDaily, onWe
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text variant="subtitle" weight="bold">
-          {summary.batchNumber != null ? t('batch.title', { number: summary.batchNumber }) : t('batch.titleNoNumber')}
+          {summary.batchNumber != null
+            ? t('batch.title', { number: summary.batchNumber })
+            : t('batch.titleNoNumber')}
         </Text>
-        <Badge label={isActive ? t('batch.statusActive') : t('batch.statusClosed')} tone={isActive ? 'success' : 'neutral'} />
+        <Badge
+          label={isActive ? t('batch.statusActive') : t('batch.statusClosed')}
+          tone={isActive ? 'success' : 'neutral'}
+        />
       </View>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
@@ -91,7 +109,9 @@ export function LivestockBatchSummaryCard({ summary, canManage, onAddDaily, onWe
               borderColor: theme.colors.border,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}
+            >
               <Icon name={c.icon} size="iconXs" color="primary" />
               <Caption>{c.label}</Caption>
             </View>
@@ -102,14 +122,32 @@ export function LivestockBatchSummaryCard({ summary, canManage, onAddDaily, onWe
 
       {canManage ? (
         <View style={{ rowGap: theme.spacing.sm }}>
-          <Button label={t('batch.addDaily')} leftIcon="add-circle-outline" fullWidth onPress={onAddDaily} />
+          <Button
+            label={t('batch.addDaily')}
+            leftIcon="add-circle-outline"
+            fullWidth
+            onPress={onAddDaily}
+          />
           <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
             <View style={{ flex: 1 }}>
-              <Button label={t('batch.weeklyReport')} variant="outline" leftIcon="stats-chart-outline" fullWidth onPress={onWeeklyReport} />
+              <Button
+                label={t('batch.weeklyReport')}
+                variant="outline"
+                leftIcon="stats-chart-outline"
+                fullWidth
+                onPress={onWeeklyReport}
+              />
             </View>
             {isActive ? (
               <View style={{ flex: 1 }}>
-                <Button label={t('batch.sellBatch')} variant="outline" leftIcon="cart-outline" fullWidth loading={selling} onPress={onSell} />
+                <Button
+                  label={t('batch.sellBatch')}
+                  variant="outline"
+                  leftIcon="cart-outline"
+                  fullWidth
+                  loading={selling}
+                  onPress={onSell}
+                />
               </View>
             ) : null}
           </View>

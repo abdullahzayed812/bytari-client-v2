@@ -42,7 +42,6 @@ import {
   useWeeklySummary,
 } from '../hooks';
 
-
 /** Poultry Farm Details (Landing → "عرض التفاصيل"). */
 export default function PoultryFarmDetailsScreen() {
   const theme = useTheme();
@@ -86,7 +85,6 @@ export default function PoultryFarmDetailsScreen() {
   const renewals = useFarmSubscriptionRenewals(orgId, { enabled: isApproved });
   const sellFlock = useUpdatePoultryFlock(orgId);
   const [confirmSell, setConfirmSell] = useState(false);
-
 
   const sectionCards = useMemo(
     () =>
@@ -190,7 +188,12 @@ export default function PoultryFarmDetailsScreen() {
           />
         }
       >
-        <FarmHeaderCard name={name} location={location} profile={profile.data ?? null} icon="egg-outline" />
+        <FarmHeaderCard
+          name={name}
+          location={location}
+          profile={profile.data ?? null}
+          icon="egg-outline"
+        />
 
         <FarmStatusCard
           approvalStatus={detail.data?.status ?? 'PENDING'}
@@ -242,8 +245,14 @@ export default function PoultryFarmDetailsScreen() {
                   ) : (
                     <DailyRecordWeekStrip
                       records={daily.data?.items ?? []}
-                      todayRecorded={(daily.data?.items ?? []).some((r) => r.recordDate === businessToday())}
-                      onAddPress={canManage ? () => router.push(Routes.poultryFarmSection(orgId, 'daily')) : undefined}
+                      todayRecorded={(daily.data?.items ?? []).some(
+                        (r) => r.recordDate === businessToday(),
+                      )}
+                      onAddPress={
+                        canManage
+                          ? () => router.push(Routes.poultryFarmSection(orgId, 'daily'))
+                          : undefined
+                      }
                       renderRecord={(r, day) => <DailyRecordCard record={r} dayIndex={day} />}
                     />
                   )}

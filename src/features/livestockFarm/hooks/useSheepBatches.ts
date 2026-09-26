@@ -39,7 +39,10 @@ export interface UseSheepBatchesParams {
 }
 
 /** A FARM's sheep batches. Requires `farm.sheep_batch.read` server-side. Mirrors `usePoultryFlocks`. */
-export function useSheepBatches(organizationId: string | undefined, params: UseSheepBatchesParams = {}) {
+export function useSheepBatches(
+  organizationId: string | undefined,
+  params: UseSheepBatchesParams = {},
+) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
   const filter = { status: params.status, pageSize };
 
@@ -53,13 +56,21 @@ export function useSheepBatches(organizationId: string | undefined, params: UseS
     queryKey: sheepKeys.list(organizationId ?? 'unknown', filter),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      sheepFarmApi.list(organizationId as string, { page: pageParam, pageSize, status: params.status }),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+      sheepFarmApi.list(organizationId as string, {
+        page: pageParam,
+        pageSize,
+        status: params.status,
+      }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: Boolean(organizationId) && (params.enabled ?? true),
     staleTime: 15_000,
   });
 
-  const batches = useMemo<SheepBatch[]>(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  const batches = useMemo<SheepBatch[]>(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
   const total = query.data?.pages[0]?.meta.total ?? 0;
   return { ...query, batches, total };
 }
@@ -156,7 +167,8 @@ export function useCreateSheepDailyRecord(orgId: string, batchId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['sheep', 'daily-record', 'create', orgId, batchId],
-    mutationFn: (body: CreateSheepDailyRecordInput) => sheepFarmApi.createDailyRecord(orgId, batchId, body),
+    mutationFn: (body: CreateSheepDailyRecordInput) =>
+      sheepFarmApi.createDailyRecord(orgId, batchId, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: sheepKeys.forBatch(orgId, batchId) }),
   });
 }
@@ -215,7 +227,8 @@ export function useCreateSheepHealthEvent(orgId: string, batchId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['sheep', 'health-event', 'create', orgId, batchId],
-    mutationFn: (body: CreateSheepHealthEventInput) => sheepFarmApi.createHealthEvent(orgId, batchId, body),
+    mutationFn: (body: CreateSheepHealthEventInput) =>
+      sheepFarmApi.createHealthEvent(orgId, batchId, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: sheepKeys.forBatch(orgId, batchId) }),
   });
 }
@@ -226,8 +239,13 @@ export function useSheepHealthEvent(
   eventId: string | undefined,
 ) {
   return useQuery<SheepHealthEvent, ApiError>({
-    queryKey: sheepKeys.healthEventDetail(orgId ?? 'unknown', batchId ?? 'unknown', eventId ?? 'unknown'),
-    queryFn: () => sheepFarmApi.getHealthEvent(orgId as string, batchId as string, eventId as string),
+    queryKey: sheepKeys.healthEventDetail(
+      orgId ?? 'unknown',
+      batchId ?? 'unknown',
+      eventId ?? 'unknown',
+    ),
+    queryFn: () =>
+      sheepFarmApi.getHealthEvent(orgId as string, batchId as string, eventId as string),
     enabled: Boolean(orgId) && Boolean(batchId) && Boolean(eventId),
     retry: noRetryOn403,
   });
@@ -259,7 +277,11 @@ export function useCreateSheepCase(orgId: string, batchId: string) {
   });
 }
 
-export function useSheepCase(orgId: string | undefined, batchId: string | undefined, caseId: string | undefined) {
+export function useSheepCase(
+  orgId: string | undefined,
+  batchId: string | undefined,
+  caseId: string | undefined,
+) {
   return useQuery<SheepCase, ApiError>({
     queryKey: sheepKeys.caseDetail(orgId ?? 'unknown', batchId ?? 'unknown', caseId ?? 'unknown'),
     queryFn: () => sheepFarmApi.getCase(orgId as string, batchId as string, caseId as string),

@@ -8,16 +8,10 @@ import { z } from 'zod';
 
 import { Button } from '@/components/actions';
 import { Badge } from '@/components/content';
-import {
-  Alert,
-  ConfirmationDialog,
-  ErrorState,
-  Loading,
-  useToast,
-} from '@/components/feedback';
+import { Alert, ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { FormField, Select, Switch } from '@/components/forms';
-import { ImageUploader } from '@/components/media';
 import { Row, ScrollScreen, Section } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';

@@ -36,10 +36,22 @@ export function DailyRecordFooter({ createdBy, onEdit, onDelete }: DailyRecordFo
         {t('daily.addedBy', { name: name || t('daily.unknownAuthor') })}
       </Caption>
       {onEdit ? (
-        <IconButton icon="create-outline" size="sm" variant="plain" accessibilityLabel={t('daily.edit')} onPress={onEdit} />
+        <IconButton
+          icon="create-outline"
+          size="sm"
+          variant="plain"
+          accessibilityLabel={t('daily.edit')}
+          onPress={onEdit}
+        />
       ) : null}
       {onDelete ? (
-        <IconButton icon="trash-outline" size="sm" variant="plain" accessibilityLabel={t('daily.delete')} onPress={onDelete} />
+        <IconButton
+          icon="trash-outline"
+          size="sm"
+          variant="plain"
+          accessibilityLabel={t('daily.delete')}
+          onPress={onDelete}
+        />
       ) : null}
     </View>
   );

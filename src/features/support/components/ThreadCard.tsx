@@ -108,9 +108,7 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
               ? t('card.lastActivity', { date: formatDate(thread.lastMessageAt) })
               : t('card.created', { date: formatDate(thread.createdAt) })}
           </Caption>
-          {thread.aiResponded ? (
-            <Badge label={t('card.aiReplied')} tone="info" size="sm" />
-          ) : null}
+          {thread.aiResponded ? <Badge label={t('card.aiReplied')} tone="info" size="sm" /> : null}
           {thread.animalType ? (
             <Badge label={tVs(`animalType.${thread.animalType}`)} tone="neutral" size="sm" />
           ) : null}

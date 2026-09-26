@@ -113,7 +113,11 @@ export function DiscoverFilterSheet({
               <Chip
                 key={r}
                 icon={r > 0 ? 'star' : undefined}
-                label={r > 0 ? t('discover.filters.ratingAtLeast', { rating: r }) : t('discover.filters.anyRating')}
+                label={
+                  r > 0
+                    ? t('discover.filters.ratingAtLeast', { rating: r })
+                    : t('discover.filters.anyRating')
+                }
                 selected={minRating === r}
                 onPress={() => setMinRating(r)}
               />

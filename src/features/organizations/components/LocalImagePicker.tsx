@@ -78,7 +78,11 @@ export function LocalImagePicker({
               backgroundColor: theme.colors.surfaceAccent,
             }}
           >
-            <Image source={{ uri: file.uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+            <Image
+              source={{ uri: file.uri }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="cover"
+            />
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={torg('form.removeImageA11y')}

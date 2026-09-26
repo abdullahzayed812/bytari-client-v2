@@ -101,11 +101,9 @@ export const CHAT_ROOM_PERMISSION_GROUPS = [
 ] as const satisfies readonly { key: string; permissions: readonly string[] }[];
 
 export type AnyOrgPermissionGroupKey =
-  | OrgPermissionGroupKey
-  | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key'];
+  OrgPermissionGroupKey | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key'];
 export type AnyOrgPermissionKey =
-  | OrgManagementPermissionKey
-  | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number];
+  OrgManagementPermissionKey | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number];
 
 export interface OrgPermissionGroup {
   key: AnyOrgPermissionGroupKey;
@@ -113,7 +111,9 @@ export interface OrgPermissionGroup {
 }
 
 /** The permission groups to offer in the supervisor-assignment UI for one organization type. */
-export function permissionGroupsFor(type: OrganizationType | undefined): readonly OrgPermissionGroup[] {
+export function permissionGroupsFor(
+  type: OrganizationType | undefined,
+): readonly OrgPermissionGroup[] {
   return type === 'CHAT_ROOM'
     ? [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS]
     : ORG_PERMISSION_GROUPS;

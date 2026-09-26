@@ -94,9 +94,7 @@ export default function AdminVetApplicationsScreen() {
               accessibilityLabelFor={(index) =>
                 t(`vets.documents.kind.${images[index]?.kind ?? 'LICENSE_OR_ID'}`)
               }
-              onPress={(index) =>
-                setViewer({ images: images.map((d) => d.downloadUrl), index })
-              }
+              onPress={(index) => setViewer({ images: images.map((d) => d.downloadUrl), index })}
             />
             {files.map((d) => (
               <TextButton
@@ -130,7 +128,9 @@ export default function AdminVetApplicationsScreen() {
             subtitle={[
               a.user.email,
               a.user.phone,
-              a.user.specialization ? `${t('vets.specialization')}: ${a.user.specialization}` : null,
+              a.user.specialization
+                ? `${t('vets.specialization')}: ${a.user.specialization}`
+                : null,
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -139,11 +139,7 @@ export default function AdminVetApplicationsScreen() {
                 ? a.note
                 : `${t('vets.submittedAt')}: ${new Date(a.createdAt).toLocaleDateString()}`
             }
-            badge={
-              a.subType
-                ? { label: t(`vets.subType.${a.subType}`), tone: 'info' }
-                : undefined
-            }
+            badge={a.subType ? { label: t(`vets.subType.${a.subType}`), tone: 'info' } : undefined}
             actions={
               <>
                 {renderDocuments(a)}

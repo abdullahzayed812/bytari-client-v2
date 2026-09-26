@@ -179,8 +179,17 @@ describe('auth store — session lifecycle', () => {
   });
 
   it('register as VETERINARIAN → "pending-approval" (no email-verification step)', async () => {
-    const vetUser: User = { ...snapshot.user, status: 'ACTIVE', veterinarianStatus: 'NOT_APPLIED', registrationType: 'VETERINARIAN' };
-    register.mockResolvedValueOnce({ user: vetUser, tokens: authResult.tokens, codeExpiresInSeconds: null });
+    const vetUser: User = {
+      ...snapshot.user,
+      status: 'ACTIVE',
+      veterinarianStatus: 'NOT_APPLIED',
+      registrationType: 'VETERINARIAN',
+    };
+    register.mockResolvedValueOnce({
+      user: vetUser,
+      tokens: authResult.tokens,
+      codeExpiresInSeconds: null,
+    });
     me.mockResolvedValueOnce({
       ...snapshot,
       user: vetUser,

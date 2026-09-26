@@ -29,7 +29,9 @@ function FarmListRow({ farm, width }: { farm: MyOrganization; width?: number }) 
         name={farm.name}
         imageUrl={farm.imageUrl}
         location={
-          [farm.governorate, farm.location].filter(Boolean).join(' · ') || farm.address || farm.description
+          [farm.governorate, farm.location].filter(Boolean).join(' · ') ||
+          farm.address ||
+          farm.description
         }
         stats={null}
         status={farm.status}
@@ -43,7 +45,9 @@ function FarmListRow({ farm, width }: { farm: MyOrganization; width?: number }) 
       name={farm.name}
       imageUrl={farm.imageUrl}
       location={
-        [farm.governorate, farm.location].filter(Boolean).join(' · ') || farm.address || farm.description
+        [farm.governorate, farm.location].filter(Boolean).join(' · ') ||
+        farm.address ||
+        farm.description
       }
       stats={null}
       status={farm.status}
@@ -171,7 +175,11 @@ export default function SheepCattleFarmsLandingScreen() {
           {isLoading ? null : isError ? (
             <ErrorState error={farms.error} onRetry={() => void farms.refetch()} />
           ) : farms.farms.length === 0 ? (
-            <EmptyState icon="paw-outline" title={t('landing.empty')} message={t('landing.emptyHint')} />
+            <EmptyState
+              icon="paw-outline"
+              title={t('landing.empty')}
+              message={t('landing.emptyHint')}
+            />
           ) : (
             <FlatList
               data={farmPreview}
@@ -194,7 +202,12 @@ export default function SheepCattleFarmsLandingScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
                 {news.news.map((item) => (
-                  <NewsCard key={item.id} item={item} width={220} onPress={() => router.push(Routes.newsDetail(item.id))} />
+                  <NewsCard
+                    key={item.id}
+                    item={item}
+                    width={220}
+                    onPress={() => router.push(Routes.newsDetail(item.id))}
+                  />
                 ))}
               </View>
             </ScrollView>
@@ -211,7 +224,12 @@ export default function SheepCattleFarmsLandingScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
                 {tips.tips.map((tip) => (
-                  <TipCard key={tip.id} tip={tip} width={200} onPress={() => router.push(Routes.tip(tip.id))} />
+                  <TipCard
+                    key={tip.id}
+                    tip={tip}
+                    width={200}
+                    onPress={() => router.push(Routes.tip(tip.id))}
+                  />
                 ))}
               </View>
             </ScrollView>
@@ -222,7 +240,15 @@ export default function SheepCattleFarmsLandingScreen() {
   );
 }
 
-function AddFarmButton({ icon, label, onPress }: { icon: Parameters<typeof Icon>[0]['name']; label: string; onPress: () => void }) {
+function AddFarmButton({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: Parameters<typeof Icon>[0]['name'];
+  label: string;
+  onPress: () => void;
+}) {
   const theme = useTheme();
   return (
     <Pressable

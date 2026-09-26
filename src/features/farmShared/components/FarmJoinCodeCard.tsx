@@ -59,7 +59,13 @@ export function FarmJoinCodeCard({ organizationId, organizationName }: Props) {
               {code}
             </Text>
             <Caption>{t('joinCode.hint')}</Caption>
-            <View style={{ alignItems: 'center', rowGap: theme.spacing.xs, marginTop: theme.spacing.xs }}>
+            <View
+              style={{
+                alignItems: 'center',
+                rowGap: theme.spacing.xs,
+                marginTop: theme.spacing.xs,
+              }}
+            >
               <QrCode value={farmQrPayload(code)} size={180} accessibilityLabel={t('qr.a11y')} />
               <Caption center>{t('qr.hint')}</Caption>
             </View>

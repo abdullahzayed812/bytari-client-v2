@@ -19,7 +19,10 @@ const PAGE_SIZE = 20;
 
 type Page = { items: EditorialItem[]; meta: PageMeta };
 
-export function useEditorialList(kind: EditorialKind, filter: { status?: EditorialStatus; q?: string }) {
+export function useEditorialList(
+  kind: EditorialKind,
+  filter: { status?: EditorialStatus; q?: string },
+) {
   const query = useInfiniteQuery<
     Page,
     unknown,

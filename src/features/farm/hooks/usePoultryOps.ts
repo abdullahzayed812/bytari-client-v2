@@ -196,7 +196,8 @@ export function useHealthEvent(
       flockId ?? 'unknown',
       eventId ?? 'unknown',
     ),
-    queryFn: () => poultryOpsApi.getHealthEvent(orgId as string, flockId as string, eventId as string),
+    queryFn: () =>
+      poultryOpsApi.getHealthEvent(orgId as string, flockId as string, eventId as string),
     enabled: Boolean(orgId) && Boolean(flockId) && Boolean(eventId),
     retry: noRetryOn403,
     staleTime: 15_000,
@@ -209,7 +210,11 @@ export function usePoultryCase(
   caseId: string | undefined,
 ) {
   return useQuery<PoultryCase, ApiError>({
-    queryKey: poultryOpsKeys.caseDetail(orgId ?? 'unknown', flockId ?? 'unknown', caseId ?? 'unknown'),
+    queryKey: poultryOpsKeys.caseDetail(
+      orgId ?? 'unknown',
+      flockId ?? 'unknown',
+      caseId ?? 'unknown',
+    ),
     queryFn: () => poultryOpsApi.getCase(orgId as string, flockId as string, caseId as string),
     enabled: Boolean(orgId) && Boolean(flockId) && Boolean(caseId),
     retry: noRetryOn403,

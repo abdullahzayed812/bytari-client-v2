@@ -15,9 +15,8 @@ import { Routes } from '@/constants/routes';
 // an auth ⇄ registration import cycle — the registration barrel re-exports
 // hooks/screens that themselves import from `@/features/auth`.
 import { SocialLoginButtons } from '@/features/registration/components/SocialLoginButtons';
-import { useTheme } from '@/theme';
-
 import { ApiError, ApiErrorCode } from '@/services/api';
+import { useTheme } from '@/theme';
 
 import { AuthScreenLayout, DevAccountPicker, FormField } from '../components';
 import { authErrorMessage, fieldErrors } from '../errors';
@@ -52,7 +51,10 @@ export default function LoginScreen() {
           // Correct password, unverified account — no session was issued
           // (see `authStore.login`). Route straight to the verify screen
           // instead of showing this as a generic sign-in error.
-          if (error instanceof ApiError && error.code === ApiErrorCode.EMAIL_VERIFICATION_REQUIRED) {
+          if (
+            error instanceof ApiError &&
+            error.code === ApiErrorCode.EMAIL_VERIFICATION_REQUIRED
+          ) {
             router.replace({ pathname: Routes.authVerifyEmail, params: { email } });
             return;
           }

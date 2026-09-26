@@ -62,7 +62,9 @@ export const cattleFarmApi = {
     return apiClient.patch<CattleBatch>(`/organizations/${orgId}/cattle/batches/${batchId}`, body);
   },
   remove(orgId: string, batchId: string): Promise<{ success: boolean }> {
-    return apiClient.delete<{ success: boolean }>(`/organizations/${orgId}/cattle/batches/${batchId}`);
+    return apiClient.delete<{ success: boolean }>(
+      `/organizations/${orgId}/cattle/batches/${batchId}`,
+    );
   },
 
   batchSummary(orgId: string, batchId: string): Promise<CattleBatchSummary> {
@@ -103,7 +105,10 @@ export const cattleFarmApi = {
     recordId: string,
     body: UpdateCattleDailyRecordInput,
   ): Promise<CattleDailyRecord> {
-    return apiClient.patch<CattleDailyRecord>(`${batchBase(orgId, batchId)}/daily-records/${recordId}`, body);
+    return apiClient.patch<CattleDailyRecord>(
+      `${batchBase(orgId, batchId)}/daily-records/${recordId}`,
+      body,
+    );
   },
   deleteDailyRecord(orgId: string, batchId: string, recordId: string): Promise<unknown> {
     return apiClient.delete(`${batchBase(orgId, batchId)}/daily-records/${recordId}`);
@@ -132,7 +137,9 @@ export const cattleFarmApi = {
     return apiClient.post<CattleHealthEvent>(`${batchBase(orgId, batchId)}/health-events`, body);
   },
   getHealthEvent(orgId: string, batchId: string, eventId: string): Promise<CattleHealthEvent> {
-    return apiClient.get<CattleHealthEvent>(`${batchBase(orgId, batchId)}/health-events/${eventId}`);
+    return apiClient.get<CattleHealthEvent>(
+      `${batchBase(orgId, batchId)}/health-events/${eventId}`,
+    );
   },
 
   async listCases(

@@ -62,7 +62,9 @@ export const sheepFarmApi = {
     return apiClient.patch<SheepBatch>(`/organizations/${orgId}/sheep/batches/${batchId}`, body);
   },
   remove(orgId: string, batchId: string): Promise<{ success: boolean }> {
-    return apiClient.delete<{ success: boolean }>(`/organizations/${orgId}/sheep/batches/${batchId}`);
+    return apiClient.delete<{ success: boolean }>(
+      `/organizations/${orgId}/sheep/batches/${batchId}`,
+    );
   },
 
   batchSummary(orgId: string, batchId: string): Promise<SheepBatchSummary> {
@@ -103,7 +105,10 @@ export const sheepFarmApi = {
     recordId: string,
     body: UpdateSheepDailyRecordInput,
   ): Promise<SheepDailyRecord> {
-    return apiClient.patch<SheepDailyRecord>(`${batchBase(orgId, batchId)}/daily-records/${recordId}`, body);
+    return apiClient.patch<SheepDailyRecord>(
+      `${batchBase(orgId, batchId)}/daily-records/${recordId}`,
+      body,
+    );
   },
   deleteDailyRecord(orgId: string, batchId: string, recordId: string): Promise<unknown> {
     return apiClient.delete(`${batchBase(orgId, batchId)}/daily-records/${recordId}`);

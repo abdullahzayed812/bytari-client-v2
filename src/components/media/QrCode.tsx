@@ -57,7 +57,13 @@ export const QrCode = memo(function QrCode({
       accessibilityLabel={accessibilityLabel}
       // Forced LTR: in an RTL app `left` would otherwise mean "start" and the
       // code would render mirrored (unscannable).
-      style={{ width: size, height: size, backgroundColor, padding: unit * QUIET_ZONE, direction: 'ltr' }}
+      style={{
+        width: size,
+        height: size,
+        backgroundColor,
+        padding: unit * QUIET_ZONE,
+        direction: 'ltr',
+      }}
     >
       {rows.map((runs, r) => (
         <View key={r} style={{ height: unit, flexDirection: 'row', direction: 'ltr' }}>

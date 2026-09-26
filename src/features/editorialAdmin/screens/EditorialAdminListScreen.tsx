@@ -13,8 +13,8 @@ import {
   useToast,
 } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
-import { ImagePreview } from '@/components/media';
 import { Row, SafeAreaScreen } from '@/components/layout';
+import { ImagePreview } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -68,7 +68,11 @@ export default function EditorialAdminListScreen() {
         placeholder={t('editorial.searchPlaceholder')}
       />
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-        <Chip label={t('editorial.filterAll')} selected={!status} onPress={() => setStatus(undefined)} />
+        <Chip
+          label={t('editorial.filterAll')}
+          selected={!status}
+          onPress={() => setStatus(undefined)}
+        />
         {EDITORIAL_STATUSES.map((s) => (
           <Chip
             key={s}
@@ -89,15 +93,17 @@ export default function EditorialAdminListScreen() {
       accessibilityLabel={item.title}
     >
       <Row gap="md" align="flex-start">
-        {item.coverImageUrl ? (
-          <ImagePreview uri={item.coverImageUrl} size={56} />
-        ) : null}
+        {item.coverImageUrl ? <ImagePreview uri={item.coverImageUrl} size={56} /> : null}
         <View style={{ flex: 1, rowGap: 4 }}>
           <Row justify="space-between" gap="sm">
             <Text variant="bodyStrong" numberOfLines={2} style={{ flex: 1 }}>
               {item.title}
             </Text>
-            <Badge label={t(`editorial.status.${item.status}`)} tone={STATUS_TONE[item.status]} size="sm" />
+            <Badge
+              label={t(`editorial.status.${item.status}`)}
+              tone={STATUS_TONE[item.status]}
+              size="sm"
+            />
           </Row>
           {item.summary ? <Caption numberOfLines={2}>{item.summary}</Caption> : null}
           <Caption>
@@ -113,7 +119,8 @@ export default function EditorialAdminListScreen() {
                 loading={publish.isPending && publish.variables === item.id}
                 onPress={() =>
                   publish.mutate(item.id, {
-                    onSuccess: () => toast.show({ message: t('editorial.published'), tone: 'success' }),
+                    onSuccess: () =>
+                      toast.show({ message: t('editorial.published'), tone: 'success' }),
                     onError,
                   })
                 }
@@ -126,7 +133,8 @@ export default function EditorialAdminListScreen() {
                 loading={archive.isPending && archive.variables === item.id}
                 onPress={() =>
                   archive.mutate(item.id, {
-                    onSuccess: () => toast.show({ message: t('editorial.unpublished'), tone: 'success' }),
+                    onSuccess: () =>
+                      toast.show({ message: t('editorial.unpublished'), tone: 'success' }),
                     onError,
                   })
                 }

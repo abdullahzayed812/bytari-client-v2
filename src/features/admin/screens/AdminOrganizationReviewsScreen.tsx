@@ -4,12 +4,12 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Skeleton, useToast } from '@/components/feedback';
-import { useCapabilities } from '@/hooks';
 import {
   useAdminDeleteOrganizationReview,
   useAdminOrganizationReviews,
 } from '@/features/organizations';
 import type { AdminOrganizationReview, OrganizationType } from '@/features/organizations/types';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate, fullName } from '@/utils';

@@ -45,7 +45,10 @@ export function PoultryFlockForm({
 }: PoultryFlockFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('farm');
-  const schema = useMemo(() => buildPoultryFlockSchema(t, { requirePrice: showPrice }), [t, showPrice]);
+  const schema = useMemo(
+    () => buildPoultryFlockSchema(t, { requirePrice: showPrice }),
+    [t, showPrice],
+  );
 
   const { control, handleSubmit } = useForm<PoultryFlockFormValues>({
     resolver: zodResolver(schema),

@@ -89,14 +89,16 @@ export const organizationsApi = {
    * `sort: 'nearest'` requires `near` (both `lat` and `lng`) — the backend
    * computes and orders by real distance; this client never estimates it.
    */
-  async discover(filter: {
-    page: number;
-    pageSize: number;
-    type?: OrganizationType;
-    search?: string;
-    sort?: DiscoverSort;
-    near?: { lat: number; lng: number };
-  } & DiscoverFilters): Promise<Paginated<PublicOrganization>> {
+  async discover(
+    filter: {
+      page: number;
+      pageSize: number;
+      type?: OrganizationType;
+      search?: string;
+      sort?: DiscoverSort;
+      near?: { lat: number; lng: number };
+    } & DiscoverFilters,
+  ): Promise<Paginated<PublicOrganization>> {
     const envelope = await apiClient.requestEnvelope<PublicOrganization[]>({
       method: 'GET',
       url: '/organizations/discover',
@@ -212,7 +214,10 @@ export const organizationsApi = {
     organizationId: string,
     input: { filename: string; mimeType: string; size: number },
   ): Promise<PresignedUpload> {
-    return apiClient.post<PresignedUpload>(`/organizations/${organizationId}/logo/upload-url`, input);
+    return apiClient.post<PresignedUpload>(
+      `/organizations/${organizationId}/logo/upload-url`,
+      input,
+    );
   },
 
   finalizeLogo(
@@ -243,7 +248,10 @@ export const organizationsApi = {
     organizationId: string,
     input: { storageKey: string; mimeType: string },
   ): Promise<OrganizationWithDetails> {
-    return apiClient.post<OrganizationWithDetails>(`/organizations/${organizationId}/gallery`, input);
+    return apiClient.post<OrganizationWithDetails>(
+      `/organizations/${organizationId}/gallery`,
+      input,
+    );
   },
 
   removeGalleryImage(organizationId: string, storageKey: string): Promise<OrganizationWithDetails> {

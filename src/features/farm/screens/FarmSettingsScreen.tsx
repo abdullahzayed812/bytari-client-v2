@@ -29,7 +29,10 @@ import { useTheme } from '@/theme';
 
 import { FarmJoinCodeCard, FarmStaffRow } from '../components';
 import { POULTRY_PRODUCTION_TYPES, type PoultryProductionType } from '../constants';
-import { buildFarmSettingsInfoSchema, type FarmSettingsInfoFormValues } from '../validation/schemas';
+import {
+  buildFarmSettingsInfoSchema,
+  type FarmSettingsInfoFormValues,
+} from '../validation/schemas';
 
 type SettingsTab = 'info' | 'staff' | 'vets';
 
@@ -90,7 +93,13 @@ export default function FarmSettingsScreen() {
     <SafeAreaScreen>
       <AppHeader title={detail.data.name} showBack />
 
-      <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          borderBottomWidth: 1,
+          borderBottomColor: theme.colors.border,
+        }}
+      >
         {tabs.map((tb) => {
           const active = tab === tb.key;
           const color = active ? theme.colors.primary : theme.colors.textSecondary;
@@ -204,7 +213,8 @@ function LivestockFarmInfoTab({
   const [error, setError] = useState<string | null>(null);
   const busy = updateOrg.isPending || updateProfile.isPending;
 
-  const toCount = (v: string): number | null => (v.trim() && /^\d+$/.test(v.trim()) ? Number(v.trim()) : null);
+  const toCount = (v: string): number | null =>
+    v.trim() && /^\d+$/.test(v.trim()) ? Number(v.trim()) : null;
 
   const save = () => {
     setError(null);
@@ -243,24 +253,43 @@ function LivestockFarmInfoTab({
       {error ? <Caption style={{ color: theme.colors.danger }}>{error}</Caption> : null}
       <Input label={t('create.fields.name')} value={name} onChangeText={setName} />
       <Input label={t('create.fields.location')} value={location} onChangeText={setLocation} />
-      <Input label={t('create.fields.address')} value={address} onChangeText={setAddress} multiline />
+      <Input
+        label={t('create.fields.address')}
+        value={address}
+        onChangeText={setAddress}
+        multiline
+      />
       <Select<string>
         label={t('create.fields.production')}
         value={production}
         options={productionValues.map((v) => ({
           value: v,
-          label: isSheep ? t(`create.sheepProduction.${v as (typeof SHEEP_PRODUCTION)[number]}`) : t(`create.cattleProduction.${v as (typeof CATTLE_PRODUCTION)[number]}`),
+          label: isSheep
+            ? t(`create.sheepProduction.${v as (typeof SHEEP_PRODUCTION)[number]}`)
+            : t(`create.cattleProduction.${v as (typeof CATTLE_PRODUCTION)[number]}`),
         }))}
         onChange={setProduction}
       />
-      <Input label={t('create.fields.capacity')} value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
       <Input
-        label={isSheep ? t('create.fields.currentSheepCount') : t('create.fields.currentCattleCount')}
+        label={t('create.fields.capacity')}
+        value={capacity}
+        onChangeText={setCapacity}
+        keyboardType="number-pad"
+      />
+      <Input
+        label={
+          isSheep ? t('create.fields.currentSheepCount') : t('create.fields.currentCattleCount')
+        }
         value={headCount}
         onChangeText={setHeadCount}
         keyboardType="number-pad"
       />
-      <Input label={t('create.fields.contactPhone')} value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" />
+      <Input
+        label={t('create.fields.contactPhone')}
+        value={contactPhone}
+        onChangeText={setContactPhone}
+        keyboardType="phone-pad"
+      />
       <Button
         label={tp('settings.save')}
         leftIcon="checkmark-circle-outline"
@@ -299,7 +328,8 @@ function FarmInfoTab({ orgId, orgName }: { orgId: string; orgName: string }) {
         name: orgName,
         location: profile.data?.location ?? '',
         address: profile.data?.address ?? '',
-        poultryProductionType: (profile.data?.poultryProductionType ?? 'BROILER') as PoultryProductionType,
+        poultryProductionType: (profile.data?.poultryProductionType ??
+          'BROILER') as PoultryProductionType,
         capacity: profile.data?.capacity != null ? String(profile.data.capacity) : '',
         currentBirdCount:
           profile.data?.currentBirdCount != null ? String(profile.data.currentBirdCount) : '',

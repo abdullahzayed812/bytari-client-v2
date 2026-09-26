@@ -46,7 +46,8 @@ export default function VeterinaryOfficesScreen() {
     pageSize: PAGE_SIZE,
   });
 
-  const goToDetail = (org: PublicOrganization) => router.push(Routes.veterinaryOfficeDetail(org.id));
+  const goToDetail = (org: PublicOrganization) =>
+    router.push(Routes.veterinaryOfficeDetail(org.id));
 
   const handleSortChange = (nextSort: DiscoverSort, fix?: Coordinates) => {
     if (fix) setCoords(fix);

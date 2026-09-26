@@ -22,7 +22,12 @@ export type FeedType = (typeof FEED_TYPES)[number];
 export const LIVESTOCK_HEALTH_EVENT_KINDS = ['TREATMENT', 'VACCINATION'] as const;
 export type LivestockHealthEventKind = (typeof LIVESTOCK_HEALTH_EVENT_KINDS)[number];
 
-export const LIVESTOCK_HEALTH_EVENT_STATUSES = ['SCHEDULED', 'ONGOING', 'DONE', 'RECOVERED'] as const;
+export const LIVESTOCK_HEALTH_EVENT_STATUSES = [
+  'SCHEDULED',
+  'ONGOING',
+  'DONE',
+  'RECOVERED',
+] as const;
 export type LivestockHealthEventStatus = (typeof LIVESTOCK_HEALTH_EVENT_STATUSES)[number];
 
 export const LIVESTOCK_CASE_STATUSES = ['UNDER_TREATMENT', 'RECOVERED', 'DECEASED'] as const;
@@ -47,7 +52,14 @@ export interface Paginated<T> {
 
 // --- sheep ---------------------------------------------------------
 
-export const SHEEP_PRODUCTION_TYPES = ['MEAT', 'DAIRY', 'WOOL', 'BREEDING', 'MIXED', 'OTHER'] as const;
+export const SHEEP_PRODUCTION_TYPES = [
+  'MEAT',
+  'DAIRY',
+  'WOOL',
+  'BREEDING',
+  'MIXED',
+  'OTHER',
+] as const;
 export type SheepProductionType = (typeof SHEEP_PRODUCTION_TYPES)[number];
 
 export interface SheepBatch {

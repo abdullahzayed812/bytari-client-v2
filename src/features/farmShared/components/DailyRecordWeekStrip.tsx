@@ -41,7 +41,10 @@ export function DailyRecordWeekStrip<R extends WeekStripRecord>({
   const { t } = useTranslation('farm');
   const { width } = useWindowDimensions();
   // ~1.15 cards per screen on phones (a peek of the next day), 2 on wide screens.
-  const cardWidth = Math.min(340, Math.max(240, (width - theme.screenPadding * 2) / (width >= 700 ? 2.1 : 1.15)));
+  const cardWidth = Math.min(
+    340,
+    Math.max(240, (width - theme.screenPadding * 2) / (width >= 700 ? 2.1 : 1.15)),
+  );
 
   const ordered = [...records].sort(
     (a, b) =>

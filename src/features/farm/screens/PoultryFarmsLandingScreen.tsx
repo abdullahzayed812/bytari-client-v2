@@ -26,12 +26,7 @@ import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { useTheme } from '@/theme';
 
-import {
-  AddFarmCard,
-  MarketNavCard,
-  PoultryCardSkeleton,
-  PoultryFarmCard,
-} from '../components';
+import { AddFarmCard, MarketNavCard, PoultryCardSkeleton, PoultryFarmCard } from '../components';
 import type { FarmBirdStats } from '../components';
 import { usePoultryFarms, usePoultryFlocks } from '../hooks';
 import type { PoultryFlock } from '../types';
@@ -154,9 +149,7 @@ export default function PoultryFarmsLandingScreen() {
             title={t('landing.marketTitle')}
             subtitle={t('landing.marketSubtitle')}
             onPress={() =>
-              trader.isApproved
-                ? router.push(Routes.marketHub)
-                : router.push(Routes.traderRegister)
+              trader.isApproved ? router.push(Routes.marketHub) : router.push(Routes.traderRegister)
             }
           />
         </Section>
@@ -167,8 +160,7 @@ export default function PoultryFarmsLandingScreen() {
             actionLabel={farms.farms.length > 3 ? t('landing.viewAll') : undefined}
             onAction={
               farms.farms.length > 3
-                ? () =>
-                    router.push({ pathname: Routes.myFarms, params: { species: 'POULTRY' } })
+                ? () => router.push({ pathname: Routes.myFarms, params: { species: 'POULTRY' } })
                 : undefined
             }
           />

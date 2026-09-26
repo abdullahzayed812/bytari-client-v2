@@ -31,12 +31,27 @@ export function LivestockDailyRecordCard({ record, dayIndex, onEdit, onDelete }:
     { label: t('daily.feed'), value: `${trimNum(record.feedKg)} ${t('daily.feedUnit')}` },
     { label: t('daily.water'), value: `${trimNum(record.waterLiters)} ${t('daily.waterUnit')}` },
     { label: t('daily.mortality'), value: `${record.mortalityCount} ${t('daily.mortalityUnit')}` },
-    { label: t('daily.activity'), value: record.activity ? t(`daily.activityLevels.${record.activity}`) : t('daily.none') },
-    { label: t('daily.sickCasesCount'), value: record.sickCasesCount != null ? String(record.sickCasesCount) : '0' },
-    { label: t('daily.appetite'), value: record.appetite ? t(`daily.appetiteLevels.${record.appetite}`) : t('daily.none') },
-    { label: t('daily.feedType'), value: record.feedType ? t(`daily.feedTypes.${record.feedType}`) : t('daily.none') },
+    {
+      label: t('daily.activity'),
+      value: record.activity ? t(`daily.activityLevels.${record.activity}`) : t('daily.none'),
+    },
+    {
+      label: t('daily.sickCasesCount'),
+      value: record.sickCasesCount != null ? String(record.sickCasesCount) : '0',
+    },
+    {
+      label: t('daily.appetite'),
+      value: record.appetite ? t(`daily.appetiteLevels.${record.appetite}`) : t('daily.none'),
+    },
+    {
+      label: t('daily.feedType'),
+      value: record.feedType ? t(`daily.feedTypes.${record.feedType}`) : t('daily.none'),
+    },
     { label: t('daily.treatment'), value: record.treatment ?? t('daily.none') },
-    { label: t('daily.expense'), value: `${trimNum(record.expenseAmount)} ${t('daily.expenseUnit')}` },
+    {
+      label: t('daily.expense'),
+      value: `${trimNum(record.expenseAmount)} ${t('daily.expenseUnit')}`,
+    },
     { label: t('daily.notes'), value: record.notes ?? t('daily.none') },
     { label: t('daily.dateLabel'), value: formatDate(record.recordDate) },
   ];
@@ -61,7 +76,14 @@ export function LivestockDailyRecordCard({ record, dayIndex, onEdit, onDelete }:
         <Caption style={{ marginStart: 'auto' }}>{formatDate(record.recordDate)}</Caption>
       </View>
       {rows.map((r) => (
-        <View key={r.label} style={{ flexDirection: 'row', justifyContent: 'space-between', columnGap: theme.spacing.md }}>
+        <View
+          key={r.label}
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            columnGap: theme.spacing.md,
+          }}
+        >
           <Caption style={{ flexShrink: 1 }}>{r.label}</Caption>
           <Text variant="caption" numberOfLines={1} style={{ flexShrink: 1, textAlign: 'right' }}>
             {r.value}
@@ -74,7 +96,15 @@ export function LivestockDailyRecordCard({ record, dayIndex, onEdit, onDelete }:
 }
 
 /** The empty "اليوم N" tile. Mirrors `DailyRecordEmptyCard` exactly. */
-export function LivestockDailyRecordEmptyCard({ dayIndex, date, onPress }: { dayIndex: number; date?: string; onPress?: () => void }) {
+export function LivestockDailyRecordEmptyCard({
+  dayIndex,
+  date,
+  onPress,
+}: {
+  dayIndex: number;
+  date?: string;
+  onPress?: () => void;
+}) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
   return (

@@ -150,15 +150,20 @@ export const Routes = {
   sheepFarmCreate: '/(app)/livestock/sheep/create',
   cattleFarmCreate: '/(app)/livestock/cattle/create',
   sheepFarmDetail: (organizationId: string) => `/(app)/livestock/sheep/${organizationId}` as const,
-  cattleFarmDetail: (organizationId: string) => `/(app)/livestock/cattle/${organizationId}` as const,
-  sheepBatches: (organizationId: string) => `/(app)/livestock/sheep/${organizationId}/batches` as const,
-  sheepBatchCreate: (organizationId: string) => `/(app)/livestock/sheep/${organizationId}/batches/create` as const,
+  cattleFarmDetail: (organizationId: string) =>
+    `/(app)/livestock/cattle/${organizationId}` as const,
+  sheepBatches: (organizationId: string) =>
+    `/(app)/livestock/sheep/${organizationId}/batches` as const,
+  sheepBatchCreate: (organizationId: string) =>
+    `/(app)/livestock/sheep/${organizationId}/batches/create` as const,
   sheepBatchDetail: (organizationId: string, batchId: string) =>
     `/(app)/livestock/sheep/${organizationId}/batches/${batchId}` as const,
   sheepBatchEdit: (organizationId: string, batchId: string) =>
     `/(app)/livestock/sheep/${organizationId}/batches/${batchId}/edit` as const,
-  cattleBatches: (organizationId: string) => `/(app)/livestock/cattle/${organizationId}/batches` as const,
-  cattleBatchCreate: (organizationId: string) => `/(app)/livestock/cattle/${organizationId}/batches/create` as const,
+  cattleBatches: (organizationId: string) =>
+    `/(app)/livestock/cattle/${organizationId}/batches` as const,
+  cattleBatchCreate: (organizationId: string) =>
+    `/(app)/livestock/cattle/${organizationId}/batches/create` as const,
   cattleBatchDetail: (organizationId: string, batchId: string) =>
     `/(app)/livestock/cattle/${organizationId}/batches/${batchId}` as const,
   cattleBatchEdit: (organizationId: string, batchId: string) =>
@@ -216,10 +221,8 @@ export const Routes = {
     `/(app)/support/${kind}/create` as const,
   supportManage: (kind: 'consultations' | 'inquiries' | 'support-messages') =>
     `/(app)/support/${kind}/manage` as const,
-  supportThread: (
-    kind: 'consultations' | 'inquiries' | 'support-messages',
-    threadId: string,
-  ) => `/(app)/support/${kind}/${threadId}` as const,
+  supportThread: (kind: 'consultations' | 'inquiries' | 'support-messages', threadId: string) =>
+    `/(app)/support/${kind}/${threadId}` as const,
 
   // Settings & Contact ("الإعدادات" / "تواصل معنا")
   settings: '/(app)/settings',
@@ -229,14 +232,12 @@ export const Routes = {
   // Veterinary Services marketplace ("الخدمات")
   vetServices: '/(app)/vet-services',
   vetServiceListings: '/(app)/vet-services/listings',
-  vetServiceListing: (listingId: string) =>
-    `/(app)/vet-services/listings/${listingId}` as const,
+  vetServiceListing: (listingId: string) => `/(app)/vet-services/listings/${listingId}` as const,
   vetServiceListingNew: '/(app)/vet-services/listings/new',
   vetServiceListingRequest: (listingId: string) =>
     `/(app)/vet-services/listings/${listingId}/request` as const,
   vetServiceRequests: '/(app)/vet-services/requests',
-  vetServiceRequest: (requestId: string) =>
-    `/(app)/vet-services/requests/${requestId}` as const,
+  vetServiceRequest: (requestId: string) => `/(app)/vet-services/requests/${requestId}` as const,
   vetServiceRequestNew: '/(app)/vet-services/requests/new',
   vetServiceOfferNew: (requestId: string) =>
     `/(app)/vet-services/requests/${requestId}/offer` as const,
@@ -272,13 +273,15 @@ export const Routes = {
   // Veterinary Syndicates / Unions ("نقابة الأطباء البيطريين")
   syndicates: '/(app)/syndicates',
   syndicateMain: (organizationId: string) => `/(app)/syndicates/${organizationId}` as const,
-  syndicateBranches: (organizationId: string) => `/(app)/syndicates/${organizationId}/branches` as const,
+  syndicateBranches: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/branches` as const,
   syndicateAnnouncements: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/announcements` as const,
   syndicateAnnouncementNew: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/announcements/new` as const,
   syndicateAnnouncementDetails: (id: string) => `/(app)/syndicates/announcements/${id}` as const,
-  syndicateInquiry: (organizationId: string) => `/(app)/syndicates/${organizationId}/inquiry` as const,
+  syndicateInquiry: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/inquiry` as const,
   syndicateSubmissions: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/submissions` as const,
   syndicateMy: '/(app)/syndicates/my',

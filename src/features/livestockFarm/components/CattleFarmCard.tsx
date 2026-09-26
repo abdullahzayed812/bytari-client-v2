@@ -89,24 +89,38 @@ export function CattleFarmCard({
         </View>
 
         <View style={{ flex: 1, padding: theme.spacing.lg, rowGap: theme.spacing.xs }}>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+            }}
+          >
             <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
               {name}
             </Text>
-            {status && status !== 'ACTIVE' ? <OrganizationStatusBadge status={status} size="sm" /> : null}
+            {status && status !== 'ACTIVE' ? (
+              <OrganizationStatusBadge status={status} size="sm" />
+            ) : null}
           </View>
 
           {loc ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}
+            >
               <Icon name="location-outline" size="iconXs" color="textMuted" />
               <Caption numberOfLines={1}>{loc}</Caption>
             </View>
           ) : null}
 
           {profile?.establishedOn ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}
+            >
               <Icon name="calendar-outline" size="iconXs" color="textMuted" />
-              <Caption>{t('landing.establishedOn', { date: formatDate(profile.establishedOn) })}</Caption>
+              <Caption>
+                {t('landing.establishedOn', { date: formatDate(profile.establishedOn) })}
+              </Caption>
             </View>
           ) : null}
         </View>

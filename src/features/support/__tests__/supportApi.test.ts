@@ -187,9 +187,9 @@ describe('validation schemas', () => {
     const base = { body: 'x', animalType: 'DOG' as const };
     expect(c.safeParse({ ...base, animalId: 'not-a-uuid' }).success).toBe(false);
     expect(c.safeParse({ ...base, animalId: '' }).success).toBe(true);
-    expect(
-      c.safeParse({ ...base, animalId: '11111111-1111-1111-1111-111111111111' }).success,
-    ).toBe(true);
+    expect(c.safeParse({ ...base, animalId: '11111111-1111-1111-1111-111111111111' }).success).toBe(
+      true,
+    );
     expect(c.safeParse(base).success).toBe(true);
   });
 
@@ -206,7 +206,15 @@ describe('validation schemas', () => {
     const i = buildInquirySchema(t);
     expect(i.safeParse({ body: 'x' }).success).toBe(false);
     expect(i.safeParse({ body: 'x', category: 'ASTROLOGY' }).success).toBe(false);
-    for (const c of ['EMERGENCY', 'GENERAL', 'SURGERY', 'MEDICATION', 'DISEASES', 'NUTRITION', 'OTHER']) {
+    for (const c of [
+      'EMERGENCY',
+      'GENERAL',
+      'SURGERY',
+      'MEDICATION',
+      'DISEASES',
+      'NUTRITION',
+      'OTHER',
+    ]) {
       expect(i.safeParse({ body: 'x', category: c }).success).toBe(true);
     }
   });

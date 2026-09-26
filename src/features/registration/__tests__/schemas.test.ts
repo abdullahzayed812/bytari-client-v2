@@ -61,9 +61,7 @@ describe('buildPetOwnerSchema', () => {
   });
 
   it('accepts free-text governorate for a country without a fixed list', () => {
-    expect(schema.safeParse({ ...BASE, country: 'SA', governorate: 'الرياض' }).success).toBe(
-      true,
-    );
+    expect(schema.safeParse({ ...BASE, country: 'SA', governorate: 'الرياض' }).success).toBe(true);
   });
 });
 

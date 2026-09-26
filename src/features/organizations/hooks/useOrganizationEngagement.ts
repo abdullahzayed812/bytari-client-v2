@@ -212,7 +212,11 @@ export function useAdminOrganizationReviews(filter: {
     queryKey: orgKeys.adminReviews(filter),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      organizationsApi.adminListReviews({ page: pageParam, pageSize: REVIEWS_PAGE_SIZE, ...filter }),
+      organizationsApi.adminListReviews({
+        page: pageParam,
+        pageSize: REVIEWS_PAGE_SIZE,
+        ...filter,
+      }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
   });

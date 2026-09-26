@@ -5,13 +5,25 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { FarmHeaderCard } from '@/features/farm';
-import { useFarmProfile, useFarmSubscriptionRenewals, FarmSectionCard, FarmStaffRow, FarmStatusCard } from '@/features/farmShared';
+import {
+  useFarmProfile,
+  useFarmSubscriptionRenewals,
+  FarmSectionCard,
+  FarmStaffRow,
+  FarmStatusCard,
+} from '@/features/farmShared';
 import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
 import { orgCapabilities, useOrganization, useOrganizationMembers } from '@/features/organizations';
@@ -33,7 +45,6 @@ import {
   useUpdateSheepBatch,
 } from '../hooks';
 
-
 /** Sheep Farm Details. Mirrors `PoultryFarmDetailsScreen` exactly. */
 export default function SheepFarmDetailsScreen() {
   const theme = useTheme();
@@ -51,17 +62,27 @@ export default function SheepFarmDetailsScreen() {
   const canOperateFarm = isApproved && detail.data?.details?.subscriptionStatus === 'ACTIVE';
 
   const profile = useFarmProfile(orgId, { enabled: Boolean(orgId) });
-  const activeBatches = useSheepBatches(orgId, { status: 'ACTIVE', pageSize: 1, enabled: canOperateFarm });
+  const activeBatches = useSheepBatches(orgId, {
+    status: 'ACTIVE',
+    pageSize: 1,
+    enabled: canOperateFarm,
+  });
   const batch = activeBatches.batches[0];
-  const closedBatches = useSheepBatches(orgId, { status: 'CLOSED', pageSize: 20, enabled: canOperateFarm });
+  const closedBatches = useSheepBatches(orgId, {
+    status: 'CLOSED',
+    pageSize: 20,
+    enabled: canOperateFarm,
+  });
   const summary = useSheepBatchSummary(orgId, batch?.id, { enabled: Boolean(batch) });
   const daily = useSheepDailyRecords(orgId, batch?.id, { pageSize: 7, enabled: Boolean(batch) });
   const weekly = useSheepWeeklySummary(orgId, batch?.id, undefined, { enabled: Boolean(batch) });
-  const members = useOrganizationMembers(orgId, { status: 'ACTIVE', enabled: caps.canViewMembers && isApproved });
+  const members = useOrganizationMembers(orgId, {
+    status: 'ACTIVE',
+    enabled: caps.canViewMembers && isApproved,
+  });
   const renewals = useFarmSubscriptionRenewals(orgId, { enabled: isApproved });
   const sellBatch = useUpdateSheepBatch(orgId);
   const [confirmSell, setConfirmSell] = useState(false);
-
 
   const sectionCards = useMemo(
     () =>
@@ -74,7 +95,9 @@ export default function SheepFarmDetailsScreen() {
     [t],
   );
 
-  const refreshing = (detail.isRefetching || profile.isRefetching || activeBatches.isRefetching) && !detail.isLoading;
+  const refreshing =
+    (detail.isRefetching || profile.isRefetching || activeBatches.isRefetching) &&
+    !detail.isLoading;
   const onRefresh = (): void => {
     void detail.refetch();
     void profile.refetch();
@@ -118,7 +141,11 @@ export default function SheepFarmDetailsScreen() {
         <AppHeader title={t('details.sheepTitle')} showBack />
         <View style={{ padding: theme.screenPadding }}>
           {status === 403 || status === 404 ? (
-            <EmptyState icon="lock-closed-outline" title={t('details.notAllowedTitle')} message={t('details.notAllowedBody')} />
+            <EmptyState
+              icon="lock-closed-outline"
+              title={t('details.notAllowedTitle')}
+              message={t('details.notAllowedBody')}
+            />
           ) : (
             <ErrorState error={detail.error} onRetry={() => void detail.refetch()} />
           )}
@@ -145,10 +172,26 @@ export default function SheepFarmDetailsScreen() {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge, rowGap: theme.spacing.lg }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.primary} colors={[theme.colors.primary]} />}
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          paddingBottom: theme.spacing.huge,
+          rowGap: theme.spacing.lg,
+        }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        }
       >
-        <FarmHeaderCard name={name} location={location} profile={profile.data ?? null} icon="paw-outline" />
+        <FarmHeaderCard
+          name={name}
+          location={location}
+          profile={profile.data ?? null}
+          icon="paw-outline"
+        />
 
         <FarmStatusCard
           approvalStatus={detail.data?.status ?? 'PENDING'}
@@ -156,7 +199,9 @@ export default function SheepFarmDetailsScreen() {
           subscriptionStatus={detail.data?.details?.subscriptionStatus}
           subscriptionEndDate={detail.data?.details?.subscriptionEndDate}
           hasPendingRenewal={renewals.hasPendingRenewal}
-          onRequestRenewal={caps.isOwner ? () => router.push(Routes.farmSubscriptionRenewal(orgId)) : undefined}
+          onRequestRenewal={
+            caps.isOwner ? () => router.push(Routes.farmSubscriptionRenewal(orgId)) : undefined
+          }
         />
 
         {canOperateFarm ? (
@@ -179,7 +224,13 @@ export default function SheepFarmDetailsScreen() {
                 />
 
                 <View style={{ rowGap: theme.spacing.sm }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      columnGap: theme.spacing.sm,
+                    }}
+                  >
                     <Icon name="clipboard-outline" size="iconSm" color="primary" />
                     <Text variant="subtitle" weight="bold">
                       {t('daily.title')}
@@ -190,9 +241,17 @@ export default function SheepFarmDetailsScreen() {
                   ) : (
                     <DailyRecordWeekStrip
                       records={daily.data?.items ?? []}
-                      todayRecorded={(daily.data?.items ?? []).some((r) => r.recordDate === businessToday())}
-                      onAddPress={canManage ? () => router.push(Routes.sheepFarmSection(orgId, 'daily')) : undefined}
-                      renderRecord={(r, day) => <LivestockDailyRecordCard record={r} dayIndex={day} />}
+                      todayRecorded={(daily.data?.items ?? []).some(
+                        (r) => r.recordDate === businessToday(),
+                      )}
+                      onAddPress={
+                        canManage
+                          ? () => router.push(Routes.sheepFarmSection(orgId, 'daily'))
+                          : undefined
+                      }
+                      renderRecord={(r, day) => (
+                        <LivestockDailyRecordCard record={r} dayIndex={day} />
+                      )}
                     />
                   )}
                 </View>
@@ -229,7 +288,12 @@ export default function SheepFarmDetailsScreen() {
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
               {sectionCards.map((s) => (
-                <FarmSectionCard key={s.key} icon={s.icon} label={s.label} onPress={() => router.push(Routes.sheepFarmSection(orgId, s.key))} />
+                <FarmSectionCard
+                  key={s.key}
+                  icon={s.icon}
+                  label={s.label}
+                  onPress={() => router.push(Routes.sheepFarmSection(orgId, s.key))}
+                />
               ))}
             </View>
           </View>
@@ -237,12 +301,24 @@ export default function SheepFarmDetailsScreen() {
 
         {isApproved && caps.canViewMembers ? (
           <View style={{ rowGap: theme.spacing.xs }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <Text variant="subtitle" weight="bold">
                 {t('details.staffTitle')}
               </Text>
               {caps.canManageMembers ? (
-                <Button label={t('details.staffAdd')} variant="ghost" size="sm" leftIcon="add" onPress={() => setAddStaffOpen(true)} />
+                <Button
+                  label={t('details.staffAdd')}
+                  variant="ghost"
+                  size="sm"
+                  leftIcon="add"
+                  onPress={() => setAddStaffOpen(true)}
+                />
               ) : null}
             </View>
             {members.isLoading ? (
@@ -250,7 +326,9 @@ export default function SheepFarmDetailsScreen() {
             ) : members.members.length === 0 ? (
               <Caption>{t('details.staffEmpty')}</Caption>
             ) : (
-              members.members.map((m) => <FarmStaffRow key={m.id} member={m} onChat={() => router.push(Routes.chat)} />)
+              members.members.map((m) => (
+                <FarmStaffRow key={m.id} member={m} onChat={() => router.push(Routes.chat)} />
+              ))
             )}
           </View>
         ) : null}

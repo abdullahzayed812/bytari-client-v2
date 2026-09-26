@@ -409,9 +409,7 @@ export interface AdminActivityItem {
 }
 
 export type AdminPendingTaskKind =
-  | 'VET_APPLICATION'
-  | 'ORGANIZATION_APPROVAL'
-  | 'SUBSCRIPTION_RENEWAL';
+  'VET_APPLICATION' | 'ORGANIZATION_APPROVAL' | 'SUBSCRIPTION_RENEWAL';
 export type AdminTaskPriority = 'urgent' | 'medium' | 'low';
 
 export interface AdminPendingTask {

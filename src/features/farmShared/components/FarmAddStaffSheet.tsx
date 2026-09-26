@@ -33,7 +33,9 @@ export function FarmAddStaffSheet({
   const { t } = useTranslation('farm');
   return (
     <BottomSheet visible={visible} onClose={onClose} title={t('staff.addTitle')}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md, paddingBottom: theme.spacing.lg }}>
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md, paddingBottom: theme.spacing.lg }}
+      >
         <Caption>{t('staff.addIntro')}</Caption>
         <FarmJoinCodeCard organizationId={organizationId} organizationName={organizationName} />
         <View>

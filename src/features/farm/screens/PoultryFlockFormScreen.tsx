@@ -73,7 +73,8 @@ export default function PoultryFlockFormScreen() {
         birdType: flock.birdType,
         birdCount: String(flock.birdCount),
         arrivalDate: flock.arrivalDate,
-        targetPricePerKg: flock.targetPricePerKg != null ? String(Number(flock.targetPricePerKg)) : '',
+        targetPricePerKg:
+          flock.targetPricePerKg != null ? String(Number(flock.targetPricePerKg)) : '',
         notes: flock.notes ?? '',
       }
     : devDataEnabled

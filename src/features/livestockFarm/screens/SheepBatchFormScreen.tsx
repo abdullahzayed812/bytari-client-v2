@@ -17,7 +17,10 @@ import type { SheepBatchFormValues } from '../validation/schemas';
 export default function SheepBatchFormScreen() {
   const { t } = useTranslation('sheepCattleFarm');
   const toast = useToast();
-  const { organizationId, batchId } = useLocalSearchParams<{ organizationId: string; batchId?: string }>();
+  const { organizationId, batchId } = useLocalSearchParams<{
+    organizationId: string;
+    batchId?: string;
+  }>();
   const orgId = organizationId ?? '';
   const isEdit = Boolean(batchId);
 
@@ -42,10 +45,16 @@ export default function SheepBatchFormScreen() {
     );
   }
   if (isEdit && (existing.isError || !existing.data)) {
-    const notFound = existing.error instanceof ApiError && (existing.error.status === 404 || existing.error.status === 403);
+    const notFound =
+      existing.error instanceof ApiError &&
+      (existing.error.status === 404 || existing.error.status === 403);
     return (
       <OrgFormLayout title={t('batchForm.editTitle')}>
-        <ErrorState error={existing.error} title={notFound ? t('batchForm.notFoundTitle') : undefined} onRetry={notFound ? undefined : () => void existing.refetch()} />
+        <ErrorState
+          error={existing.error}
+          title={notFound ? t('batchForm.notFoundTitle') : undefined}
+          onRetry={notFound ? undefined : () => void existing.refetch()}
+        />
       </OrgFormLayout>
     );
   }
@@ -60,7 +69,8 @@ export default function SheepBatchFormScreen() {
         maleCount: batch.maleCount != null ? String(batch.maleCount) : '',
         femaleCount: batch.femaleCount != null ? String(batch.femaleCount) : '',
         arrivalDate: batch.arrivalDate,
-        targetPricePerKg: batch.targetPricePerKg != null ? String(Number(batch.targetPricePerKg)) : '',
+        targetPricePerKg:
+          batch.targetPricePerKg != null ? String(Number(batch.targetPricePerKg)) : '',
         notes: batch.notes ?? '',
       }
     : {};
@@ -124,7 +134,15 @@ export default function SheepBatchFormScreen() {
 
   return (
     <OrgFormLayout title={isEdit ? t('batchForm.editTitle') : t('batchForm.addSheepTitle')}>
-      <SheepBatchForm showPrice={showPrice} mode={isEdit ? 'edit' : 'create'} defaultValues={defaults} submitting={busy} formError={formError} serverFields={serverFields} onSubmit={onSubmit} />
+      <SheepBatchForm
+        showPrice={showPrice}
+        mode={isEdit ? 'edit' : 'create'}
+        defaultValues={defaults}
+        submitting={busy}
+        formError={formError}
+        serverFields={serverFields}
+        onSubmit={onSubmit}
+      />
     </OrgFormLayout>
   );
 }

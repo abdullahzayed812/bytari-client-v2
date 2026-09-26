@@ -141,7 +141,9 @@ export function DiscoverFilterBar({
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
         <FilterButton
           icon="funnel-outline"
-          label={activeCount > 0 ? `${t('discover.filter')} (${activeCount})` : t('discover.filter')}
+          label={
+            activeCount > 0 ? `${t('discover.filter')} (${activeCount})` : t('discover.filter')
+          }
           active={activeCount > 0}
           onPress={handleFilterPress}
         />

@@ -82,7 +82,9 @@ export default function OrganizationReviewsScreen() {
             ) : (
               <Caption>{t('clinicDetail.noRatingsYet')}</Caption>
             )}
-            <Caption>{t('clinicDetail.reviewsCount', { count: engagement?.reviewsCount ?? 0 })}</Caption>
+            <Caption>
+              {t('clinicDetail.reviewsCount', { count: engagement?.reviewsCount ?? 0 })}
+            </Caption>
           </View>
           <View style={{ rowGap: theme.spacing.xs }}>
             <Button

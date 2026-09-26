@@ -39,7 +39,11 @@ export function buildRegisterSchema(t: TFn) {
       .min(1, t('errors.emailRequired'))
       .email(t('errors.emailInvalid'))
       .max(254),
-    phone: z.string().trim().min(1, t('errors.phoneRequired')).regex(PHONE_RE, t('errors.phoneInvalid')),
+    phone: z
+      .string()
+      .trim()
+      .min(1, t('errors.phoneRequired'))
+      .regex(PHONE_RE, t('errors.phoneInvalid')),
     password: z
       .string()
       .min(10, t('errors.passwordTooShort'))

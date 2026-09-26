@@ -82,7 +82,10 @@ export const poultryOpsApi = {
     recordId: string,
     body: UpdateDailyRecordInput,
   ): Promise<PoultryDailyRecord> {
-    return apiClient.patch<PoultryDailyRecord>(`${flockBase(orgId, flockId)}/daily-records/${recordId}`, body);
+    return apiClient.patch<PoultryDailyRecord>(
+      `${flockBase(orgId, flockId)}/daily-records/${recordId}`,
+      body,
+    );
   },
   deleteDailyRecord(orgId: string, flockId: string, recordId: string): Promise<unknown> {
     return apiClient.delete(`${flockBase(orgId, flockId)}/daily-records/${recordId}`);
@@ -137,11 +140,7 @@ export const poultryOpsApi = {
   caseSummary(orgId: string, flockId: string): Promise<PoultryCaseSummary> {
     return apiClient.get<PoultryCaseSummary>(`${flockBase(orgId, flockId)}/cases/summary`);
   },
-  createCase(
-    orgId: string,
-    flockId: string,
-    body: CreatePoultryCaseInput,
-  ): Promise<PoultryCase> {
+  createCase(orgId: string, flockId: string, body: CreatePoultryCaseInput): Promise<PoultryCase> {
     return apiClient.post<PoultryCase>(`${flockBase(orgId, flockId)}/cases`, body);
   },
   getCase(orgId: string, flockId: string, caseId: string): Promise<PoultryCase> {

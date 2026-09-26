@@ -23,7 +23,12 @@ export interface FarmQrScannerModalProps {
  * scanning — no extra native module). Unknown QR codes are ignored with a
  * toast; the first valid one closes the scanner and hands its code back.
  */
-export function FarmQrScannerModal({ visible, onClose, onScanned, onInvalid }: FarmQrScannerModalProps) {
+export function FarmQrScannerModal({
+  visible,
+  onClose,
+  onScanned,
+  onInvalid,
+}: FarmQrScannerModalProps) {
   const theme = useTheme();
   const { t } = useTranslation('farm');
   const [permission, requestPermission] = useCameraPermissions();

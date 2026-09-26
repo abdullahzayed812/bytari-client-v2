@@ -43,10 +43,21 @@ const DEFAULTS: CattleBatchFormValues = {
 };
 
 /** Add/edit cattle-batch form. Mirrors `SheepBatchForm` exactly. */
-export function CattleBatchForm({ mode, defaultValues, submitting, formError, serverFields = {}, showPrice = true, onSubmit }: CattleBatchFormProps) {
+export function CattleBatchForm({
+  mode,
+  defaultValues,
+  submitting,
+  formError,
+  serverFields = {},
+  showPrice = true,
+  onSubmit,
+}: CattleBatchFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
-  const schema = useMemo(() => buildCattleBatchSchema(t, { requirePrice: showPrice }), [t, showPrice]);
+  const schema = useMemo(
+    () => buildCattleBatchSchema(t, { requirePrice: showPrice }),
+    [t, showPrice],
+  );
 
   const { control, handleSubmit } = useForm<CattleBatchFormValues>({
     resolver: zodResolver(schema),
@@ -58,9 +69,26 @@ export function CattleBatchForm({ mode, defaultValues, submitting, formError, se
     <>
       {formError ? <Alert tone="danger" message={formError} /> : null}
 
-      <FormField control={control} name="name" label={t('batchForm.fieldName')} serverError={serverFields.name} />
-      <FormField control={control} name="breed" label={t('batchForm.fieldBreed')} serverError={serverFields.breed} />
-      <FormField control={control} name="headCount" label={t('batchForm.fieldHeadCount')} placeholder="0" keyboardType="number-pad" serverError={serverFields.headCount} />
+      <FormField
+        control={control}
+        name="name"
+        label={t('batchForm.fieldName')}
+        serverError={serverFields.name}
+      />
+      <FormField
+        control={control}
+        name="breed"
+        label={t('batchForm.fieldBreed')}
+        serverError={serverFields.breed}
+      />
+      <FormField
+        control={control}
+        name="headCount"
+        label={t('batchForm.fieldHeadCount')}
+        placeholder="0"
+        keyboardType="number-pad"
+        serverError={serverFields.headCount}
+      />
       {showPrice ? (
         <FormField
           control={control}
@@ -76,13 +104,34 @@ export function CattleBatchForm({ mode, defaultValues, submitting, formError, se
 
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
         <View style={{ flex: 1 }}>
-          <FormField control={control} name="calfCount" label={t('batchForm.fieldCalfCount')} placeholder="0" keyboardType="number-pad" serverError={serverFields.calfCount} />
+          <FormField
+            control={control}
+            name="calfCount"
+            label={t('batchForm.fieldCalfCount')}
+            placeholder="0"
+            keyboardType="number-pad"
+            serverError={serverFields.calfCount}
+          />
         </View>
         <View style={{ flex: 1 }}>
-          <FormField control={control} name="bullCount" label={t('batchForm.fieldBullCount')} placeholder="0" keyboardType="number-pad" serverError={serverFields.bullCount} />
+          <FormField
+            control={control}
+            name="bullCount"
+            label={t('batchForm.fieldBullCount')}
+            placeholder="0"
+            keyboardType="number-pad"
+            serverError={serverFields.bullCount}
+          />
         </View>
         <View style={{ flex: 1 }}>
-          <FormField control={control} name="cowCount" label={t('batchForm.fieldCowCount')} placeholder="0" keyboardType="number-pad" serverError={serverFields.cowCount} />
+          <FormField
+            control={control}
+            name="cowCount"
+            label={t('batchForm.fieldCowCount')}
+            placeholder="0"
+            keyboardType="number-pad"
+            serverError={serverFields.cowCount}
+          />
         </View>
       </View>
 
@@ -96,7 +145,14 @@ export function CattleBatchForm({ mode, defaultValues, submitting, formError, se
         autoCorrect={false}
         serverError={serverFields.arrivalDate}
       />
-      <FormField control={control} name="notes" label={t('batchForm.fieldNotes')} multiline numberOfLines={3} serverError={serverFields.notes} />
+      <FormField
+        control={control}
+        name="notes"
+        label={t('batchForm.fieldNotes')}
+        multiline
+        numberOfLines={3}
+        serverError={serverFields.notes}
+      />
 
       <View style={{ marginTop: theme.spacing.sm }}>
         <Button

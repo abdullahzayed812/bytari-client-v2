@@ -315,9 +315,7 @@ export default function AdminAnimalPublicationsScreen() {
             images={detail ? photos(detail) : []}
             emptyLabel={dt('noImages')}
             fallbackIcon="paw-outline"
-            onPress={(index) =>
-              detail ? setViewer({ images: photos(detail), index }) : undefined
-            }
+            onPress={(index) => (detail ? setViewer({ images: photos(detail), index }) : undefined)}
           />
         </View>
 

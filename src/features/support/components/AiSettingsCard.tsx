@@ -43,9 +43,7 @@ export function AiSettingsCard({ only }: AiSettingsCardProps = {}) {
   }
 
   const isOn =
-    only === undefined
-      ? q.data.consultationAiEnabled || q.data.inquiryAiEnabled
-      : q.data[only];
+    only === undefined ? q.data.consultationAiEnabled || q.data.inquiryAiEnabled : q.data[only];
 
   const patch = (field: AiField, value: boolean): void => {
     update.mutate(

@@ -39,7 +39,10 @@ export interface UseCattleBatchesParams {
 }
 
 /** A FARM's cattle batches. Requires `farm.cattle_batch.read` server-side. Mirrors `useSheepBatches`. */
-export function useCattleBatches(organizationId: string | undefined, params: UseCattleBatchesParams = {}) {
+export function useCattleBatches(
+  organizationId: string | undefined,
+  params: UseCattleBatchesParams = {},
+) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
   const filter = { status: params.status, pageSize };
 
@@ -53,13 +56,21 @@ export function useCattleBatches(organizationId: string | undefined, params: Use
     queryKey: cattleKeys.list(organizationId ?? 'unknown', filter),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      cattleFarmApi.list(organizationId as string, { page: pageParam, pageSize, status: params.status }),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+      cattleFarmApi.list(organizationId as string, {
+        page: pageParam,
+        pageSize,
+        status: params.status,
+      }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: Boolean(organizationId) && (params.enabled ?? true),
     staleTime: 15_000,
   });
 
-  const batches = useMemo<CattleBatch[]>(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  const batches = useMemo<CattleBatch[]>(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
   const total = query.data?.pages[0]?.meta.total ?? 0;
   return { ...query, batches, total };
 }
@@ -156,7 +167,8 @@ export function useCreateCattleDailyRecord(orgId: string, batchId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['cattle', 'daily-record', 'create', orgId, batchId],
-    mutationFn: (body: CreateCattleDailyRecordInput) => cattleFarmApi.createDailyRecord(orgId, batchId, body),
+    mutationFn: (body: CreateCattleDailyRecordInput) =>
+      cattleFarmApi.createDailyRecord(orgId, batchId, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
   });
 }
@@ -215,7 +227,8 @@ export function useCreateCattleHealthEvent(orgId: string, batchId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['cattle', 'health-event', 'create', orgId, batchId],
-    mutationFn: (body: CreateCattleHealthEventInput) => cattleFarmApi.createHealthEvent(orgId, batchId, body),
+    mutationFn: (body: CreateCattleHealthEventInput) =>
+      cattleFarmApi.createHealthEvent(orgId, batchId, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
   });
 }
@@ -226,8 +239,13 @@ export function useCattleHealthEvent(
   eventId: string | undefined,
 ) {
   return useQuery<CattleHealthEvent, ApiError>({
-    queryKey: cattleKeys.healthEventDetail(orgId ?? 'unknown', batchId ?? 'unknown', eventId ?? 'unknown'),
-    queryFn: () => cattleFarmApi.getHealthEvent(orgId as string, batchId as string, eventId as string),
+    queryKey: cattleKeys.healthEventDetail(
+      orgId ?? 'unknown',
+      batchId ?? 'unknown',
+      eventId ?? 'unknown',
+    ),
+    queryFn: () =>
+      cattleFarmApi.getHealthEvent(orgId as string, batchId as string, eventId as string),
     enabled: Boolean(orgId) && Boolean(batchId) && Boolean(eventId),
     retry: noRetryOn403,
   });
@@ -259,7 +277,11 @@ export function useCreateCattleCase(orgId: string, batchId: string) {
   });
 }
 
-export function useCattleCase(orgId: string | undefined, batchId: string | undefined, caseId: string | undefined) {
+export function useCattleCase(
+  orgId: string | undefined,
+  batchId: string | undefined,
+  caseId: string | undefined,
+) {
   return useQuery<CattleCase, ApiError>({
     queryKey: cattleKeys.caseDetail(orgId ?? 'unknown', batchId ?? 'unknown', caseId ?? 'unknown'),
     queryFn: () => cattleFarmApi.getCase(orgId as string, batchId as string, caseId as string),
