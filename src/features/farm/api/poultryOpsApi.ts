@@ -4,6 +4,7 @@ import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type {
   BatchSummary,
   CreateDailyRecordInput,
+  UpdateDailyRecordInput,
   CreateHealthEventInput,
   CreatePoultryCaseInput,
   Paginated,
@@ -74,6 +75,17 @@ export const poultryOpsApi = {
     body: CreateDailyRecordInput,
   ): Promise<PoultryDailyRecord> {
     return apiClient.post<PoultryDailyRecord>(`${flockBase(orgId, flockId)}/daily-records`, body);
+  },
+  updateDailyRecord(
+    orgId: string,
+    flockId: string,
+    recordId: string,
+    body: UpdateDailyRecordInput,
+  ): Promise<PoultryDailyRecord> {
+    return apiClient.patch<PoultryDailyRecord>(`${flockBase(orgId, flockId)}/daily-records/${recordId}`, body);
+  },
+  deleteDailyRecord(orgId: string, flockId: string, recordId: string): Promise<unknown> {
+    return apiClient.delete(`${flockBase(orgId, flockId)}/daily-records/${recordId}`);
   },
 
   // --- health events (treatments & vaccinations) -----------

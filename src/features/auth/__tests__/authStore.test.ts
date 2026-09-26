@@ -120,6 +120,7 @@ describe('auth store — session lifecycle', () => {
       password: 'longenough1',
       firstName: 'New',
       lastName: 'User',
+      phone: '+9647700000000',
     });
     expect(register).toHaveBeenCalled();
     // the token IS persisted (register()'s token is real, just scoped)…
@@ -187,7 +188,12 @@ describe('auth store — session lifecycle', () => {
       veterinarian: { status: 'NOT_APPLIED', approved: false },
     });
     await useAuthStore.getState().register({
-      email: 'v@x.c', password: 'p', firstName: 'a', lastName: 'b', accountType: 'VETERINARIAN',
+      email: 'v@x.c',
+      password: 'p',
+      firstName: 'a',
+      lastName: 'b',
+      phone: '+9647700000000',
+      accountType: 'VETERINARIAN',
     });
     expect(register).toHaveBeenCalledWith(expect.objectContaining({ accountType: 'VETERINARIAN' }));
     expect(useAuthStore.getState().status).toBe('pending-approval');

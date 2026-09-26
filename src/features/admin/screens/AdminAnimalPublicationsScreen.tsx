@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -10,6 +11,7 @@ import {
   useAdminAnimalPublications,
   useAdminApprovePublication,
   useAdminRejectPublication,
+  useDeletePublication,
 } from '@/features/publications';
 import type {
   AnimalPublication,
@@ -65,7 +67,10 @@ const STATUS_TONE = {
 /**
  * `/admin/animal-publications` — the Lost / Adoption / Mating moderation queue.
  * Defaults to PENDING (the requests awaiting action). Approve / reject are
- * backend-authorised (`animal.approve` / `animal.reject`).
+ * backend-authorised (`animal.approve` / `animal.reject`); removing a listing
+ * (e.g. a published one) is `DELETE /animal-publications/:id` — ADMIN / ANIMAL
+ * supervisor only for someone else's listing, audited. `?kind=` pre-selects
+ * the kind (the separate Adoption / Mating / Lost dashboard cards).
  */
 export default function AdminAnimalPublicationsScreen() {
   const { t } = useTranslation('admin');
@@ -73,11 +78,17 @@ export default function AdminAnimalPublicationsScreen() {
   const theme = useTheme();
   const toast = useToast();
 
-  const [kind, setKind] = useState<PublicationKind | undefined>(undefined);
+  const { kind: kindParam } = useLocalSearchParams<{ kind?: string }>();
+  const initialKind = KINDS.includes(kindParam as PublicationKind)
+    ? (kindParam as PublicationKind)
+    : undefined;
+  const [kind, setKind] = useState<PublicationKind | undefined>(initialKind);
   const [status, setStatus] = useState<PublicationStatus | undefined>('PENDING');
   const q = useAdminAnimalPublications({ kind, status });
   const approve = useAdminApprovePublication();
   const reject = useAdminRejectPublication();
+  const remove = useDeletePublication();
+  const [removing, setRemoving] = useState<AnimalPublication | null>(null);
 
   const [approving, setApproving] = useState<AnimalPublication | null>(null);
   const [rejecting, setRejecting] = useState<AnimalPublication | null>(null);
@@ -223,7 +234,13 @@ export default function AdminAnimalPublicationsScreen() {
                     onPress={() => setRejecting(p)}
                   />
                 </>
-              ) : undefined
+              ) : (
+                <Button
+                  label={t('animalPublications.remove')}
+                  variant="danger"
+                  onPress={() => setRemoving(p)}
+                />
+              )
             }
           />
         )}
@@ -238,6 +255,33 @@ export default function AdminAnimalPublicationsScreen() {
         loading={approve.isPending}
         onConfirm={onApprove}
         onCancel={() => setApproving(null)}
+      />
+
+      <ConfirmationDialog
+        visible={removing != null}
+        title={t('animalPublications.removeTitle')}
+        message={t('animalPublications.removeBody')}
+        confirmLabel={t('animalPublications.remove')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={remove.isPending}
+        onConfirm={() => {
+          if (!removing) return;
+          remove.mutate(
+            { publicationId: removing.id, kind: removing.kind, animalId: removing.animalId },
+            {
+              onSuccess: () => {
+                toast.show({ message: t('animalPublications.toast.removed'), tone: 'success' });
+                setRemoving(null);
+              },
+              onError: (e) => {
+                toast.show({ message: apiErrorMessage(e), tone: 'danger' });
+                setRemoving(null);
+              },
+            },
+          );
+        }}
+        onCancel={() => setRemoving(null)}
       />
 
       <ReasonPromptDialog

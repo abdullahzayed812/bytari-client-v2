@@ -8,7 +8,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Icon, type IconName } from '@/components/content';
 import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
-import { FormField, TileOptionGroup } from '@/components/forms';
+import { FormField, Input, Select, TileOptionGroup } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
@@ -134,7 +134,7 @@ export default function FarmSettingsScreen() {
         }}
       >
         {tab === 'info' ? (
-          <FarmInfoTab orgId={orgId} orgName={detail.data.name} />
+          <FarmInfoTabBySpecies orgId={orgId} orgName={detail.data.name} />
         ) : tab === 'staff' ? (
           <FarmStaffTab orgId={orgId} canManage={caps.canManageMembers} />
         ) : (
@@ -146,6 +146,132 @@ export default function FarmSettingsScreen() {
 }
 
 // --- Info tab ---------------------------------------------------------
+
+const SHEEP_PRODUCTION = ['MEAT', 'DAIRY', 'WOOL', 'BREEDING', 'MIXED', 'OTHER'] as const;
+const CATTLE_PRODUCTION = ['DAIRY', 'BEEF', 'BREEDING', 'MIXED', 'OTHER'] as const;
+
+/**
+ * The info tab edits the fields of THIS farm's species. Sheep / cattle farms
+ * used to land on the poultry form here (and a save wrote poultry fields onto
+ * them) — now they get their own editor; the backend also rejects another
+ * species' fields.
+ */
+function FarmInfoTabBySpecies({ orgId, orgName }: { orgId: string; orgName: string }) {
+  const { t } = useTranslation('poultry');
+  const profile = useFarmProfile(orgId, { enabled: Boolean(orgId) });
+  if (profile.isLoading) return <Loading label={t('common.loading')} />;
+  if (profile.isError) {
+    return <ErrorState error={profile.error} onRetry={() => void profile.refetch()} />;
+  }
+  const species = profile.data?.farmSpecies;
+  if (species === 'SHEEP' || species === 'CATTLE') {
+    return <LivestockFarmInfoTab orgId={orgId} orgName={orgName} species={species} />;
+  }
+  return <FarmInfoTab orgId={orgId} orgName={orgName} />;
+}
+
+function LivestockFarmInfoTab({
+  orgId,
+  orgName,
+  species,
+}: {
+  orgId: string;
+  orgName: string;
+  species: 'SHEEP' | 'CATTLE';
+}) {
+  const theme = useTheme();
+  const { t } = useTranslation('sheepCattleFarm');
+  const { t: tp } = useTranslation('poultry');
+  const toast = useToast();
+  const profile = useFarmProfile(orgId, { enabled: Boolean(orgId) });
+  const updateOrg = useUpdateOrganization(orgId);
+  const updateProfile = useUpdateFarmProfile(orgId);
+  const p = profile.data;
+  const isSheep = species === 'SHEEP';
+
+  const [name, setName] = useState(orgName);
+  const [location, setLocation] = useState(p?.location ?? '');
+  const [address, setAddress] = useState(p?.address ?? '');
+  const [production, setProduction] = useState<string | null>(
+    (isSheep ? p?.sheepProductionType : p?.cattleProductionType) ?? null,
+  );
+  const [capacity, setCapacity] = useState(p?.capacity != null ? String(p.capacity) : '');
+  const [headCount, setHeadCount] = useState(() => {
+    const v = isSheep ? p?.currentSheepCount : p?.currentCattleCount;
+    return v != null ? String(v) : '';
+  });
+  const [contactPhone, setContactPhone] = useState(p?.contactPhone ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const busy = updateOrg.isPending || updateProfile.isPending;
+
+  const toCount = (v: string): number | null => (v.trim() && /^\d+$/.test(v.trim()) ? Number(v.trim()) : null);
+
+  const save = () => {
+    setError(null);
+    if (!name.trim() || !location.trim()) {
+      setError(t('create.errors.nameRequired'));
+      return;
+    }
+    updateOrg.mutate(
+      { name: name.trim() },
+      {
+        onSuccess: () =>
+          updateProfile.mutate(
+            {
+              location: location.trim(),
+              address: address.trim() || null,
+              capacity: toCount(capacity),
+              contactPhone: contactPhone.trim() || null,
+              ...(isSheep
+                ? { sheepProductionType: production, currentSheepCount: toCount(headCount) }
+                : { cattleProductionType: production, currentCattleCount: toCount(headCount) }),
+            },
+            {
+              onSuccess: () => toast.show({ tone: 'success', message: tp('settings.saveSuccess') }),
+              onError: (e) => setError(apiErrorMessage(e)),
+            },
+          ),
+        onError: (e) => setError(apiErrorMessage(e)),
+      },
+    );
+  };
+
+  const productionValues: readonly string[] = isSheep ? SHEEP_PRODUCTION : CATTLE_PRODUCTION;
+
+  return (
+    <View style={{ rowGap: theme.spacing.lg }}>
+      {error ? <Caption style={{ color: theme.colors.danger }}>{error}</Caption> : null}
+      <Input label={t('create.fields.name')} value={name} onChangeText={setName} />
+      <Input label={t('create.fields.location')} value={location} onChangeText={setLocation} />
+      <Input label={t('create.fields.address')} value={address} onChangeText={setAddress} multiline />
+      <Select<string>
+        label={t('create.fields.production')}
+        value={production}
+        options={productionValues.map((v) => ({
+          value: v,
+          label: isSheep ? t(`create.sheepProduction.${v as (typeof SHEEP_PRODUCTION)[number]}`) : t(`create.cattleProduction.${v as (typeof CATTLE_PRODUCTION)[number]}`),
+        }))}
+        onChange={setProduction}
+      />
+      <Input label={t('create.fields.capacity')} value={capacity} onChangeText={setCapacity} keyboardType="number-pad" />
+      <Input
+        label={isSheep ? t('create.fields.currentSheepCount') : t('create.fields.currentCattleCount')}
+        value={headCount}
+        onChangeText={setHeadCount}
+        keyboardType="number-pad"
+      />
+      <Input label={t('create.fields.contactPhone')} value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" />
+      <Button
+        label={tp('settings.save')}
+        leftIcon="checkmark-circle-outline"
+        fullWidth
+        loading={busy}
+        disabled={busy}
+        onPress={save}
+      />
+    </View>
+  );
+}
 
 function FarmInfoTab({ orgId, orgName }: { orgId: string; orgName: string }) {
   const { t } = useTranslation('poultry');

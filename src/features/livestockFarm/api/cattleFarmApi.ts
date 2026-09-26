@@ -13,6 +13,7 @@ import type {
   CreateCattleBatchInput,
   CreateCattleCaseInput,
   CreateCattleDailyRecordInput,
+  UpdateCattleDailyRecordInput,
   CreateCattleFarmInput,
   CreateCattleHealthEventInput,
   ListCattleBatchesFilter,
@@ -95,6 +96,17 @@ export const cattleFarmApi = {
     body: CreateCattleDailyRecordInput,
   ): Promise<CattleDailyRecord> {
     return apiClient.post<CattleDailyRecord>(`${batchBase(orgId, batchId)}/daily-records`, body);
+  },
+  updateDailyRecord(
+    orgId: string,
+    batchId: string,
+    recordId: string,
+    body: UpdateCattleDailyRecordInput,
+  ): Promise<CattleDailyRecord> {
+    return apiClient.patch<CattleDailyRecord>(`${batchBase(orgId, batchId)}/daily-records/${recordId}`, body);
+  },
+  deleteDailyRecord(orgId: string, batchId: string, recordId: string): Promise<unknown> {
+    return apiClient.delete(`${batchBase(orgId, batchId)}/daily-records/${recordId}`);
   },
 
   async listHealthEvents(

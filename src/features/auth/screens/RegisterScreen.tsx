@@ -36,14 +36,13 @@ export default function RegisterScreen() {
   const onSubmit = handleSubmit((values) => {
     setFormError(null);
     setServerFields({});
-    const phone = values.phone?.trim();
     register.mutate(
       {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         password: values.password,
-        phone: phone ? phone : null,
+        phone: values.phone.trim(),
       },
       {
         onError: (error) => {

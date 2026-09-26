@@ -19,17 +19,23 @@
  * attachment capability (`maxAttachmentImages: 0`); follow-up messages are
  * body-only for every kind.
  *
+ * Consultations may name a GENERIC `animalType` (any animal, owned or not —
+ * the vet-services vocabulary); inquiries carry a `category`. List/detail
+ * DTOs carry `preview` — the start of the opening message, used as the card
+ * title (threads have no separate title field).
+ *
  * NOT in the backend (documented in MOBILE_ARCHITECTURE.md, never mocked):
- * title / description / category fields, attachments on FOLLOW-UP messages,
- * message edit/delete by the user, search / category filters, admin
- * status-change or supervisor reassignment endpoints, reopening a CLOSED
- * thread.
+ * attachments on FOLLOW-UP messages, message edit/delete by the user, search,
+ * admin status-change or supervisor reassignment endpoints, reopening a
+ * CLOSED thread.
  *
  * A thread is OPEN and freely writable by the creator by default. Only a
  * responder CLOSING it, or manually muting the creator (`POST /:id/block`),
  * stops them. CONSULTATION / INQUIRY may get one automatic AI reply on
  * creation (admin-toggled); SUPPORT never does.
  */
+
+import type { VetServiceAnimalType } from '@/features/vetServices/types';
 
 export const THREAD_KINDS = ['CONSULTATION', 'INQUIRY', 'SUPPORT'] as const;
 export type ThreadKind = (typeof THREAD_KINDS)[number];
@@ -40,6 +46,22 @@ export type ThreadStatus = (typeof THREAD_STATUSES)[number];
 /** Who a message came from. `senderUserId` is `null` for AI / SYSTEM. */
 export const MESSAGE_SOURCES = ['USER', 'SUPERVISOR', 'ADMIN', 'AI', 'SYSTEM'] as const;
 export type MessageSource = (typeof MESSAGE_SOURCES)[number];
+
+/** Consultation animal types — the SAME vocabulary as vet services (backend `VET_SERVICE_ANIMAL_TYPES`). */
+export { VET_SERVICE_ANIMAL_TYPES as CONSULTATION_ANIMAL_TYPES } from '@/features/vetServices/types';
+export type ConsultationAnimalType = VetServiceAnimalType;
+
+/** Backend `INQUIRY_CATEGORIES`. */
+export const INQUIRY_CATEGORIES = [
+  'EMERGENCY',
+  'GENERAL',
+  'SURGERY',
+  'MEDICATION',
+  'DISEASES',
+  'NUTRITION',
+  'OTHER',
+] as const;
+export type InquiryCategory = (typeof INQUIRY_CATEGORIES)[number];
 
 /** Backend `MAX_MESSAGE_IMAGES` — the per-thread cap on first-message photos. */
 export const MAX_THREAD_IMAGES = 6;
@@ -54,6 +76,12 @@ export interface Thread {
   createdByUserId: string;
   /** Consultations only; always `null` for inquiries. */
   animalId: string | null;
+  /** Consultations only — generic animal type. Absent on responses from an older backend. */
+  animalType?: ConsultationAnimalType | null;
+  /** Inquiries only. */
+  category?: InquiryCategory | null;
+  /** Start of the opening message — the card "title". `null` if that message was deleted. */
+  preview?: string | null;
   /** A responder has muted the creator (the thread stays OPEN). */
   senderBlocked: boolean;
   aiResponded: boolean;
@@ -87,11 +115,13 @@ export interface ThreadMessage {
 export interface CreateConsultationInput {
   body: string;
   animalId?: string | null;
+  animalType?: ConsultationAnimalType | null;
   /** Storage keys from `POST /consultations/attachments/upload-url`. Max {@link MAX_THREAD_IMAGES}. */
   imageKeys?: string[];
 }
 export interface CreateInquiryInput {
   body: string;
+  category: InquiryCategory;
   /** Storage keys from `POST /inquiries/attachments/upload-url`. Max {@link MAX_THREAD_IMAGES}. */
   imageKeys?: string[];
 }
@@ -107,6 +137,8 @@ export interface ThreadListFilter {
   page: number;
   pageSize: number;
   status?: ThreadStatus;
+  /** Inquiries only. */
+  category?: InquiryCategory;
 }
 export interface AdminThreadListFilter extends ThreadListFilter {
   /** Filter by creator (admin / supervisor list only). */

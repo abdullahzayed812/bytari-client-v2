@@ -23,10 +23,12 @@ const isNotFuture = (v: string): boolean => new Date(v) <= new Date();
  *   birdType    enum                 (required)
  *   birdCount   int 0 … 100_000_000  (required)
  *   arrivalDate YYYY-MM-DD, ≤ today   (required)
+ *   targetPricePerKg  decimal ≥ 0    (required — the estimated-profit input)
  *   notes       trim ≤ 4000          (optional)
  *   status      enum (edit only)
  */
-export function buildPoultryFlockSchema(t: FarmTFn) {
+export function buildPoultryFlockSchema(t: FarmTFn, opts: { requirePrice?: boolean } = {}) {
+  const requirePrice = opts.requirePrice ?? true;
   return z.object({
     name: z
       .string()
@@ -48,6 +50,15 @@ export function buildPoultryFlockSchema(t: FarmTFn) {
       .min(1, t('poultry.errors.arrivalRequired'))
       .regex(DATE_RE, t('poultry.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('poultry.errors.dateFuture')),
+    // The server's estimated profit = current count × avg weight × THIS price − expenses.
+    // Only the farm owner sees / sets it (financial data — backend-enforced); others submit none.
+    targetPricePerKg: requirePrice
+      ? z
+          .string()
+          .trim()
+          .min(1, t('poultry.errors.priceRequired'))
+          .regex(/^\d{1,10}(\.\d{1,2})?$/, t('poultry.errors.priceInvalid'))
+      : z.string().trim().optional().or(z.literal('')),
     notes: z.string().trim().max(4000, t('poultry.errors.tooLong')).optional().or(z.literal('')),
   });
 }

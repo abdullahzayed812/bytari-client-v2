@@ -10,9 +10,8 @@ import { FormField, Select } from '@/components/forms';
 import { Caption } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { RegistrationSectionHeader } from './RegistrationSectionHeader';
-import { COUNTRIES_AR } from '../data/countries';
 import { ORG_TYPE_ORDER } from '../constants';
+import { COUNTRIES_AR } from '../data/countries';
 import {
   LICENSABLE_ORG_TYPES,
   PROFILE_FIELDS_ORG_TYPES,
@@ -25,6 +24,8 @@ import {
   type CreateOrganizationFormValues,
   type EditOrganizationFormValues,
 } from '../validation/schemas';
+
+import { RegistrationSectionHeader } from './RegistrationSectionHeader';
 
 const COUNTRY_OPTIONS = COUNTRIES_AR.map((c) => ({ label: c, value: c }));
 

@@ -23,6 +23,8 @@ export interface PoultryFarmCardProps {
   name: string;
   profile?: FarmProfile | null;
   location?: string | null;
+  /** The farm photo from the list DTO — same image every farm type shows (falls back to `profile.imageUrl`). */
+  imageUrl?: string | null;
   stats?: FarmBirdStats | null;
   /**
    * The farm's approval status — surfaced here so a PENDING/REJECTED/
@@ -41,6 +43,7 @@ export function PoultryFarmCard({
   name,
   profile,
   location,
+  imageUrl,
   stats,
   status,
   width,
@@ -81,9 +84,9 @@ export function PoultryFarmCard({
             justifyContent: 'center',
           }}
         >
-          {profile?.imageUrl ? (
+          {(imageUrl ?? profile?.imageUrl) ? (
             <Image
-              source={profile.imageUrl}
+              source={(imageUrl ?? profile?.imageUrl) as string}
               style={{ width: '100%', height: '100%' }}
               contentFit="cover"
               accessibilityIgnoresInvertColors

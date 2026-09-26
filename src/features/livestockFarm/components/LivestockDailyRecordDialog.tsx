@@ -1,4 +1,4 @@
-import { Children, useState, type ReactNode } from 'react';
+import { Children, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
@@ -6,15 +6,21 @@ import { Button } from '@/components/actions';
 import { Divider, Icon, type IconName } from '@/components/content';
 import { Input, Select } from '@/components/forms';
 import { Modal } from '@/components/overlays';
-import { Text } from '@/components/typography';
+import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import { FEED_TYPE_ORDER } from '../constants';
 import { LIVESTOCK_ACTIVITY_LEVELS, LIVESTOCK_APPETITE_LEVELS } from '../types';
-import type { FeedType, LivestockActivity, LivestockAppetite } from '../types';
+import type {
+  CattleDailyRecord,
+  FeedType,
+  LivestockActivity,
+  LivestockAppetite,
+  SheepDailyRecord,
+} from '../types';
 
+/** No `recordDate` — the server records today's (business) date. */
 export interface LivestockDailyRecordFormValues {
-  recordDate: string;
   feedKg?: number;
   waterLiters?: number;
   appetite?: LivestockAppetite;
@@ -31,18 +37,23 @@ export interface LivestockDailyRecordFormValues {
 /** "إضافة بيانات يومية" dialog — shared by Sheep and Cattle (mirrors poultry's, plus sickCasesCount/feedType). */
 export function LivestockDailyRecordDialog({
   visible,
+  initial = null,
+  title,
   loading,
   onSubmit,
   onCancel,
 }: {
   visible: boolean;
+  /** Editing an existing record — pre-fills every field (the date is never editable). */
+  initial?: SheepDailyRecord | CattleDailyRecord | null;
+  title?: string;
   loading: boolean;
   onSubmit: (input: LivestockDailyRecordFormValues) => void;
   onCancel: () => void;
 }) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
-  const [recordDate, setRecordDate] = useState('');
+  const { t: tf } = useTranslation('farm');
   const [feedKg, setFeedKg] = useState('');
   const [waterLiters, setWaterLiters] = useState('');
   const [appetite, setAppetite] = useState<LivestockAppetite | null>(null);
@@ -55,12 +66,26 @@ export function LivestockDailyRecordDialog({
   const [expenseAmount, setExpenseAmount] = useState('');
   const [notes, setNotes] = useState('');
 
-  const valid = /^\d{4}-\d{2}-\d{2}$/.test(recordDate) && !Number.isNaN(Date.parse(recordDate));
+  useEffect(() => {
+    if (!visible || !initial) return;
+    const num = (v: string | null) => (v == null ? '' : String(Number(v)));
+    setFeedKg(num(initial.feedKg));
+    setWaterLiters(num(initial.waterLiters));
+    setAppetite(initial.appetite);
+    setActivity(initial.activity);
+    setMortalityCount(String(initial.mortalityCount));
+    setMortalityCause(initial.mortalityCause ?? '');
+    setSickCasesCount(String(initial.sickCasesCount ?? 0));
+    setFeedType(initial.feedType);
+    setTreatment(initial.treatment ?? '');
+    setExpenseAmount(num(initial.expenseAmount));
+    setNotes(initial.notes ?? '');
+  }, [visible, initial]);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={t('batch.addDaily')} dismissable={!loading}>
+    <Modal visible={visible} onClose={onCancel} title={title ?? t('batch.addDaily')} dismissable={!loading}>
       <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <Input label={t('daily.dateLabel')} placeholder="YYYY-MM-DD" value={recordDate} onChangeText={setRecordDate} />
+        {initial ? null : <Caption>{tf('daily.autoDate')}</Caption>}
 
         <FieldGroup icon="nutrition-outline" label={t('daily.consumptionSection')}>
           <FieldRow>
@@ -117,10 +142,9 @@ export function LivestockDailyRecordDialog({
               variant="primary"
               fullWidth
               loading={loading}
-              disabled={loading || !valid}
+              disabled={loading}
               onPress={() =>
                 onSubmit({
-                  recordDate,
                   feedKg: feedKg ? Number(feedKg) : undefined,
                   waterLiters: waterLiters ? Number(waterLiters) : undefined,
                   appetite: appetite ?? undefined,

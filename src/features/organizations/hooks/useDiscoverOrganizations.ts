@@ -4,7 +4,13 @@ import { useMemo } from 'react';
 import { AppConfig } from '@/constants/config';
 
 import { orgKeys, organizationsApi } from '../api';
-import type { DiscoverSort, OrganizationType, Paginated, PublicOrganization } from '../types';
+import type {
+  DiscoverFilters,
+  DiscoverSort,
+  OrganizationType,
+  Paginated,
+  PublicOrganization,
+} from '../types';
 
 /** Round for the query key so GPS jitter between reads doesn't fragment the cache. */
 const roundCoord = (n: number): number => Math.round(n * 10_000) / 10_000;
@@ -24,6 +30,7 @@ export function useDiscoverOrganizations(
     search?: string;
     sort?: DiscoverSort;
     near?: { lat: number; lng: number };
+    filters?: DiscoverFilters;
     pageSize?: number;
     enabled?: boolean;
   } = {},
@@ -32,7 +39,15 @@ export function useDiscoverOrganizations(
   const near = params.near
     ? { lat: roundCoord(params.near.lat), lng: roundCoord(params.near.lng) }
     : undefined;
-  const filter = { type: params.type, search: params.search, sort: params.sort, near };
+  const filter = {
+    type: params.type,
+    search: params.search,
+    sort: params.sort,
+    near,
+    country: params.filters?.country,
+    minRating: params.filters?.minRating,
+    service: params.filters?.service,
+  };
 
   const query = useInfiniteQuery<
     Paginated<PublicOrganization>,
@@ -51,6 +66,9 @@ export function useDiscoverOrganizations(
         search: params.search,
         sort: params.sort,
         near: params.near,
+        country: filter.country,
+        minRating: filter.minRating,
+        service: filter.service,
       }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,

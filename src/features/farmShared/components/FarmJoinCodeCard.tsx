@@ -5,11 +5,13 @@ import { View } from 'react-native';
 import { Button, TextButton } from '@/components/actions';
 import { Card } from '@/components/content';
 import { ConfirmationDialog, useToast } from '@/components/feedback';
+import { QrCode } from '@/components/media';
 import { Caption, Label, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { shareText } from '@/lib/share';
 import { useTheme } from '@/theme';
 
+import { farmQrPayload } from '../farmQr';
 import { useFarmJoinCode, useRegenerateFarmJoinCode } from '../hooks';
 
 interface Props {
@@ -57,6 +59,10 @@ export function FarmJoinCodeCard({ organizationId, organizationName }: Props) {
               {code}
             </Text>
             <Caption>{t('joinCode.hint')}</Caption>
+            <View style={{ alignItems: 'center', rowGap: theme.spacing.xs, marginTop: theme.spacing.xs }}>
+              <QrCode value={farmQrPayload(code)} size={180} accessibilityLabel={t('qr.a11y')} />
+              <Caption center>{t('qr.hint')}</Caption>
+            </View>
             <View
               style={{
                 flexDirection: 'row',

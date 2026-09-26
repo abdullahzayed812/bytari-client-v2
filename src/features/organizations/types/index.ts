@@ -175,7 +175,18 @@ export interface PublicOrganization extends OrganizationProfile {
   createdAt: string;
 }
 
-export type DiscoverSort = 'default' | 'nearest';
+export type DiscoverSort = 'default' | 'nearest' | 'top_rated';
+
+/**
+ * The "تصفية" sheet's criteria — every one is applied SERVER-SIDE by
+ * `GET /organizations/discover` (`country`, `minRating`, `service`), never
+ * filtered on the client.
+ */
+export interface DiscoverFilters {
+  country?: string;
+  minRating?: number;
+  service?: string;
+}
 
 /** `GET /organizations/discover/:id` — public profile + veterinarians + the viewer's engagement. */
 export interface PublicVeterinarian {
@@ -187,9 +198,14 @@ export interface PublicVeterinarian {
 export interface OrganizationEngagementSummary {
   isFollowing: boolean;
   followersCount: number;
+  /** "إعجاب" — a real like, distinct from following. Absent on an older backend. */
+  isLiked?: boolean;
+  likesCount?: number;
   /** Average rating rounded to 1 decimal, `null` when there are no reviews yet. */
   rating: number | null;
   reviewsCount: number;
+  /** The viewer's own review — one per user; resubmitting updates it. */
+  myReview?: { rating: number; comment: string | null } | null;
 }
 
 export interface PublicOrganizationDetail extends PublicOrganization {
@@ -205,6 +221,17 @@ export interface OrganizationReview {
   comment: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** `GET /organizations/:id/reviews` row. */
+export interface OrganizationReviewWithAuthor extends OrganizationReview {
+  author: { firstName: string; lastName: string };
+}
+
+/** `GET /admin/organizations/reviews` row — includes where the review belongs. */
+export interface AdminOrganizationReview extends OrganizationReview {
+  author: { firstName: string; lastName: string; email: string };
+  organization: { id: string; name: string; type: OrganizationType };
 }
 
 export interface SubmitReviewInput {
@@ -230,6 +257,10 @@ export interface MyOrganization extends Organization {
   logoUrl?: string | null;
   /** Registration only ever sets gallery/license photos, never a logo — a card falls back to this when `logoUrl` is null. */
   galleryUrls?: string[];
+  /** FARM rows only — the farm photo (resolved URL) and where it is. */
+  imageUrl?: string | null;
+  location?: string | null;
+  governorate?: string | null;
 }
 
 /**

@@ -6,6 +6,7 @@ import type {
   CreateSheepBatchInput,
   CreateSheepCaseInput,
   CreateSheepDailyRecordInput,
+  UpdateSheepDailyRecordInput,
   CreateSheepFarmInput,
   CreateSheepHealthEventInput,
   ListSheepBatchesFilter,
@@ -95,6 +96,17 @@ export const sheepFarmApi = {
     body: CreateSheepDailyRecordInput,
   ): Promise<SheepDailyRecord> {
     return apiClient.post<SheepDailyRecord>(`${batchBase(orgId, batchId)}/daily-records`, body);
+  },
+  updateDailyRecord(
+    orgId: string,
+    batchId: string,
+    recordId: string,
+    body: UpdateSheepDailyRecordInput,
+  ): Promise<SheepDailyRecord> {
+    return apiClient.patch<SheepDailyRecord>(`${batchBase(orgId, batchId)}/daily-records/${recordId}`, body);
+  },
+  deleteDailyRecord(orgId: string, batchId: string, recordId: string): Promise<unknown> {
+    return apiClient.delete(`${batchBase(orgId, batchId)}/daily-records/${recordId}`);
   },
 
   async listHealthEvents(

@@ -12,7 +12,7 @@ import { Routes } from '@/constants/routes';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { ThreadCard, ThreadCardSkeleton } from '../components';
+import { AiSettingsCard, ThreadCard, ThreadCardSkeleton } from '../components';
 import { SUPPORT_KIND_META, kindFromSlug } from '../constants';
 import { useAdminThreads } from '../hooks';
 import type { Thread, ThreadStatus } from '../types';
@@ -62,8 +62,16 @@ export default function AdminThreadListScreen() {
 
   const goDetail = (thread: Thread) => router.push(Routes.supportThread(meta.slug, thread.id));
 
+  // The AI auto-reply switch lives with the queue it controls. SUPPORT has no AI.
+  const canManageAi = kind !== 'SUPPORT' && (caps.isAdmin || caps.can('ai.settings.manage'));
+
   const header = (
     <View style={{ paddingBottom: theme.spacing.md, rowGap: theme.spacing.sm }}>
+      {canManageAi ? (
+        <AiSettingsCard
+          only={kind === 'CONSULTATION' ? 'consultationAiEnabled' : 'inquiryAiEnabled'}
+        />
+      ) : null}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
         <Chip label={t('list.filterAll')} selected={!status} onPress={() => setStatus(undefined)} />
         <Chip

@@ -22,6 +22,8 @@ export interface SheepFarmCardProps {
   name: string;
   profile?: LivestockFarmProfile | null;
   location?: string | null;
+  /** The farm photo from the list DTO — same image every farm type shows (falls back to `profile.imageUrl`). */
+  imageUrl?: string | null;
   stats?: SheepHeadcountStats | null;
   status?: OrganizationStatus;
   /** Fixed width — set when the card sits in a horizontal list. */
@@ -34,6 +36,7 @@ export function SheepFarmCard({
   name,
   profile,
   location,
+  imageUrl,
   stats,
   status,
   width,
@@ -73,9 +76,9 @@ export function SheepFarmCard({
             justifyContent: 'center',
           }}
         >
-          {profile?.imageUrl ? (
+          {(imageUrl ?? profile?.imageUrl) ? (
             <Image
-              source={profile.imageUrl}
+              source={(imageUrl ?? profile?.imageUrl) as string}
               style={{ width: '100%', height: '100%' }}
               contentFit="cover"
               accessibilityIgnoresInvertColors

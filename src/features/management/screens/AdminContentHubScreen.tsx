@@ -27,6 +27,18 @@ export default function AdminContentHubScreen() {
           route: Routes.adminVeterinaryContent('BOOK'),
         },
         {
+          key: 'tips',
+          label: ta('editorial.title.tips'),
+          icon: 'bulb-outline',
+          route: Routes.adminEditorial('tips'),
+        },
+        {
+          key: 'news',
+          label: ta('editorial.title.news'),
+          icon: 'newspaper-outline',
+          route: Routes.adminEditorial('news'),
+        },
+        {
           key: 'categories',
           label: tc('admin.entry.categories'),
           icon: 'pricetags-outline',

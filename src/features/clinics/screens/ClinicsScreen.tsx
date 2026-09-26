@@ -11,6 +11,7 @@ import {
   ClinicCard,
   DiscoverFilterBar,
   useDiscoverOrganizations,
+  type DiscoverFilters,
   type DiscoverSort,
   type PublicOrganization,
 } from '@/features/organizations';
@@ -29,12 +30,14 @@ export default function ClinicsScreen() {
   const search = useDebouncedValue(rawSearch);
   const [sort, setSort] = useState<DiscoverSort>('default');
   const [coords, setCoords] = useState<Coordinates | null>(null);
+  const [filters, setFilters] = useState<DiscoverFilters>({});
 
   const q = useDiscoverOrganizations({
     type: 'CLINIC',
     search: search || undefined,
     sort,
     near: sort === 'nearest' ? (coords ?? undefined) : undefined,
+    filters,
   });
 
   const goToDetail = (org: PublicOrganization) =>
@@ -67,6 +70,8 @@ export default function ClinicsScreen() {
         searchPlaceholder={t('discover.searchPlaceholder')}
         sort={sort}
         onSortChange={handleSortChange}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       {q.isLoading ? (

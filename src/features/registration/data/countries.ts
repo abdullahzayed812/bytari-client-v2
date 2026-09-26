@@ -2,11 +2,13 @@ import type { CountryOption } from '../types';
 
 /**
  * ISO-3166 alpha-2 country list with Arabic display names, used by
- * `CountrySelect`. Saudi Arabia is pinned first to match the `+966` phone
- * prefix shown in the registration reference design. Scoped to the 22 Arab
- * League member states — this app is Arabic-first and targets Arab users.
+ * `CountrySelect`. Iraq — the platform's target geography (IQD prices,
+ * Iraqi governorates, +964 contact line) — is pinned first and is the form
+ * default. Scoped to the 22 Arab League member states — this app is
+ * Arabic-first and targets Arab users.
  */
 export const COUNTRIES: CountryOption[] = [
+  { code: 'IQ', nameAr: 'العراق', nameEn: 'Iraq' },
   { code: 'SA', nameAr: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia' },
   { code: 'AE', nameAr: 'الإمارات العربية المتحدة', nameEn: 'United Arab Emirates' },
   { code: 'KW', nameAr: 'الكويت', nameEn: 'Kuwait' },
@@ -17,7 +19,6 @@ export const COUNTRIES: CountryOption[] = [
   { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan' },
   { code: 'LB', nameAr: 'لبنان', nameEn: 'Lebanon' },
   { code: 'SY', nameAr: 'سوريا', nameEn: 'Syria' },
-  { code: 'IQ', nameAr: 'العراق', nameEn: 'Iraq' },
   { code: 'YE', nameAr: 'اليمن', nameEn: 'Yemen' },
   { code: 'PS', nameAr: 'فلسطين', nameEn: 'Palestine' },
   { code: 'LY', nameAr: 'ليبيا', nameEn: 'Libya' },

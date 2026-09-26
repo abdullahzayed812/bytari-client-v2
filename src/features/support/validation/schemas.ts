@@ -4,11 +4,14 @@ import { z } from 'zod';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 
+import { CONSULTATION_ANIMAL_TYPES, INQUIRY_CATEGORIES } from '../types';
+
 /**
- * Consultation / Inquiry form validation. Mirrors the backend EXACTLY
- * (`thread.schemas.ts`): the only real field is `body` (1–4000). A consultation
- * may additionally carry an optional `animalId`. There is NO title / description
- * / category — the "description" IS the first message.
+ * Consultation / Inquiry form validation. Mirrors the backend
+ * (`thread.schemas.ts`): `body` (1–4000). A consultation names an animal TYPE
+ * (required here — any animal, owned or not) plus an OPTIONAL owned `animalId`;
+ * an inquiry names a `category`. There is no separate title — the card shows
+ * the start of the first message.
  */
 export type SupportTFn = TFunction<'support'>;
 
@@ -25,6 +28,9 @@ function bodyField(t: SupportTFn) {
 export function buildConsultationSchema(t: SupportTFn) {
   return z.object({
     body: bodyField(t),
+    animalType: z.enum(CONSULTATION_ANIMAL_TYPES, {
+      errorMap: () => ({ message: t('form.errors.animalTypeRequired') }),
+    }),
     animalId: z
       .string()
       .trim()
@@ -36,7 +42,12 @@ export function buildConsultationSchema(t: SupportTFn) {
 export type ConsultationFormValues = z.infer<ReturnType<typeof buildConsultationSchema>>;
 
 export function buildInquirySchema(t: SupportTFn) {
-  return z.object({ body: bodyField(t) });
+  return z.object({
+    body: bodyField(t),
+    category: z.enum(INQUIRY_CATEGORIES, {
+      errorMap: () => ({ message: t('form.errors.categoryRequired') }),
+    }),
+  });
 }
 export type InquiryFormValues = z.infer<ReturnType<typeof buildInquirySchema>>;
 

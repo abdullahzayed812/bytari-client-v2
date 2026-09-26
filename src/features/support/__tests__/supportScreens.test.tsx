@@ -222,7 +222,7 @@ describe('CreateThreadScreen', () => {
     await waitFor(() => expect(create).not.toHaveBeenCalled());
   });
 
-  it('a consultation offers the optional owned-animal picker and submits body-only when none chosen', async () => {
+  it('a consultation requires an animal TYPE (any animal), keeps the owned-animal picker optional', async () => {
     seed();
     setSearchParams({ kind: 'consultations' });
     jest.spyOn(petsApi, 'list').mockResolvedValue({
@@ -247,15 +247,26 @@ describe('CreateThreadScreen', () => {
     const create = jest.spyOn(consultationApi, 'create').mockResolvedValue(thread({ id: 'cNew' }));
 
     renderWithProviders(<CreateThreadScreen />);
-    await screen.findByText('الحيوان (اختياري)');
+    await screen.findByText('أحد حيواناتي (اختياري)');
     fireEvent.changeText(
       screen.getByPlaceholderText('صِف حالة الحيوان أو سؤالك بالتفصيل…'),
       'حالة طارئة',
     );
+    // No type chosen yet → blocked client-side.
+    fireEvent.press(screen.getByLabelText('إرسال'));
+    expect(await screen.findByText('يرجى اختيار نوع الحيوان.')).toBeTruthy();
+    expect(create).not.toHaveBeenCalled();
+
+    // Any animal type — not restricted to the user's registered pets.
+    fireEvent.press(screen.getByLabelText('ماعز'));
     fireEvent.press(screen.getByLabelText('إرسال'));
 
     await waitFor(() => expect(create).toHaveBeenCalled());
-    expect(create).toHaveBeenCalledWith({ body: 'حالة طارئة', animalId: undefined });
+    expect(create).toHaveBeenCalledWith({
+      body: 'حالة طارئة',
+      animalId: undefined,
+      animalType: 'GOAT',
+    });
     expect(routerMock.replace).toHaveBeenCalledWith('/(app)/support/consultations/cNew');
   });
 });

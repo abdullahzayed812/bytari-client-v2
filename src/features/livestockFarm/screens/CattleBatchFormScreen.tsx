@@ -3,7 +3,8 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ErrorState, Loading, useToast } from '@/components/feedback';
-import { OrgFormLayout } from '@/features/organizations';
+import { OrgFormLayout, orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 
@@ -22,6 +23,10 @@ export default function CattleBatchFormScreen() {
 
   const existing = useCattleBatch(orgId, batchId, { enabled: isEdit });
   const create = useCreateCattleBatch(orgId);
+  // The sale price is farm-financial data: only the owner / admin sees and sets it.
+  const { isAdmin } = useCapabilities();
+  const orgDetail = useOrganization(orgId);
+  const showPrice = orgCapabilities(orgDetail.data?.myRole, isAdmin).canViewFarmFinancials;
   const update = useUpdateCattleBatch(orgId);
 
   const inFlight = useRef(false);
@@ -55,6 +60,7 @@ export default function CattleBatchFormScreen() {
         bullCount: batch.bullCount != null ? String(batch.bullCount) : '',
         cowCount: batch.cowCount != null ? String(batch.cowCount) : '',
         arrivalDate: batch.arrivalDate,
+        targetPricePerKg: batch.targetPricePerKg != null ? String(Number(batch.targetPricePerKg)) : '',
         notes: batch.notes ?? '',
       }
     : {};
@@ -79,6 +85,8 @@ export default function CattleBatchFormScreen() {
       bullCount: toCount(values.bullCount),
       cowCount: toCount(values.cowCount),
       arrivalDate: values.arrivalDate.trim(),
+      targetPricePerKg:
+        showPrice && values.targetPricePerKg ? Number(values.targetPricePerKg) : undefined,
       notes,
     };
 
@@ -116,7 +124,7 @@ export default function CattleBatchFormScreen() {
 
   return (
     <OrgFormLayout title={isEdit ? t('batchForm.editTitle') : t('batchForm.addCattleTitle')}>
-      <CattleBatchForm mode={isEdit ? 'edit' : 'create'} defaultValues={defaults} submitting={busy} formError={formError} serverFields={serverFields} onSubmit={onSubmit} />
+      <CattleBatchForm showPrice={showPrice} mode={isEdit ? 'edit' : 'create'} defaultValues={defaults} submitting={busy} formError={formError} serverFields={serverFields} onSubmit={onSubmit} />
     </OrgFormLayout>
   );
 }

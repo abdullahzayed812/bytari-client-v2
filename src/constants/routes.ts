@@ -6,6 +6,8 @@
 export const Routes = {
   authWelcome: '/(auth)/welcome',
   authSignIn: '/(auth)/sign-in',
+  /** Forgot password → emailed code → new password. `?email=` pre-fills step 1. */
+  authForgotPassword: '/(auth)/forgot-password',
   authAccountType: '/(auth)/account-type',
   authRegister: '/(auth)/register',
   authRegisterVeterinarian: '/(auth)/register-veterinarian',
@@ -312,6 +314,9 @@ export const Routes = {
   // Veterinary Offices — public browse (Veterinarian Home → "المكاتب البيطرية").
   veterinaryOffices: '/(app)/veterinary-offices',
   veterinaryOfficeDetail: (officeId: string) => `/(app)/veterinary-offices/${officeId}` as const,
+  /** Ratings & reviews of a clinic / veterinary office (any reviewable organization). */
+  organizationReviews: (organizationId: string) =>
+    `/(app)/organization-reviews/${organizationId}` as const,
   veterinaryOfficeProducts: (officeId: string) =>
     `/(app)/veterinary-offices/${officeId}/products` as const,
   veterinaryOfficeProductDetail: (officeId: string, productId: string) =>
@@ -427,6 +432,13 @@ export const Routes = {
   adminAnimalPublications: '/(app)/admin/animal-publications',
   /** Oversight of user pets — list all, soft-delete. */
   adminAnimals: '/(app)/admin/animals',
+  /** Tips / News authoring (`kind` = 'tips' | 'news'). */
+  adminEditorial: (kind: 'tips' | 'news') => `/(app)/admin/editorial/${kind}` as const,
+  adminEditorialCreate: (kind: 'tips' | 'news') => `/(app)/admin/editorial/${kind}/create` as const,
+  adminEditorialEdit: (kind: 'tips' | 'news', itemId: string) =>
+    `/(app)/admin/editorial/${kind}/${itemId}` as const,
+  /** Clinic / office / store review moderation. */
+  adminOrganizationReviews: '/(app)/admin/organization-reviews',
   /** Veterinary Services listing moderation queue (approve / reject). */
   adminVetServiceListings: '/(app)/admin/vet-service-listings',
   /** Veterinary Services pet-owner request moderation queue (approve / reject). */

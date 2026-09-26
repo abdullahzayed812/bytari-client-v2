@@ -7,8 +7,8 @@ import { useToast } from '@/components/feedback';
 import { BottomSheet } from '@/components/overlays';
 import { Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
-import { isPermissionError, pickImage } from '@/services/media';
 import type { LocalFile } from '@/services/files/types';
+import { isPermissionError, pickImage } from '@/services/media';
 import { useTheme } from '@/theme';
 
 import { ImagePreview } from './ImagePreview';

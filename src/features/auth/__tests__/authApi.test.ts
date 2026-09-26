@@ -16,6 +16,7 @@ describe('authApi — endpoint wrappers', () => {
       password: 'longenough1',
       firstName: 'A',
       lastName: 'B',
+      phone: '+9647700000000',
     });
     expect(post).toHaveBeenCalledWith('/auth/register', expect.any(Object), { anonymous: true });
   });

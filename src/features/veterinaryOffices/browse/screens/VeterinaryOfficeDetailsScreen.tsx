@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Linking, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { Card, Icon, type IconName } from '@/components/content';
+import { Card, Chip, Icon, type IconName } from '@/components/content';
 import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Heading, Text } from '@/components/typography';
@@ -15,12 +15,14 @@ import {
   RatingStars,
   ReviewModal,
   useFollowOrganization,
+  useLikeOrganization,
   usePublicOrganization,
   useUnfollowOrganization,
+  useUnlikeOrganization,
 } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
-import { shareText } from '@/lib/share';
+import { shareText, shareUrlFor } from '@/lib/share';
 import { useTheme } from '@/theme';
 
 import { PublicVeterinaryOfficeProductCard } from '../components';
@@ -107,6 +109,8 @@ export default function VeterinaryOfficeDetailsScreen() {
   const q = usePublicOrganization(officeId);
   const follow = useFollowOrganization(officeId ?? '');
   const unfollow = useUnfollowOrganization(officeId ?? '');
+  const like = useLikeOrganization(officeId ?? '');
+  const unlike = useUnlikeOrganization(officeId ?? '');
   const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
@@ -137,8 +141,19 @@ export default function VeterinaryOfficeDetailsScreen() {
     });
   };
 
+  const isLiked = org.engagement.isLiked ?? false;
+  const toggleLike = () => {
+    const action = isLiked ? unlike : like;
+    action.mutate(undefined, {
+      onError: (error) => toast.show({ message: apiErrorMessage(error), tone: 'danger' }),
+    });
+  };
+
+  // A real https link to this office's details route — opens the same screen
+  // in the web app (and in the app after sign-in); not just the name as text.
   const onShare = () => {
-    void shareText(org.name + (org.address ? `\n${org.address}` : '')).then((outcome) => {
+    const url = shareUrlFor(Routes.veterinaryOfficeDetail(org.id));
+    void shareText(org.name + (org.address ? `\n${org.address}` : ''), url).then((outcome) => {
       if (outcome === 'copied') toast.show({ message: tc('share.copied'), tone: 'success' });
       else if (outcome === 'unavailable') toast.show({ message: tc('share.unavailable'), tone: 'info' });
     });
@@ -181,11 +196,24 @@ export default function VeterinaryOfficeDetailsScreen() {
 
       <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.lg }}>
         <Section>
-          <Row gap="xs">
-            <Icon name="shield-checkmark" size="iconSm" color="primary" />
-            <Heading level={2} style={{ flexShrink: 1 }}>
-              {org.name}
-            </Heading>
+          <Row justify="space-between" align="center" gap="sm">
+            <Row gap="xs" style={{ flexShrink: 1 }}>
+              <Icon name="shield-checkmark" size="iconSm" color="primary" />
+              <Heading level={2} style={{ flexShrink: 1 }}>
+                {org.name}
+              </Heading>
+            </Row>
+            <Chip
+              label={
+                org.engagement.isFollowing
+                  ? torg('clinicDetail.following')
+                  : torg('clinicDetail.follow')
+              }
+              icon={org.engagement.isFollowing ? 'checkmark' : 'add'}
+              selected={org.engagement.isFollowing}
+              disabled={follow.isPending || unfollow.isPending}
+              onPress={toggleFollow}
+            />
           </Row>
 
           {org.engagement.rating != null ? (
@@ -222,10 +250,10 @@ export default function VeterinaryOfficeDetailsScreen() {
             ) : null}
             <ActionButton icon="chatbubble-outline" label={t('detail.message')} onPress={onMessage} />
             <ActionButton
-              icon={org.engagement.isFollowing ? 'heart' : 'heart-outline'}
-              label={org.engagement.isFollowing ? torg('clinicDetail.following') : t('detail.like')}
-              tone={org.engagement.isFollowing ? 'danger' : 'default'}
-              onPress={toggleFollow}
+              icon={isLiked ? 'heart' : 'heart-outline'}
+              label={isLiked ? torg('clinicDetail.liked') : t('detail.like')}
+              tone={isLiked ? 'danger' : 'default'}
+              onPress={toggleLike}
             />
             <ActionButton icon="share-social-outline" label={t('detail.share')} onPress={onShare} />
           </Row>
@@ -276,7 +304,7 @@ export default function VeterinaryOfficeDetailsScreen() {
             <Row justify="space-between" style={{ marginTop: theme.spacing.lg }}>
               <View style={{ alignItems: 'center', rowGap: 2 }}>
                 <Row gap="xs">
-                  <Text variant="bodyStrong">{org.engagement.followersCount}</Text>
+                  <Text variant="bodyStrong">{org.engagement.likesCount ?? 0}</Text>
                   <Icon name="heart" size="iconSm" color="danger" />
                 </Row>
                 <Text variant="caption" color="textSecondary">
@@ -308,6 +336,15 @@ export default function VeterinaryOfficeDetailsScreen() {
                 onPress={() => setReviewModalVisible(true)}
               />
             </Row>
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Button
+                label={torg('clinicDetail.viewReviews')}
+                variant="ghost"
+                size="sm"
+                leftIcon="chatbox-ellipses-outline"
+                onPress={() => router.push(Routes.organizationReviews(org.id))}
+              />
+            </View>
           </Card>
         </Section>
 
@@ -372,14 +409,13 @@ export default function VeterinaryOfficeDetailsScreen() {
             {org.phone ? (
               <Button label={t('detail.call')} variant="outline" leftIcon="call" onPress={onCall} fullWidth />
             ) : null}
-            {org.whatsapp ? (
-              <Button
-                label={t('detail.directContact')}
-                leftIcon="logo-whatsapp"
-                onPress={onWhatsapp}
-                fullWidth
-              />
-            ) : null}
+            <Button
+              label={t('detail.directContact')}
+              leftIcon="chatbubble-ellipses-outline"
+              loading={startConversation.isPending}
+              onPress={onMessage}
+              fullWidth
+            />
           </Row>
         </Section>
       </View>
@@ -387,6 +423,7 @@ export default function VeterinaryOfficeDetailsScreen() {
       <ReviewModal
         organizationId={org.id}
         visible={reviewModalVisible}
+        initial={org.engagement.myReview ?? null}
         onClose={() => setReviewModalVisible(false)}
       />
     </ScrollScreen>

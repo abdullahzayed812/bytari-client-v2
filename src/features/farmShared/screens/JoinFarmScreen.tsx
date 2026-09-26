@@ -21,6 +21,7 @@ import { useOrganizations } from '@/features/organizations/hooks';
 import { fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
+import { FarmQrScannerModal } from '../components/FarmQrScannerModal';
 import { useJoinFarmByCode } from '../hooks';
 import {
   buildJoinFarmSchema,
@@ -47,7 +48,7 @@ export default function JoinFarmScreen() {
   );
 
   const schema = useMemo(() => buildJoinFarmSchema(t), [t]);
-  const { control, handleSubmit } = useForm<JoinFarmFormValues>({
+  const { control, handleSubmit, setValue } = useForm<JoinFarmFormValues>({
     resolver: zodResolver(schema),
     defaultValues: { joinCode: '' },
     mode: 'onTouched',
@@ -55,6 +56,7 @@ export default function JoinFarmScreen() {
   const inFlight = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const onSubmit = ({ joinCode }: JoinFarmFormValues) => {
     if (inFlight.current || join.isPending) return;
@@ -102,6 +104,13 @@ export default function JoinFarmScreen() {
               autoCorrect={false}
               serverError={serverFields.joinCode}
             />
+            <Button
+              label={t('qr.scanCta')}
+              variant="outline"
+              leftIcon="qr-code-outline"
+              fullWidth
+              onPress={() => setScannerOpen(true)}
+            />
             <Text variant="caption" color="textMuted">
               {t('join.noApprovalNote')}
             </Text>
@@ -117,6 +126,19 @@ export default function JoinFarmScreen() {
           </View>
         )}
       </Section>
+
+      <FarmQrScannerModal
+        visible={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onInvalid={() => toast.show({ tone: 'warning', message: t('qr.invalid') })}
+        onScanned={(code) => {
+          setScannerOpen(false);
+          setValue('joinCode', code, { shouldValidate: true });
+          toast.show({ tone: 'success', message: t('qr.scanned') });
+          // The scanned code goes through exactly the same backend join as a typed one.
+          void handleSubmit(onSubmit)();
+        }}
+      />
 
       <Section spacing="xl">
         <Label>{t('join.linkedFarmsTitle', { count: linkedFarms.length })}</Label>

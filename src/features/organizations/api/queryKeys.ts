@@ -30,9 +30,15 @@ export const orgKeys = {
     search?: string;
     sort?: string;
     near?: { lat: number; lng: number };
+    country?: string;
+    minRating?: number;
+    service?: string;
   }) => [...orgKeys.discoverLists(), filter] as const,
   publicDetail: (organizationId: string) =>
     [...orgKeys.all, 'discover-detail', organizationId] as const,
+  reviews: (organizationId: string) => [...orgKeys.all, 'reviews', organizationId] as const,
+  adminReviews: (filter: { type?: string; maxRating?: number }) =>
+    [...orgKeys.all, 'admin-reviews', filter] as const,
   subscriptionRenewals: (organizationId: string) =>
     [...orgKeys.detail(organizationId), 'subscription-renewals'] as const,
 };

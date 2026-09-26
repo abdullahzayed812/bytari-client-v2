@@ -28,6 +28,7 @@
     "axios": "^1.20.0",
     "expo": "~53.0.20",
     "expo-asset": "~11.1.7",
+    "expo-camera": "~16.1.11",
     "expo-constants": "~17.1.8",
     "expo-device": "~7.1.4",
     "expo-document-picker": "~13.1.6",
@@ -45,6 +46,7 @@
     "expo-splash-screen": "~0.30.10",
     "expo-status-bar": "~2.2.3",
     "i18next": "^23.16.8",
+    "qrcode": "^1.5.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.86.0",
@@ -61,6 +63,7 @@
   "devDependencies": {
     "@testing-library/react-native": "^12.9.0",
     "@types/jest": "^29.5.14",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "~19.0",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^9.2.0",

@@ -64,7 +64,14 @@
           "resizeMode": "contain"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "يستخدم بيطري الكاميرا لمسح رمز QR الخاص بالمزرعة للانضمام إليها.",
+          "recordAudioAndroid": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

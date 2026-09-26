@@ -22,13 +22,15 @@ export interface ThreadCardProps {
 }
 
 /**
- * Thread row. The list DTO has no title / body preview (backend has none), so
- * the card surfaces status, kind, last-activity, an AI-replied hint, and an
- * "attached to an animal" hint — enough to pick a thread to open.
+ * Thread row: the kind ("استشارة" / "استفسار") with the start of the opening
+ * message as its title (threads have no separate title field — the backend
+ * ships `preview`), then status, last activity and hints (AI replied, animal
+ * type / linked animal, inquiry category).
  */
 export function ThreadCard({ thread, showCreator = false, width, onPress }: ThreadCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('support');
+  const { t: tVs } = useTranslation('vetServices');
   const meta = SUPPORT_KIND_META[thread.kind];
 
   return (
@@ -76,6 +78,16 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
           <ThreadStatusBadge status={thread.status} />
         </View>
 
+        {thread.preview !== undefined ? (
+          <Text
+            variant="body"
+            color={thread.preview ? 'textSecondary' : 'textMuted'}
+            numberOfLines={2}
+          >
+            {thread.preview ? thread.preview : t('card.noPreview')}
+          </Text>
+        ) : null}
+
         {showCreator ? (
           <Caption numberOfLines={1}>
             {t('card.by')} <UserName userId={thread.createdByUserId} variant="caption" />
@@ -98,6 +110,12 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
           </Caption>
           {thread.aiResponded ? (
             <Badge label={t('card.aiReplied')} tone="info" size="sm" />
+          ) : null}
+          {thread.animalType ? (
+            <Badge label={tVs(`animalType.${thread.animalType}`)} tone="neutral" size="sm" />
+          ) : null}
+          {thread.category ? (
+            <Badge label={t(`category.${thread.category}`)} tone="neutral" size="sm" />
           ) : null}
           {thread.animalId ? <Badge label={t('card.hasAnimal')} tone="info" size="sm" /> : null}
           {thread.senderBlocked ? (

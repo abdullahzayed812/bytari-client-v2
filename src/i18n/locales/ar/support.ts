@@ -49,6 +49,7 @@ export default {
     created: 'أُنشئت في {{date}}',
     aiReplied: 'رد الإدارة',
     hasAnimal: 'مرتبطة بحيوان',
+    noPreview: 'رسالة محذوفة',
     senderBlocked: 'المُرسِل موقوف',
   },
   form: {
@@ -58,8 +59,9 @@ export default {
       SUPPORT: 'رسالة إلى الإدارة',
     },
     intro: {
-      CONSULTATION: 'اطرح استشارتك البيطرية. يمكنك ربطها بأحد حيواناتك (اختياري).',
-      INQUIRY: 'اطرح استفسارك المهني العام.',
+      CONSULTATION:
+        'اطرح استشارتك البيطرية عن أي حيوان — اختر نوعه، ويمكنك ربطها بأحد حيواناتك (اختياري).',
+      INQUIRY: 'اطرح استفسارك المهني واختر تصنيفه.',
       SUPPORT: 'أرسل رسالتك إلى فريق الدعم وسيتم الرد عليك في أقرب وقت.',
     },
     bodyLabel: 'الرسالة',
@@ -68,7 +70,10 @@ export default {
       INQUIRY: 'اكتب استفسارك…',
       SUPPORT: 'اكتب رسالتك…',
     },
-    animalLabel: 'الحيوان (اختياري)',
+    animalTypeLabel: 'نوع الحيوان',
+    animalLabel: 'أحد حيواناتي (اختياري)',
+    categoryLabel: 'تصنيف الاستفسار',
+    categoryPlaceholder: 'اختر التصنيف',
     animalPlaceholder: 'اختر حيواناً',
     animalNone: 'بدون حيوان',
     attachmentsLabel: 'الصور المرفقة (اختياري)',
@@ -80,6 +85,8 @@ export default {
       bodyRequired: 'الرسالة مطلوبة.',
       bodyTooLong: 'الرسالة طويلة جداً (٤٠٠٠ حرف كحد أقصى).',
       animalInvalid: 'مُعرّف حيوان غير صحيح.',
+      animalTypeRequired: 'يرجى اختيار نوع الحيوان.',
+      categoryRequired: 'يرجى اختيار تصنيف الاستفسار.',
     },
   },
   detail: {
@@ -135,5 +142,16 @@ export default {
     intro: 'تفعيل أو إيقاف الرد الآلي عند إنشاء استشارة أو استفسار جديد.',
     consultation: 'الرد الآلي على الاستشارات',
     inquiry: 'الرد الآلي على الاستفسارات',
+    stateOn: 'الرد الآلي مفعّل حالياً',
+    stateOff: 'الرد الآلي متوقف حالياً',
+  },
+  category: {
+    EMERGENCY: 'طارئ',
+    GENERAL: 'عام',
+    SURGERY: 'جراحة',
+    MEDICATION: 'أدوية',
+    DISEASES: 'أمراض',
+    NUTRITION: 'تغذية',
+    OTHER: 'أخرى',
   },
 };

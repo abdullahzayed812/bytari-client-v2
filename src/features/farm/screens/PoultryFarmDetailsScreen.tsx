@@ -17,14 +17,16 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useFarmProfile, useFarmSubscriptionRenewals } from '@/features/farmShared';
+import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
+import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
 import { orgCapabilities, useOrganization, useOrganizationMembers } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
+import { businessToday } from '@/lib/businessDate';
 import { useTheme } from '@/theme';
 
 import {
   BatchSummaryCard,
   DailyRecordCard,
-  DailyRecordEmptyCard,
   FarmHeaderCard,
   FarmSectionCard,
   FarmStaffRow,
@@ -40,11 +42,6 @@ import {
   useWeeklySummary,
 } from '../hooks';
 
-function nextDayDate(iso: string): string {
-  const d = new Date(`${iso}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
-}
 
 /** Poultry Farm Details (Landing → "عرض التفاصيل"). */
 export default function PoultryFarmDetailsScreen() {
@@ -58,6 +55,7 @@ export default function PoultryFarmDetailsScreen() {
   const detail = useOrganization(orgId);
   const caps = orgCapabilities(detail.data?.myRole, isAdmin);
   const canManage = caps.canManageFarmPoultry;
+  const [addStaffOpen, setAddStaffOpen] = useState(false);
   // Approval (Organization.status) and subscription validity are separate
   // axes. Membership/renewal visibility only need the farm to be APPROVED;
   // actual day-to-day operations (flocks, daily records, management sections)
@@ -79,7 +77,7 @@ export default function PoultryFarmDetailsScreen() {
     enabled: canOperateFarm,
   });
   const summary = useBatchSummary(orgId, flock?.id, { enabled: Boolean(flock) });
-  const daily = useDailyRecords(orgId, flock?.id, { enabled: Boolean(flock) });
+  const daily = useDailyRecords(orgId, flock?.id, { pageSize: 7, enabled: Boolean(flock) });
   const weekly = useWeeklySummary(orgId, flock?.id, undefined, { enabled: Boolean(flock) });
   const members = useOrganizationMembers(orgId, {
     status: 'ACTIVE',
@@ -89,8 +87,6 @@ export default function PoultryFarmDetailsScreen() {
   const sellFlock = useUpdatePoultryFlock(orgId);
   const [confirmSell, setConfirmSell] = useState(false);
 
-  const lastRecord = daily.data?.items[0] ?? null;
-  const lastIndex = daily.data?.meta.total ?? 0;
 
   const sectionCards = useMemo(
     () =>
@@ -244,29 +240,12 @@ export default function PoultryFarmDetailsScreen() {
                   {daily.isLoading ? (
                     <Loading label={t('common.loading')} />
                   ) : (
-                    <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-                      {lastRecord ? (
-                        <DailyRecordCard record={lastRecord} dayIndex={lastIndex} />
-                      ) : (
-                        <DailyRecordEmptyCard
-                          dayIndex={1}
-                          onPress={
-                            canManage
-                              ? () => router.push(Routes.poultryFarmSection(orgId, 'daily'))
-                              : undefined
-                          }
-                        />
-                      )}
-                      <DailyRecordEmptyCard
-                        dayIndex={lastIndex + 1}
-                        date={lastRecord ? nextDayDate(lastRecord.recordDate) : undefined}
-                        onPress={
-                          canManage
-                            ? () => router.push(Routes.poultryFarmSection(orgId, 'daily'))
-                            : undefined
-                        }
-                      />
-                    </View>
+                    <DailyRecordWeekStrip
+                      records={daily.data?.items ?? []}
+                      todayRecorded={(daily.data?.items ?? []).some((r) => r.recordDate === businessToday())}
+                      onAddPress={canManage ? () => router.push(Routes.poultryFarmSection(orgId, 'daily')) : undefined}
+                      renderRecord={(r, day) => <DailyRecordCard record={r} dayIndex={day} />}
+                    />
                   )}
                 </View>
 
@@ -333,7 +312,7 @@ export default function PoultryFarmDetailsScreen() {
                   variant="ghost"
                   size="sm"
                   leftIcon="add"
-                  onPress={() => router.push(Routes.organizationMembersAdd(orgId))}
+                  onPress={() => setAddStaffOpen(true)}
                 />
               ) : null}
             </View>
@@ -358,6 +337,12 @@ export default function PoultryFarmDetailsScreen() {
         destructive
         onConfirm={onSell}
         onCancel={() => setConfirmSell(false)}
+      />
+      <FarmAddStaffSheet
+        visible={addStaffOpen}
+        onClose={() => setAddStaffOpen(false)}
+        organizationId={orgId}
+        organizationName={detail.data?.name ?? ''}
       />
     </SafeAreaScreen>
   );

@@ -1,42 +1,76 @@
 import { useLocalSearchParams } from 'expo-router';
-import { Children, useState, type ReactNode } from 'react';
+import { Children, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Divider, Icon, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { Input, Select } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
-import { Text } from '@/components/typography';
+import { Caption, Text } from '@/components/typography';
+import { DailyRecordWeekStrip, DAILY_RECORDS_PER_BATCH } from '@/features/farmShared/components/DailyRecordWeekStrip';
+import { orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
+import { businessToday } from '@/lib/businessDate';
 import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
-import { DailyRecordCard, DateFieldInput, isValidIsoDate } from '../components';
-import { useCreateDailyRecord, useDailyRecords, usePoultryFlocks } from '../hooks';
-import type { PoultryActivity, PoultryAppetite } from '../types';
+import { DailyRecordCard } from '../components';
+import {
+  useCreateDailyRecord,
+  useDailyRecords,
+  useDeleteDailyRecord,
+  usePoultryFlocks,
+  useUpdateDailyRecord,
+} from '../hooks';
+import type { PoultryActivity, PoultryAppetite, PoultryDailyRecord } from '../types';
 import { POULTRY_ACTIVITY_LEVELS, POULTRY_APPETITE_LEVELS } from '../types';
 
-/** Route `/poultry/[organizationId]/sections/daily` — البيانات اليومية. */
+/**
+ * Route `/poultry/[organizationId]/sections/daily` — البيانات اليومية as a
+ * swipeable Day 1 … Day 7 strip. The date is server-assigned (today); each
+ * card shows who added it and — for roles that may manage the flock — edit /
+ * delete (confirmed). The backend enforces the one-per-day and seven-per-batch
+ * rules; the UI only reflects them.
+ */
 export default function DailyRecordsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
+  const { t: tf } = useTranslation('farm');
   const toast = useToast();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
+  const { isAdmin } = useCapabilities();
+  const org = useOrganization(orgId);
+  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
 
   const activeFlocks = usePoultryFlocks(orgId, { status: 'ACTIVE', pageSize: 1 });
   const flock = activeFlocks.flocks[0];
 
   const records = useDailyRecords(orgId, flock?.id, { pageSize: 100, enabled: Boolean(flock) });
   const create = useCreateDailyRecord(orgId, flock?.id ?? '');
+  const update = useUpdateDailyRecord(orgId, flock?.id ?? '');
+  const remove = useDeleteDailyRecord(orgId, flock?.id ?? '');
   const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<PoultryDailyRecord | null>(null);
+  const [deleting, setDeleting] = useState<PoultryDailyRecord | null>(null);
 
-  const total = records.data?.meta.total ?? 0;
   const items = records.data?.items ?? [];
+  const today = businessToday();
+  const todayRecorded = items.some((r) => r.recordDate === today);
+  const full = items.length >= DAILY_RECORDS_PER_BATCH;
+
+  const onError = (error: unknown) => toast.show({ tone: 'danger', message: apiErrorMessage(error) });
 
   return (
     <SafeAreaScreen>
@@ -56,47 +90,97 @@ export default function DailyRecordsScreen() {
           <Loading label={t('common.loading')} />
         ) : records.isError ? (
           <ErrorState error={records.error} onRetry={() => void records.refetch()} />
-        ) : items.length === 0 ? (
-          <EmptyState icon="clipboard-outline" title={t('daily.emptyTitle')} message={t('daily.emptyBody')} />
         ) : (
-          items.map((r, i) => (
-            <DailyRecordCard key={r.id} record={r} dayIndex={total - i} />
-          ))
+          <DailyRecordWeekStrip
+            records={items}
+            todayRecorded={todayRecorded}
+            onAddPress={canManage && !full ? () => setFormOpen(true) : undefined}
+            renderRecord={(r, day) => (
+              <DailyRecordCard
+                record={r}
+                dayIndex={day}
+                onEdit={canManage ? () => setEditing(r) : undefined}
+                onDelete={canManage ? () => setDeleting(r) : undefined}
+              />
+            )}
+          />
         )}
       </ScrollView>
 
-      {flock ? (
+      {flock && canManage ? (
         <View style={{ padding: theme.screenPadding }}>
           <Button
-            label={t('batch.addDaily')}
+            label={full ? tf('daily.limitReached') : todayRecorded ? tf('daily.alreadyToday') : t('batch.addDaily')}
             variant="primary"
             fullWidth
             leftIcon="add"
+            disabled={full || todayRecorded}
             onPress={() => setFormOpen(true)}
           />
         </View>
       ) : null}
 
       <AddDailyRecordDialog
-        visible={formOpen}
-        loading={create.isPending}
-        onCancel={() => setFormOpen(false)}
-        onSubmit={(input) =>
+        visible={formOpen || editing != null}
+        initial={editing}
+        title={editing ? tf('daily.editTitle', { day: editing.dayNumber ?? '' }) : t('batch.addDaily')}
+        loading={create.isPending || update.isPending}
+        onCancel={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        onSubmit={(input) => {
+          if (editing) {
+            update.mutate(
+              { recordId: editing.id, body: input },
+              {
+                onSuccess: () => {
+                  toast.show({ tone: 'success', message: tf('daily.updated') });
+                  setEditing(null);
+                },
+                onError,
+              },
+            );
+            return;
+          }
           create.mutate(input, {
             onSuccess: () => {
               toast.show({ tone: 'success', message: t('daily.success') });
               setFormOpen(false);
             },
-            onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
-          })
-        }
+            onError,
+          });
+        }}
+      />
+
+      <ConfirmationDialog
+        visible={deleting != null}
+        title={tf('daily.deleteTitle')}
+        message={tf('daily.deleteBody')}
+        confirmLabel={tf('daily.delete')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={remove.isPending}
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => {
+          if (!deleting) return;
+          remove.mutate(deleting.id, {
+            onSuccess: () => {
+              toast.show({ tone: 'success', message: tf('daily.deleted') });
+              setDeleting(null);
+            },
+            onError: (e) => {
+              setDeleting(null);
+              onError(e);
+            },
+          });
+        }}
       />
     </SafeAreaScreen>
   );
 }
 
 interface DailyRecordFormValues {
-  recordDate: string;
   feedKg?: number;
   waterLiters?: number;
   appetite?: PoultryAppetite;
@@ -110,21 +194,24 @@ interface DailyRecordFormValues {
 
 function AddDailyRecordDialog({
   visible,
+  initial,
+  title,
   loading,
   onSubmit,
   onCancel,
 }: {
   visible: boolean;
+  /** Editing an existing record — pre-fills every field. */
+  initial: PoultryDailyRecord | null;
+  title: string;
   loading: boolean;
   onSubmit: (input: DailyRecordFormValues) => void;
   onCancel: () => void;
 }) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
+  const { t: tf } = useTranslation('farm');
   // DEV-ONLY: pre-filled so the dialog doesn't need retyping on every test run.
-  const [recordDate, setRecordDate] = useState(
-    devDataEnabled ? new Date().toISOString().slice(0, 10) : '',
-  );
   const [feedKg, setFeedKg] = useState(devDataEnabled ? '120' : '');
   const [waterLiters, setWaterLiters] = useState(devDataEnabled ? '200' : '');
   const [appetite, setAppetite] = useState<PoultryAppetite | null>(devDataEnabled ? 'GOOD' : null);
@@ -137,16 +224,29 @@ function AddDailyRecordDialog({
   const [expenseAmount, setExpenseAmount] = useState(devDataEnabled ? '15000' : '');
   const [notes, setNotes] = useState(devDataEnabled ? 'الدفعة بحالة جيدة بشكل عام' : '');
 
-  const valid = isValidIsoDate(recordDate);
+  // Re-seed from the record being edited (or clear for a new one) whenever the dialog opens.
+  useEffect(() => {
+    if (!visible || !initial) return;
+    const num = (v: string | null) => (v == null ? '' : String(Number(v)));
+    setFeedKg(num(initial.feedKg));
+    setWaterLiters(num(initial.waterLiters));
+    setAppetite(initial.appetite);
+    setActivity(initial.activity);
+    setMortalityCount(String(initial.mortalityCount));
+    setMortalityCause(initial.mortalityCause ?? '');
+    setTreatment(initial.treatment ?? '');
+    setExpenseAmount(num(initial.expenseAmount));
+    setNotes(initial.notes ?? '');
+  }, [visible, initial]);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={t('batch.addDaily')} dismissable={!loading}>
+    <Modal visible={visible} onClose={onCancel} title={title} dismissable={!loading}>
       <ScrollView
         contentContainerStyle={{ rowGap: theme.spacing.md }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <DateFieldInput label={t('daily.dateLabel')} value={recordDate} onChangeText={setRecordDate} />
+        {initial ? null : <Caption>{tf('daily.autoDate')}</Caption>}
 
         <FieldGroup icon="nutrition-outline" label={t('daily.consumptionSection')}>
           <FieldRow>
@@ -230,10 +330,9 @@ function AddDailyRecordDialog({
               variant="primary"
               fullWidth
               loading={loading}
-              disabled={loading || !valid}
+              disabled={loading}
               onPress={() =>
                 onSubmit({
-                  recordDate,
                   feedKg: feedKg ? Number(feedKg) : undefined,
                   waterLiters: waterLiters ? Number(waterLiters) : undefined,
                   appetite: appetite ?? undefined,

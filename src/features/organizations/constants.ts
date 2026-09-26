@@ -165,6 +165,8 @@ export interface OrgCapabilities {
    * VETERINARIAN / SUPERVISOR — **not** the plain STAFF role, which is read-only).
    */
   canManageFarmPoultry: boolean;
+  /** Estimated profit + expected sale price — OWNER / ADMIN only (backend redacts for others). */
+  canViewFarmFinancials: boolean;
   /**
    * Phase 7 — may read / rotate a FARM's join code
    * (`organization.update`, OWNER via override). Non-owners never see the code
@@ -231,6 +233,7 @@ export function orgCapabilities(
     canManageOrganizationMedical: privileged || isVet || isSupervisor,
     canViewFarmPoultry: privileged || isVet || isSupervisor || isStaff,
     canManageFarmPoultry: privileged || isVet || isSupervisor,
+    canViewFarmFinancials: privileged,
     canViewFarmJoinCode: privileged,
     canViewStoreProducts: privileged || isSupervisor || isStaff,
     canManageStoreProducts: privileged || isSupervisor,

@@ -33,6 +33,8 @@ export {
   useWeeklySummary,
   useDailyRecords,
   useCreateDailyRecord,
+  useUpdateDailyRecord,
+  useDeleteDailyRecord,
   usePoultryCaseSummary,
   useHealthEvents,
   useCreateHealthEvent,

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Alert, useToast } from '@/components/feedback';
+import { Alert } from '@/components/feedback';
 import { Checkbox } from '@/components/forms';
 import { Row } from '@/components/layout';
 import { Caption } from '@/components/typography';
@@ -28,14 +28,12 @@ import { buildLoginSchema, type LoginFormValues } from '../validation/schemas';
 export default function LoginScreen() {
   const theme = useTheme();
   const { t } = useTranslation('auth');
-  const { t: tCommon } = useTranslation('common');
-  const toast = useToast();
   const schema = useMemo(() => buildLoginSchema(t), [t]);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const [rememberMe, setRememberMe] = useState(true);
 
-  const { control, handleSubmit, setValue } = useForm<LoginFormValues>({
+  const { control, handleSubmit, setValue, getValues } = useForm<LoginFormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
     mode: 'onTouched',
@@ -124,7 +122,12 @@ export default function LoginScreen() {
         </View>
         <TextButton
           label={t('login.forgotPassword')}
-          onPress={() => toast.show({ message: tCommon('comingSoon'), tone: 'info' })}
+          onPress={() =>
+            router.push({
+              pathname: Routes.authForgotPassword,
+              params: { email: getValues('email').trim() },
+            })
+          }
         />
       </View>
 

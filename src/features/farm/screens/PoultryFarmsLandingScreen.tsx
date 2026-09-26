@@ -197,7 +197,12 @@ export default function PoultryFarmsLandingScreen() {
               renderItem={({ item: farm }) => (
                 <PoultryFarmCard
                   name={farm.name}
-                  location={farm.description}
+                  imageUrl={farm.imageUrl}
+                  location={
+                    [farm.governorate, farm.location].filter(Boolean).join(' · ') ||
+                    farm.address ||
+                    farm.description
+                  }
                   stats={farm.id === primaryFarm?.id ? stats : null}
                   status={farm.status}
                   width={farmWidth}

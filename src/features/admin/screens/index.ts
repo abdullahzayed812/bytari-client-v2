@@ -20,3 +20,4 @@ export { default as AdminCreateSyndicateScreen } from './AdminCreateSyndicateScr
 export { default as AdminCreateChatRoomScreen } from './AdminCreateChatRoomScreen';
 export { default as AdminChatsScreen } from './AdminChatsScreen';
 export { default as AdminBroadcastScreen } from './AdminBroadcastScreen';
+export { default as AdminOrganizationReviewsScreen } from './AdminOrganizationReviewsScreen';

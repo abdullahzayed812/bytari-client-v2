@@ -22,6 +22,7 @@ import type {
   CreateCattleBatchInput,
   CreateCattleCaseInput,
   CreateCattleDailyRecordInput,
+  UpdateCattleDailyRecordInput,
   CreateCattleHealthEventInput,
   LivestockBatchStatus,
   Paginated,
@@ -156,6 +157,25 @@ export function useCreateCattleDailyRecord(orgId: string, batchId: string) {
   return useMutation({
     mutationKey: ['cattle', 'daily-record', 'create', orgId, batchId],
     mutationFn: (body: CreateCattleDailyRecordInput) => cattleFarmApi.createDailyRecord(orgId, batchId, body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
+  });
+}
+
+export function useUpdateCattleDailyRecord(orgId: string, batchId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['cattle', 'daily-record', 'update', orgId, batchId],
+    mutationFn: ({ recordId, body }: { recordId: string; body: UpdateCattleDailyRecordInput }) =>
+      cattleFarmApi.updateDailyRecord(orgId, batchId, recordId, body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
+  });
+}
+
+export function useDeleteCattleDailyRecord(orgId: string, batchId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['cattle', 'daily-record', 'delete', orgId, batchId],
+    mutationFn: (recordId: string) => cattleFarmApi.deleteDailyRecord(orgId, batchId, recordId),
     onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
   });
 }

@@ -118,7 +118,15 @@ export interface PendingVetApplication {
   decisionReason: string | null;
   createdAt: string;
   updatedAt: string;
-  user: { id: string; email: string; firstName: string; lastName: string };
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    /** Absent on responses from an older backend. */
+    phone?: string | null;
+    specialization?: string | null;
+  };
   /** Restricted — see {@link VetApplicationDocument}. Empty for legacy rows. */
   documents: VetApplicationDocument[];
 }

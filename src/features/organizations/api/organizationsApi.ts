@@ -4,14 +4,17 @@ import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   AddMemberInput,
+  AdminOrganizationReview,
   AssignSupervisorInput,
   CreateOrganizationInput,
+  DiscoverFilters,
   DiscoverSort,
   MemberListFilter,
   MyOrganization,
   OrganizationDetail,
   OrganizationMember,
   OrganizationReview,
+  OrganizationReviewWithAuthor,
   OrganizationSupervisor,
   OrganizationType,
   OrganizationWithDetails,
@@ -93,7 +96,7 @@ export const organizationsApi = {
     search?: string;
     sort?: DiscoverSort;
     near?: { lat: number; lng: number };
-  }): Promise<Paginated<PublicOrganization>> {
+  } & DiscoverFilters): Promise<Paginated<PublicOrganization>> {
     const envelope = await apiClient.requestEnvelope<PublicOrganization[]>({
       method: 'GET',
       url: '/organizations/discover',
@@ -105,6 +108,9 @@ export const organizationsApi = {
         sort: filter.sort,
         lat: filter.near?.lat,
         lng: filter.near?.lng,
+        country: filter.country,
+        minRating: filter.minRating,
+        service: filter.service,
       },
     });
     return {
@@ -128,8 +134,64 @@ export const organizationsApi = {
     return apiClient.delete<{ success: boolean }>(`/organizations/${organizationId}/follow`);
   },
 
+  like(organizationId: string): Promise<{ success: boolean }> {
+    return apiClient.post<{ success: boolean }>(`/organizations/${organizationId}/like`);
+  },
+
+  unlike(organizationId: string): Promise<{ success: boolean }> {
+    return apiClient.delete<{ success: boolean }>(`/organizations/${organizationId}/like`);
+  },
+
   submitReview(organizationId: string, input: SubmitReviewInput): Promise<OrganizationReview> {
     return apiClient.post<OrganizationReview>(`/organizations/${organizationId}/reviews`, input);
+  },
+
+  async listReviews(
+    organizationId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Paginated<OrganizationReviewWithAuthor>> {
+    const envelope = await apiClient.requestEnvelope<OrganizationReviewWithAuthor[]>({
+      method: 'GET',
+      url: `/organizations/${organizationId}/reviews`,
+      params: { page, pageSize },
+    });
+    return {
+      items: envelope.data,
+      meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+    };
+  },
+
+  deleteOwnReview(organizationId: string): Promise<{ success: boolean }> {
+    return apiClient.delete<{ success: boolean }>(`/organizations/${organizationId}/reviews/mine`);
+  },
+
+  // --- admin review moderation ---------------------------------
+
+  async adminListReviews(filter: {
+    page: number;
+    pageSize: number;
+    type?: OrganizationType;
+    maxRating?: number;
+  }): Promise<Paginated<AdminOrganizationReview>> {
+    const envelope = await apiClient.requestEnvelope<AdminOrganizationReview[]>({
+      method: 'GET',
+      url: '/admin/organizations/reviews',
+      params: filter,
+    });
+    return {
+      items: envelope.data,
+      meta: readMeta(envelope.meta, filter.page, filter.pageSize, envelope.data.length),
+    };
+  },
+
+  async adminDeleteReview(reviewId: string, reason?: string): Promise<{ success: boolean }> {
+    const envelope = await apiClient.requestEnvelope<{ success: boolean }>({
+      method: 'DELETE',
+      url: `/admin/organizations/reviews/${reviewId}`,
+      data: reason ? { reason } : {},
+    });
+    return envelope.data;
   },
 
   create(input: CreateOrganizationInput): Promise<OrganizationWithDetails> {

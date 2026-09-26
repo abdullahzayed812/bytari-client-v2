@@ -12,15 +12,17 @@ import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { FarmHeaderCard } from '@/features/farm';
 import { useFarmProfile, useFarmSubscriptionRenewals, FarmSectionCard, FarmStaffRow, FarmStatusCard } from '@/features/farmShared';
+import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
+import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
 import { orgCapabilities, useOrganization, useOrganizationMembers } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
+import { businessToday } from '@/lib/businessDate';
 import { useTheme } from '@/theme';
 
 import {
   LivestockBatchRow,
   LivestockBatchSummaryCard,
   LivestockDailyRecordCard,
-  LivestockDailyRecordEmptyCard,
   LivestockWeeklySummaryCard,
 } from '../components';
 import {
@@ -31,11 +33,6 @@ import {
   useUpdateCattleBatch,
 } from '../hooks';
 
-function nextDayDate(iso: string): string {
-  const d = new Date(`${iso}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
-}
 
 /** Cattle Farm Details. Mirrors `SheepFarmDetailsScreen` exactly. */
 export default function CattleFarmDetailsScreen() {
@@ -49,6 +46,7 @@ export default function CattleFarmDetailsScreen() {
   const detail = useOrganization(orgId);
   const caps = orgCapabilities(detail.data?.myRole, isAdmin);
   const canManage = caps.canManageFarmPoultry;
+  const [addStaffOpen, setAddStaffOpen] = useState(false);
   const isApproved = detail.data?.status === 'ACTIVE';
   const canOperateFarm = isApproved && detail.data?.details?.subscriptionStatus === 'ACTIVE';
 
@@ -57,15 +55,13 @@ export default function CattleFarmDetailsScreen() {
   const batch = activeBatches.batches[0];
   const closedBatches = useCattleBatches(orgId, { status: 'CLOSED', pageSize: 20, enabled: canOperateFarm });
   const summary = useCattleBatchSummary(orgId, batch?.id, { enabled: Boolean(batch) });
-  const daily = useCattleDailyRecords(orgId, batch?.id, { enabled: Boolean(batch) });
+  const daily = useCattleDailyRecords(orgId, batch?.id, { pageSize: 7, enabled: Boolean(batch) });
   const weekly = useCattleWeeklySummary(orgId, batch?.id, undefined, { enabled: Boolean(batch) });
   const members = useOrganizationMembers(orgId, { status: 'ACTIVE', enabled: caps.canViewMembers && isApproved });
   const renewals = useFarmSubscriptionRenewals(orgId, { enabled: isApproved });
   const sellBatch = useUpdateCattleBatch(orgId);
   const [confirmSell, setConfirmSell] = useState(false);
 
-  const lastRecord = daily.data?.items[0] ?? null;
-  const lastIndex = daily.data?.meta.total ?? 0;
 
   const sectionCards = useMemo(
     () =>
@@ -192,18 +188,12 @@ export default function CattleFarmDetailsScreen() {
                   {daily.isLoading ? (
                     <Loading label={t('common.loading')} />
                   ) : (
-                    <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-                      {lastRecord ? (
-                        <LivestockDailyRecordCard record={lastRecord} dayIndex={lastIndex} />
-                      ) : (
-                        <LivestockDailyRecordEmptyCard dayIndex={1} onPress={canManage ? () => router.push(Routes.cattleFarmSection(orgId, 'daily')) : undefined} />
-                      )}
-                      <LivestockDailyRecordEmptyCard
-                        dayIndex={lastIndex + 1}
-                        date={lastRecord ? nextDayDate(lastRecord.recordDate) : undefined}
-                        onPress={canManage ? () => router.push(Routes.cattleFarmSection(orgId, 'daily')) : undefined}
-                      />
-                    </View>
+                    <DailyRecordWeekStrip
+                      records={daily.data?.items ?? []}
+                      todayRecorded={(daily.data?.items ?? []).some((r) => r.recordDate === businessToday())}
+                      onAddPress={canManage ? () => router.push(Routes.cattleFarmSection(orgId, 'daily')) : undefined}
+                      renderRecord={(r, day) => <LivestockDailyRecordCard record={r} dayIndex={day} />}
+                    />
                   )}
                 </View>
 
@@ -252,7 +242,7 @@ export default function CattleFarmDetailsScreen() {
                 {t('details.staffTitle')}
               </Text>
               {caps.canManageMembers ? (
-                <Button label={t('details.staffAdd')} variant="ghost" size="sm" leftIcon="add" onPress={() => router.push(Routes.organizationMembersAdd(orgId))} />
+                <Button label={t('details.staffAdd')} variant="ghost" size="sm" leftIcon="add" onPress={() => setAddStaffOpen(true)} />
               ) : null}
             </View>
             {members.isLoading ? (
@@ -274,6 +264,12 @@ export default function CattleFarmDetailsScreen() {
         destructive
         onConfirm={onSell}
         onCancel={() => setConfirmSell(false)}
+      />
+      <FarmAddStaffSheet
+        visible={addStaffOpen}
+        onClose={() => setAddStaffOpen(false)}
+        organizationId={orgId}
+        organizationName={detail.data?.name ?? ''}
       />
     </SafeAreaScreen>
   );

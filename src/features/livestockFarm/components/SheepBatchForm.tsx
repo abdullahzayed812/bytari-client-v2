@@ -17,6 +17,8 @@ export interface SheepBatchFormProps {
   submitting: boolean;
   formError?: string | null;
   serverFields?: Record<string, string>;
+  /** The sale price is financial data — only the farm owner / admin sees and sets it. */
+  showPrice?: boolean;
   onSubmit: (values: SheepBatchFormValues) => void;
 }
 
@@ -36,14 +38,15 @@ const DEFAULTS: SheepBatchFormValues = {
   maleCount: '10',
   femaleCount: '25',
   arrivalDate: today(),
+  targetPricePerKg: '',
   notes: '',
 };
 
 /** Add/edit sheep-batch form. Mirrors `PoultryFlockForm` exactly (bird-type picker → age/sex headcount breakdown). */
-export function SheepBatchForm({ mode, defaultValues, submitting, formError, serverFields = {}, onSubmit }: SheepBatchFormProps) {
+export function SheepBatchForm({ mode, defaultValues, submitting, formError, serverFields = {}, showPrice = true, onSubmit }: SheepBatchFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
-  const schema = useMemo(() => buildSheepBatchSchema(t), [t]);
+  const schema = useMemo(() => buildSheepBatchSchema(t, { requirePrice: showPrice }), [t, showPrice]);
 
   const { control, handleSubmit } = useForm<SheepBatchFormValues>({
     resolver: zodResolver(schema),
@@ -58,6 +61,18 @@ export function SheepBatchForm({ mode, defaultValues, submitting, formError, ser
       <FormField control={control} name="name" label={t('batchForm.fieldName')} serverError={serverFields.name} />
       <FormField control={control} name="breed" label={t('batchForm.fieldBreed')} serverError={serverFields.breed} />
       <FormField control={control} name="headCount" label={t('batchForm.fieldHeadCount')} placeholder="0" keyboardType="number-pad" serverError={serverFields.headCount} />
+      {showPrice ? (
+        <FormField
+          control={control}
+          name="targetPricePerKg"
+          label={t('batchForm.fieldTargetPrice')}
+          hint={t('batchForm.targetPriceHint')}
+          placeholder="0"
+          keyboardType="decimal-pad"
+          required
+          serverError={serverFields.targetPricePerKg}
+        />
+      ) : null}
 
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
         <View style={{ flex: 1 }}>

@@ -16,6 +16,8 @@ export interface LivestockBatchSummaryLike {
   ageMonths: number;
   averageWeightKg: string | null;
   estimatedProfit: number | null;
+  /** `false` → the caller may not see profit (the server nulled it). */
+  financialsVisible?: boolean;
 }
 
 interface Props {
@@ -50,7 +52,9 @@ export function LivestockBatchSummaryCard({ summary, canManage, onAddDaily, onWe
     { icon: 'people-outline' as const, label: t('batch.currentCount'), value: summary.currentHeadCount.toLocaleString() },
     { icon: 'calendar-outline' as const, label: t('batch.age'), value: ageText },
     { icon: 'scale-outline' as const, label: t('batch.avgWeight'), value: weightText },
-    { icon: 'cash-outline' as const, label: t('batch.estimatedProfit'), value: profitText },
+    ...(summary.financialsVisible === false
+      ? []
+      : [{ icon: 'cash-outline' as const, label: t('batch.estimatedProfit'), value: profitText }]),
   ];
 
   return (

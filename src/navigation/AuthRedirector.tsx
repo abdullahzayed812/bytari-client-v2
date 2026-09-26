@@ -1,4 +1,4 @@
-import { router, useSegments } from 'expo-router';
+import { router, usePathname, useSegments, type Href } from 'expo-router';
 import { useEffect } from 'react';
 
 import { useAuth } from '@/hooks';
@@ -21,13 +21,18 @@ import { useAuth } from '@/hooks';
  *   application). Every other route, including a manual deep link or a restart
  *   into `(app)`, is replaced. The server independently refuses every
  *   non-onboarding API with 403 `VETERINARIAN_ACCOUNT_PENDING_APPROVAL`.
- * - Unauthenticated inside `(app)`  → send to the auth flow.
- * - Authenticated inside `(auth)`   → send to the app.
+ * - Unauthenticated inside `(app)`  → send to the auth flow, remembering the
+ *                                     requested path (a shared clinic / office
+ *                                     link) so it opens right after sign-in.
+ * - Authenticated inside `(auth)`   → send to the remembered path, else the app.
  * - During `bootstrapping`          → do nothing (the splash is shown; avoids
  *                                     redirect races and login/app flicker).
  *
  * Nothing else in the tree performs auth redirects. Renders nothing.
  */
+/** A deep link that was opened while signed out — consumed on the next sign-in. */
+let pendingDeepLink: string | null = null;
+
 export function AuthRedirector() {
   const {
     isAuthenticated,
@@ -37,6 +42,7 @@ export function AuthRedirector() {
   } = useAuth();
   // Widened: the typed-routes tuple from .expo/types is absent in CI.
   const segments: string[] = useSegments();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isBootstrapping) return;
@@ -54,9 +60,12 @@ export function AuthRedirector() {
         (inAppGroup && segments[1] === 'veterinarian' && segments[2] === 'apply');
       if (!allowed) router.replace('/(auth)/veterinarian-pending');
     } else if (!isAuthenticated && inAppGroup) {
+      if (pathname && pathname !== '/') pendingDeepLink = pathname;
       router.replace('/(auth)/sign-in');
     } else if (isAuthenticated && (inAuthGroup || group === undefined)) {
-      router.replace('/(app)/(tabs)');
+      const target = pendingDeepLink;
+      pendingDeepLink = null;
+      router.replace((target ?? '/(app)/(tabs)') as Href);
     }
   }, [
     isAuthenticated,
@@ -64,6 +73,7 @@ export function AuthRedirector() {
     requiresEmailVerification,
     requiresVeterinarianApproval,
     segments,
+    pathname,
   ]);
 
   return null;

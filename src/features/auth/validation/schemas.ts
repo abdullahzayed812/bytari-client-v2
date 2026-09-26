@@ -6,7 +6,7 @@ import { z } from 'zod';
  * (`server/src/modules/auth/auth.schemas.ts` + `shared/validation/common.ts`) —
  * no invented fields, no stricter rules than the server.
  *
- *   register: email · password(≥10, ≤128) · firstName(1–100) · lastName(1–100) · phone?
+ *   register: email · password(≥10, ≤128) · firstName(1–100) · lastName(1–100) · phone
  *   login:    email · password(≥1)
  *
  * Messages come from the `auth`-namespace `t` fn so they stay Arabic-localised.
@@ -39,7 +39,7 @@ export function buildRegisterSchema(t: TFn) {
       .min(1, t('errors.emailRequired'))
       .email(t('errors.emailInvalid'))
       .max(254),
-    phone: z.string().trim().regex(PHONE_RE, t('errors.phoneInvalid')).optional().or(z.literal('')),
+    phone: z.string().trim().min(1, t('errors.phoneRequired')).regex(PHONE_RE, t('errors.phoneInvalid')),
     password: z
       .string()
       .min(10, t('errors.passwordTooShort'))

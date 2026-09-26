@@ -6,9 +6,9 @@ import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
-import type { FarmSpecies, MyOrganization } from '@/features/organizations/types';
 import { CattleFarmCard } from '@/features/livestockFarm/components/CattleFarmCard';
 import { SheepFarmCard } from '@/features/livestockFarm/components/SheepFarmCard';
+import type { FarmSpecies, MyOrganization } from '@/features/organizations/types';
 import { useTheme } from '@/theme';
 
 import { PoultryCardSkeleton, PoultryFarmCard } from '../components';

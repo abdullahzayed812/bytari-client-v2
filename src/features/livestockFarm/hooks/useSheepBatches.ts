@@ -15,6 +15,7 @@ import type {
   CreateSheepBatchInput,
   CreateSheepCaseInput,
   CreateSheepDailyRecordInput,
+  UpdateSheepDailyRecordInput,
   CreateSheepHealthEventInput,
   LivestockBatchStatus,
   Paginated,
@@ -156,6 +157,25 @@ export function useCreateSheepDailyRecord(orgId: string, batchId: string) {
   return useMutation({
     mutationKey: ['sheep', 'daily-record', 'create', orgId, batchId],
     mutationFn: (body: CreateSheepDailyRecordInput) => sheepFarmApi.createDailyRecord(orgId, batchId, body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: sheepKeys.forBatch(orgId, batchId) }),
+  });
+}
+
+export function useUpdateSheepDailyRecord(orgId: string, batchId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['sheep', 'daily-record', 'update', orgId, batchId],
+    mutationFn: ({ recordId, body }: { recordId: string; body: UpdateSheepDailyRecordInput }) =>
+      sheepFarmApi.updateDailyRecord(orgId, batchId, recordId, body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: sheepKeys.forBatch(orgId, batchId) }),
+  });
+}
+
+export function useDeleteSheepDailyRecord(orgId: string, batchId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['sheep', 'daily-record', 'delete', orgId, batchId],
+    mutationFn: (recordId: string) => sheepFarmApi.deleteDailyRecord(orgId, batchId, recordId),
     onSuccess: () => void qc.invalidateQueries({ queryKey: sheepKeys.forBatch(orgId, batchId) }),
   });
 }

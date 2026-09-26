@@ -35,6 +35,7 @@ export interface DevPersonalDefaults {
   password: string;
   confirmPassword: string;
   country: string;
+  governorate: string;
   gender: 'MALE' | 'FEMALE';
   terms: true;
 }
@@ -44,10 +45,11 @@ function devPersonalDefaults(emailPrefix: string): DevPersonalDefaults {
   return {
     ...DEV_NAMES[gender],
     email: devEmail(emailPrefix),
-    phone: '+966501234567',
+    phone: '+9647701234567',
     password: DEV_PASSWORD,
     confirmPassword: DEV_PASSWORD,
-    country: 'SA',
+    country: 'IQ',
+    governorate: 'بغداد',
     gender,
     terms: true,
   };

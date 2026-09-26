@@ -15,12 +15,14 @@ import {
   RatingStars,
   ReviewModal,
   useFollowOrganization,
+  useLikeOrganization,
   usePublicOrganization,
   useUnfollowOrganization,
+  useUnlikeOrganization,
 } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
-import { shareText } from '@/lib/share';
+import { shareText, shareUrlFor } from '@/lib/share';
 import { useTheme } from '@/theme';
 
 interface InfoRowProps {
@@ -85,6 +87,8 @@ export default function ClinicDetailsScreen() {
   const q = usePublicOrganization(organizationId);
   const follow = useFollowOrganization(organizationId ?? '');
   const unfollow = useUnfollowOrganization(organizationId ?? '');
+  const like = useLikeOrganization(organizationId ?? '');
+  const unlike = useUnlikeOrganization(organizationId ?? '');
   const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
@@ -119,8 +123,18 @@ export default function ClinicDetailsScreen() {
     });
   };
 
+  const isLiked = org.engagement.isLiked ?? false;
+  const toggleLike = () => {
+    const action = isLiked ? unlike : like;
+    action.mutate(undefined, {
+      onError: (error) => toast.show({ message: apiErrorMessage(error), tone: 'danger' }),
+    });
+  };
+
+  // A real https link to this clinic's details route (opens the same screen).
   const onShare = () => {
-    void shareText(org.name + (org.address ? `\n${org.address}` : '')).then((outcome) => {
+    const url = shareUrlFor(Routes.organizationDiscoverDetail(org.id));
+    void shareText(org.name + (org.address ? `\n${org.address}` : ''), url).then((outcome) => {
       if (outcome === 'copied') toast.show({ message: tc('share.copied'), tone: 'success' });
       else if (outcome === 'unavailable')
         toast.show({ message: tc('share.unavailable'), tone: 'info' });
@@ -279,15 +293,24 @@ export default function ClinicDetailsScreen() {
             </Row>
 
             <Row justify="space-between" style={{ marginTop: theme.spacing.lg }}>
-              <View style={{ alignItems: 'center', rowGap: 2 }}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={isLiked ? t('clinicDetail.liked') : t('clinicDetail.like')}
+                accessibilityState={{ selected: isLiked }}
+                onPress={toggleLike}
+                style={({ pressed }) => [
+                  { alignItems: 'center', rowGap: 2 },
+                  pressed && { opacity: 0.7 },
+                ]}
+              >
                 <Row gap="xs">
-                  <Text variant="bodyStrong">{org.engagement.followersCount}</Text>
-                  <Icon name="heart" size="iconSm" color="danger" />
+                  <Text variant="bodyStrong">{org.engagement.likesCount ?? 0}</Text>
+                  <Icon name={isLiked ? 'heart' : 'heart-outline'} size="iconSm" color="danger" />
                 </Row>
                 <Text variant="caption" color="textSecondary">
                   {t('clinicDetail.likes')}
                 </Text>
-              </View>
+              </Pressable>
 
               <View
                 style={{ width: theme.sizes.hairline, backgroundColor: theme.colors.divider }}
@@ -318,6 +341,15 @@ export default function ClinicDetailsScreen() {
                 onPress={() => setReviewModalVisible(true)}
               />
             </Row>
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Button
+                label={t('clinicDetail.viewReviews')}
+                variant="ghost"
+                size="sm"
+                leftIcon="chatbox-ellipses-outline"
+                onPress={() => router.push(Routes.organizationReviews(org.id))}
+              />
+            </View>
           </Card>
         </Section>
 
@@ -422,6 +454,7 @@ export default function ClinicDetailsScreen() {
       <ReviewModal
         organizationId={org.id}
         visible={reviewModalVisible}
+        initial={org.engagement.myReview ?? null}
         onClose={() => setReviewModalVisible(false)}
       />
     </ScrollScreen>

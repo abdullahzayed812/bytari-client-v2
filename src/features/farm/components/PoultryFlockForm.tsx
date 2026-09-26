@@ -19,6 +19,8 @@ export interface PoultryFlockFormProps {
   submitting: boolean;
   formError?: string | null;
   serverFields?: Record<string, string>;
+  /** The sale price is financial data — only the farm owner / admin sees and sets it. */
+  showPrice?: boolean;
   onSubmit: (values: PoultryFlockFormValues) => void;
 }
 
@@ -27,6 +29,7 @@ const EMPTY: PoultryFlockFormValues = {
   birdType: 'CHICKEN',
   birdCount: '',
   arrivalDate: '',
+  targetPricePerKg: '',
   notes: '',
 };
 
@@ -37,11 +40,12 @@ export function PoultryFlockForm({
   submitting,
   formError,
   serverFields = {},
+  showPrice = true,
   onSubmit,
 }: PoultryFlockFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('farm');
-  const schema = useMemo(() => buildPoultryFlockSchema(t), [t]);
+  const schema = useMemo(() => buildPoultryFlockSchema(t, { requirePrice: showPrice }), [t, showPrice]);
 
   const { control, handleSubmit } = useForm<PoultryFlockFormValues>({
     resolver: zodResolver(schema),
@@ -84,6 +88,19 @@ export function PoultryFlockForm({
         keyboardType="number-pad"
         serverError={serverFields.birdCount}
       />
+
+      {showPrice ? (
+        <FormField
+          control={control}
+          name="targetPricePerKg"
+          label={t('poultry.fieldTargetPrice')}
+          hint={t('poultry.targetPriceHint')}
+          placeholder="0"
+          keyboardType="decimal-pad"
+          required
+          serverError={serverFields.targetPricePerKg}
+        />
+      ) : null}
 
       <FormField
         control={control}

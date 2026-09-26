@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
@@ -8,7 +9,9 @@ import { Text } from '@/components/typography';
 import { useCurrentLocation, type Coordinates } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import type { DiscoverSort } from '../types';
+import type { DiscoverFilters, DiscoverSort } from '../types';
+
+import { DiscoverFilterSheet, activeFilterCount } from './DiscoverFilterSheet';
 
 interface FilterButtonProps {
   icon?: IconName;
@@ -69,7 +72,13 @@ export interface DiscoverFilterBarProps {
   searchPlaceholder: string;
   sort: DiscoverSort;
   onSortChange: (sort: DiscoverSort, coords?: Coordinates) => void;
-  /** No dedicated filter criteria exist on the backend yet — shows a "coming soon" toast. */
+  /**
+   * Current server-side filter criteria. When provided together with
+   * `onFiltersChange`, "تصفية" opens {@link DiscoverFilterSheet}.
+   */
+  filters?: DiscoverFilters;
+  onFiltersChange?: (filters: DiscoverFilters) => void;
+  /** Custom handler — overrides the sheet (legacy callers). */
   onFilterPress?: () => void;
 }
 
@@ -85,16 +94,19 @@ export function DiscoverFilterBar({
   searchPlaceholder,
   sort,
   onSortChange,
+  filters,
+  onFiltersChange,
   onFilterPress,
 }: DiscoverFilterBarProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
-  const { t: tc } = useTranslation('common');
   const toast = useToast();
   const location = useCurrentLocation();
+  const [sheetOpen, setSheetOpen] = useState(false);
 
-  const handleFilterPress =
-    onFilterPress ?? (() => toast.show({ message: tc('comingSoon'), tone: 'info' }));
+  const hasSheet = Boolean(filters && onFiltersChange);
+  const handleFilterPress = onFilterPress ?? (() => setSheetOpen(true));
+  const activeCount = filters ? activeFilterCount(filters, sort) : 0;
 
   const selectNearest = async () => {
     const fix = await location.request();
@@ -127,7 +139,12 @@ export function DiscoverFilterBar({
         accessibilityLabel={searchPlaceholder}
       />
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-        <FilterButton icon="funnel-outline" label={t('discover.filter')} onPress={handleFilterPress} />
+        <FilterButton
+          icon="funnel-outline"
+          label={activeCount > 0 ? `${t('discover.filter')} (${activeCount})` : t('discover.filter')}
+          active={activeCount > 0}
+          onPress={handleFilterPress}
+        />
         <FilterButton
           icon="locate-outline"
           label={t('discover.nearest')}
@@ -137,10 +154,26 @@ export function DiscoverFilterBar({
         />
         <FilterButton
           label={t('discover.all')}
-          active={sort === 'default'}
-          onPress={() => onSortChange('default')}
+          active={sort === 'default' && activeCount === 0}
+          onPress={() => {
+            onFiltersChange?.({});
+            onSortChange('default');
+          }}
         />
       </View>
+
+      {hasSheet && filters && onFiltersChange ? (
+        <DiscoverFilterSheet
+          visible={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          filters={filters}
+          sort={sort}
+          onApply={(next, nextSort) => {
+            onFiltersChange(next);
+            if (nextSort !== sort) onSortChange(nextSort);
+          }}
+        />
+      ) : null}
     </View>
   );
 }

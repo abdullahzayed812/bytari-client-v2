@@ -70,6 +70,12 @@ export interface FarmProfile {
   contactName: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
+  /** Which kind of farm this profile belongs to (`null` on legacy poultry rows). */
+  farmSpecies?: 'POULTRY' | 'SHEEP' | 'CATTLE' | 'MIXED' | null;
+  currentSheepCount?: number | null;
+  currentCattleCount?: number | null;
+  sheepProductionType?: string | null;
+  cattleProductionType?: string | null;
 }
 
 export interface UpdateFarmProfileInput {
@@ -83,6 +89,11 @@ export interface UpdateFarmProfileInput {
   contactName?: string | null;
   contactPhone?: string | null;
   contactEmail?: string | null;
+  /** Sheep / cattle farms only — the backend rejects another species' fields. */
+  currentSheepCount?: number | null;
+  sheepProductionType?: string | null;
+  currentCattleCount?: number | null;
+  cattleProductionType?: string | null;
 }
 
 /** `POST /organizations/farms` body — the "Add Poultry Farm" form. */
@@ -120,10 +131,20 @@ export interface PoultryDailyRecord {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Position in the batch's weekly sequence (Day 1 … Day 7), server-computed. */
+  dayNumber?: number | null;
+  /** Who added the record (name only). */
+  createdBy?: DailyRecordAuthor | null;
 }
 
+export interface DailyRecordAuthor {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+/** The date is NOT sent — the server records today's (business) date. */
 export interface CreateDailyRecordInput {
-  recordDate: string;
   feedKg?: number;
   waterLiters?: number;
   appetite?: PoultryAppetite | null;
@@ -135,6 +156,8 @@ export interface CreateDailyRecordInput {
   averageWeightGrams?: number | null;
   notes?: string | null;
 }
+
+export type UpdateDailyRecordInput = Partial<CreateDailyRecordInput>;
 
 // --- batch + weekly summary (server-computed) --------------
 
@@ -157,6 +180,8 @@ export interface BatchSummary {
   totalExpenses: number;
   estimatedProfit: number | null;
   recordsCount: number;
+  /** `false` → the caller may not see profit / sale price (the server nulled them). */
+  financialsVisible?: boolean;
 }
 
 export interface WeeklySummary {

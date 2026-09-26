@@ -10,10 +10,11 @@ const BASE = {
   firstName: 'ريم',
   lastName: 'أحمد',
   email: 'reem@example.com',
-  phone: '',
+  phone: '+9647701234567',
   password: '1234567890',
   confirmPassword: '1234567890',
-  country: 'SA',
+  country: 'IQ',
+  governorate: 'بغداد',
   gender: 'FEMALE' as const,
   terms: true,
 };
@@ -44,6 +45,26 @@ describe('buildPetOwnerSchema', () => {
     const result = schema.safeParse({ ...BASE, country: 'SAU' });
     expect(result.success).toBe(false);
   });
+
+  it('requires a phone number', () => {
+    expect(schema.safeParse({ ...BASE, phone: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...BASE, phone: 'abc' }).success).toBe(false);
+  });
+
+  it('requires a governorate', () => {
+    expect(schema.safeParse({ ...BASE, governorate: '' }).success).toBe(false);
+  });
+
+  it('checks the governorate against the selected country list (Iraq)', () => {
+    expect(schema.safeParse({ ...BASE, governorate: 'الرياض' }).success).toBe(false);
+    expect(schema.safeParse({ ...BASE, governorate: 'البصرة' }).success).toBe(true);
+  });
+
+  it('accepts free-text governorate for a country without a fixed list', () => {
+    expect(schema.safeParse({ ...BASE, country: 'SA', governorate: 'الرياض' }).success).toBe(
+      true,
+    );
+  });
 });
 
 describe('buildVeterinarianSchema', () => {
@@ -58,6 +79,23 @@ describe('buildVeterinarianSchema', () => {
   it('accepts VETERINARIAN with a license document', () => {
     const result = schema.safeParse({ ...BASE, subType: 'VETERINARIAN', licenseOrId: doc });
     expect(result.success).toBe(true);
+  });
+
+  it('specialization is optional', () => {
+    const withIt = schema.safeParse({
+      ...BASE,
+      subType: 'VETERINARIAN',
+      licenseOrId: doc,
+      specialization: 'جراحة',
+    });
+    expect(withIt.success).toBe(true);
+    const tooLong = schema.safeParse({
+      ...BASE,
+      subType: 'VETERINARIAN',
+      licenseOrId: doc,
+      specialization: 'x'.repeat(151),
+    });
+    expect(tooLong.success).toBe(false);
   });
 
   it('requires BOTH student-id sides for subType STUDENT', () => {

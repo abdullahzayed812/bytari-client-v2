@@ -61,7 +61,7 @@ function licenseDocumentProvider(organizationId: string): PresignProvider {
 async function uploadAll(files: LocalFile[], provider: PresignProvider): Promise<void> {
   const service = new FileUploadService(provider);
   for (const file of files) {
-    // eslint-disable-next-line no-await-in-loop -- sequential by design
+     
     await service.upload(file);
   }
 }

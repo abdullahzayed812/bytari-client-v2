@@ -6,8 +6,8 @@ import { Icon } from '@/components/content';
 import { useToast } from '@/components/feedback';
 import { Caption } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
-import { isPermissionError, pickImage } from '@/services/media';
 import type { LocalFile } from '@/services/files/types';
+import { isPermissionError, pickImage } from '@/services/media';
 import { useTheme } from '@/theme';
 
 export interface LocalImagePickerProps {

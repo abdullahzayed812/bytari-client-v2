@@ -72,7 +72,7 @@ export type CreateCattleFarmFormValues = z.infer<ReturnType<typeof buildCreateCa
 
 // --- batch (add/edit) ------------------------------------------
 
-function batchSchemaShape(t: LivestockTFn) {
+function batchSchemaShape(t: LivestockTFn, requirePrice: boolean) {
   return {
     name: z.string().trim().min(1, t('batchForm.errors.nameRequired')).max(120, t('batchForm.errors.tooLong')),
     breed: z.string().trim().max(120, t('batchForm.errors.tooLong')).optional().or(z.literal('')),
@@ -87,13 +87,22 @@ function batchSchemaShape(t: LivestockTFn) {
       .min(1, t('batchForm.errors.arrivalRequired'))
       .regex(DATE_RE, t('batchForm.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('batchForm.errors.dateFuture')),
+    // The server's estimated profit = head count × avg weight × THIS price − expenses.
+    // Only the farm owner sees / sets it (financial data — backend-enforced); others submit none.
+    targetPricePerKg: requirePrice
+      ? z
+          .string()
+          .trim()
+          .min(1, t('batchForm.errors.priceRequired'))
+          .regex(/^\d{1,10}(\.\d{1,2})?$/, t('batchForm.errors.priceInvalid'))
+      : z.string().trim().optional().or(z.literal('')),
     notes: z.string().trim().max(4000, t('batchForm.errors.tooLong')).optional().or(z.literal('')),
   };
 }
 
-export function buildSheepBatchSchema(t: LivestockTFn) {
+export function buildSheepBatchSchema(t: LivestockTFn, opts: { requirePrice?: boolean } = {}) {
   return z.object({
-    ...batchSchemaShape(t),
+    ...batchSchemaShape(t, opts.requirePrice ?? true),
     lambCount: optionalCount,
     maleCount: optionalCount,
     femaleCount: optionalCount,
@@ -101,9 +110,9 @@ export function buildSheepBatchSchema(t: LivestockTFn) {
 }
 export type SheepBatchFormValues = z.infer<ReturnType<typeof buildSheepBatchSchema>>;
 
-export function buildCattleBatchSchema(t: LivestockTFn) {
+export function buildCattleBatchSchema(t: LivestockTFn, opts: { requirePrice?: boolean } = {}) {
   return z.object({
-    ...batchSchemaShape(t),
+    ...batchSchemaShape(t, opts.requirePrice ?? true),
     calfCount: optionalCount,
     bullCount: optionalCount,
     cowCount: optionalCount,

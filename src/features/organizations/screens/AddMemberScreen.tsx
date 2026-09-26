@@ -13,7 +13,7 @@ import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { OrgFormLayout } from '../components';
-import { useAddOrganizationMember } from '../hooks';
+import { useAddOrganizationMember, useOrganization } from '../hooks';
 import { ASSIGNABLE_MEMBER_ROLES, type AssignableMemberRole } from '../types';
 import {
   buildMemberIdentifierSchema,
@@ -42,6 +42,13 @@ export default function AddMemberScreen() {
     mode: 'onTouched',
   });
   const [role, setRole] = useState<AssignableMemberRole>('STAFF');
+  // A FARM takes veterinarians only via its join code / QR (backend-enforced),
+  // so only STAFF is offered here for farms.
+  const org = useOrganization(organizationId);
+  const isFarm = org.data?.type === 'FARM';
+  const roleOptions = isFarm
+    ? ASSIGNABLE_MEMBER_ROLES.filter((r) => r === 'STAFF')
+    : ASSIGNABLE_MEMBER_ROLES;
   const inFlight = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
@@ -89,7 +96,7 @@ export default function AddMemberScreen() {
         label={t('members.roleLabel')}
         placeholder={t('members.rolePlaceholder')}
         value={role}
-        options={ASSIGNABLE_MEMBER_ROLES.map((r) => ({
+        options={roleOptions.map((r) => ({
           value: r,
           label: t(`role.${r}`),
           description: t(`members.roleHint.${r}`),

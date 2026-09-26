@@ -62,6 +62,14 @@ export interface User {
   firstName: string;
   lastName: string;
   phone: string | null;
+  /** ISO-3166 alpha-2 — absent on older payloads. */
+  country?: string | null;
+  governorate?: string | null;
+  /** Optional veterinarian specialization ("التخصص"). */
+  specialization?: string | null;
+  gender?: Gender | null;
+  /** Resolved avatar URL (never the storage key). */
+  avatarUrl?: string | null;
   status: UserStatus;
   veterinarianStatus: VeterinarianStatus;
   traderStatus: TraderStatus;
@@ -89,11 +97,16 @@ export interface RegisterInput {
   password: string;
   firstName: string;
   lastName: string;
-  phone?: string | null;
+  /** Required by the backend for self-registration. */
+  phone: string;
   /** Optional — added for the Pet Owner / Veterinarian registration screens. */
   gender?: Gender;
-  /** Optional — 2-letter ISO-3166 alpha-2, uppercase. */
+  /** 2-letter ISO-3166 alpha-2, uppercase. */
   country?: string;
+  /** Governorate within `country` — required by the backend once a country is sent. */
+  governorate?: string;
+  /** Optional veterinarian specialization; ignored for Pet Owners. */
+  specialization?: string;
   /** `PET_OWNER` (default) → email verification; `VETERINARIAN` → admin approval, no email code. */
   accountType?: RegistrationType;
 }
@@ -129,6 +142,23 @@ export interface RegisterResult extends AuthResult {
 export interface ResendVerificationResult {
   codeExpiresInSeconds: number;
   resendAvailableInSeconds: number;
+}
+
+/** `POST /auth/forgot-password` (200) — same shape for an unknown email (anti-enumeration). */
+export interface PasswordResetRequestResult {
+  codeExpiresInSeconds: number;
+  resendAvailableInSeconds: number;
+}
+
+export interface ResetPasswordInput {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResult {
+  success: boolean;
+  revokedSessions: number;
 }
 
 /** `POST /auth/refresh` (200) — **tokens only, no user**. */

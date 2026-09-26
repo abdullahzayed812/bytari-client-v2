@@ -19,7 +19,12 @@ import { devDataEnabled } from '@/lib/env';
 import type { LocalFile } from '@/services/files/types';
 import { useTheme } from '@/theme';
 
-import { CountrySelect, GenderRadioGroup, TermsAndConditionsModal } from '../components';
+import {
+  CountrySelect,
+  GenderRadioGroup,
+  GovernorateSelect,
+  TermsAndConditionsModal,
+} from '../components';
 import { devPetOwnerDefaults } from '../data/devDefaults';
 import { uploadRegistrationAvatar } from '../hooks';
 import { buildPetOwnerSchema, type PetOwnerFormValues } from '../validation/schemas';
@@ -61,7 +66,8 @@ export default function PetOwnerRegisterScreen() {
           phone: '',
           password: '',
           confirmPassword: '',
-          country: 'SA',
+          country: 'IQ',
+          governorate: '',
           gender: undefined,
           terms: false,
         },
@@ -73,16 +79,16 @@ export default function PetOwnerRegisterScreen() {
   const onSubmit = handleSubmit((values) => {
     setFormError(null);
     setServerFields({});
-    const phone = values.phone?.trim();
     register.mutate(
       {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         password: values.password,
-        phone: phone ? phone : null,
+        phone: values.phone.trim(),
         gender: values.gender,
         country: values.country,
+        governorate: values.governorate.trim(),
       },
       {
         onSuccess: async () => {
@@ -207,6 +213,16 @@ export default function PetOwnerRegisterScreen() {
           label={t('petOwner.countryLabel')}
           placeholder={t('petOwner.countryPlaceholder')}
           serverError={serverFields.country}
+        />
+
+        <GovernorateSelect
+          control={control}
+          name="governorate"
+          countryName="country"
+          label={t('petOwner.governorateLabel')}
+          placeholder={t('petOwner.governoratePlaceholder')}
+          selectCountryFirst={t('petOwner.governorateSelectCountryFirst')}
+          serverError={serverFields.governorate}
         />
 
         <GenderRadioGroup control={control} name="gender" label={t('petOwner.genderLabel')} />

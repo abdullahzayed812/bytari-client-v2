@@ -3,7 +3,8 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ErrorState, Loading, useToast } from '@/components/feedback';
-import { OrgFormLayout } from '@/features/organizations';
+import { OrgFormLayout, orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 
@@ -22,6 +23,10 @@ export default function SheepBatchFormScreen() {
 
   const existing = useSheepBatch(orgId, batchId, { enabled: isEdit });
   const create = useCreateSheepBatch(orgId);
+  // The sale price is farm-financial data: only the owner / admin sees and sets it.
+  const { isAdmin } = useCapabilities();
+  const orgDetail = useOrganization(orgId);
+  const showPrice = orgCapabilities(orgDetail.data?.myRole, isAdmin).canViewFarmFinancials;
   const update = useUpdateSheepBatch(orgId);
 
   const inFlight = useRef(false);
@@ -55,6 +60,7 @@ export default function SheepBatchFormScreen() {
         maleCount: batch.maleCount != null ? String(batch.maleCount) : '',
         femaleCount: batch.femaleCount != null ? String(batch.femaleCount) : '',
         arrivalDate: batch.arrivalDate,
+        targetPricePerKg: batch.targetPricePerKg != null ? String(Number(batch.targetPricePerKg)) : '',
         notes: batch.notes ?? '',
       }
     : {};
@@ -79,6 +85,8 @@ export default function SheepBatchFormScreen() {
       maleCount: toCount(values.maleCount),
       femaleCount: toCount(values.femaleCount),
       arrivalDate: values.arrivalDate.trim(),
+      targetPricePerKg:
+        showPrice && values.targetPricePerKg ? Number(values.targetPricePerKg) : undefined,
       notes,
     };
 
@@ -116,7 +124,7 @@ export default function SheepBatchFormScreen() {
 
   return (
     <OrgFormLayout title={isEdit ? t('batchForm.editTitle') : t('batchForm.addSheepTitle')}>
-      <SheepBatchForm mode={isEdit ? 'edit' : 'create'} defaultValues={defaults} submitting={busy} formError={formError} serverFields={serverFields} onSubmit={onSubmit} />
+      <SheepBatchForm showPrice={showPrice} mode={isEdit ? 'edit' : 'create'} defaultValues={defaults} submitting={busy} formError={formError} serverFields={serverFields} onSubmit={onSubmit} />
     </OrgFormLayout>
   );
 }

@@ -11,6 +11,8 @@ export {
   useRegisterMutation,
   useVerifyEmailMutation,
   useResendVerificationMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
   useLogoutMutation,
   useLogoutAllMutation,
 } from './hooks/useAuthMutations';
@@ -18,7 +20,7 @@ export { useVeterinarianStatus, type VeterinarianStatusInfo } from './hooks/useV
 
 export { authErrorMessage, fieldErrors, type AuthErrorContext } from './errors';
 export { AuthScreenLayout, FormField, VeterinarianStatusBadge } from './components';
-export { LoginScreen, RegisterScreen } from './screens';
+export { ForgotPasswordScreen, LoginScreen, RegisterScreen } from './screens';
 
 export { authApi, type AuthApi } from './api';
 export {
@@ -38,6 +40,9 @@ export type {
   AuthResult,
   RegisterResult,
   ResendVerificationResult,
+  PasswordResetRequestResult,
+  ResetPasswordInput,
+  ResetPasswordResult,
   RefreshResult,
   LoginInput,
   RegisterInput,

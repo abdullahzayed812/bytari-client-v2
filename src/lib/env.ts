@@ -20,6 +20,7 @@ const rawEnv = {
   environment: process.env.EXPO_PUBLIC_ENVIRONMENT,
   requestTimeoutMs: process.env.EXPO_PUBLIC_REQUEST_TIMEOUT_MS,
   debugLogging: process.env.EXPO_PUBLIC_DEBUG_LOGGING,
+  webUrl: process.env.EXPO_PUBLIC_WEB_URL,
 } as const;
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Record<string, unknown>;
@@ -57,6 +58,12 @@ const schema = z
       .enum(['true', 'false'])
       .transform((v) => v === 'true')
       .default('false'),
+    /**
+     * Public web-app origin used to build shareable links (clinic / office
+     * details). The Expo Web build is served there, and its router opens the
+     * exact screen for a shared path.
+     */
+    webUrl: z.string().url().default('https://baytari.com'),
   })
   // A production build must talk to a public, TLS-protected backend.
   .superRefine((v, ctx) => {
@@ -88,6 +95,7 @@ function load() {
     environment: pick(rawEnv.environment, 'environment'),
     requestTimeoutMs: pick(rawEnv.requestTimeoutMs, 'requestTimeoutMs'),
     debugLogging: pick(rawEnv.debugLogging, 'debugLogging'),
+    webUrl: pick(rawEnv.webUrl, 'webUrl'),
   });
 
   if (!parsed.success) {

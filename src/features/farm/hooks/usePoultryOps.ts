@@ -7,6 +7,7 @@ import { poultryOpsApi, poultryOpsKeys } from '../api';
 import type {
   BatchSummary,
   CreateDailyRecordInput,
+  UpdateDailyRecordInput,
   CreateHealthEventInput,
   CreatePoultryCaseInput,
   Paginated,
@@ -77,6 +78,30 @@ export function useCreateDailyRecord(orgId: string, flockId: string) {
     mutationKey: ['poultry-ops', 'daily-record', 'create', orgId, flockId],
     mutationFn: (body: CreateDailyRecordInput) =>
       poultryOpsApi.createDailyRecord(orgId, flockId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
+    },
+  });
+}
+
+/** Edit a day's record (the date itself is never editable — server-assigned). */
+export function useUpdateDailyRecord(orgId: string, flockId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['poultry-ops', 'daily-record', 'update', orgId, flockId],
+    mutationFn: ({ recordId, body }: { recordId: string; body: UpdateDailyRecordInput }) =>
+      poultryOpsApi.updateDailyRecord(orgId, flockId, recordId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
+    },
+  });
+}
+
+export function useDeleteDailyRecord(orgId: string, flockId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['poultry-ops', 'daily-record', 'delete', orgId, flockId],
+    mutationFn: (recordId: string) => poultryOpsApi.deleteDailyRecord(orgId, flockId, recordId),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
     },

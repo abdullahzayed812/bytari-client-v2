@@ -1,7 +1,16 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 
+import { authApi } from '../api';
 import { useAuthStore } from '../store';
-import type { LoginInput, RegisterInput, ResendVerificationResult, VerifyEmailInput } from '../types';
+import type {
+  LoginInput,
+  PasswordResetRequestResult,
+  RegisterInput,
+  ResendVerificationResult,
+  ResetPasswordInput,
+  ResetPasswordResult,
+  VerifyEmailInput,
+} from '../types';
 
 /**
  * Thin React Query wrappers over the store's auth actions so screens get
@@ -43,4 +52,28 @@ export function useLogoutMutation(): UseMutationResult<void, unknown, void> {
 export function useLogoutAllMutation(): UseMutationResult<void, unknown, void> {
   const logoutAll = useAuthStore((s) => s.logoutAll);
   return useMutation({ mutationKey: ['auth', 'logout-all'], mutationFn: () => logoutAll() });
+}
+
+/** Forgot password step 1 — no session involved, so it bypasses the store. */
+export function useForgotPasswordMutation(): UseMutationResult<
+  PasswordResetRequestResult,
+  unknown,
+  string
+> {
+  return useMutation({
+    mutationKey: ['auth', 'forgot-password'],
+    mutationFn: (email: string) => authApi.forgotPassword(email),
+  });
+}
+
+/** Forgot password step 2 — sets the new password; the user then signs in normally. */
+export function useResetPasswordMutation(): UseMutationResult<
+  ResetPasswordResult,
+  unknown,
+  ResetPasswordInput
+> {
+  return useMutation({
+    mutationKey: ['auth', 'reset-password'],
+    mutationFn: (input: ResetPasswordInput) => authApi.resetPassword(input),
+  });
 }

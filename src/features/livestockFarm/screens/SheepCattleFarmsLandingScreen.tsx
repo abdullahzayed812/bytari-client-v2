@@ -27,7 +27,10 @@ function FarmListRow({ farm, width }: { farm: MyOrganization; width?: number }) 
     return (
       <CattleFarmCard
         name={farm.name}
-        location={farm.description}
+        imageUrl={farm.imageUrl}
+        location={
+          [farm.governorate, farm.location].filter(Boolean).join(' · ') || farm.address || farm.description
+        }
         stats={null}
         status={farm.status}
         width={width}
@@ -38,7 +41,10 @@ function FarmListRow({ farm, width }: { farm: MyOrganization; width?: number }) 
   return (
     <SheepFarmCard
       name={farm.name}
-      location={farm.description}
+      imageUrl={farm.imageUrl}
+      location={
+        [farm.governorate, farm.location].filter(Boolean).join(' · ') || farm.address || farm.description
+      }
       stats={null}
       status={farm.status}
       width={width}

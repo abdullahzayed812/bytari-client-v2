@@ -7,8 +7,11 @@ import type {
   LogoutResult,
   RefreshResult,
   RegisterInput,
+  PasswordResetRequestResult,
   RegisterResult,
   ResendVerificationResult,
+  ResetPasswordInput,
+  ResetPasswordResult,
   SessionSnapshot,
   VerifyEmailInput,
 } from '../types';
@@ -63,6 +66,30 @@ export const authApi = {
       { email },
       { anonymous: true },
     );
+  },
+
+  /**
+   * `POST /auth/forgot-password` → always 200 (anti-enumeration: an unknown
+   * email looks identical). Errors: 422, 429 `RATE_LIMITED` (cooldown).
+   */
+  forgotPassword(email: string): Promise<PasswordResetRequestResult> {
+    return apiClient.post<PasswordResetRequestResult>(
+      '/auth/forgot-password',
+      { email },
+      { anonymous: true },
+    );
+  },
+
+  /**
+   * `POST /auth/reset-password` → 200 `{ success, revokedSessions }`. Every
+   * existing session is revoked server-side; no tokens are issued — the user
+   * signs in again. Errors: 400 `INVALID_VERIFICATION_CODE` /
+   * `VERIFICATION_CODE_EXPIRED`, 429 `TOO_MANY_VERIFICATION_ATTEMPTS`, 422.
+   */
+  resetPassword(input: ResetPasswordInput): Promise<ResetPasswordResult> {
+    return apiClient.post<ResetPasswordResult>('/auth/reset-password', input, {
+      anonymous: true,
+    });
   },
 
   /**

@@ -12,6 +12,7 @@ import {
   ClinicCard,
   DiscoverFilterBar,
   useDiscoverOrganizations,
+  type DiscoverFilters,
   type DiscoverSort,
   type PublicOrganization,
 } from '@/features/organizations';
@@ -35,6 +36,7 @@ export default function VeterinaryOfficesScreen() {
   const search = useDebouncedValue(rawSearch);
   const [sort, setSort] = useState<DiscoverSort>('default');
   const [coords, setCoords] = useState<Coordinates | null>(null);
+  const [filters, setFilters] = useState<DiscoverFilters>({});
 
   const q = useDiscoverOrganizations({
     type: 'VETERINARY_OFFICE',
@@ -68,6 +70,8 @@ export default function VeterinaryOfficesScreen() {
         searchPlaceholder={t('list.searchPlaceholder')}
         sort={sort}
         onSortChange={handleSortChange}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       {q.isLoading ? (

@@ -126,10 +126,14 @@ export interface SheepDailyRecord {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Position in the batch's weekly sequence (Day 1 … Day 7), server-computed. */
+  dayNumber?: number | null;
+  /** Who added the record (name only). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
 }
 
+/** The date is NOT sent — the server records today's (business) date. */
 export interface CreateSheepDailyRecordInput {
-  recordDate: string;
   feedKg?: number;
   waterLiters?: number;
   appetite?: LivestockAppetite | null;
@@ -143,6 +147,8 @@ export interface CreateSheepDailyRecordInput {
   averageWeightKg?: number | null;
   notes?: string | null;
 }
+
+export type UpdateSheepDailyRecordInput = Partial<CreateSheepDailyRecordInput>;
 
 export interface SheepBatchSummary {
   batchId: string;
@@ -328,10 +334,14 @@ export interface CattleDailyRecord {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Position in the batch's weekly sequence (Day 1 … Day 7), server-computed. */
+  dayNumber?: number | null;
+  /** Who added the record (name only). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
 }
 
+/** The date is NOT sent — the server records today's (business) date. */
 export interface CreateCattleDailyRecordInput {
-  recordDate: string;
   feedKg?: number;
   waterLiters?: number;
   appetite?: LivestockAppetite | null;
@@ -345,6 +355,8 @@ export interface CreateCattleDailyRecordInput {
   averageWeightKg?: number | null;
   notes?: string | null;
 }
+
+export type UpdateCattleDailyRecordInput = Partial<CreateCattleDailyRecordInput>;
 
 export interface CattleBatchSummary {
   batchId: string;

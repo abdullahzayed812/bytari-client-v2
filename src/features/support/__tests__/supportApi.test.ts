@@ -170,22 +170,45 @@ describe('supportKeys', () => {
 describe('validation schemas', () => {
   it('body is required and capped at 4000 for every kind', () => {
     const c = buildConsultationSchema(t);
-    expect(c.safeParse({ body: '', animalId: '' }).success).toBe(false);
-    expect(c.safeParse({ body: 'a'.repeat(4001), animalId: '' }).success).toBe(false);
-    expect(c.safeParse({ body: 'valid question', animalId: '' }).success).toBe(true);
+    expect(c.safeParse({ body: '', animalId: '', animalType: 'CAT' }).success).toBe(false);
+    expect(c.safeParse({ body: 'a'.repeat(4001), animalId: '', animalType: 'CAT' }).success).toBe(
+      false,
+    );
+    expect(c.safeParse({ body: 'valid question', animalId: '', animalType: 'CAT' }).success).toBe(
+      true,
+    );
 
-    expect(buildInquirySchema(t).safeParse({ body: 'ok' }).success).toBe(true);
+    expect(buildInquirySchema(t).safeParse({ body: 'ok', category: 'GENERAL' }).success).toBe(true);
     expect(buildMessageSchema(t).safeParse({ body: '' }).success).toBe(false);
   });
 
   it('consultation animalId must be a UUID when present, but may be omitted / empty', () => {
     const c = buildConsultationSchema(t);
-    expect(c.safeParse({ body: 'x', animalId: 'not-a-uuid' }).success).toBe(false);
-    expect(c.safeParse({ body: 'x', animalId: '' }).success).toBe(true);
+    const base = { body: 'x', animalType: 'DOG' as const };
+    expect(c.safeParse({ ...base, animalId: 'not-a-uuid' }).success).toBe(false);
+    expect(c.safeParse({ ...base, animalId: '' }).success).toBe(true);
     expect(
-      c.safeParse({ body: 'x', animalId: '11111111-1111-1111-1111-111111111111' }).success,
+      c.safeParse({ ...base, animalId: '11111111-1111-1111-1111-111111111111' }).success,
     ).toBe(true);
-    expect(c.safeParse({ body: 'x' }).success).toBe(true);
+    expect(c.safeParse(base).success).toBe(true);
+  });
+
+  it('consultation requires a generic animal type from the shared vocabulary', () => {
+    const c = buildConsultationSchema(t);
+    expect(c.safeParse({ body: 'x' }).success).toBe(false);
+    expect(c.safeParse({ body: 'x', animalType: 'DRAGON' }).success).toBe(false);
+    for (const type of ['CAT', 'DOG', 'BIRD', 'HORSE', 'CATTLE', 'SHEEP', 'GOAT', 'OTHER']) {
+      expect(c.safeParse({ body: 'x', animalType: type }).success).toBe(true);
+    }
+  });
+
+  it('inquiry requires a known category', () => {
+    const i = buildInquirySchema(t);
+    expect(i.safeParse({ body: 'x' }).success).toBe(false);
+    expect(i.safeParse({ body: 'x', category: 'ASTROLOGY' }).success).toBe(false);
+    for (const c of ['EMERGENCY', 'GENERAL', 'SURGERY', 'MEDICATION', 'DISEASES', 'NUTRITION', 'OTHER']) {
+      expect(i.safeParse({ body: 'x', category: c }).success).toBe(true);
+    }
   });
 });
 

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { farmErrorMessage } from '@/features/farmShared';
-import { OrgFormLayout } from '@/features/organizations';
+import { OrgFormLayout, orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
 import { fieldErrors } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import { ApiError } from '@/services/api';
@@ -32,6 +33,10 @@ export default function PoultryFlockFormScreen() {
 
   const existing = usePoultryFlock(orgId, flockId, { enabled: isEdit });
   const create = useCreatePoultryFlock(orgId);
+  // The sale price is farm-financial data: only the owner / admin sees and sets it.
+  const { isAdmin } = useCapabilities();
+  const orgDetail = useOrganization(orgId);
+  const showPrice = orgCapabilities(orgDetail.data?.myRole, isAdmin).canViewFarmFinancials;
   const update = useUpdatePoultryFlock(orgId);
 
   const inFlight = useRef(false);
@@ -68,6 +73,7 @@ export default function PoultryFlockFormScreen() {
         birdType: flock.birdType,
         birdCount: String(flock.birdCount),
         arrivalDate: flock.arrivalDate,
+        targetPricePerKg: flock.targetPricePerKg != null ? String(Number(flock.targetPricePerKg)) : '',
         notes: flock.notes ?? '',
       }
     : devDataEnabled
@@ -86,6 +92,8 @@ export default function PoultryFlockFormScreen() {
       birdType: values.birdType,
       birdCount: Number(values.birdCount),
       arrivalDate: values.arrivalDate.trim(),
+      targetPricePerKg:
+        showPrice && values.targetPricePerKg ? Number(values.targetPricePerKg) : undefined,
       notes,
     };
 
@@ -124,6 +132,7 @@ export default function PoultryFlockFormScreen() {
   return (
     <OrgFormLayout title={isEdit ? t('poultry.editTitle') : t('poultry.addTitle')}>
       <PoultryFlockForm
+        showPrice={showPrice}
         mode={isEdit ? 'edit' : 'create'}
         defaultValues={defaults}
         submitting={busy}

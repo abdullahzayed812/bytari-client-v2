@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
+import { DailyRecordFooter } from '@/features/farmShared/components/DailyRecordFooter';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -10,11 +11,14 @@ import type { PoultryDailyRecord } from '../types';
 
 interface RowProps {
   record: PoultryDailyRecord;
+  /** Fallback when the server's `dayNumber` is absent (older payload). */
   dayIndex: number;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-/** A populated "اليوم N" card in the daily-data list. */
-export function DailyRecordCard({ record, dayIndex }: RowProps) {
+/** A populated "اليوم N" card in the daily-data list, with "added by" + edit / delete. */
+export function DailyRecordCard({ record, dayIndex, onEdit, onDelete }: RowProps) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
 
@@ -58,7 +62,7 @@ export function DailyRecordCard({ record, dayIndex }: RowProps) {
       <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
         <Icon name="checkmark-circle" size="iconSm" color="success" />
         <Text variant="label" weight="bold">
-          {t('daily.dayLabel', { index: String(dayIndex).padStart(2, '0') })}
+          {t('daily.dayLabel', { index: String(record.dayNumber ?? dayIndex).padStart(2, '0') })}
         </Text>
         <Caption style={{ marginStart: 'auto' }}>{formatDate(record.recordDate)}</Caption>
       </View>
@@ -77,6 +81,7 @@ export function DailyRecordCard({ record, dayIndex }: RowProps) {
           </Text>
         </View>
       ))}
+      <DailyRecordFooter createdBy={record.createdBy} onEdit={onEdit} onDelete={onDelete} />
     </View>
   );
 }

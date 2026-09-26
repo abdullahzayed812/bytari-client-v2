@@ -4,6 +4,8 @@ export {
   useRegisterMutation,
   useVerifyEmailMutation,
   useResendVerificationMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
   useLogoutMutation,
   useLogoutAllMutation,
 } from './useAuthMutations';

@@ -50,6 +50,7 @@ export function useDeletePublication(): UseMutationResult<
     onSuccess: (_data, { kind, animalId }) => {
       void qc.invalidateQueries({ queryKey: publicationKeys.mine() });
       void qc.invalidateQueries({ queryKey: publicationKeys.publicList(kind) });
+      void qc.invalidateQueries({ queryKey: publicationKeys.admin() });
       if (animalId) void qc.invalidateQueries({ queryKey: publicationKeys.forAnimal(animalId) });
     },
   });

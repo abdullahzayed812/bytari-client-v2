@@ -24,6 +24,7 @@ import {
   CountrySelect,
   DocumentUploadTile,
   GenderRadioGroup,
+  GovernorateSelect,
   TermsAndConditionsModal,
 } from '../components';
 import { devVeterinarianDefaults } from '../data/devDefaults';
@@ -118,10 +119,12 @@ export default function VeterinarianRegisterScreen() {
             phone: '',
             password: '',
             confirmPassword: '',
-            country: 'SA',
+            country: 'IQ',
+            governorate: '',
             gender: undefined,
             terms: false,
             subType: 'VETERINARIAN',
+            specialization: '',
             licenseOrId: undefined,
             additionalId: undefined,
             studentIdFront: undefined,
@@ -163,16 +166,17 @@ export default function VeterinarianRegisterScreen() {
   const onSubmit = handleSubmit((values) => {
     setFormError(null);
     setServerFields({});
-    const phone = values.phone?.trim();
     register.mutate(
       {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         password: values.password,
-        phone: phone ? phone : null,
+        phone: values.phone.trim(),
         gender: values.gender,
         country: values.country,
+        governorate: values.governorate.trim(),
+        specialization: values.specialization?.trim() ? values.specialization.trim() : undefined,
         // No email verification for veterinarians — admin approval gates the account instead.
         accountType: 'VETERINARIAN',
       },
@@ -338,7 +342,27 @@ export default function VeterinarianRegisterScreen() {
           serverError={serverFields.country}
         />
 
+        <GovernorateSelect
+          control={control}
+          name="governorate"
+          countryName="country"
+          label={t('petOwner.governorateLabel')}
+          placeholder={t('petOwner.governoratePlaceholder')}
+          selectCountryFirst={t('petOwner.governorateSelectCountryFirst')}
+          serverError={serverFields.governorate}
+        />
+
         <GenderRadioGroup control={control} name="gender" label={t('petOwner.genderLabel')} />
+
+        <FormField
+          control={control}
+          name="specialization"
+          label={t('veterinarian.specializationLabel')}
+          placeholder={t('veterinarian.specializationPlaceholder')}
+          returnKeyType="next"
+          serverError={serverFields.specialization}
+          editable={stage !== 'apply-error'}
+        />
 
         <View style={{ rowGap: theme.spacing.md }}>
           <Text variant="bodyStrong">{t('veterinarian.documentsSection')}</Text>

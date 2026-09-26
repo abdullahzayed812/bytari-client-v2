@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
@@ -18,10 +18,12 @@ export interface ReviewModalProps {
   organizationId: string;
   visible: boolean;
   onClose: () => void;
+  /** The viewer's existing review — pre-fills the form (one review per user; submit updates it). */
+  initial?: { rating: number; comment: string | null } | null;
 }
 
 /** "تقييم" — submit (or update) the viewer's own rating + optional comment. */
-export function ReviewModal({ organizationId, visible, onClose }: ReviewModalProps) {
+export function ReviewModal({ organizationId, visible, onClose, initial }: ReviewModalProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
   const toast = useToast();
@@ -33,6 +35,12 @@ export function ReviewModal({ organizationId, visible, onClose }: ReviewModalPro
     setRating(0);
     setComment('');
   };
+
+  useEffect(() => {
+    if (!visible) return;
+    setRating(initial?.rating ?? 0);
+    setComment(initial?.comment ?? '');
+  }, [visible, initial]);
 
   const submit = () => {
     if (rating < 1) return;
@@ -58,7 +66,7 @@ export function ReviewModal({ organizationId, visible, onClose }: ReviewModalPro
         reset();
         onClose();
       }}
-      title={t('clinicDetail.reviewModalTitle')}
+      title={initial ? t('clinicDetail.reviewModalEditTitle') : t('clinicDetail.reviewModalTitle')}
     >
       <View style={{ rowGap: theme.spacing.lg }}>
         <View style={{ alignItems: 'center', rowGap: theme.spacing.sm }}>

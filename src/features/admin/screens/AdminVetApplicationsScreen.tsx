@@ -127,7 +127,13 @@ export default function AdminVetApplicationsScreen() {
         renderItem={(a) => (
           <AdminRow
             title={`${a.user.firstName} ${a.user.lastName}`.trim() || a.user.email}
-            subtitle={a.user.email}
+            subtitle={[
+              a.user.email,
+              a.user.phone,
+              a.user.specialization ? `${t('vets.specialization')}: ${a.user.specialization}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
             meta={
               a.note
                 ? a.note

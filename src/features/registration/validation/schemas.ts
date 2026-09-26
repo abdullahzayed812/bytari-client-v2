@@ -1,14 +1,17 @@
 import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
+import { governoratesFor } from '@/constants/governorates';
+
 /**
  * Registration-flow validation. Personal-info fields mirror the existing
  * `auth` register schema exactly (`server/src/modules/auth/auth.schemas.ts`):
  *
- *   firstName/lastName(1–100) · email · phone? · password(≥10, ≤128)
+ *   firstName/lastName(1–100) · email · phone (required) · password(≥10, ≤128)
  *
- * plus the new optional-on-the-wire-but-required-here fields this flow
- * collects: `country` (2-letter ISO) and `gender`. The veterinarian schema
+ * plus the fields this flow requires: `country` (2-letter ISO), the
+ * `governorate` inside it (fixed list where one exists — see
+ * `@/constants/governorates` — else free text) and `gender`. The veterinarian schema
  * additionally mirrors `server/src/modules/veterinarians/*` — `subType` plus
  * per-`subType` required documents — as a defense-in-depth duplicate of the
  * backend's own rule (§ veterinarian.apply contract).
@@ -30,6 +33,22 @@ const localFileSchema = z.object({
   size: z.number().optional(),
 });
 
+/** Governorate must belong to the selected country's list, when that country has one. */
+function checkGovernorate(
+  values: { country: string; governorate: string },
+  ctx: z.RefinementCtx,
+  t: RegistrationTFn,
+): void {
+  const list = governoratesFor(values.country);
+  if (list && values.governorate && !list.includes(values.governorate)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: t('errors.governorateRequired'),
+      path: ['governorate'],
+    });
+  }
+}
+
 function buildPersonalShape(t: RegistrationTFn) {
   return {
     firstName: z.string().trim().min(1, t('errors.nameRequired')).max(100, t('errors.nameTooLong')),
@@ -40,13 +59,22 @@ function buildPersonalShape(t: RegistrationTFn) {
       .min(1, t('errors.emailRequired'))
       .email(t('errors.emailInvalid'))
       .max(254),
-    phone: z.string().trim().regex(PHONE_RE, t('errors.phoneInvalid')).optional().or(z.literal('')),
+    phone: z
+      .string()
+      .trim()
+      .min(1, t('errors.phoneRequired'))
+      .regex(PHONE_RE, t('errors.phoneInvalid')),
     password: z
       .string()
       .min(10, t('errors.passwordTooShort'))
       .max(128, t('errors.passwordInvalid')),
     confirmPassword: z.string().min(1, t('errors.confirmPasswordRequired')),
     country: z.string().length(2, t('errors.countryRequired')),
+    governorate: z
+      .string()
+      .trim()
+      .min(1, t('errors.governorateRequired'))
+      .max(100, t('errors.governorateRequired')),
     gender: z.enum(['MALE', 'FEMALE']).optional(),
     terms: z.boolean(),
   };
@@ -54,6 +82,7 @@ function buildPersonalShape(t: RegistrationTFn) {
 
 export function buildPetOwnerSchema(t: RegistrationTFn) {
   return z.object(buildPersonalShape(t)).superRefine((values, ctx) => {
+    checkGovernorate(values, ctx, t);
     if (values.password !== values.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -85,12 +114,15 @@ export function buildVeterinarianSchema(t: RegistrationTFn) {
     .object({
       ...buildPersonalShape(t),
       subType: z.enum(['VETERINARIAN', 'STUDENT']),
+      /** Optional "التخصص". */
+      specialization: z.string().trim().max(150, t('errors.specializationTooLong')).optional(),
       licenseOrId: localFileSchema.optional(),
       additionalId: localFileSchema.optional(),
       studentIdFront: localFileSchema.optional(),
       studentIdBack: localFileSchema.optional(),
     })
     .superRefine((values, ctx) => {
+      checkGovernorate(values, ctx, t);
       if (values.password !== values.confirmPassword) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
