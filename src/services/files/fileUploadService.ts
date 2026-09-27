@@ -47,12 +47,18 @@ export interface UploadOptions {
   signal?: AbortSignal;
 }
 
+/** Read the local file once — its bytes are uploaded and its real size is declared. */
+function readBlob(file: LocalFile): Promise<Blob> {
+  return fetch(file.uri).then((r) => r.blob());
+}
+
 async function putBytes(
   presigned: PresignedUpload,
   file: LocalFile,
   options?: UploadOptions,
+  blob?: Blob,
 ): Promise<number> {
-  const body = await fetch(file.uri).then((r) => r.blob());
+  const body = blob ?? (await readBlob(file));
   const total = body.size || file.size || 0;
   options?.onProgress?.({ loaded: 0, total, fraction: 0 });
 
@@ -102,10 +108,14 @@ export class FileUploadService {
   constructor(private readonly provider: PresignProvider) {}
 
   async upload(file: LocalFile, options?: UploadOptions): Promise<UploadResult> {
-    assertUploadable(file);
-    const presigned = await this.provider.requestUpload(file);
-    const size = await putBytes(presigned, file, options);
-    await this.provider.finalizeUpload?.(presigned.storageKey, file);
+    // Pickers (notably on web) and edited images may not report a byte size,
+    // but every presign endpoint requires one — measure the actual bytes.
+    const blob = await readBlob(file);
+    const sized: LocalFile = file.size && file.size > 0 ? file : { ...file, size: blob.size };
+    assertUploadable(sized);
+    const presigned = await this.provider.requestUpload(sized);
+    const size = await putBytes(presigned, sized, options, blob);
+    await this.provider.finalizeUpload?.(presigned.storageKey, sized);
     log.info('upload complete', { storageKey: presigned.storageKey, size });
     return { storageKey: presigned.storageKey, size };
   }

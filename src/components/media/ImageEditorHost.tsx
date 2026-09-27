@@ -162,10 +162,16 @@ export function ImageEditorHost() {
         format: SaveFormat.JPEG,
       });
       const base = job.file.name.replace(/\.[^.]+$/, '') || `image-${Date.now()}`;
+      // The re-encoded file's byte size — every presign endpoint requires it.
+      const outputBytes = await fetch(r.uri)
+        .then((res) => res.blob())
+        .then((b) => b.size)
+        .catch(() => undefined);
       finish({
         uri: r.uri,
         name: `${base}.jpg`,
         mimeType: 'image/jpeg',
+        size: outputBytes,
         width: r.width,
         height: r.height,
       });
