@@ -7,3 +7,4 @@ export { LocalImageUploader, type LocalImageUploaderProps } from './LocalImageUp
 export { MultiImagePicker, type MultiImagePickerProps } from './MultiImagePicker';
 export { FileUploader, type FileUploaderProps } from './FileUploader';
 export { QrCode, type QrCodeProps } from './QrCode';
+export { ImageEditorHost } from './ImageEditorHost';

@@ -422,6 +422,7 @@ export const Routes = {
   // Management Centre — admin areas (Mobile Audit Phase P1)
   adminUsers: '/(app)/admin/users',
   adminUser: (userId: string) => `/(app)/admin/users/${userId}` as const,
+  adminUserEdit: (userId: string) => `/(app)/admin/users/${userId}/edit` as const,
   adminVetApplications: '/(app)/admin/veterinarians',
   adminOrganizations: '/(app)/admin/organizations',
   adminOrganization: (organizationId: string) =>

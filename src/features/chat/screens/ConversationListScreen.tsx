@@ -12,7 +12,11 @@ import { useTheme } from '@/theme';
 import { ConversationCard } from '../components';
 import { useConversations } from '../hooks';
 
-/** Route `/chat` — the caller's conversations across every clinic / farm relationship. */
+/**
+ * Route `/chat` — the caller's conversations: every clinic / office / farm /
+ * vet-marketplace thread plus the Global Chat rooms they have joined. Opened
+ * from the Messages icon of BOTH the Pet Owner and Veterinarian Home headers.
+ */
 export default function ConversationListScreen() {
   const theme = useTheme();
   const { t } = useTranslation('chat');
@@ -37,7 +41,13 @@ export default function ConversationListScreen() {
           renderItem={({ item }) => (
             <ConversationCard
               conversation={item}
-              onPress={() => router.push(Routes.chatThread(item.id))}
+              onPress={() =>
+                // A joined Global Chat room opens its own room thread (pinned
+                // message, member names, moderation) — same backing conversation.
+                item.type === 'CHAT_ROOM' && item.organizationId
+                  ? router.push(Routes.globalChatRoomThread(item.organizationId))
+                  : router.push(Routes.chatThread(item.id))
+              }
             />
           )}
           ListHeaderComponent={

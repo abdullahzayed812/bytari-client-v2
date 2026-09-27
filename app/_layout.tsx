@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { View } from 'react-native';
 
 import { AppSplash } from '@/components/feedback';
+import { ImageEditorHost } from '@/components/media';
 import { AuthRedirector } from '@/navigation/AuthRedirector';
 import {
   AppProviders,
@@ -55,6 +56,8 @@ function RootNavigator() {
         <Stack.Screen name="(app)" />
         <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />
       </Stack>
+      {/* Shared crop / resize step for every picked image (see services/media/imageEditing). */}
+      <ImageEditorHost />
     </View>
   );
 }

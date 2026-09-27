@@ -101,10 +101,10 @@ export default function TransferRequestsScreen() {
   const createForm = useForm<TransferRequestFormValues>({
     resolver: zodResolver(requestSchema),
     // DEV-ONLY: pre-filled so the form doesn't need retyping on every test run.
-    // `toUserId` is a real recipient's account id and can't be faked, so it's
+    // `toEmail` is a real recipient's account and can't be faked, so it's
     // left blank even in dev.
     defaultValues: {
-      toUserId: '',
+      toEmail: '',
       reason: devDataEnabled ? 'رغبة في نقل ملكية الحيوان لصديق موثوق' : '',
     },
     mode: 'onTouched',
@@ -114,7 +114,7 @@ export default function TransferRequestsScreen() {
     setCreateAnimalId(petId);
     setCreateError(null);
     createForm.reset({
-      toUserId: '',
+      toEmail: '',
       reason: devDataEnabled ? 'رغبة في نقل ملكية الحيوان لصديق موثوق' : '',
     });
     setShowCreate(true);
@@ -132,7 +132,10 @@ export default function TransferRequestsScreen() {
     if (!createAnimalId || create.isPending) return;
     setCreateError(null);
     create.mutate(
-      { animalId: createAnimalId, input: { toUserId: values.toUserId, reason: values.reason } },
+      {
+        animalId: createAnimalId,
+        input: { toEmail: values.toEmail.trim().toLowerCase(), reason: values.reason },
+      },
       {
         onSuccess: () => {
           toast.show({ tone: 'success', message: t('transferRequests.sendSuccess') });
@@ -298,10 +301,11 @@ export default function TransferRequestsScreen() {
           />
           <FormField
             control={createForm.control}
-            name="toUserId"
+            name="toEmail"
             label={t('transferRequests.recipientLabel')}
             placeholder={t('transferRequests.recipientPlaceholder')}
             hint={t('transferRequests.recipientHint')}
+            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
           />

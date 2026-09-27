@@ -14,6 +14,7 @@ import { ApiError } from '@/services/api';
 
 import { adminApi, adminKeys } from '../api';
 import type {
+  AdminUpdateUserInput,
   AdminUser,
   AdminUserDetail,
   Paginated,
@@ -99,6 +100,46 @@ export function useUserRoleMutation(
         : adminApi.removeUserRole(userId, roleKey),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminKeys.users.detail(userId) });
+    },
+  });
+}
+
+/** `PATCH /admin/users/:id` — profile fields only. */
+export function useUpdateUserMutation(
+  userId: string,
+): UseMutationResult<AdminUser, unknown, AdminUpdateUserInput> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['admin', 'users', userId, 'update'],
+    mutationFn: (body) => adminApi.updateUser(userId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.users.detail(userId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.users.lists() });
+    },
+  });
+}
+
+/** Set a new password (admin-chosen) or email a reset code. Passwords are never readable. */
+export function useUserPasswordMutations(userId: string) {
+  const setPassword = useMutation({
+    mutationKey: ['admin', 'users', userId, 'password'],
+    mutationFn: (newPassword: string) => adminApi.setUserPassword(userId, newPassword),
+  });
+  const sendReset = useMutation({
+    mutationKey: ['admin', 'users', userId, 'password-reset'],
+    mutationFn: () => adminApi.sendUserPasswordReset(userId),
+  });
+  return { setPassword, sendReset };
+}
+
+/** "مراسلة المستخدم" — opens a support thread through the existing support chat. */
+export function useMessageUserMutation(userId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['admin', 'users', userId, 'message'],
+    mutationFn: (body: string) => adminApi.messageUser(userId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['support'] });
     },
   });
 }

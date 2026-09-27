@@ -39,8 +39,10 @@ export function useMediaUpload(provider: PresignProvider): UseMediaUpload {
     file: null,
   });
   const abortRef = useRef<AbortController | null>(null);
-  const serviceRef = useRef<FileUploadService | null>(null);
-  if (!serviceRef.current) serviceRef.current = new FileUploadService(provider);
+  // Always upload through the LATEST provider (its target — e.g. a conversation
+  // id — may only be known after the first render).
+  const providerRef = useRef(provider);
+  providerRef.current = provider;
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
@@ -67,7 +69,7 @@ export function useMediaUpload(provider: PresignProvider): UseMediaUpload {
     };
 
     try {
-      const result = await serviceRef.current!.upload(file, opts);
+      const result = await new FileUploadService(providerRef.current).upload(file, opts);
       setState({ status: 'success', progress: 1, result, error: null, file });
       return result;
     } catch (error) {

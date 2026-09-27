@@ -6,10 +6,10 @@ import { Avatar } from '@/components/content';
 import { useToast } from '@/components/feedback';
 import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useChatRooms } from '@/features/globalChat/hooks';
+import { useConversations } from '@/features/chat/hooks';
 import { HeaderIconButton } from '@/features/home/components';
 import { useUnreadCount } from '@/features/notifications/hooks';
-import { useAppMode, useAuth } from '@/hooks';
+import { INTERFACE_SWITCH_ICON, useAuth, useInterfaceSwitch } from '@/hooks';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
 
@@ -17,12 +17,11 @@ import { fullName } from '@/utils';
  * Veterinarian Home header — matches the reference design: avatar + "Welcome,
  * doctor" greeting (start) and search / notifications / chat / mode-switch
  * icon buttons (end). Reuses the same `HeaderIconButton` as the Pet Owner Home
- * header (`@/features/home`) for a consistent look. The last icon (visually a
- * refresh glyph, per the reference design) switches the app straight back to
- * Pet Owner mode — the same action as the segmented control on `AccountScreen`
- * (`mode.setMode('owner')`), just one tap away from Home. The chat icon opens
- * Global Chat (public discussion rooms) — the 1:1 conversation list is still
- * reachable from there via a header icon, so nothing is lost.
+ * header for a consistent look. The last icon (`INTERFACE_SWITCH_ICON`, the
+ * same glyph as the Pet Owner header) switches back to Pet Owner mode with a
+ * confirmation toast. The chat icon opens the Conversations inbox — the same
+ * screen and unread count the Pet Owner header uses (direct, organization and
+ * joined-room threads), NOT the public Global Chat directly.
  */
 export function VeterinarianHomeHeader() {
   const theme = useTheme();
@@ -30,12 +29,13 @@ export function VeterinarianHomeHeader() {
   const { t: th } = useTranslation('home');
   const { t: tc } = useTranslation('common');
   const { t: tn } = useTranslation('notifications');
-  const { t: tch } = useTranslation('globalChat');
+  const { t: tch } = useTranslation('chat');
   const toast = useToast();
   const { user } = useAuth();
-  const mode = useAppMode();
+  const interfaceSwitch = useInterfaceSwitch();
   const { data: unread = 0 } = useUnreadCount();
-  const { unreadTotal: chatUnread } = useChatRooms({ pageSize: 20 });
+  // Same conversations inbox (and unread total) as the Pet Owner header.
+  const { unreadTotal: chatUnread } = useConversations({ pageSize: 20 });
 
   const name = user ? fullName(user.firstName, user.lastName) : undefined;
 
@@ -76,14 +76,14 @@ export function VeterinarianHomeHeader() {
         />
         <HeaderIconButton
           icon="chatbubbles-outline"
-          label={tch('list.title')}
+          label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
           badgeCount={chatUnread}
-          onPress={() => router.push(Routes.globalChat)}
+          onPress={() => router.push(Routes.chat)}
         />
         <HeaderIconButton
-          icon="refresh-outline"
+          icon={INTERFACE_SWITCH_ICON}
           label={t('home.switchToOwnerA11y')}
-          onPress={() => mode.setMode('owner')}
+          onPress={() => void interfaceSwitch.switchTo('owner')}
         />
       </View>
     </View>

@@ -73,16 +73,23 @@ export function buildEditOrganizationSchema(t: OrgTFn) {
     facebookUrl: optionalUrl,
     instagramUrl: optionalUrl,
     tiktokUrl: optionalUrl,
-    licenseNumber: z.string().trim().max(100, t('form.errors.tooLong')).optional().or(z.literal('')),
+    licenseNumber: z
+      .string()
+      .trim()
+      .max(100, t('form.errors.tooLong'))
+      .optional()
+      .or(z.literal('')),
   });
 }
 
 export type EditOrganizationFormValues = z.infer<ReturnType<typeof buildEditOrganizationSchema>>;
 
 /**
- * "Add member" / "assign supervisor" identifier — accepts either the target's
- * email (must belong to an existing account, resolved server-side) or their
- * raw user id (UUID). Shared by `AddMemberScreen` and `AssignSupervisorScreen`.
+ * "Add member" / "assign supervisor" identifier — the target's EMAIL only (it
+ * must belong to an existing account; the server resolves it and checks
+ * eligibility + the caller's permission). Manual user-id (UUID) entry was
+ * removed from the UI; ids stay internal. Shared by `AddMemberScreen`,
+ * `AssignSupervisorScreen` and the farm settings members section.
  */
 export function buildMemberIdentifierSchema(t: OrgTFn) {
   return z.object({
@@ -90,10 +97,7 @@ export function buildMemberIdentifierSchema(t: OrgTFn) {
       .string()
       .trim()
       .min(1, t('members.errors.identifierRequired'))
-      .refine(
-        (v) => z.string().uuid().safeParse(v).success || z.string().email().safeParse(v).success,
-        { message: t('members.errors.identifierInvalid') },
-      ),
+      .email(t('members.errors.identifierInvalid')),
   });
 }
 export type MemberIdentifierFormValues = z.infer<ReturnType<typeof buildMemberIdentifierSchema>>;
@@ -138,7 +142,11 @@ export function buildRegistrationSchema(t: OrgTFn, options: { phoneRequired: boo
     facebookUrl: optionalUrl,
     instagramUrl: optionalUrl,
     whatsapp: z.string().trim().max(30).optional().or(z.literal('')),
-    licenseNumber: z.string().trim().min(1, t('registration.errors.licenseNumberRequired')).max(120),
+    licenseNumber: z
+      .string()
+      .trim()
+      .min(1, t('registration.errors.licenseNumberRequired'))
+      .max(120),
   });
 }
 
@@ -153,10 +161,7 @@ export function servicesToArray(services: string | undefined): string[] {
     .filter(Boolean);
 }
 
-/** Split the single "email or user id" field into the right request field. */
-export function memberIdentifierToInput(identifier: string): { userId?: string; email?: string } {
-  const trimmed = identifier.trim();
-  return z.string().uuid().safeParse(trimmed).success
-    ? { userId: trimmed }
-    : { email: trimmed.toLowerCase() };
+/** The email field → the request's `email` (the server resolves the account). */
+export function memberIdentifierToInput(identifier: string): { email: string } {
+  return { email: identifier.trim().toLowerCase() };
 }

@@ -35,6 +35,7 @@ import type {
   UserListFilter,
   UserRolesResult,
   UserStatusAction,
+  AdminUpdateUserInput,
 } from '../types';
 
 /**
@@ -90,6 +91,28 @@ export const adminApi = {
 
   getUser(userId: string): Promise<AdminUserDetail> {
     return apiClient.get<AdminUserDetail>(`/admin/users/${userId}`);
+  },
+
+  updateUser(userId: string, body: AdminUpdateUserInput): Promise<AdminUser> {
+    return apiClient.patch<AdminUser>(`/admin/users/${userId}`, body);
+  },
+
+  /** Admin chooses a new password — all of the user's sessions are revoked. Nothing is returned/readable. */
+  setUserPassword(
+    userId: string,
+    newPassword: string,
+  ): Promise<{ userId: string; revokedSessions: number }> {
+    return apiClient.post(`/admin/users/${userId}/password`, { newPassword });
+  },
+
+  /** Emails the user a one-time reset code (the user picks their own password). */
+  sendUserPasswordReset(userId: string): Promise<{ codeExpiresInSeconds: number }> {
+    return apiClient.post(`/admin/users/${userId}/password-reset`);
+  },
+
+  /** Opens a support thread owned by the user with this first message (existing support chat). */
+  messageUser(userId: string, body: string): Promise<{ id: string }> {
+    return apiClient.post<{ id: string }>(`/admin/users/${userId}/messages`, { body });
   },
 
   changeUserStatus(userId: string, action: UserStatusAction, reason?: string): Promise<AdminUser> {

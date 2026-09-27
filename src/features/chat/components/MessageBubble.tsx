@@ -7,6 +7,8 @@ import { formatDate } from '@/utils';
 
 import type { ChatMessage } from '../types';
 
+import { MessageAttachmentView } from './MessageAttachmentView';
+
 export interface MessageBubbleProps {
   message: ChatMessage;
   /** The signed-in user's id — their own messages align to the end. */
@@ -61,12 +63,19 @@ export function MessageBubble({ message, currentUserId, onDelete }: MessageBubbl
           borderColor: mine ? theme.colors.primary : theme.colors.border,
         }}
       >
-        <Text
-          variant="body"
-          style={deleted ? { color: theme.colors.textMuted, fontStyle: 'italic' } : undefined}
-        >
-          {deleted ? t('message.deleted') : message.body}
-        </Text>
+        {!deleted && message.attachment ? (
+          <View style={{ marginBottom: message.body ? theme.spacing.xs : 0 }}>
+            <MessageAttachmentView message={message} attachment={message.attachment} />
+          </View>
+        ) : null}
+        {deleted || message.body ? (
+          <Text
+            variant="body"
+            style={deleted ? { color: theme.colors.textMuted, fontStyle: 'italic' } : undefined}
+          >
+            {deleted ? t('message.deleted') : message.body}
+          </Text>
+        ) : null}
       </View>
       <Caption style={{ alignSelf: mine ? 'flex-end' : 'flex-start' }}>
         {formatDate(message.createdAt)}

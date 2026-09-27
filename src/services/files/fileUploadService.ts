@@ -24,7 +24,9 @@ import type {
  */
 const log = createLogger('file-upload');
 
-const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+// Largest single upload the app attempts (chat videos). Each backend endpoint
+// enforces its own, usually smaller, per-kind limit.
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
 const ALLOWED_MIME_PREFIXES = ['image/', 'application/pdf', 'video/', 'audio/'];
 
@@ -54,20 +56,43 @@ async function putBytes(
   const total = body.size || file.size || 0;
   options?.onProgress?.({ loaded: 0, total, fraction: 0 });
 
-  let response: Response;
-  try {
-    response = await fetch(presigned.uploadUrl, {
-      method: presigned.method,
-      headers: { 'Content-Type': file.mimeType, ...presigned.headers },
-      body,
-      signal: options?.signal,
-    });
-  } catch (error) {
-    throw networkError(error);
-  }
+  const headers: Record<string, string> = { 'Content-Type': file.mimeType, ...presigned.headers };
 
-  if (!response.ok) {
-    throw new Error(`Upload failed with status ${response.status}`);
+  // XMLHttpRequest reports real upload progress (fetch cannot); fall back to
+  // fetch where XHR is unavailable (tests / non-RN runtimes).
+  if (typeof XMLHttpRequest !== 'undefined') {
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(presigned.method, presigned.uploadUrl);
+      for (const [k, v] of Object.entries(headers)) xhr.setRequestHeader(k, v);
+      xhr.upload.onprogress = (e) => {
+        if (!e.lengthComputable) return;
+        options?.onProgress?.({ loaded: e.loaded, total: e.total, fraction: e.loaded / e.total });
+      };
+      xhr.onload = () =>
+        xhr.status >= 200 && xhr.status < 300
+          ? resolve()
+          : reject(new Error(`Upload failed with status ${xhr.status}`));
+      xhr.onerror = () => reject(networkError(new Error('upload network error')));
+      xhr.onabort = () => reject(new DOMException('Upload aborted', 'AbortError'));
+      options?.signal?.addEventListener('abort', () => xhr.abort());
+      xhr.send(body);
+    });
+  } else {
+    let response: Response;
+    try {
+      response = await fetch(presigned.uploadUrl, {
+        method: presigned.method,
+        headers,
+        body,
+        signal: options?.signal,
+      });
+    } catch (error) {
+      throw networkError(error);
+    }
+    if (!response.ok) {
+      throw new Error(`Upload failed with status ${response.status}`);
+    }
   }
   options?.onProgress?.({ loaded: total, total, fraction: 1 });
   return total;

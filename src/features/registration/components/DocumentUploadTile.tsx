@@ -22,7 +22,13 @@ export interface DocumentUploadTileProps {
  * handler uploads every staged document right after `register()` succeeds,
  * batched into the same `apply()` call.
  */
-export function DocumentUploadTile({ label, required, value, onChange, error }: DocumentUploadTileProps) {
+export function DocumentUploadTile({
+  label,
+  required,
+  value,
+  onChange,
+  error,
+}: DocumentUploadTileProps) {
   const { t } = useTranslation('registration');
   const theme = useTheme();
 
@@ -51,6 +57,8 @@ export function DocumentUploadTile({ label, required, value, onChange, error }: 
           shape="square"
           size={64}
           icon="arrow-up-outline"
+          // Identity documents / certificates are stored exactly as picked.
+          edit={false}
         />
       </View>
 

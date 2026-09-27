@@ -5,18 +5,28 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Badge, Card, Divider } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
-import { ApiError } from '@/services/api';
+import { ApiError, ApiErrorCode } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { AdSlideForm, AdSlideRow } from '../components';
-import { useAdminAdCampaign, useAdminAdCampaignMutations, useAdminAdSlideMutations } from '../hooks';
+import {
+  useAdminAdCampaign,
+  useAdminAdCampaignMutations,
+  useAdminAdSlideMutations,
+} from '../hooks';
 
 type SlideEditorState = { mode: 'add' } | { mode: 'edit'; slideId: string } | null;
 
@@ -38,7 +48,8 @@ export default function AdminAdCampaignDetailScreen() {
   const [slideEditor, setSlideEditor] = useState<SlideEditorState>(null);
   const [confirmDeleteSlideId, setConfirmDeleteSlideId] = useState<string | null>(null);
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
@@ -61,7 +72,12 @@ export default function AdminAdCampaignDetailScreen() {
   }
 
   const campaign = q.data;
-  const busy = update.isPending || remove.isPending || restore.isPending || activate.isPending || deactivate.isPending;
+  const busy =
+    update.isPending ||
+    remove.isPending ||
+    restore.isPending ||
+    activate.isPending ||
+    deactivate.isPending;
   const bannerLimitReached = campaign?.type === 'BANNER' && (campaign?.slides.length ?? 0) >= 1;
 
   const startEditInfo = () => {
@@ -74,7 +90,10 @@ export default function AdminAdCampaignDetailScreen() {
   const saveInfo = () => {
     if (!campaign) return;
     update.mutate(
-      { campaignId: campaign.id, body: { title: titleDraft.trim(), sortOrder: Number(sortOrderDraft) || 0 } },
+      {
+        campaignId: campaign.id,
+        body: { title: titleDraft.trim(), sortOrder: Number(sortOrderDraft) || 0 },
+      },
       {
         onSuccess: () => {
           toast.show({ tone: 'success', message: t('admin.detail.saveSuccess') });
@@ -85,6 +104,21 @@ export default function AdminAdCampaignDetailScreen() {
     );
   };
 
+  // Mirrors the server rule (`AD_CAMPAIGN_NOT_ACTIVATABLE`): a campaign with no
+  // imaged slide renders nothing, so it cannot be activated.
+  const hasImagedSlide = campaign?.slides.some((s) => !!s.imageUrl) ?? false;
+  const activationBlocked =
+    !!campaign && !campaign.isActive && (!hasImagedSlide || !!campaign.deletedAt);
+
+  const activationErrorMessage = (error: unknown): string => {
+    if (error instanceof ApiError && error.code === ApiErrorCode.AD_CAMPAIGN_NOT_ACTIVATABLE) {
+      return error.details?.[0]?.rule === 'CAMPAIGN_DELETED'
+        ? t('admin.detail.activateBlockedDeleted')
+        : t('admin.detail.activateBlockedNoImage');
+    }
+    return apiErrorMessage(error);
+  };
+
   const toggleActive = () => {
     if (!campaign) return;
     const action = campaign.isActive ? deactivate : activate;
@@ -92,9 +126,11 @@ export default function AdminAdCampaignDetailScreen() {
       onSuccess: () =>
         toast.show({
           tone: 'success',
-          message: t(campaign.isActive ? 'admin.detail.deactivateSuccess' : 'admin.detail.activateSuccess'),
+          message: t(
+            campaign.isActive ? 'admin.detail.deactivateSuccess' : 'admin.detail.activateSuccess',
+          ),
         }),
-      onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+      onError: (error) => toast.show({ tone: 'danger', message: activationErrorMessage(error) }),
     });
   };
 
@@ -186,7 +222,11 @@ export default function AdminAdCampaignDetailScreen() {
             <Card variant="outlined" padding="md">
               {editingInfo ? (
                 <View style={{ rowGap: theme.spacing.sm }}>
-                  <Input label={t('admin.detail.fieldTitle')} value={titleDraft} onChangeText={setTitleDraft} />
+                  <Input
+                    label={t('admin.detail.fieldTitle')}
+                    value={titleDraft}
+                    onChangeText={setTitleDraft}
+                  />
                   <Input
                     label={t('admin.detail.fieldSortOrder')}
                     value={sortOrderDraft}
@@ -195,7 +235,12 @@ export default function AdminAdCampaignDetailScreen() {
                   />
                   <Row gap="sm">
                     <View style={{ flex: 1 }}>
-                      <Button label={t('admin.detail.saveCta')} loading={update.isPending} onPress={saveInfo} fullWidth />
+                      <Button
+                        label={t('admin.detail.saveCta')}
+                        loading={update.isPending}
+                        onPress={saveInfo}
+                        fullWidth
+                      />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Button
@@ -211,11 +256,20 @@ export default function AdminAdCampaignDetailScreen() {
                 <View style={{ rowGap: theme.spacing.xs }}>
                   <Field label={t('admin.detail.fieldTitle')} value={campaign.title} />
                   <Divider spacing="sm" />
-                  <Field label={t('admin.detail.fieldType')} value={t(`admin.campaignType.${campaign.type}`)} />
+                  <Field
+                    label={t('admin.detail.fieldType')}
+                    value={t(`admin.campaignType.${campaign.type}`)}
+                  />
                   <Divider spacing="sm" />
-                  <Field label={t('admin.detail.fieldPlacement')} value={t(`placements.${campaign.placement}`)} />
+                  <Field
+                    label={t('admin.detail.fieldPlacement')}
+                    value={t(`placements.${campaign.placement}`)}
+                  />
                   <Divider spacing="sm" />
-                  <Field label={t('admin.detail.fieldSortOrder')} value={String(campaign.sortOrder)} />
+                  <Field
+                    label={t('admin.detail.fieldSortOrder')}
+                    value={String(campaign.sortOrder)}
+                  />
                   <Divider spacing="sm" />
                   <Row justify="space-between" align="center">
                     <Caption>{t('admin.detail.fieldStatus')}</Caption>
@@ -246,21 +300,36 @@ export default function AdminAdCampaignDetailScreen() {
             <Row gap="sm">
               <View style={{ flex: 1 }}>
                 <Button
-                  label={t(campaign.isActive ? 'admin.detail.deactivateCta' : 'admin.detail.activateCta')}
+                  label={t(
+                    campaign.isActive ? 'admin.detail.deactivateCta' : 'admin.detail.activateCta',
+                  )}
                   variant="outline"
-                  disabled={busy}
+                  disabled={busy || activationBlocked}
                   onPress={toggleActive}
                   fullWidth
                 />
               </View>
             </Row>
+            {activationBlocked ? (
+              <Caption style={{ marginTop: theme.spacing.xs }}>
+                {t(
+                  campaign.deletedAt
+                    ? 'admin.detail.activateBlockedDeleted'
+                    : 'admin.detail.activateBlockedNoImage',
+                )}
+              </Caption>
+            ) : null}
           </Section>
 
           <Section spacing="xl">
             <Row justify="space-between" align="center">
               <Label>{t('admin.slides.title')}</Label>
               {!bannerLimitReached && slideEditor === null ? (
-                <Text variant="label" color="primary" onPress={() => setSlideEditor({ mode: 'add' })}>
+                <Text
+                  variant="label"
+                  color="primary"
+                  onPress={() => setSlideEditor({ mode: 'add' })}
+                >
                   {t('admin.slides.addCta')}
                 </Text>
               ) : null}
@@ -269,7 +338,9 @@ export default function AdminAdCampaignDetailScreen() {
 
             {slideEditor?.mode === 'add' ? (
               <Card variant="outlined" padding="md">
-                <Label style={{ marginBottom: theme.spacing.sm }}>{t('admin.slides.formAddTitle')}</Label>
+                <Label style={{ marginBottom: theme.spacing.sm }}>
+                  {t('admin.slides.formAddTitle')}
+                </Label>
                 <AdSlideForm
                   submitting={slideMutations.addSlide.isPending}
                   onSubmit={onSlideSubmit}
@@ -279,13 +350,19 @@ export default function AdminAdCampaignDetailScreen() {
             ) : null}
 
             {campaign.slides.length === 0 && slideEditor === null ? (
-              <EmptyState icon="images-outline" title={t('admin.slides.empty')} message={t('admin.slides.emptyHint')} />
+              <EmptyState
+                icon="images-outline"
+                title={t('admin.slides.empty')}
+                message={t('admin.slides.emptyHint')}
+              />
             ) : (
               <View style={{ rowGap: theme.spacing.md }}>
                 {campaign.slides.map((slide, index) =>
                   slideEditor?.mode === 'edit' && slideEditor.slideId === slide.id ? (
                     <Card key={slide.id} variant="outlined" padding="md">
-                      <Label style={{ marginBottom: theme.spacing.sm }}>{t('admin.slides.formEditTitle')}</Label>
+                      <Label style={{ marginBottom: theme.spacing.sm }}>
+                        {t('admin.slides.formEditTitle')}
+                      </Label>
                       <AdSlideForm
                         initial={slide}
                         submitting={slideMutations.updateSlide.isPending}
@@ -312,12 +389,21 @@ export default function AdminAdCampaignDetailScreen() {
           </Section>
 
           <Section spacing="giant">
-            <Button
-              label={t('admin.detail.deleteCta')}
-              variant="ghost"
-              disabled={busy}
-              onPress={() => setConfirmDelete(true)}
-            />
+            {campaign.deletedAt ? (
+              <Button
+                label={t('admin.detail.restoreCta')}
+                variant="outline"
+                disabled={busy}
+                onPress={onRestore}
+              />
+            ) : (
+              <Button
+                label={t('admin.detail.deleteCta')}
+                variant="ghost"
+                disabled={busy}
+                onPress={() => setConfirmDelete(true)}
+              />
+            )}
           </Section>
 
           <ConfirmationDialog

@@ -11,7 +11,13 @@ import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
 import { adminPublicationsApi, publicationKeys } from '../api';
-import type { AnimalPublication, Paginated, PublicationKind, PublicationStatus } from '../types';
+import type {
+  AdminUpdatePublicationInput,
+  AnimalPublication,
+  Paginated,
+  PublicationKind,
+  PublicationStatus,
+} from '../types';
 
 /**
  * The Lost / Adoption / Mating moderation queue — `GET /admin/animal-publications`.
@@ -66,4 +72,22 @@ export function useAdminApprovePublication() {
 
 export function useAdminRejectPublication() {
   return useModerate((id, reason) => adminPublicationsApi.reject(id, reason ?? ''), 'reject');
+}
+
+/** `PATCH /admin/animal-publications/:id` — edit fields and/or reverse the decision. */
+export function useAdminUpdatePublication(): UseMutationResult<
+  AnimalPublication,
+  ApiError,
+  { publicationId: string; body: AdminUpdatePublicationInput }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['publications', 'admin', 'update'],
+    mutationFn: ({ publicationId, body }) => adminPublicationsApi.update(publicationId, body),
+    onSuccess: (updated) => {
+      void qc.invalidateQueries({ queryKey: publicationKeys.admin() });
+      void qc.invalidateQueries({ queryKey: publicationKeys.publicList(updated.kind) });
+      void qc.invalidateQueries({ queryKey: publicationKeys.mine() });
+    },
+  });
 }

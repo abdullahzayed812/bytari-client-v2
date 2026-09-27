@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 
 import { chatApi, chatKeys } from '../api';
-import type { ChatMessage, Conversation, StartConversationInput } from '../types';
+import type { ChatMessage, Conversation, StartConversationInput, SendMessageInput } from '../types';
 
 /**
  * Chat mutations. No optimistic message insert — the realtime
@@ -11,11 +11,11 @@ import type { ChatMessage, Conversation, StartConversationInput } from '../types
  */
 export function useSendMessage(
   conversationId: string,
-): UseMutationResult<ChatMessage, unknown, string> {
+): UseMutationResult<ChatMessage, unknown, string | SendMessageInput> {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['chat', 'send', conversationId],
-    mutationFn: (body: string) => chatApi.sendMessage(conversationId, body),
+    mutationFn: (input: string | SendMessageInput) => chatApi.sendMessage(conversationId, input),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: chatKeys.messages(conversationId) });
       void qc.invalidateQueries({ queryKey: chatKeys.detail(conversationId) });

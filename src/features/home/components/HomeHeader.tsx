@@ -8,7 +8,7 @@ import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversations } from '@/features/chat/hooks';
 import { useUnreadCount } from '@/features/notifications/hooks';
-import { useAppMode, useAuth } from '@/hooks';
+import { INTERFACE_SWITCH_ICON, useAuth, useInterfaceSwitch } from '@/hooks';
 import { useAppHeaderGreeting } from '@/navigation/useAppHeaderGreeting';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
@@ -67,12 +67,10 @@ export function HeaderIconButton({
  * reference — the notifications card and chat card that used to live inline
  * on Home are now these icons; both keep their unread badges.
  *
- * The mode-switch icon mirrors `VeterinarianHomeHeader`'s own — it must be
- * reachable from Home in BOTH modes, not only from Veterinarian mode. An
- * approved vet (or admin) toggles straight into Veterinarian mode; anyone
- * else is sent to the "become a vet" application flow instead of a silent
- * no-op (`useAppMode`'s §15 UX decision: always show the option, explain/redirect
- * when not eligible rather than hide it).
+ * The mode-switch icon is the same one `VeterinarianHomeHeader` uses
+ * (`INTERFACE_SWITCH_ICON`). It is rendered ONLY for a backend-approved
+ * veterinarian (or admin); a plain pet owner never sees it. The switch itself
+ * re-verifies approval against `/auth/me` (`useInterfaceSwitch`).
  */
 export function HomeHeader() {
   const theme = useTheme();
@@ -82,7 +80,7 @@ export function HomeHeader() {
   const { t: tch } = useTranslation('chat');
   const toast = useToast();
   const { user } = useAuth();
-  const mode = useAppMode();
+  const interfaceSwitch = useInterfaceSwitch();
   const greeting = useAppHeaderGreeting();
   const { data: unread = 0 } = useUnreadCount();
   const { unreadTotal: chatUnread } = useConversations({ pageSize: 20 });
@@ -98,7 +96,9 @@ export function HomeHeader() {
         columnGap: theme.spacing.md,
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm, flex: 1 }}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm, flex: 1 }}
+      >
         <Avatar name={name} size="avatarMd" />
         <View style={{ flex: 1 }}>
           <Caption numberOfLines={1}>{greeting}</Caption>
@@ -128,15 +128,17 @@ export function HomeHeader() {
           badgeCount={chatUnread}
           onPress={() => router.push(Routes.chat)}
         />
-        <HeaderIconButton
-          icon="swap-horizontal-outline"
-          label={mode.canSwitchMode ? t('header.switchToVetA11y') : t('header.becomeVetA11y')}
-          onPress={() =>
-            mode.canSwitchMode
-              ? mode.setMode('veterinarian')
-              : router.push(Routes.veterinarianApply)
-          }
-        />
+        {/* Only an approved veterinarian (or admin) gets the switch — a plain
+            pet owner sees no button and no "become a vet" detour here. */}
+        {interfaceSwitch.canSwitch ? (
+          <HeaderIconButton
+            icon={INTERFACE_SWITCH_ICON}
+            label={t('header.switchToVetA11y')}
+            onPress={() => {
+              if (!interfaceSwitch.switching) void interfaceSwitch.switchTo('veterinarian');
+            }}
+          />
+        ) : null}
       </View>
     </View>
   );

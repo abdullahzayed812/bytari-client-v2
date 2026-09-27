@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Caption, Text } from '@/components/typography';
+import { MessageAttachmentView } from '@/features/chat/components/MessageAttachmentView';
 import type { ChatMessage } from '@/features/chat/types';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -56,7 +57,7 @@ export function RoomMessageBubble({
       <Pressable
         onLongPress={mine && !deleted && onDelete ? () => onDelete(message.id) : undefined}
         accessibilityRole="text"
-        accessibilityLabel={deleted ? t('thread.messageDeleted') : message.body ?? ''}
+        accessibilityLabel={deleted ? t('thread.messageDeleted') : (message.body ?? '')}
         style={{ flexDirection: 'row', alignItems: 'flex-end', columnGap: 4 }}
       >
         <View
@@ -68,12 +69,19 @@ export function RoomMessageBubble({
             borderColor: mine ? theme.colors.primary : theme.colors.border,
           }}
         >
-          <Text
-            variant="body"
-            style={deleted ? { color: theme.colors.textMuted, fontStyle: 'italic' } : undefined}
-          >
-            {deleted ? t('thread.messageDeleted') : message.body}
-          </Text>
+          {!deleted && message.attachment ? (
+            <View style={{ marginBottom: message.body ? theme.spacing.xs : 0 }}>
+              <MessageAttachmentView message={message} attachment={message.attachment} />
+            </View>
+          ) : null}
+          {deleted || message.body ? (
+            <Text
+              variant="body"
+              style={deleted ? { color: theme.colors.textMuted, fontStyle: 'italic' } : undefined}
+            >
+              {deleted ? t('thread.messageDeleted') : message.body}
+            </Text>
+          ) : null}
         </View>
         {!mine && !deleted && onOpenMenu ? (
           <IconButton

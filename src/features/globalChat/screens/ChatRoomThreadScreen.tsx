@@ -27,6 +27,7 @@ import {
   useMessages,
   useSendMessage,
 } from '@/features/chat/hooks';
+import type { OutgoingAttachment } from '@/features/chat/types';
 import { useOrganization } from '@/features/organizations/hooks';
 import { useAuth, useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
@@ -90,7 +91,8 @@ export default function ChatRoomThreadScreen() {
   }, [msgQ.messages, user?.id, markRead]);
 
   const notFound =
-    (roomQ.error instanceof ApiError && (roomQ.error.status === 404 || roomQ.error.status === 403)) ||
+    (roomQ.error instanceof ApiError &&
+      (roomQ.error.status === 404 || roomQ.error.status === 403)) ||
     (conversationQ.error instanceof ApiError &&
       (conversationQ.error.status === 404 || conversationQ.error.status === 403));
   if (notFound) {
@@ -130,12 +132,15 @@ export default function ChatRoomThreadScreen() {
   const menuMessage = msgQ.messages.find((m) => m.id === menuMessageId) ?? null;
   const menuIsPinned = menuMessage != null && room.pinnedMessage?.id === menuMessage.id;
 
-  const onSend = (body: string): void => {
+  const onSend = (body: string, attachment?: OutgoingAttachment): void => {
     setSendError(null);
-    send.mutate(body, {
-      onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
-      onError: (error) => setSendError(apiErrorMessage(error)),
-    });
+    send.mutate(
+      { body, attachment },
+      {
+        onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
+        onError: (error) => setSendError(apiErrorMessage(error)),
+      },
+    );
   };
 
   const closeMenu = (): void => setMenuMessageId(null);
@@ -200,8 +205,12 @@ export default function ChatRoomThreadScreen() {
                 onOpenMenu={(mid) => setMenuMessageId(mid)}
               />
             )}
-            ListEmptyComponent={<EmptyState icon="chatbubble-ellipses-outline" title={t('thread.noMessages')} />}
-            ListFooterComponent={msgQ.isFetchingNextPage ? <Loading label={t('thread.loadingMore')} /> : null}
+            ListEmptyComponent={
+              <EmptyState icon="chatbubble-ellipses-outline" title={t('thread.noMessages')} />
+            }
+            ListFooterComponent={
+              msgQ.isFetchingNextPage ? <Loading label={t('thread.loadingMore')} /> : null
+            }
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             contentContainerStyle={{
               padding: theme.screenPadding,
@@ -215,10 +224,19 @@ export default function ChatRoomThreadScreen() {
           />
         )}
 
-        <MessageComposer sending={send.isPending} error={sendError} onSend={onSend} />
+        <MessageComposer
+          conversationId={conversationId || undefined}
+          sending={send.isPending}
+          error={sendError}
+          onSend={onSend}
+        />
       </KeyboardAvoidingView>
 
-      <BottomSheet visible={menuMessageId != null} onClose={closeMenu} title={t('thread.messageMenuTitle')}>
+      <BottomSheet
+        visible={menuMessageId != null}
+        onClose={closeMenu}
+        title={t('thread.messageMenuTitle')}
+      >
         <View style={{ rowGap: theme.spacing.sm }}>
           <TextButton
             label={t('thread.reportMessage')}
@@ -244,11 +262,13 @@ export default function ChatRoomThreadScreen() {
                 if (!mid) return;
                 if (menuIsPinned) {
                   unpin.mutate(undefined, {
-                    onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                    onError: (error) =>
+                      toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                   });
                 } else {
                   pin.mutate(mid, {
-                    onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                    onError: (error) =>
+                      toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                   });
                 }
               }}
@@ -264,7 +284,8 @@ export default function ChatRoomThreadScreen() {
                 closeMenu();
                 if (mid)
                   modDel.mutate(mid, {
-                    onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                    onError: (error) =>
+                      toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                   });
               }}
             />

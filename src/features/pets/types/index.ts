@@ -161,7 +161,8 @@ export interface AnimalTransferRequest {
 }
 
 export interface CreateTransferRequestInput {
-  toUserId: string;
+  /** The recipient's account email — resolved server-side. */
+  toEmail: string;
   reason?: string;
 }
 

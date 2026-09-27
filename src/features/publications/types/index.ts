@@ -205,3 +205,28 @@ export interface Paginated<T> {
   items: T[];
   meta: PageMeta;
 }
+
+/**
+ * `PATCH /admin/animal-publications/:id` — moderator edit (ADMIN / ANIMAL
+ * supervisor, `animal.update`). Only fields applicable to the listing's kind
+ * are accepted server-side. `status` reverses a decision (APPROVED ↔
+ * REJECTED); `rejectionReason` is required when moving to REJECTED.
+ */
+export interface AdminUpdatePublicationInput {
+  note?: string;
+  extraNotes?: string | null;
+  contactName?: string;
+  contactPhone?: string;
+  city?: string;
+  healthStatus?: HealthStatus;
+  vaccinationStatus?: VaccinationStatus;
+  isSterilized?: boolean;
+  lostDate?: string;
+  lostTime?: string | null;
+  lostGovernorate?: string;
+  lostDistrict?: string;
+  lostLocationDetail?: string | null;
+  healthNotes?: string | null;
+  status?: 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+}

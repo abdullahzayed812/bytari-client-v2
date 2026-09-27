@@ -66,7 +66,7 @@ describe('MessageComposer', () => {
 
     fireEvent.changeText(screen.getByLabelText('اكتب رسالة…'), '  hi  ');
     fireEvent.press(screen.getByLabelText('إرسال'));
-    expect(onSend).toHaveBeenCalledWith('hi');
+    expect(onSend).toHaveBeenCalledWith('hi', undefined);
   });
 
   it('is fully disabled with a reason line', () => {

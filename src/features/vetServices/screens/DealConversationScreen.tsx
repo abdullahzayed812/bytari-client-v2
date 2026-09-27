@@ -27,6 +27,7 @@ import {
   useMessages,
   useSendMessage,
 } from '@/features/chat';
+import type { OutgoingAttachment } from '@/features/chat/types';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -107,15 +108,19 @@ export default function DealConversationScreen() {
         ? 'listing-request'
         : null;
   const status = conversation?.status ?? 'OPEN';
-  const canComplete = status === 'OPEN' && engagementKind !== null && Boolean(conversation?.subjectId);
+  const canComplete =
+    status === 'OPEN' && engagementKind !== null && Boolean(conversation?.subjectId);
   const busy = offerAction.isPending || lrAction.isPending || closeConversation.isPending;
 
-  const onSend = (body: string): void => {
+  const onSend = (body: string, attachment?: OutgoingAttachment): void => {
     setSendError(null);
-    send.mutate(body, {
-      onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
-      onError: (error) => setSendError(apiErrorMessage(error)),
-    });
+    send.mutate(
+      { body, attachment },
+      {
+        onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
+        onError: (error) => setSendError(apiErrorMessage(error)),
+      },
+    );
   };
 
   const doComplete = () => {
@@ -256,7 +261,12 @@ export default function DealConversationScreen() {
         )}
 
         {status === 'OPEN' ? (
-          <MessageComposer sending={send.isPending} error={sendError} onSend={onSend} />
+          <MessageComposer
+            conversationId={id}
+            sending={send.isPending}
+            error={sendError}
+            onSend={onSend}
+          />
         ) : (
           <View style={{ padding: theme.screenPadding }}>
             <Caption center color="textMuted">

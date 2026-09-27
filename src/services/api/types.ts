@@ -51,6 +51,8 @@ export const ApiErrorCode = {
   CONFLICT: 'CONFLICT',
   RATE_LIMITED: 'RATE_LIMITED',
   PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
+  /** 400 — ad campaign activation refused (deleted, or no slide has an image). `details[0].rule` says which. */
+  AD_CAMPAIGN_NOT_ACTIVATABLE: 'AD_CAMPAIGN_NOT_ACTIVATABLE',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   // client-synthesised

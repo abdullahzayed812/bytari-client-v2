@@ -4,6 +4,9 @@ export interface LocalFile {
   name: string;
   mimeType: string;
   size?: number;
+  /** Pixel dimensions when known (images from the picker / editor). */
+  width?: number;
+  height?: number;
 }
 
 /**

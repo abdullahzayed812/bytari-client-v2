@@ -32,6 +32,17 @@ export interface Capabilities {
   canEnterVeterinarianMode: boolean;
 }
 
+/**
+ * The single rule for entering Veterinarian Mode, evaluated on a backend
+ * `/auth/me` snapshot: an APPROVED veterinarian (or an admin, for oversight).
+ * A plain pet owner — or a pending / rejected applicant — never qualifies.
+ */
+export function canEnterVeterinarianModeFor(
+  session: { isAdmin?: boolean; veterinarian: { approved: boolean } } | null | undefined,
+): boolean {
+  return (session?.isAdmin ?? false) || (session?.veterinarian.approved ?? false);
+}
+
 export function useCapabilities(): Capabilities {
   const session = useAuthStore((s) => s.session);
 
@@ -60,7 +71,7 @@ export function useCapabilities(): Capabilities {
       isSupervisorOf: (domain) => isAdmin || supervisorDomains.includes(domain),
       canAccessManagementArea: isAdmin || supervisorDomains.length > 0,
       canAccessControlCentre: isAdmin || supervisorDomains.length > 0,
-      canEnterVeterinarianMode: isAdmin || isApprovedVeterinarian,
+      canEnterVeterinarianMode: canEnterVeterinarianModeFor(session),
     };
   }, [session]);
 }

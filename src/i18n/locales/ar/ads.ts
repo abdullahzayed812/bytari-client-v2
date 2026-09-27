@@ -67,6 +67,8 @@ export default {
       deactivateCta: 'إيقاف',
       activateSuccess: 'تم تفعيل الحملة.',
       deactivateSuccess: 'تم إيقاف الحملة.',
+      activateBlockedNoImage: 'لا يمكن تفعيل الحملة قبل رفع صورة لشريحة واحدة على الأقل.',
+      activateBlockedDeleted: 'هذه الحملة محذوفة. استعدها أولاً ثم فعّلها.',
       deleteCta: 'حذف الحملة',
       deleteConfirmTitle: 'حذف الحملة',
       deleteConfirmBody: 'سيتم حذف الحملة وجميع شرائحها. يمكن استعادتها لاحقاً.',

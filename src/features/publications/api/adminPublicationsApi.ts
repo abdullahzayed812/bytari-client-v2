@@ -1,7 +1,13 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
-import type { AnimalPublication, Paginated, PublicationKind, PublicationStatus } from '../types';
+import type {
+  AdminUpdatePublicationInput,
+  AnimalPublication,
+  Paginated,
+  PublicationKind,
+  PublicationStatus,
+} from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
   const m = (meta ?? {}) as Partial<ApiPageMeta>;
@@ -42,6 +48,11 @@ export const adminPublicationsApi = {
 
   approve(publicationId: string): Promise<AnimalPublication> {
     return apiClient.post<AnimalPublication>(`/admin/animal-publications/${publicationId}/approve`);
+  },
+
+  /** Moderator edit — fields and/or APPROVED ↔ REJECTED reversal (`animal.update`). */
+  update(publicationId: string, body: AdminUpdatePublicationInput): Promise<AnimalPublication> {
+    return apiClient.patch<AnimalPublication>(`/admin/animal-publications/${publicationId}`, body);
   },
 
   reject(publicationId: string, reason: string): Promise<AnimalPublication> {

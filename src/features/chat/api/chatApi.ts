@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/files/types';
 
 import type {
   ChatMessage,
@@ -7,6 +8,9 @@ import type {
   ConversationListFilter,
   Paginated,
   StartConversationInput,
+  ChatAttachmentKind,
+  ChatMessageAttachment,
+  SendMessageInput,
 } from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
@@ -38,6 +42,20 @@ function toConversation(raw: unknown): Conversation {
   };
 }
 
+function toAttachment(raw: unknown): ChatMessageAttachment | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const a = raw as Record<string, unknown>;
+  if (typeof a.url !== 'string') return null;
+  return {
+    kind: (a.kind as ChatMessageAttachment['kind']) ?? 'FILE',
+    fileName: String(a.fileName ?? ''),
+    mimeType: String(a.mimeType ?? 'application/octet-stream'),
+    sizeBytes: Number(a.sizeBytes ?? 0),
+    url: a.url,
+    urlExpiresInSeconds: Number(a.urlExpiresInSeconds ?? 0),
+  };
+}
+
 function toMessage(raw: unknown): ChatMessage {
   const r = (raw ?? {}) as Record<string, unknown>;
   return {
@@ -46,6 +64,7 @@ function toMessage(raw: unknown): ChatMessage {
     senderUserId: String(r.senderUserId ?? ''),
     body: (r.body as string | null) ?? null,
     type: (r.type as ChatMessage['type']) ?? 'TEXT',
+    attachment: toAttachment(r.attachment),
     deletedAt: (r.deletedAt as string | null) ?? null,
     createdAt: String(r.createdAt ?? ''),
   };
@@ -97,9 +116,37 @@ export const chatApi = {
     return { items, meta: readMeta(envelope.meta, page, pageSize, items.length) };
   },
 
-  async sendMessage(conversationId: string, body: string): Promise<ChatMessage> {
+  /** Text, or `{ body?, attachment? }` (attachment uploaded first via `requestAttachmentUpload`). */
+  async sendMessage(
+    conversationId: string,
+    input: string | SendMessageInput,
+  ): Promise<ChatMessage> {
+    const payload = typeof input === 'string' ? { body: input } : input;
     return toMessage(
-      await apiClient.post<unknown>(`/conversations/${conversationId}/messages`, { body }),
+      await apiClient.post<unknown>(`/conversations/${conversationId}/messages`, payload),
+    );
+  },
+
+  /** Presigned PUT for one attachment, scoped server-side to this conversation. */
+  requestAttachmentUpload(
+    conversationId: string,
+    input: { kind: ChatAttachmentKind; filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/conversations/${conversationId}/attachments/upload-url`,
+      input,
+    );
+  },
+
+  /** Fresh signed URL for a message's attachment (access re-checked server-side). */
+  async getAttachment(
+    conversationId: string,
+    messageId: string,
+  ): Promise<ChatMessageAttachment | null> {
+    return toAttachment(
+      await apiClient.get<unknown>(
+        `/conversations/${conversationId}/messages/${messageId}/attachment`,
+      ),
     );
   },
 

@@ -185,15 +185,12 @@ describe('TransferRequestsScreen — creating a new request', () => {
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'ميمي' })).toBeOnTheScreen());
     fireEvent.press(screen.getByRole('menuitem', { name: 'ميمي' }));
 
-    fireEvent.changeText(
-      screen.getByPlaceholderText('الصق مُعرّف المستخدم (UUID)'),
-      '22222222-2222-2222-2222-222222222222',
-    );
+    fireEvent.changeText(screen.getByPlaceholderText('example@email.com'), 'Friend@Example.com');
     fireEvent.press(screen.getByRole('button', { name: 'إرسال الطلب' }));
 
     await waitFor(() =>
       expect(create).toHaveBeenCalledWith('a1', {
-        toUserId: '22222222-2222-2222-2222-222222222222',
+        toEmail: 'friend@example.com',
         reason: '',
       }),
     );

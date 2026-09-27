@@ -59,8 +59,40 @@ export interface AdminUser {
   updatedAt: string;
 }
 
+export type Gender = 'MALE' | 'FEMALE';
+
+/** `GET /admin/users/:id` — the full admin view (never a password, hash or storage key). */
 export interface AdminUserDetail extends AdminUser {
   roles: RoleKey[];
+  gender?: Gender | null;
+  /** ISO 3166-1 alpha-2. */
+  country?: string | null;
+  governorate?: string | null;
+  specialization?: string | null;
+  registrationType?: 'PET_OWNER' | 'VETERINARIAN';
+  veterinarianApplication?: {
+    id: string;
+    status: string;
+    subType: string;
+    note: string | null;
+    decidedAt: string | null;
+    decisionReason: string | null;
+    createdAt: string;
+    documents: { kind: string; filename: string; mimeType: string; sizeBytes: number }[];
+  } | null;
+  organizations?: { id: string; name: string; type: string; status: string; role: string }[];
+}
+
+/** `PATCH /admin/users/:id` — explicit allow-list; status/roles/password have their own endpoints. */
+export interface AdminUpdateUserInput {
+  firstName?: string;
+  lastName?: string;
+  phone?: string | null;
+  email?: string;
+  gender?: Gender | null;
+  country?: string | null;
+  governorate?: string | null;
+  specialization?: string | null;
 }
 
 export interface UserListFilter {
@@ -187,8 +219,9 @@ export interface SupervisorListFilter {
   status?: SupervisorAssignmentStatus;
 }
 
+/** The admin UI assigns by email; the server resolves the account and checks eligibility. */
 export interface AssignSupervisorInput {
-  userId: string;
+  email: string;
   domain: SupervisorDomain;
 }
 
@@ -388,7 +421,12 @@ export type AdminDashboardCardId =
   | 'veterinarianStore'
   | 'users'
   | 'userMessages'
-  | 'broadcasts';
+  | 'broadcasts'
+  | 'books'
+  | 'magazines'
+  | 'adoption'
+  | 'mating'
+  | 'lostAnimals';
 
 export interface AdminDashboardCardCount {
   id: AdminDashboardCardId;

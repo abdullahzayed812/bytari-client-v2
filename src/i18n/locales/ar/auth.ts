@@ -78,6 +78,11 @@ export default {
     vetLockedNotApplied: 'وضع الطبيب غير مفعّل — يتطلب اعتماداً من الإدارة.',
     vetLockedPending: 'طلب الاعتماد قيد المراجعة.',
     vetLockedRejected: 'تم رفض طلب الاعتماد.',
+    switchedToOwner: 'تم تحويلك إلى واجهة صاحب الحيوان',
+    switchedToVet: 'تم تحويلك إلى واجهة الطبيب البيطري',
+    switchDenied: 'واجهة الطبيب البيطري متاحة للأطباء المعتمدين فقط.',
+    switchFailed: 'تعذّر التحقق من حسابك. حاول مرة أخرى.',
+    switchA11y: 'تبديل الواجهة',
   },
   account: {
     title: 'حسابي',

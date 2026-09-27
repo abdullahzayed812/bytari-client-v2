@@ -3,6 +3,9 @@ export {
   useAdminUser,
   useUserStatusMutation,
   useUserRoleMutation,
+  useUpdateUserMutation,
+  useUserPasswordMutations,
+  useMessageUserMutation,
   type AdminUsersParams,
 } from './useAdminUsers';
 export { useAdminVetApplications, useVetDecisionMutation } from './useAdminVetApplications';

@@ -18,7 +18,7 @@ import {
   useVeterinarianStatus,
   VeterinarianStatusBadge,
 } from '@/features/auth';
-import { useAppMode, useAuth, useCapabilities } from '@/hooks';
+import { useAppMode, useAuth, useCapabilities, useInterfaceSwitch } from '@/hooks';
 import { setLanguage as applyI18nLanguage } from '@/i18n';
 import { usePreferencesStore, type AppLanguage } from '@/store';
 import { useTheme } from '@/theme';
@@ -40,6 +40,7 @@ export default function AccountScreen() {
   const caps = useCapabilities();
   const vet = useVeterinarianStatus();
   const mode = useAppMode();
+  const interfaceSwitch = useInterfaceSwitch();
   const themePreference = usePreferencesStore((s) => s.themePreference);
   const setThemePreference = usePreferencesStore((s) => s.setThemePreference);
   const language = usePreferencesStore((s) => s.language);
@@ -98,37 +99,38 @@ export default function AccountScreen() {
         </Card>
       </Section>
 
-      <Section spacing="xl">
-        <Label>{t('mode.sectionTitle')}</Label>
-        <Card variant="outlined" padding="md">
-          <Row gap="sm">
-            <View style={{ flex: 1 }}>
-              <Button
-                label={t('mode.owner')}
-                variant={mode.activeMode === 'owner' ? 'primary' : 'ghost'}
-                size="sm"
-                fullWidth
-                onPress={() => mode.setMode('owner')}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Button
-                label={t('mode.veterinarian')}
-                variant={mode.activeMode === 'veterinarian' ? 'primary' : 'ghost'}
-                size="sm"
-                fullWidth
-                disabled={!mode.veterinarianModeAvailable}
-                onPress={() => mode.setMode('veterinarian')}
-              />
-            </View>
-          </Row>
-          {mode.veterinarianLockReasonKey ? (
-            <Caption style={{ marginTop: theme.spacing.sm }}>
-              {t(mode.veterinarianLockReasonKey)}
-            </Caption>
-          ) : null}
-        </Card>
-      </Section>
+      {/* Interface switch — approved veterinarians (and admins) only. A plain
+          pet owner gets no veterinarian option and no request prompt here. */}
+      {interfaceSwitch.canSwitch ? (
+        <Section spacing="xl">
+          <Label>{t('mode.sectionTitle')}</Label>
+          <Card variant="outlined" padding="md">
+            <Row gap="sm">
+              <View style={{ flex: 1 }}>
+                <Button
+                  label={t('mode.owner')}
+                  variant={mode.activeMode === 'owner' ? 'primary' : 'ghost'}
+                  size="sm"
+                  fullWidth
+                  disabled={interfaceSwitch.switching}
+                  onPress={() => void interfaceSwitch.switchTo('owner')}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button
+                  label={t('mode.veterinarian')}
+                  variant={mode.activeMode === 'veterinarian' ? 'primary' : 'ghost'}
+                  size="sm"
+                  fullWidth
+                  loading={interfaceSwitch.switching}
+                  disabled={interfaceSwitch.switching}
+                  onPress={() => void interfaceSwitch.switchTo('veterinarian')}
+                />
+              </View>
+            </Row>
+          </Card>
+        </Section>
+      ) : null}
 
       {caps.canAccessManagementArea ? (
         <Section spacing="xl">

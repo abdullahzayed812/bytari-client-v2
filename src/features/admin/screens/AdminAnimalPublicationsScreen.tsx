@@ -11,6 +11,7 @@ import {
   useAdminAnimalPublications,
   useAdminApprovePublication,
   useAdminRejectPublication,
+  useAdminUpdatePublication,
   useDeletePublication,
 } from '@/features/publications';
 import type {
@@ -25,6 +26,7 @@ import { formatDate } from '@/utils';
 import {
   AdminDetailModal,
   AdminListScreen,
+  AdminPublicationEditSheet,
   AdminRow,
   FilterChips,
   ReasonPromptDialog,
@@ -88,6 +90,10 @@ export default function AdminAnimalPublicationsScreen() {
   const approve = useAdminApprovePublication();
   const reject = useAdminRejectPublication();
   const remove = useDeletePublication();
+  const update = useAdminUpdatePublication();
+  const [editing, setEditing] = useState<AnimalPublication | null>(null);
+  // APPROVED → REJECTED (hide a live listing) needs a reason; REJECTED → APPROVED does not.
+  const [unpublishing, setUnpublishing] = useState<AnimalPublication | null>(null);
   const [removing, setRemoving] = useState<AnimalPublication | null>(null);
 
   const [approving, setApproving] = useState<AnimalPublication | null>(null);
@@ -163,10 +169,55 @@ export default function AdminAnimalPublicationsScreen() {
     );
   };
 
+  const onEditSubmit = (body: Parameters<typeof update.mutate>[0]['body']) => {
+    if (!editing) return;
+    update.mutate(
+      { publicationId: editing.id, body },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('animalPublications.toast.updated'), tone: 'success' });
+          setEditing(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
+
+  const onUnpublish = (reason: string) => {
+    if (!unpublishing) return;
+    update.mutate(
+      { publicationId: unpublishing.id, body: { status: 'REJECTED', rejectionReason: reason } },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('animalPublications.toast.unpublished'), tone: 'success' });
+          setUnpublishing(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
+
+  const onRepublish = (p: AnimalPublication) => {
+    update.mutate(
+      { publicationId: p.id, body: { status: 'APPROVED' } },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('animalPublications.toast.approved'), tone: 'success' });
+          setDetail(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
+
   return (
     <>
       <AdminListScreen<AnimalPublication>
-        title={t('animalPublications.title')}
+        title={
+          initialKind
+            ? t(`animalPublications.dedicatedTitle.${initialKind}`)
+            : t('animalPublications.title')
+        }
         query={q}
         data={q.publications}
         keyExtractor={(p) => p.id}
@@ -182,14 +233,17 @@ export default function AdminAnimalPublicationsScreen() {
         loadingMoreLabel={t('common.loadingMore')}
         filterBar={
           <View style={{ rowGap: theme.spacing.xs }}>
-            <FilterChips<PublicationKind>
-              value={kind}
-              onChange={setKind}
-              options={[
-                { value: undefined, label: t('animalPublications.kind.ALL') },
-                ...KINDS.map((k) => ({ value: k, label: t(`animalPublications.kind.${k}`) })),
-              ]}
-            />
+            {/* A dedicated (single-kind) dashboard page keeps its kind fixed. */}
+            {initialKind ? null : (
+              <FilterChips<PublicationKind>
+                value={kind}
+                onChange={setKind}
+                options={[
+                  { value: undefined, label: t('animalPublications.kind.ALL') },
+                  ...KINDS.map((k) => ({ value: k, label: t(`animalPublications.kind.${k}`) })),
+                ]}
+              />
+            )}
             <FilterChips<PublicationStatus>
               value={status}
               onChange={setStatus}
@@ -319,6 +373,46 @@ export default function AdminAnimalPublicationsScreen() {
           />
         </View>
 
+        {detail ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: theme.spacing.sm,
+              marginTop: theme.spacing.sm,
+            }}
+          >
+            <Button
+              label={t('animalPublications.edit.cta')}
+              variant="outline"
+              onPress={() => {
+                const p = detail;
+                setDetail(null);
+                setEditing(p);
+              }}
+            />
+            {detail.status === 'APPROVED' ? (
+              <Button
+                label={t('animalPublications.unpublish')}
+                variant="danger"
+                onPress={() => {
+                  const p = detail;
+                  setDetail(null);
+                  setUnpublishing(p);
+                }}
+              />
+            ) : null}
+            {detail.status === 'REJECTED' ? (
+              <Button
+                label={t('animalPublications.republish')}
+                variant="primary"
+                loading={update.isPending}
+                onPress={() => onRepublish(detail)}
+              />
+            ) : null}
+          </View>
+        ) : null}
+
         {detail?.status === 'PENDING' ? (
           <View
             style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}
@@ -344,6 +438,28 @@ export default function AdminAnimalPublicationsScreen() {
           </View>
         ) : null}
       </AdminDetailModal>
+
+      <AdminPublicationEditSheet
+        publication={editing}
+        submitting={update.isPending}
+        onClose={() => setEditing(null)}
+        onSubmit={onEditSubmit}
+      />
+
+      <ReasonPromptDialog
+        visible={unpublishing != null}
+        title={t('animalPublications.unpublishTitle')}
+        message={t('animalPublications.unpublishBody')}
+        label={t('animalPublications.reasonLabel')}
+        placeholder={t('animalPublications.reasonPlaceholder')}
+        confirmLabel={t('animalPublications.unpublish')}
+        cancelLabel={t('common.cancel')}
+        required
+        destructive
+        loading={update.isPending}
+        onConfirm={onUnpublish}
+        onCancel={() => setUnpublishing(null)}
+      />
 
       <ImageViewer
         visible={viewer !== null}

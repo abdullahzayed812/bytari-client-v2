@@ -7,7 +7,7 @@ import { useToast } from '@/components/feedback';
 import { Caption } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import type { LocalFile } from '@/services/files/types';
-import { isPermissionError, pickImage } from '@/services/media';
+import { isPermissionError, pickImage, type ImageEditOptions } from '@/services/media';
 import { useTheme } from '@/theme';
 
 export interface LocalImagePickerProps {
@@ -18,6 +18,8 @@ export interface LocalImagePickerProps {
   onChange: (files: LocalFile[]) => void;
   max: number;
   disabled?: boolean;
+  /** Shared editor step; pass `false` for license / certificate photos (keep originals). */
+  edit?: ImageEditOptions | false;
 }
 
 const TILE_SIZE = 88;
@@ -37,6 +39,7 @@ export function LocalImagePicker({
   onChange,
   max,
   disabled,
+  edit,
 }: LocalImagePickerProps) {
   const theme = useTheme();
   const { t } = useTranslation('common');
@@ -45,7 +48,7 @@ export function LocalImagePicker({
 
   const addOne = async (): Promise<void> => {
     try {
-      const file = await pickImage({ allowsEditing: false });
+      const file = await pickImage({ allowsEditing: false, edit: edit ?? {} });
       if (!file) return;
       onChange([...files, file]);
     } catch (error) {

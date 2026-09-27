@@ -91,8 +91,11 @@ describe('adminApi — maps 1:1 to the backend admin surface', () => {
     expect(requestEnvelope).toHaveBeenCalledWith(
       expect.objectContaining({ url: '/admin/supervisors' }),
     );
-    await adminApi.assignSupervisor({ userId: 'u2', domain: 'ANIMAL' });
-    expect(post).toHaveBeenCalledWith('/admin/supervisors', { userId: 'u2', domain: 'ANIMAL' });
+    await adminApi.assignSupervisor({ email: 'sup@example.com', domain: 'ANIMAL' });
+    expect(post).toHaveBeenCalledWith('/admin/supervisors', {
+      email: 'sup@example.com',
+      domain: 'ANIMAL',
+    });
     await adminApi.removeSupervisor('a1');
     expect(del).toHaveBeenCalledWith('/admin/supervisors/a1');
   });

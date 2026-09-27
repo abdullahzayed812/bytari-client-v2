@@ -139,6 +139,8 @@ describe('ConversationThreadScreen', () => {
 
     fireEvent.changeText(screen.getByLabelText('اكتب رسالة…'), 'رد');
     fireEvent.press(screen.getByLabelText('إرسال'));
-    await waitFor(() => expect(sendMessage).toHaveBeenCalledWith('c1', 'رد'));
+    await waitFor(() =>
+      expect(sendMessage).toHaveBeenCalledWith('c1', { body: 'رد', attachment: undefined }),
+    );
   });
 });

@@ -56,7 +56,8 @@ export default function AdminContentDetailScreen() {
   const main = item?.files.find((f) => f.kind === 'MAIN');
   const attachments = item?.files.filter((f) => f.kind === 'ATTACHMENT') ?? [];
 
-  const onError = (error: unknown) => toast.show({ message: apiErrorMessage(error), tone: 'danger' });
+  const onError = (error: unknown) =>
+    toast.show({ message: apiErrorMessage(error), tone: 'danger' });
 
   return (
     <SafeAreaScreen>
@@ -94,15 +95,24 @@ export default function AdminContentDetailScreen() {
           <Card variant="outlined" padding="md">
             <View style={{ rowGap: theme.spacing.xs }}>
               <View
-                style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
               >
                 <Text variant="title" style={{ flex: 1 }}>
                   {item.title}
                 </Text>
-                <Badge label={t(`admin.status.${item.status}`)} tone={STATUS_TONE[item.status]} size="sm" />
+                <Badge
+                  label={t(`admin.status.${item.status}`)}
+                  tone={STATUS_TONE[item.status]}
+                  size="sm"
+                />
               </View>
               <Caption>
-                {item.authorName ?? '—'} · {t('admin.list.commentCount', { count: item.commentCount })} ·{' '}
+                {item.authorName ?? '—'} ·{' '}
+                {t('admin.list.commentCount', { count: item.commentCount })} ·{' '}
                 {t('admin.list.likeCount', { count: item.likeCount })} ·{' '}
                 {t('admin.detail.viewCount', { count: item.viewCount })}
               </Caption>
@@ -134,6 +144,7 @@ export default function AdminContentDetailScreen() {
               key={coverUploadKey}
               value={coverUrl.data?.url ?? null}
               provider={coverPresign}
+              edit={{ defaultAspect: '3:4' }}
               onChange={(result) => {
                 if (result) {
                   setCoverUploadKey((k) => k + 1);

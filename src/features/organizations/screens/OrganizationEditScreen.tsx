@@ -22,7 +22,11 @@ import {
   useRemoveOrganizationLogo,
   useUpdateOrganization,
 } from '../hooks';
-import { LICENSABLE_ORG_TYPES, PROFILE_FIELDS_ORG_TYPES, type UpdateOrganizationInput } from '../types';
+import {
+  LICENSABLE_ORG_TYPES,
+  PROFILE_FIELDS_ORG_TYPES,
+  type UpdateOrganizationInput,
+} from '../types';
 import { servicesToArray, type EditOrganizationFormValues } from '../validation/schemas';
 
 const MAX_GALLERY_IMAGES = 8;
@@ -148,12 +152,15 @@ export default function OrganizationEditScreen() {
   return (
     <OrgFormLayout title={t('form.editTitle')}>
       {hasProfileFields ? (
-        <View style={{ alignItems: 'center', rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
+        <View
+          style={{ alignItems: 'center', rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}
+        >
           <Label>{t('form.logoLabel')}</Label>
           <ImageUploader
             key={logoKey}
             value={org.details.logoUrl}
             provider={logoPresign}
+            edit={{ aspects: ['1:1'], defaultAspect: '1:1', defaultMaxDimension: 1280 }}
             shape="circle"
             size={96}
             onChange={(result) => {
@@ -248,6 +255,8 @@ export default function OrganizationEditScreen() {
                 key={licenseUploadKey}
                 value={null}
                 provider={licensePresign}
+                // License documents are kept exactly as photographed.
+                edit={false}
                 icon="add"
                 size={88}
                 onChange={(result) => {

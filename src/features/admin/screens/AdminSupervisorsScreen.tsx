@@ -7,6 +7,7 @@ import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { Input, Select } from '@/components/forms';
 import { Modal } from '@/components/overlays';
 import { apiErrorMessage } from '@/lib/apiError';
+import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 
 import { AdminListScreen, AdminRow, FilterChips } from '../components';
@@ -17,7 +18,7 @@ import {
 } from '../hooks';
 import { SUPERVISOR_DOMAINS, type SupervisorAssignment, type SupervisorDomain } from '../types';
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function AdminSupervisorsScreen() {
   const { t } = useTranslation('admin');
@@ -31,19 +32,26 @@ export default function AdminSupervisorsScreen() {
 
   const [removing, setRemoving] = useState<SupervisorAssignment | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [assignDomain, setAssignDomain] = useState<SupervisorDomain>('ANIMAL');
 
   const submitAssign = () => {
     assignMut.mutate(
-      { userId: userId.trim(), domain: assignDomain },
+      { email: email.trim(), domain: assignDomain },
       {
         onSuccess: () => {
           toast.show({ message: t('supervisors.toast.assigned'), tone: 'success' });
           setAssignOpen(false);
-          setUserId('');
+          setEmail('');
         },
-        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+        onError: (e) =>
+          toast.show({
+            message:
+              e instanceof ApiError && e.status === 404
+                ? t('supervisors.emailNotFound')
+                : apiErrorMessage(e),
+            tone: 'danger',
+          }),
       },
     );
   };
@@ -136,10 +144,12 @@ export default function AdminSupervisorsScreen() {
       >
         <View style={{ rowGap: theme.spacing.md }}>
           <Input
-            label={t('supervisors.userIdLabel')}
-            placeholder={t('supervisors.userIdPlaceholder')}
-            value={userId}
-            onChangeText={setUserId}
+            label={t('supervisors.emailLabel')}
+            placeholder={t('supervisors.emailPlaceholder')}
+            hint={t('supervisors.emailHint')}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -157,7 +167,7 @@ export default function AdminSupervisorsScreen() {
             variant="primary"
             fullWidth
             loading={assignMut.isPending}
-            disabled={!UUID_RE.test(userId.trim())}
+            disabled={!EMAIL_RE.test(email.trim())}
             onPress={submitAssign}
           />
         </View>

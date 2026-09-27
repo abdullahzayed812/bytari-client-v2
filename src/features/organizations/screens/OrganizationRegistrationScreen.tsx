@@ -76,7 +76,9 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
     isClinic ? 'registration.clinic.namePlaceholder' : 'registration.office.namePlaceholder',
   );
   const descriptionPlaceholder = t(
-    isClinic ? 'registration.clinic.descriptionPlaceholder' : 'registration.office.descriptionPlaceholder',
+    isClinic
+      ? 'registration.clinic.descriptionPlaceholder'
+      : 'registration.office.descriptionPlaceholder',
   );
   const addressPlaceholder = t(
     isClinic ? 'registration.clinic.addressPlaceholder' : 'registration.office.addressPlaceholder',
@@ -89,7 +91,9 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
       ? 'registration.clinic.licenseNumberPlaceholder'
       : 'registration.office.licenseNumberPlaceholder',
   );
-  const imagesTitle = t(isClinic ? 'registration.clinic.imagesTitle' : 'registration.office.imagesTitle');
+  const imagesTitle = t(
+    isClinic ? 'registration.clinic.imagesTitle' : 'registration.office.imagesTitle',
+  );
   const vetGated = isClinic && !vet.isApproved;
 
   const [logoImage, setLogoImage] = useState<LocalFile[]>([]);
@@ -166,7 +170,9 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
           const results = await Promise.allSettled([
             logoImage[0] ? uploadOrganizationLogo(org.id, logoImage[0]) : Promise.resolve(),
             uploadLicenseDocuments(org.id, licenseImages),
-            galleryImages.length > 0 ? uploadGalleryPhotos(org.id, galleryImages) : Promise.resolve(),
+            galleryImages.length > 0
+              ? uploadGalleryPhotos(org.id, galleryImages)
+              : Promise.resolve(),
           ]);
           const hasFailure = results.some((r) => r.status === 'rejected');
           toast.show({
@@ -226,7 +232,11 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
             <Alert tone="warning" message={t('registration.clinic.vetApprovalRequired')} />
           ) : null}
 
-          <RegistrationSectionHeader icon="business-outline" title={t('registration.sections.basicInfo')} required />
+          <RegistrationSectionHeader
+            icon="business-outline"
+            title={t('registration.sections.basicInfo')}
+            required
+          />
           <FormField
             control={control}
             name="name"
@@ -250,13 +260,18 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
           />
           <LocalImagePicker
             label={t('registration.fields.logo')}
+            edit={{ aspects: ['1:1'], defaultAspect: '1:1', defaultMaxDimension: 1280 }}
             files={logoImage}
             onChange={setLogoImage}
             max={LOGO_IMAGE_MAX}
             disabled={submitting}
           />
 
-          <RegistrationSectionHeader icon="call-outline" title={t('registration.sections.contactInfo')} required />
+          <RegistrationSectionHeader
+            icon="call-outline"
+            title={t('registration.sections.contactInfo')}
+            required
+          />
           <FormField
             control={control}
             name="address"
@@ -313,7 +328,10 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
             />
           ) : null}
 
-          <RegistrationSectionHeader icon="link-outline" title={t('registration.sections.contactLinks')} />
+          <RegistrationSectionHeader
+            icon="link-outline"
+            title={t('registration.sections.contactLinks')}
+          />
           {!isClinic ? workingHoursField : null}
           <FormField
             control={control}
@@ -355,7 +373,11 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
             serverError={serverFields['details.whatsapp']}
           />
 
-          <RegistrationSectionHeader icon="document-text-outline" title={t('registration.sections.licenseInfo')} required />
+          <RegistrationSectionHeader
+            icon="document-text-outline"
+            title={t('registration.sections.licenseInfo')}
+            required
+          />
           <FormField
             control={control}
             name="licenseNumber"
@@ -367,6 +389,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
           />
           <LocalImagePicker
             label={t('registration.fields.licenseImages')}
+            edit={false}
             error={licenseImagesError ?? undefined}
             files={licenseImages}
             onChange={(files) => {

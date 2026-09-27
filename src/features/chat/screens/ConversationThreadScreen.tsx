@@ -29,6 +29,7 @@ import {
   useMessages,
   useSendMessage,
 } from '../hooks';
+import type { OutgoingAttachment } from '../types';
 
 /**
  * Route `/chat/[conversationId]`. A message thread. Live via the existing
@@ -107,12 +108,15 @@ export default function ConversationThreadScreen() {
     );
   }
 
-  const onSend = (body: string): void => {
+  const onSend = (body: string, attachment?: OutgoingAttachment): void => {
     setSendError(null);
-    send.mutate(body, {
-      onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
-      onError: (error) => setSendError(apiErrorMessage(error)),
-    });
+    send.mutate(
+      { body, attachment },
+      {
+        onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
+        onError: (error) => setSendError(apiErrorMessage(error)),
+      },
+    );
   };
 
   return (
@@ -176,7 +180,12 @@ export default function ConversationThreadScreen() {
           />
         )}
 
-        <MessageComposer sending={send.isPending} error={sendError} onSend={onSend} />
+        <MessageComposer
+          conversationId={id}
+          sending={send.isPending}
+          error={sendError}
+          onSend={onSend}
+        />
       </KeyboardAvoidingView>
 
       <ConfirmationDialog

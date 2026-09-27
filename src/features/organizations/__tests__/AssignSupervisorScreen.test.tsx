@@ -22,24 +22,17 @@ describe('AssignSupervisorScreen (§29 — permission catalogue mirrors the back
   });
   afterAll(() => jest.restoreAllMocks());
 
-  it('create mode → sends { userId, permissions } with the checked permission keys', async () => {
+  it('create mode → a raw user id (UUID) is no longer accepted; only an email', async () => {
     setSearchParams({ organizationId: 'o1' });
-    assign.mockResolvedValue({ id: 's1' } as never);
     renderWithProviders(<AssignSupervisorScreen />);
 
-    fireEvent.changeText(
-      screen.getByPlaceholderText('example@email.com أو معرّف المستخدم (UUID)'),
-      UUID,
-    );
-    fireEvent.press(screen.getByText('عرض الأعضاء')); // permissions.member.read.label
+    fireEvent.changeText(screen.getByPlaceholderText('example@email.com'), UUID);
     fireEvent.press(screen.getByRole('button', { name: 'تعيين مشرف' }));
 
     await waitFor(() =>
-      expect(assign).toHaveBeenCalledWith('o1', {
-        userId: UUID,
-        permissions: ['member.read'],
-      }),
+      expect(screen.getByText('أدخل بريداً إلكترونياً صحيحاً.')).toBeOnTheScreen(),
     );
+    expect(assign).not.toHaveBeenCalled();
   });
 
   it('create mode → sends { email, permissions } when the identifier is an email', async () => {
@@ -47,10 +40,7 @@ describe('AssignSupervisorScreen (§29 — permission catalogue mirrors the back
     assign.mockResolvedValue({ id: 's1' } as never);
     renderWithProviders(<AssignSupervisorScreen />);
 
-    fireEvent.changeText(
-      screen.getByPlaceholderText('example@email.com أو معرّف المستخدم (UUID)'),
-      'Vet@Example.com',
-    );
+    fireEvent.changeText(screen.getByPlaceholderText('example@email.com'), 'Vet@Example.com');
     fireEvent.press(screen.getByText('عرض الأعضاء')); // permissions.member.read.label
     fireEvent.press(screen.getByRole('button', { name: 'تعيين مشرف' }));
 
@@ -65,15 +55,10 @@ describe('AssignSupervisorScreen (§29 — permission catalogue mirrors the back
   it('create mode → an invalid identifier is rejected client-side and never hits the API', async () => {
     setSearchParams({ organizationId: 'o1' });
     renderWithProviders(<AssignSupervisorScreen />);
-    fireEvent.changeText(
-      screen.getByPlaceholderText('example@email.com أو معرّف المستخدم (UUID)'),
-      'not-a-uuid-or-email',
-    );
+    fireEvent.changeText(screen.getByPlaceholderText('example@email.com'), 'not-a-uuid-or-email');
     fireEvent.press(screen.getByRole('button', { name: 'تعيين مشرف' }));
     await waitFor(() =>
-      expect(
-        screen.getByText('أدخل بريداً إلكترونياً صحيحاً أو معرّف مستخدم (UUID) صحيحاً.'),
-      ).toBeOnTheScreen(),
+      expect(screen.getByText('أدخل بريداً إلكترونياً صحيحاً.')).toBeOnTheScreen(),
     );
     expect(assign).not.toHaveBeenCalled();
   });

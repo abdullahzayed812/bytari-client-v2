@@ -74,19 +74,17 @@ export function toCreateInput(values: PetFormValues) {
 
 // --- ownership transfer requests (request/acceptance) --------------
 //
-// Mirrors `createTransferRequestBodySchema` — `toUserId` is a UUID, `reason`
-// is optional free text ≤ 500. There is NO user directory search on the
-// backend, so the recipient is entered as a raw user id.
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Mirrors `createTransferRequestBodySchema` — the recipient is identified by
+// their account EMAIL (`toEmail`; the server resolves it — no manual user-id
+// entry), `reason` is optional free text ≤ 500.
 
 export function buildTransferRequestSchema(t: TFn) {
   return z.object({
-    toUserId: z
+    toEmail: z
       .string()
       .trim()
       .min(1, t('transferRequests.errors.recipientRequired'))
-      .regex(UUID_RE, t('transferRequests.errors.recipientInvalid')),
+      .email(t('transferRequests.errors.recipientInvalid')),
     reason: z.string().trim().max(500, t('form.errors.tooLong')).optional().or(z.literal('')),
   });
 }

@@ -85,6 +85,31 @@ export default function MyVeterinaryOrganizationsScreen() {
     router.push(Routes.veterinarianJoinFarm);
   };
 
+  // One action list, rendered both in the "+" sheet and inline under the org
+  // list — same handlers, so behaviour/permissions can never drift apart.
+  const createActions = (
+    <View style={{ rowGap: theme.spacing.xs }}>
+      <PickerMenuItem
+        icon="medkit-outline"
+        title={t('type.CLINIC')}
+        hint={t('createPicker.clinicHint')}
+        onPress={() => goToRegister('CLINIC')}
+      />
+      <PickerMenuItem
+        icon="business-outline"
+        title={t('type.VETERINARY_OFFICE')}
+        hint={t('createPicker.officeHint')}
+        onPress={() => goToRegister('VETERINARY_OFFICE')}
+      />
+      <PickerMenuItem
+        icon="link-outline"
+        title={t('createPicker.linkFarmTitle')}
+        hint={t('createPicker.linkFarmHint')}
+        onPress={goToJoinFarm}
+      />
+    </View>
+  );
+
   return (
     <SafeAreaScreen>
       <AppHeader
@@ -137,9 +162,25 @@ export default function MyVeterinaryOrganizationsScreen() {
               icon="business-outline"
               title={t('list.myVeterinaryOrgsEmpty')}
               message={t('list.myVeterinaryOrgsEmptyHint')}
-              actionLabel={t('list.createCta')}
-              onAction={openCreatePicker}
             />
+          }
+          ListFooterComponent={
+            <View
+              style={{
+                marginTop: theme.spacing.lg,
+                padding: theme.spacing.sm,
+                borderRadius: theme.radius.lg,
+                borderWidth: theme.sizes.hairline,
+                borderColor: theme.colors.border,
+                backgroundColor: theme.colors.surface,
+                rowGap: theme.spacing.xs,
+              }}
+            >
+              <Label style={{ paddingHorizontal: theme.spacing.md, paddingTop: theme.spacing.sm }}>
+                {t('createPicker.title')}
+              </Label>
+              {createActions}
+            </View>
           }
           contentContainerStyle={{
             paddingHorizontal: theme.screenPadding,
@@ -162,26 +203,7 @@ export default function MyVeterinaryOrganizationsScreen() {
         onClose={() => setPickerOpen(false)}
         title={t('createPicker.title')}
       >
-        <View style={{ rowGap: theme.spacing.xs }}>
-          <PickerMenuItem
-            icon="medkit-outline"
-            title={t('type.CLINIC')}
-            hint={t('createPicker.clinicHint')}
-            onPress={() => goToRegister('CLINIC')}
-          />
-          <PickerMenuItem
-            icon="business-outline"
-            title={t('type.VETERINARY_OFFICE')}
-            hint={t('createPicker.officeHint')}
-            onPress={() => goToRegister('VETERINARY_OFFICE')}
-          />
-          <PickerMenuItem
-            icon="link-outline"
-            title={t('createPicker.linkFarmTitle')}
-            hint={t('createPicker.linkFarmHint')}
-            onPress={goToJoinFarm}
-          />
-        </View>
+        {createActions}
       </BottomSheet>
     </SafeAreaScreen>
   );

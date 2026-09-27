@@ -64,6 +64,8 @@ export interface AdminAdCampaign {
   slides: AdSlide[];
   createdAt: string;
   updatedAt: string;
+  /** Soft-delete timestamp — a deleted campaign must be restored before activation. */
+  deletedAt?: string | null;
 }
 
 export interface CreateAdCampaignInput {

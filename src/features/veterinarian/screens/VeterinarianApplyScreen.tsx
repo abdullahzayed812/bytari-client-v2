@@ -61,6 +61,8 @@ function DocumentField({ kind, label, required, onChange, error }: DocumentField
         provider={provider}
         shape="square"
         size={120}
+        // Application documents are reviewed as-is — never cropped.
+        edit={false}
         onChange={(result) => onChange(result ? toDocumentRef(result) : null)}
       />
       <Caption>{t('apply.maxSizeHint')}</Caption>

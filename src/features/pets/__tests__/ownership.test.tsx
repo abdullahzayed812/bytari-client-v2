@@ -43,12 +43,12 @@ describe('usePetOwnershipHistory', () => {
 describe('buildTransferRequestSchema / transferRequestErrorMessage', () => {
   const schema = buildTransferRequestSchema(t);
 
-  it('requires a UUID recipient', () => {
-    expect(schema.safeParse({ toUserId: '' }).success).toBe(false);
-    expect(schema.safeParse({ toUserId: 'not-a-uuid' }).success).toBe(false);
-    expect(schema.safeParse({ toUserId: '11111111-2222-3333-4444-555555555555' }).success).toBe(
-      true,
+  it('requires an email recipient (no manual user-id entry)', () => {
+    expect(schema.safeParse({ toEmail: '' }).success).toBe(false);
+    expect(schema.safeParse({ toEmail: '11111111-2222-3333-4444-555555555555' }).success).toBe(
+      false,
     );
+    expect(schema.safeParse({ toEmail: 'friend@example.com' }).success).toBe(true);
   });
 
   it('maps the known backend codes; never surfaces raw text', () => {

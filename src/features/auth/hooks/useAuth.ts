@@ -43,7 +43,7 @@ export interface UseAuth {
   resendVerification: (email: string) => Promise<ResendVerificationResult>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
-  refreshSession: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
 }
 
 export function useAuth(): UseAuth {

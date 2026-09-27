@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { Text, type TextProps } from '@/components/typography';
+import { useChatRoom } from '@/features/globalChat/hooks';
 import { useOrganization } from '@/features/organizations';
 import { UserName } from '@/features/users';
 
@@ -22,6 +23,9 @@ export interface ConversationTitleProps extends Omit<TextProps, 'children'> {
 export function ConversationTitle({ conversation, ...textProps }: ConversationTitleProps) {
   const { t } = useTranslation('chat');
 
+  if (conversation.type === 'CHAT_ROOM') {
+    return <RoomName organizationId={conversation.organizationId} {...textProps} />;
+  }
   if (titleIsCounterpart(conversation.viewerSide)) {
     return (
       <UserName
@@ -40,5 +44,15 @@ function OrgName({
 }: { organizationId: string | null } & Omit<TextProps, 'children'>) {
   const { t } = useTranslation('chat');
   const q = useOrganization(organizationId ?? undefined);
+  return <Text {...textProps}>{q.data?.name ?? t('title.unknownOrg')}</Text>;
+}
+
+/** A joined Global Chat room — its name comes from the room details endpoint (member-readable). */
+function RoomName({
+  organizationId,
+  ...textProps
+}: { organizationId: string | null } & Omit<TextProps, 'children'>) {
+  const { t } = useTranslation('chat');
+  const q = useChatRoom(organizationId ?? undefined);
   return <Text {...textProps}>{q.data?.name ?? t('title.unknownOrg')}</Text>;
 }

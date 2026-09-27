@@ -14,4 +14,5 @@ export {
   useAdminAnimalPublications,
   useAdminApprovePublication,
   useAdminRejectPublication,
+  useAdminUpdatePublication,
 } from './useAdminPublications';

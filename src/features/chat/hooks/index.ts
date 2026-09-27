@@ -7,3 +7,4 @@ export {
   useStartConversation,
 } from './useChatMutations';
 export { useConversationRealtime, useChatListRealtime } from './useChatRealtime';
+export { useChatAttachmentUpload, withFileSize } from './useChatAttachment';

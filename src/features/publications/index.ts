@@ -28,6 +28,7 @@ export {
   useAdminAnimalPublications,
   useAdminApprovePublication,
   useAdminRejectPublication,
+  useAdminUpdatePublication,
 } from './hooks';
 export {
   AnimalCard,

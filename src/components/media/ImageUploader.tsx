@@ -7,8 +7,10 @@ import { useToast } from '@/components/feedback';
 import { BottomSheet } from '@/components/overlays';
 import { Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
-import { isPermissionError, pickImage } from '@/services/media';
 import {
+  isPermissionError,
+  pickImage,
+  type ImageEditOptions,
   useMediaUpload,
   type LocalFile,
   type PresignProvider,
@@ -30,6 +32,11 @@ export interface ImageUploaderProps {
   disabled?: boolean;
   /** Empty-state glyph. Defaults to a camera (photo picker); pass e.g. `arrow-up-outline` for document uploads. */
   icon?: IconName;
+  /**
+   * Shared crop / resize step before upload. `false` keeps the ORIGINAL file —
+   * use it for identity documents and certificates.
+   */
+  edit?: ImageEditOptions | false;
 }
 
 /**
@@ -45,6 +52,7 @@ export function ImageUploader({
   label,
   disabled,
   icon = 'camera-outline',
+  edit,
 }: ImageUploaderProps) {
   const { t } = useTranslation('common');
   const theme = useTheme();
@@ -66,7 +74,12 @@ export function ImageUploader({
   const start = async (source: 'camera' | 'library') => {
     setSheet(false);
     try {
-      const file = await pickImage({ source, allowsEditing: true });
+      const file = await pickImage({
+        source,
+        allowsEditing: true,
+        // Round (avatar-style) fields lock a square crop; documents pass `false`.
+        edit: edit ?? (shape === 'circle' ? { aspects: ['1:1'], defaultAspect: '1:1' } : {}),
+      });
       if (!file) return;
       setLocalUri(file.uri);
       await up.upload(file);

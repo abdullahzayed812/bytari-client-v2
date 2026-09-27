@@ -48,6 +48,7 @@ export function AdSlideRow({
           provider={imageProvider}
           shape="square"
           size={64}
+          edit={{ defaultAspect: '16:9' }}
           // A picked/replaced image is already persisted by `imageProvider`'s
           // own `finalizeUpload` (+ query invalidation) — `onChange` firing
           // with a result there is a no-op. `null` is the one case this

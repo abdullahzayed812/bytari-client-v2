@@ -52,10 +52,14 @@ interface AuthState {
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   /** Re-pull `/auth/me` (after vet approval, role change, resume). */
-  refreshSession: () => Promise<void>;
+  /** Re-pulls `/auth/me`. Resolves `true` only when the backend answered with a fresh session. */
+  refreshSession: () => Promise<boolean>;
 }
 
-type SessionStatus = Extract<AuthStatus, 'authenticated' | 'pending-verification' | 'pending-approval'>;
+type SessionStatus = Extract<
+  AuthStatus,
+  'authenticated' | 'pending-verification' | 'pending-approval'
+>;
 
 /**
  * Maps the server's `accessState` onto the app lifecycle. The server enforces
@@ -71,12 +75,18 @@ function statusForSession(session: SessionSnapshot): SessionStatus {
       return 'authenticated';
     default:
       // Older backend without `accessState`.
-      return session.user.status === 'PENDING_VERIFICATION' ? 'pending-verification' : 'authenticated';
+      return session.user.status === 'PENDING_VERIFICATION'
+        ? 'pending-verification'
+        : 'authenticated';
   }
 }
 
 /** Session-holding states whose token can still expire / be revoked. */
-const SESSION_STATUSES: readonly AuthStatus[] = ['authenticated', 'pending-verification', 'pending-approval'];
+const SESSION_STATUSES: readonly AuthStatus[] = [
+  'authenticated',
+  'pending-verification',
+  'pending-approval',
+];
 
 let initializePromise: Promise<void> | null = null;
 
@@ -215,12 +225,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
     // to `authenticated` the moment an admin approves (AuthRedirector follows).
     refreshSession: async () => {
       const current = get().status;
-      if (current !== 'authenticated' && current !== 'pending-approval') return;
+      if (current !== 'authenticated' && current !== 'pending-approval') return false;
       try {
         const session = await authApi.me();
         set({ session, user: session.user, status: statusForSession(session) });
+        return true;
       } catch (error) {
         if (isApiError(error) && error.isAuthError) await teardown();
+        return false;
       }
     },
   };

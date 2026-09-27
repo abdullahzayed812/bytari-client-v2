@@ -1,6 +1,7 @@
 export {
   pickImage,
   pickImages,
+  pickVideo,
   pickDocument,
   isPermissionError,
   MediaPermissionError,
@@ -8,6 +9,21 @@ export {
   type PickImageOptions,
   type PickDocumentOptions,
 } from './mediaPickers';
+export {
+  editImage,
+  registerImageEditor,
+  isImageEditorAvailable,
+  computeCrop,
+  computeResize,
+  aspectRatioOf,
+  CROP_ASPECTS,
+  RESIZE_OPTIONS,
+  type CropAspect,
+  type CropFocus,
+  type ResizeOption,
+  type ImageEditOptions,
+  type EditOutcome,
+} from './imageEditing';
 export {
   useMediaUpload,
   type UseMediaUpload,
