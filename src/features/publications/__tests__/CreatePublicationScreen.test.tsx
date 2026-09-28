@@ -112,7 +112,8 @@ describe('CreatePublicationScreen — new animal + listing in one submit', () =>
 
     await waitFor(() =>
       expect(createAnimal).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'ميمي', species: 'CAT', sex: 'MALE' }),
+        // listingOnly: the listing subject never becomes a registered pet.
+        expect.objectContaining({ name: 'ميمي', species: 'CAT', sex: 'MALE', listingOnly: true }),
       ),
     );
     await waitFor(() =>

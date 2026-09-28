@@ -265,7 +265,7 @@ export const organizationsApi = {
 
   requestLicenseDocumentUploadUrl(
     organizationId: string,
-    input: { filename: string; mimeType: string; size: number },
+    input: { filename: string; mimeType: string; size: number; replacesStorageKey?: string },
   ): Promise<PresignedUpload> {
     return apiClient.post<PresignedUpload>(
       `/organizations/${organizationId}/license-documents/upload-url`,
@@ -275,7 +275,7 @@ export const organizationsApi = {
 
   addLicenseDocument(
     organizationId: string,
-    input: { storageKey: string; mimeType: string },
+    input: { storageKey: string; mimeType: string; replacesStorageKey?: string },
   ): Promise<OrganizationWithDetails> {
     return apiClient.post<OrganizationWithDetails>(
       `/organizations/${organizationId}/license-documents`,

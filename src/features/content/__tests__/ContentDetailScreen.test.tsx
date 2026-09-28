@@ -36,6 +36,7 @@ const item = (over: Partial<ContentItem> = {}): ContentItem => ({
   isLiked: false,
   categories: [{ id: 'cat1', slug: 'nutrition', name: 'تغذية', description: null }],
   files: [],
+  coverUrl: null,
   createdAt: '',
   updatedAt: '',
   ...over,

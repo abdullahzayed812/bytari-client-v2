@@ -16,6 +16,8 @@ export const sheepKeys = {
     [...sheepKeys.forBatch(orgId, batchId), 'weekly', weekOf ?? 'current'] as const,
   dailyRecords: (orgId: string, batchId: string, filter: Record<string, unknown>) =>
     [...sheepKeys.forBatch(orgId, batchId), 'daily', filter] as const,
+  dailyWeeks: (orgId: string, batchId: string) =>
+    [...sheepKeys.forBatch(orgId, batchId), 'daily', 'weeks'] as const,
   healthEvents: (orgId: string, batchId: string, filter: Record<string, unknown>) =>
     [...sheepKeys.forBatch(orgId, batchId), 'health', filter] as const,
   healthEventDetail: (orgId: string, batchId: string, eventId: string) =>
@@ -44,6 +46,8 @@ export const cattleKeys = {
     [...cattleKeys.forBatch(orgId, batchId), 'weekly', weekOf ?? 'current'] as const,
   dailyRecords: (orgId: string, batchId: string, filter: Record<string, unknown>) =>
     [...cattleKeys.forBatch(orgId, batchId), 'daily', filter] as const,
+  dailyWeeks: (orgId: string, batchId: string) =>
+    [...cattleKeys.forBatch(orgId, batchId), 'daily', 'weeks'] as const,
   healthEvents: (orgId: string, batchId: string, filter: Record<string, unknown>) =>
     [...cattleKeys.forBatch(orgId, batchId), 'health', filter] as const,
   healthEventDetail: (orgId: string, batchId: string, eventId: string) =>

@@ -5,7 +5,13 @@ import { FlatList, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SegmentedControl } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -16,7 +22,12 @@ import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { VetJobApplicationStatusBadge, VetJobStatusBadge } from '../components';
-import { useCloseVetJobOffer, useDeleteVetJobOffer, useMyVetJobApplications, useMyVetJobOffers } from '../hooks';
+import {
+  useCloseVetJobOffer,
+  useDeleteVetJobOffer,
+  useMyVetJobApplications,
+  useMyVetJobOffers,
+} from '../hooks';
 import type { VetJobApplication, VetJobOffer } from '../types';
 
 type Tab = 'ads' | 'applications';
@@ -78,7 +89,13 @@ export default function MyVetJobsScreen() {
             keyExtractor={(o) => o.id}
             renderItem={({ item }) => (
               <Card variant="outlined" padding="md">
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.md }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    columnGap: theme.spacing.md,
+                  }}
+                >
                   <View
                     style={{
                       width: 40,
@@ -96,7 +113,13 @@ export default function MyVetJobsScreen() {
                       {item.title}
                     </Text>
                     <Caption numberOfLines={1}>{item.organizationName}</Caption>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        columnGap: theme.spacing.sm,
+                      }}
+                    >
                       <VetJobStatusBadge status={item.status} />
                       <Caption>{formatDate(item.createdAt)}</Caption>
                     </View>
@@ -113,12 +136,26 @@ export default function MyVetJobsScreen() {
                     flexWrap: 'wrap',
                   }}
                 >
-                  <TextButton label={t('myJobs.view')} onPress={() => router.push(Routes.vetJobOfferApplicants(item.id))} />
-                  <TextButton label={t('myJobs.edit')} onPress={() => router.push(Routes.vetJobOfferEdit(item.id))} />
+                  <TextButton
+                    label={t('myJobs.view')}
+                    onPress={() => router.push(Routes.vetJobOfferApplicants(item.id))}
+                  />
+                  <TextButton
+                    label={t('myJobs.edit')}
+                    onPress={() => router.push(Routes.vetJobOfferEdit(item.id))}
+                  />
                   {item.status === 'APPROVED' && !item.closedAt ? (
-                    <TextButton label={t('myJobs.closeAd')} tone="danger" onPress={() => onClose(item)} />
+                    <TextButton
+                      label={t('myJobs.closeAd')}
+                      tone="danger"
+                      onPress={() => onClose(item)}
+                    />
                   ) : null}
-                  <TextButton label={t('myJobs.delete')} tone="danger" onPress={() => setDeleting(item)} />
+                  <TextButton
+                    label={t('myJobs.delete')}
+                    tone="danger"
+                    onPress={() => setDeleting(item)}
+                  />
                 </View>
               </Card>
             )}
@@ -145,7 +182,10 @@ export default function MyVetJobsScreen() {
                 </View>
               </View>
             }
-            contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+            contentContainerStyle={{
+              padding: theme.screenPadding,
+              paddingBottom: theme.spacing.huge,
+            }}
           />
         )
       ) : applications.isLoading ? (
@@ -160,8 +200,13 @@ export default function MyVetJobsScreen() {
           keyExtractor={(a) => a.id}
           renderItem={({ item }) => <ApplicationRow application={item} />}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
-          ListEmptyComponent={<EmptyState icon="document-text-outline" title={t('myJobs.emptyApplications')} />}
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+          ListEmptyComponent={
+            <EmptyState icon="document-text-outline" title={t('myJobs.emptyApplications')} />
+          }
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+          }}
         />
       )}
 

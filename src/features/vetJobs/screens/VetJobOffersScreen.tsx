@@ -15,7 +15,11 @@ import { useTheme } from '@/theme';
 
 import { JobOfferCard } from '../components';
 import { useVetJobOffers } from '../hooks';
-import { VET_JOB_EMPLOYMENT_TYPES, type OfferBrowseFilter, type VetJobEmploymentType } from '../types';
+import {
+  VET_JOB_EMPLOYMENT_TYPES,
+  type OfferBrowseFilter,
+  type VetJobEmploymentType,
+} from '../types';
 
 /** Route `/(app)/vet-jobs/offers` — "عروض الوظائف" (reference screenshot 2). */
 export default function VetJobOffersScreen() {
@@ -93,9 +97,15 @@ export default function VetJobOffersScreen() {
             <JobOfferCard offer={item} onPress={() => router.push(Routes.vetJobOffer(item.id))} />
           )}
           ListEmptyComponent={
-            <EmptyState icon="briefcase-outline" title={t('offers.empty')} message={t('offers.emptyHint')} />
+            <EmptyState
+              icon="briefcase-outline"
+              title={t('offers.empty')}
+              message={t('offers.emptyHint')}
+            />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('offers.loadingMore')} /> : null}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('offers.loadingMore')} /> : null
+          }
           contentContainerStyle={{
             padding: theme.screenPadding,
             paddingBottom: theme.spacing.huge,

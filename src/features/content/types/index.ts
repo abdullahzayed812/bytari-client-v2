@@ -95,6 +95,8 @@ export interface ContentItem {
   isLiked: boolean;
   categories: ContentCategory[];
   files: ContentFile[];
+  /** Resolved COVER image URL from the server (never a storage key); `null` without a cover. */
+  coverUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Image, View } from 'react-native';
+import { Image } from 'expo-image';
+import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
@@ -32,7 +33,13 @@ export function ServiceListingCard({
     <Card variant="elevated" padding="none" onPress={onPress} style={{ overflow: 'hidden' }}>
       <View style={{ height: 120, backgroundColor: theme.colors.serviceSurface }}>
         {img ? (
-          <Image source={{ uri: img }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          <Image
+            source={{ uri: img }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            transition={150}
+            accessibilityIgnoresInvertColors
+          />
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={ANIMAL_TYPE_ICON[listing.animalType]} size="iconXl" color="serviceAccent" />
@@ -54,7 +61,13 @@ export function ServiceListingCard({
           <Icon name={ANIMAL_TYPE_ICON[listing.animalType]} size="iconXs" color="serviceAccent" />
         </View>
         {showStatus ? (
-          <View style={{ position: 'absolute', top: theme.spacing.sm, insetInlineEnd: theme.spacing.sm }}>
+          <View
+            style={{
+              position: 'absolute',
+              top: theme.spacing.sm,
+              insetInlineEnd: theme.spacing.sm,
+            }}
+          >
             <ModerationStatusBadge status={listing.status} />
           </View>
         ) : null}

@@ -1,3 +1,4 @@
+import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { AppConfig } from '@/constants/config';
@@ -55,13 +56,28 @@ export function useWeeklySummary(
 }
 
 /** The "البيانات اليومية" list. */
+/** Week history + the current week (`GET …/daily-records/weeks`). */
+export function useDailyRecordWeeks(
+  orgId: string | undefined,
+  flockId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<DailyRecordWeeks, ApiError>({
+    queryKey: poultryOpsKeys.dailyWeeks(orgId ?? 'unknown', flockId ?? 'unknown'),
+    queryFn: () => poultryOpsApi.listDailyRecordWeeks(orgId as string, flockId as string),
+    enabled: Boolean(orgId) && Boolean(flockId) && (options.enabled ?? true),
+    retry: noRetryOn403,
+    staleTime: 15_000,
+  });
+}
+
 export function useDailyRecords(
   orgId: string | undefined,
   flockId: string | undefined,
-  options: { pageSize?: number; enabled?: boolean } = {},
+  options: { pageSize?: number; enabled?: boolean; week?: number } = {},
 ) {
   const pageSize = options.pageSize ?? AppConfig.defaultPageSize;
-  const filter = { page: 1, pageSize };
+  const filter = options.week ? { page: 1, pageSize, week: options.week } : { page: 1, pageSize };
   return useQuery<Paginated<PoultryDailyRecord>, ApiError>({
     queryKey: poultryOpsKeys.dailyRecords(orgId ?? 'unknown', flockId ?? 'unknown', filter),
     queryFn: () => poultryOpsApi.listDailyRecords(orgId as string, flockId as string, filter),

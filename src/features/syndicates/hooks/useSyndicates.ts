@@ -15,6 +15,8 @@ import type { LocalFile, PresignProvider } from '@/services/media';
 import { syndicateKeys, syndicatesApi, type SyndicateMediaKind } from '../api';
 import type {
   CreateAnnouncementInput,
+  MessageSyndicateMembersInput,
+  SyndicateMember,
   CreateSubmissionInput,
   MySubmissionListFilter,
   MySyndicateAccess,
@@ -173,7 +175,11 @@ export function useCreateSyndicateSubmission(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<SyndicateSubmission, ApiError, CreateSubmissionInput>({
     mutationFn: (input) => syndicatesApi.createSubmission(organizationId, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.submissions() }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: syndicateKeys.submissions() });
+      // Counters (unread / pending) live on the syndicate DTO.
+      void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+    },
   });
 }
 
@@ -199,7 +205,11 @@ export function useRespondToSyndicateSubmission(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<SyndicateSubmission, ApiError, { id: string; responseText: string }>({
     mutationFn: ({ id, responseText }) => syndicatesApi.respondToSubmission(organizationId, id, responseText),
-    onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.submissions() }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: syndicateKeys.submissions() });
+      // Counters (unread / pending) live on the syndicate DTO.
+      void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+    },
   });
 }
 
@@ -207,7 +217,11 @@ export function useCloseSyndicateSubmission(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<SyndicateSubmission, ApiError, string>({
     mutationFn: (id) => syndicatesApi.closeSubmission(organizationId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.submissions() }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: syndicateKeys.submissions() });
+      // Counters (unread / pending) live on the syndicate DTO.
+      void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+    },
   });
 }
 
@@ -226,5 +240,88 @@ export function useMySyndicateSubmission(id: string | undefined) {
     queryKey: syndicateKeys.mySubmission(id ?? '_'),
     queryFn: () => syndicatesApi.getMySubmission(id as string),
     enabled: Boolean(id),
+  });
+}
+
+// ================= registration + members =================
+
+/** "تسجيل" — register with / leave a syndicate; refreshes the viewer-relative DTO + access. */
+export function useSyndicateRegistration(organizationId: string) {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+    void qc.invalidateQueries({ queryKey: syndicateKeys.members(organizationId) });
+  };
+  const register = useMutation<unknown, ApiError, void>({
+    mutationFn: () => syndicatesApi.register(organizationId),
+    onSuccess: invalidate,
+  });
+  const cancel = useMutation<unknown, ApiError, void>({
+    mutationFn: () => syndicatesApi.cancelRegistration(organizationId),
+    onSuccess: invalidate,
+  });
+  return { register, cancel };
+}
+
+export function useSyndicateMembers(organizationId: string | undefined, search = '') {
+  const q = useInfinite<SyndicateMember>(
+    syndicateKeys.memberList(organizationId ?? '_', search),
+    (page) => syndicatesApi.listMembers(organizationId as string, { page, pageSize: PAGE, search }),
+    Boolean(organizationId),
+  );
+  const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
+  return { ...q, members: items, total: q.data?.pages[0]?.meta.total ?? 0 };
+}
+
+export function useSyndicateMember(organizationId: string | undefined, userId: string | undefined) {
+  return useQuery<SyndicateMember, ApiError>({
+    queryKey: syndicateKeys.member(organizationId ?? '_', userId ?? '_'),
+    queryFn: () => syndicatesApi.getMember(organizationId as string, userId as string),
+    enabled: Boolean(organizationId && userId),
+  });
+}
+
+export function useRemoveSyndicateMember(organizationId: string) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, string>({
+    mutationFn: (userId) => syndicatesApi.removeMember(organizationId, userId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: syndicateKeys.members(organizationId) });
+      void qc.invalidateQueries({ queryKey: syndicateKeys.syndicate(organizationId) });
+    },
+  });
+}
+
+/** Opens (or reuses) the one-to-one chat with a registered member; resolves the conversation id. */
+export function useOpenSyndicateMemberConversation(organizationId: string) {
+  return useMutation<{ id: string }, ApiError, string>({
+    mutationFn: (userId) => syndicatesApi.openMemberConversation(organizationId, userId),
+  });
+}
+
+export function useMessageSyndicateMembers(organizationId: string) {
+  return useMutation<{ broadcastId: string; recipientCount: number }, ApiError, MessageSyndicateMembersInput>({
+    mutationFn: (input) => syndicatesApi.messageAllMembers(organizationId, input),
+  });
+}
+
+export function useAssignSyndicateAdmin(organizationId: string) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, string>({
+    mutationFn: (email) => syndicatesApi.assignAdmin(organizationId, email),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['organizations'] });
+    },
+  });
+}
+
+/** Fetching one submission marks this officer's "new submission" alert read server-side. */
+export function useMarkSyndicateSubmissionSeen(organizationId: string) {
+  const qc = useQueryClient();
+  return useMutation<SyndicateSubmission, ApiError, string>({
+    mutationFn: (id) => syndicatesApi.getSubmission(organizationId, id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+    },
   });
 }

@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
-import { Caption, Text } from '@/components/typography';
+import { Caption, LinkifiedText, Text } from '@/components/typography';
 import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -73,12 +73,13 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
           borderColor: mine ? theme.colors.primary : theme.colors.border,
         }}
       >
-        <Text
-          variant="body"
-          style={message.deletedAt ? { color: theme.colors.textMuted } : undefined}
-        >
-          {message.deletedAt ? t('message.deleted') : message.body}
-        </Text>
+        {message.deletedAt ? (
+          <Text variant="body" style={{ color: theme.colors.textMuted }}>
+            {t('message.deleted')}
+          </Text>
+        ) : message.body ? (
+          <LinkifiedText variant="body">{message.body}</LinkifiedText>
+        ) : null}
 
         {images.length > 0 ? (
           <View style={{ marginTop: theme.spacing.sm }}>

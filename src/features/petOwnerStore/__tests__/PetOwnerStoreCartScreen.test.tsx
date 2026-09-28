@@ -29,7 +29,7 @@ const cart: PetStoreCart = {
   subtotalAmount: '170.00',
   deliveryFee: '0.00',
   totalAmount: '170.00',
-  currency: 'SAR',
+  currency: 'IQD',
 };
 
 beforeEach(() => {
@@ -43,9 +43,11 @@ describe('PetOwnerStoreCartScreen', () => {
   it('renders cart line items and the totals', async () => {
     renderWithProviders(<PetOwnerStoreCartScreen />);
     await waitFor(() => expect(screen.getByText('طعام جاف للكلاب')).toBeTruthy());
-    // "SAR 170" appears for subtotal + total (delivery is free)
-    expect(screen.getAllByText('170 ر.س').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('مجاني')).toBeTruthy();
+    // "170 د.ع" appears for subtotal + total; delivery is NOT advertised as free —
+    // the fee is settled on delivery and excluded from the total.
+    expect(screen.getAllByText('170 د.ع').length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText('مجاني')).toBeNull();
+    expect(screen.getByText('تُحدَّد عند التسليم')).toBeTruthy();
   });
 
   it('shows the empty state when the cart has no items', async () => {

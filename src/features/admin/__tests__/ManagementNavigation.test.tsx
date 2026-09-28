@@ -88,23 +88,15 @@ describe('Admin dashboard — role/permission-gated navigation', () => {
     expect(screen.queryByText('العيادات')).toBeNull();
   });
 
-  it('Courses and Seminars are separate cards, each opening the moderation screen scoped to its own type', () => {
+  it('Courses and Seminars share one unified card that opens the combined moderation screen', () => {
     useAuthStore.setState({ session: session({ isAdmin: true, roles: ['ADMIN', 'PET_OWNER'] }) });
     renderWithProviders(<ManagementScreen />);
 
-    expect(screen.getByText('الدورات')).toBeTruthy();
-    expect(screen.getByText('الندوات')).toBeTruthy();
+    expect(screen.getAllByText('الدورات والندوات')).toHaveLength(1);
+    expect(screen.queryByText('الدورات')).toBeNull();
+    expect(screen.queryByText('الندوات')).toBeNull();
 
-    fireEvent.press(screen.getByText('الدورات'));
-    expect(expoRouter.router.push).toHaveBeenCalledWith({
-      pathname: '/(app)/admin/vet-courses',
-      params: { type: 'COURSE' },
-    });
-
-    fireEvent.press(screen.getByText('الندوات'));
-    expect(expoRouter.router.push).toHaveBeenCalledWith({
-      pathname: '/(app)/admin/vet-courses',
-      params: { type: 'SEMINAR' },
-    });
+    fireEvent.press(screen.getByText('الدورات والندوات'));
+    expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/admin/vet-courses');
   });
 });

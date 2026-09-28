@@ -83,9 +83,9 @@ export default function PetOwnerStoreCartScreen() {
                     columnGap: theme.spacing.sm,
                   }}
                 >
-                  <Icon name="shield-checkmark-outline" size="iconSm" color="success" />
-                  <Text variant="label" color="success">
-                    {t('cart.freeDeliveryNote')}
+                  <Icon name="bicycle-outline" size="iconSm" color="textMuted" />
+                  <Text variant="label" color="textMuted">
+                    {t('cart.deliveryNote')}
                   </Text>
                 </View>
               </Card>

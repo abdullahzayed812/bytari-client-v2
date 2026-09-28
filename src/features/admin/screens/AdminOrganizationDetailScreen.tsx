@@ -34,7 +34,7 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
   return 'danger';
 }
 
-type Pending = 'approve' | 'reject' | OrgStatusAction | null;
+type Pending = 'approve' | 'reject' | 'delete' | OrgStatusAction | null;
 
 export default function AdminOrganizationDetailScreen() {
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
@@ -65,6 +65,17 @@ export default function AdminOrganizationDetailScreen() {
     decide.mutate(
       { decision: 'reject', reason },
       { onSuccess: () => done(t('orgs.toast.rejected')), onError: fail },
+    );
+  const runDelete = () =>
+    decide.mutate(
+      { decision: 'delete' },
+      {
+        onSuccess: () => {
+          done(t('orgs.toast.deleted'));
+          router.back();
+        },
+        onError: fail,
+      },
     );
   const runStatus = (action: OrgStatusAction, reason?: string) =>
     decide.mutate(
@@ -315,6 +326,25 @@ export default function AdminOrganizationDetailScreen() {
                   onPress={() => setPending('deactivate')}
                 />
               ) : null}
+              {/* Admin edit of the organization's profile (name, contact, license…). */}
+              {org.type !== 'SYNDICATE' && org.type !== 'CHAT_ROOM' ? (
+                <Button
+                  label={t('orgs.edit')}
+                  variant="outline"
+                  leftIcon="create-outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.organizationEdit(org.id))}
+                />
+              ) : null}
+              {org.status !== 'DEACTIVATED' ? (
+                <Button
+                  label={t('orgs.delete')}
+                  variant="danger"
+                  leftIcon="trash-outline"
+                  fullWidth
+                  onPress={() => setPending('delete')}
+                />
+              ) : null}
             </View>
           </Section>
         </>
@@ -343,6 +373,18 @@ export default function AdminOrganizationDetailScreen() {
         destructive
         loading={decide.isPending}
         onConfirm={runReject}
+        onCancel={() => setPending(null)}
+      />
+
+      <ConfirmationDialog
+        visible={pending === 'delete'}
+        title={t('orgs.deleteTitle')}
+        message={t('orgs.deleteBody')}
+        confirmLabel={t('orgs.delete')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={decide.isPending}
+        onConfirm={runDelete}
         onCancel={() => setPending(null)}
       />
 

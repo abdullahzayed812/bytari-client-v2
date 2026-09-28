@@ -14,7 +14,6 @@ import {
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import {
-  DAILY_RECORDS_PER_BATCH,
   DailyRecordWeekStrip,
 } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
@@ -29,6 +28,7 @@ import {
   useDeleteCattleDailyRecord,
   useCattleBatches,
   useCattleDailyRecords,
+  useCattleDailyRecordWeeks,
   useUpdateCattleDailyRecord,
 } from '../hooks';
 import type { CattleDailyRecord } from '../types';
@@ -52,9 +52,14 @@ export default function CattleDailyRecordsScreen() {
   const activeBatches = useCattleBatches(orgId, { status: 'ACTIVE', pageSize: 1 });
   const batch = activeBatches.batches[0];
 
+  // Weekly cycles: this screen works on the CURRENT week; finished weeks stay
+  // in the history on the farm details screen.
+  const weeks = useCattleDailyRecordWeeks(orgId, batch?.id, { enabled: Boolean(batch) });
+  const currentWeek = weeks.data?.currentWeek;
   const records = useCattleDailyRecords(orgId, batch?.id, {
-    pageSize: 100,
-    enabled: Boolean(batch),
+    pageSize: 7,
+    week: currentWeek,
+    enabled: Boolean(batch) && currentWeek != null,
   });
   const create = useCreateCattleDailyRecord(orgId, batch?.id ?? '');
   const update = useUpdateCattleDailyRecord(orgId, batch?.id ?? '');
@@ -65,7 +70,7 @@ export default function CattleDailyRecordsScreen() {
 
   const items = records.data?.items ?? [];
   const todayRecorded = items.some((r) => r.recordDate === businessToday());
-  const full = items.length >= DAILY_RECORDS_PER_BATCH;
+  // Never "full": after Day 7 the server opens the next week automatically.
   const onError = (error: unknown) =>
     toast.show({ tone: 'danger', message: apiErrorMessage(error) });
 
@@ -86,15 +91,16 @@ export default function CattleDailyRecordsScreen() {
             title={t('batch.emptyTitle')}
             message={t('batch.emptyBody')}
           />
-        ) : records.isLoading ? (
+        ) : records.isLoading || weeks.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : records.isError ? (
           <ErrorState error={records.error} onRetry={() => void records.refetch()} />
         ) : (
           <DailyRecordWeekStrip
             records={items}
+            weekNumber={currentWeek}
             todayRecorded={todayRecorded}
-            onAddPress={canManage && !full ? () => setFormOpen(true) : undefined}
+            onAddPress={canManage ? () => setFormOpen(true) : undefined}
             renderRecord={(r, day) => (
               <LivestockDailyRecordCard
                 record={r}
@@ -110,17 +116,11 @@ export default function CattleDailyRecordsScreen() {
       {batch && canManage ? (
         <View style={{ padding: theme.screenPadding }}>
           <Button
-            label={
-              full
-                ? tf('daily.limitReached')
-                : todayRecorded
-                  ? tf('daily.alreadyToday')
-                  : t('batch.addDaily')
-            }
+            label={todayRecorded ? tf('daily.alreadyToday') : t('batch.addDaily')}
             variant="primary"
             fullWidth
             leftIcon="add"
-            disabled={full || todayRecorded}
+            disabled={todayRecorded}
             onPress={() => setFormOpen(true)}
           />
         </View>

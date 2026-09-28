@@ -130,7 +130,10 @@ export interface CreateSupportInput {
   body: string;
 }
 export interface SendMessageInput {
+  /** May be empty when the message carries at least one image. */
   body: string;
+  /** Storage keys from `POST /<slug>/attachments/upload-url` (any thread kind, SUPPORT included). */
+  imageKeys?: string[];
 }
 
 export interface ThreadListFilter {

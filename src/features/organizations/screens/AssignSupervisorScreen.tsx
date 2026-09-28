@@ -13,7 +13,7 @@ import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { OrgFormLayout, PermissionSelector } from '../components';
-import { permissionGroupsFor } from '../constants';
+import { permissionGroupsFor, SYNDICATE_PERMISSION_GROUPS } from '../constants';
 import {
   useAssignOrganizationSupervisor,
   useOrganization,
@@ -77,6 +77,17 @@ export default function AssignSupervisorScreen() {
       setPermissions(existing.permissions.filter((p) => manageable.includes(p)));
     }
   }, [isEdit, existing, manageable]);
+  // A new syndicate admin ("مسؤول النقابة") starts with the complete syndicate
+  // permission set pre-selected — still editable before saving.
+  useEffect(() => {
+    if (!isEdit && org.data?.type === 'SYNDICATE' && seededFor.current !== 'new-syndicate') {
+      seededFor.current = 'new-syndicate';
+      setPermissions([
+        ...SYNDICATE_PERMISSION_GROUPS.flatMap((g) => [...g.permissions]),
+        'organization.read',
+      ]);
+    }
+  }, [isEdit, org.data?.type]);
   const effectivePermissions = permissions;
 
   const inFlight = useRef(false);

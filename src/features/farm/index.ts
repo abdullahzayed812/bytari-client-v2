@@ -90,9 +90,7 @@ export {
   IndividualCasesScreen,
   FarmAppointmentsScreen,
   ExpenseDetailScreen,
-  HealthEventDetailScreen,
   AppointmentDetailScreen,
-  PoultryCaseDetailScreen,
   DailyRecordsScreen,
   WeeklyReportScreen,
 } from './screens';

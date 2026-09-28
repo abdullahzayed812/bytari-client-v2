@@ -12,6 +12,12 @@ export interface DashboardCardDef {
   icon: IconName;
   tint: DashboardTint;
   route: Href;
+  /**
+   * Server card ids whose counters this ONE tile aggregates (and marks seen
+   * when opened). Used for "الدورات والندوات" — the server keeps separate
+   * `courses` / `seminars` counters, the dashboard shows one unified section.
+   */
+  mergedIds?: AdminDashboardCardId[];
   /** Same RBAC gating the pre-redesign `ManagementScreen` used per area — unchanged, only the presentation changed. */
   show: (caps: Capabilities) => boolean;
 }
@@ -22,13 +28,38 @@ export interface DashboardCardDef {
  * per area — this redesign changes presentation and adds real counts, not
  * who can see what.
  */
+
+/**
+ * Organization sections are TYPE-SCOPED for supervisors on the server
+ * (`canForOrganizationType`): ADMIN and role-held reads (MODERATOR) see every
+ * type; a system supervisor only the types of their own sections.
+ */
+const orgSection =
+  (domain: 'CLINIC' | 'FARMS' | 'SYNDICATE') =>
+  (c: Capabilities): boolean =>
+    c.isAdmin ||
+    (c.isModerator && c.can('organization.admin.read')) ||
+    c.supervisorDomains.includes(domain);
+
 export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
   {
     id: 'poultry',
     icon: 'egg-outline',
     tint: dashboardTint(0),
     route: { pathname: Routes.adminFarms, params: { species: 'POULTRY' } },
-    show: (c) => c.isAdmin || c.can('organization.admin.read'),
+    show: orgSection('FARMS'),
+  },
+  {
+    // "سوق الدواجن" — traders, ad moderation, exchange-rate boards.
+    id: 'poultryMarket',
+    icon: 'storefront-outline',
+    tint: dashboardTint(1),
+    route: Routes.adminPoultryMarketHub,
+    show: (c) =>
+      c.isAdmin ||
+      c.isSupervisorOf('MARKET') ||
+      c.can('trader.admin.read') ||
+      c.can('market.offer.admin.read'),
   },
   {
     id: 'pets',
@@ -63,14 +94,14 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     icon: 'medical-outline',
     tint: dashboardTint(1),
     route: { pathname: Routes.adminOrganizations, params: { type: 'CLINIC' } },
-    show: (c) => c.isAdmin || c.can('organization.admin.read'),
+    show: orgSection('CLINIC'),
   },
   {
     id: 'offices',
     icon: 'business-outline',
     tint: dashboardTint(7),
     route: { pathname: Routes.adminOrganizations, params: { type: 'VETERINARY_OFFICE' } },
-    show: (c) => c.isAdmin || c.can('organization.admin.read'),
+    show: orgSection('CLINIC'),
   },
   {
     id: 'vetApprovals',
@@ -84,20 +115,15 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     icon: 'nutrition-outline',
     tint: dashboardTint(3),
     route: { pathname: Routes.adminFarms, params: { species: 'LIVESTOCK' } },
-    show: (c) => c.isAdmin || c.can('organization.admin.read'),
+    show: orgSection('FARMS'),
   },
   {
+    // "الدورات والندوات" — one unified section (Courses / Seminars tabs inside).
     id: 'courses',
     icon: 'school-outline',
     tint: dashboardTint(3),
-    route: { pathname: Routes.adminVetCourses, params: { type: 'COURSE' } },
-    show: (c) => c.isAdmin || c.isSupervisorOf('VET_COURSES') || c.can('vet_course.read'),
-  },
-  {
-    id: 'seminars',
-    icon: 'easel-outline',
-    tint: dashboardTint(6),
-    route: { pathname: Routes.adminVetCourses, params: { type: 'SEMINAR' } },
+    route: Routes.adminVetCourses,
+    mergedIds: ['courses', 'seminars'],
     show: (c) => c.isAdmin || c.isSupervisorOf('VET_COURSES') || c.can('vet_course.read'),
   },
   {
@@ -154,7 +180,7 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     icon: 'ribbon-outline',
     tint: dashboardTint(0),
     route: { pathname: Routes.adminOrganizations, params: { type: 'SYNDICATE' } },
-    show: (c) => c.isAdmin || c.can('organization.admin.read'),
+    show: orgSection('SYNDICATE'),
   },
   {
     id: 'petOwners',

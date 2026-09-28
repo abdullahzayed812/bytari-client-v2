@@ -200,6 +200,7 @@ function StatChip({
 }
 
 interface CaseFormValues {
+  caseCount?: number;
   animalTag?: string;
   sex?: PoultryCaseSex;
   diagnosis?: string;
@@ -221,7 +222,9 @@ function AddCaseDialog({
 }) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
+  const { t: tf } = useTranslation('farm');
   // DEV-ONLY: pre-filled so the dialog doesn't need retyping on every test run.
+  const [caseCount, setCaseCount] = useState('1');
   const [animalTag, setAnimalTag] = useState(devDataEnabled ? 'قفص-14' : '');
   const [sex, setSex] = useState<PoultryCaseSex | null>(devDataEnabled ? 'MALE' : null);
   const [diagnosis, setDiagnosis] = useState(devDataEnabled ? 'ضعف عام وخمول' : '');
@@ -233,7 +236,9 @@ function AddCaseDialog({
     devDataEnabled ? new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10) : '',
   );
 
-  const valid = isValidIsoDate(startedOn);
+  const parsedCount = Number(caseCount);
+  const countValid = Number.isInteger(parsedCount) && parsedCount >= 1;
+  const valid = isValidIsoDate(startedOn) && countValid;
 
   return (
     <Modal
@@ -246,6 +251,13 @@ function AddCaseDialog({
         contentContainerStyle={{ rowGap: theme.spacing.md }}
         keyboardShouldPersistTaps="handled"
       >
+        <Input
+          label={tf('records.caseCount')}
+          value={caseCount}
+          onChangeText={setCaseCount}
+          keyboardType="number-pad"
+          error={countValid ? undefined : tf('records.invalidCount')}
+        />
         <Input
           label={t('cases.form.animalTagLabel')}
           value={animalTag}
@@ -296,6 +308,7 @@ function AddCaseDialog({
               disabled={loading || !valid}
               onPress={() =>
                 onSubmit({
+                  caseCount: parsedCount,
                   animalTag: animalTag.trim() || undefined,
                   sex: sex ?? undefined,
                   diagnosis: diagnosis.trim() || undefined,

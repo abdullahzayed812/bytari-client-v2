@@ -23,6 +23,8 @@ export const CONVERSATION_TYPES = [
   'PET_OWNER_VETERINARY_OFFICE',
   /** A Global Chat room the caller has joined (explicit ROOM_MEMBER participant row). */
   'CHAT_ROOM',
+  /** Syndicate admin ↔ one registered member (opened from the syndicate's member screen). */
+  'SYNDICATE_MEMBER',
 ] as const;
 export type ConversationType = (typeof CONVERSATION_TYPES)[number];
 
@@ -34,6 +36,8 @@ export const CONVERSATION_SIDES = [
   'VETERINARIAN',
   'VETERINARY_OFFICE',
   'ROOM_MEMBER',
+  'SYNDICATE',
+  'SYNDICATE_MEMBER',
 ] as const;
 export type ConversationSide = (typeof CONVERSATION_SIDES)[number];
 

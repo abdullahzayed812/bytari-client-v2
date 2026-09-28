@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
@@ -49,9 +50,19 @@ export function ContentCard({ item, onPress }: ContentCardProps) {
           backgroundColor: theme.colors.surfaceAccent,
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         }}
       >
-        <Icon name={meta.icon} size="iconMd" color="primary" />
+        {item.coverUrl ? (
+          <Image
+            source={{ uri: item.coverUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <Icon name={meta.icon} size="iconMd" color="primary" />
+        )}
       </View>
 
       <View style={{ flex: 1, rowGap: 4 }}>

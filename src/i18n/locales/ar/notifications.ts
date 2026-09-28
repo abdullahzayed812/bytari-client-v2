@@ -325,6 +325,10 @@ export default {
       title: 'تم الرد على طلبك',
       body: 'ردّت النقابة على طلبك أو استفسارك.',
     },
+    SYNDICATE_MEMBER_REGISTERED: {
+      title: 'عضو جديد في النقابة',
+      body: 'سجّل عضو جديد في النقابة.',
+    },
     CONTENT_PUBLISHED: {
       title: 'محتوى جديد',
       body: 'يتوفر محتوى جديد.',

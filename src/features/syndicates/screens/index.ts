@@ -10,3 +10,8 @@ export { default as MySyndicateSubmissionsScreen } from './MySyndicateSubmission
 export { default as SyndicateIdRequirementsScreen } from './SyndicateIdRequirementsScreen';
 export { default as SyndicateOfficeLicensesScreen } from './SyndicateOfficeLicensesScreen';
 export { default as SyndicateLegalSupportScreen } from './SyndicateLegalSupportScreen';
+export { default as SyndicateMembersScreen } from './SyndicateMembersScreen';
+export { default as SyndicateMemberDetailsScreen } from './SyndicateMemberDetailsScreen';
+export { default as SyndicateMembersBroadcastScreen } from './SyndicateMembersBroadcastScreen';
+export { default as SyndicateEditScreen } from './SyndicateEditScreen';
+export { default as AssignSyndicateAdminScreen } from './AssignSyndicateAdminScreen';

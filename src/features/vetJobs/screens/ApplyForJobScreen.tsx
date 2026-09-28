@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { useForm, type FieldPath } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { z } from 'zod';
@@ -12,12 +12,11 @@ import { FormField } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { FileUploader, ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
-import { Caption, Label } from '@/components/typography';
+import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
-import { StepProgress } from '../components';
 import { useApplyToVetJobOffer, useVetJobAttachmentProvider } from '../hooks';
 import type { CreateVetJobApplicationInput } from '../types';
 
@@ -42,8 +41,6 @@ const EMPTY: FormValues = {
   coverNote: 'أرغب بالانضمام لفريقكم وأمتلك خبرة مناسبة لهذه الوظيفة.',
 };
 
-const STEP_FIELDS: FieldPath<FormValues>[][] = [['fullName'], [], ['phone']];
-
 /** Route `/(app)/vet-jobs/offers/[offerId]/apply` — "التقديم على الوظيفة". */
 export default function ApplyForJobScreen() {
   const theme = useTheme();
@@ -52,8 +49,6 @@ export default function ApplyForJobScreen() {
   const { offerId } = useLocalSearchParams<{ offerId: string }>();
   const apply = useApplyToVetJobOffer(offerId);
   const attachmentProvider = useVetJobAttachmentProvider();
-  const [step, setStep] = useState(0);
-  const totalSteps = 3;
   const [cvStorageKey, setCvStorageKey] = useState<string | null>(null);
   const [photoStorageKey, setPhotoStorageKey] = useState<string | null>(null);
 
@@ -71,20 +66,11 @@ export default function ApplyForJobScreen() {
     [t],
   );
 
-  const { control, handleSubmit, trigger } = useForm<FormValues>({
+  const { control, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: EMPTY,
     mode: 'onTouched',
   });
-
-  const goNext = async (): Promise<void> => {
-    const valid = await trigger(STEP_FIELDS[step]);
-    if (valid) setStep((s) => Math.min(s + 1, totalSteps - 1));
-  };
-  const goBack = (): void => {
-    if (step === 0) router.back();
-    else setStep((s) => s - 1);
-  };
 
   const onSubmit = (values: FormValues): void => {
     const input: CreateVetJobApplicationInput = {
@@ -109,108 +95,105 @@ export default function ApplyForJobScreen() {
 
   return (
     <SafeAreaScreen>
-      <AppHeader
-        title={
-          step === 0 ? t('form.personalInfoTitle') : step === 1 ? t('form.professionalInfoTitle') : t('form.cvStepTitle')
-        }
-        onBack={goBack}
-        showBack
-      />
-      <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.sm }}>
-        <StepProgress current={step} total={totalSteps} />
-        <Caption style={{ marginTop: theme.spacing.xs }}>
-          {t('form.step', { current: step + 1, total: totalSteps })}
-        </Caption>
-      </View>
+      <AppHeader title={t('offer.apply')} showBack />
 
       <ScrollView
         contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
         keyboardShouldPersistTaps="handled"
       >
-        {step === 0 ? (
-          <>
-            <FormField control={control} name="fullName" label={t('form.fullName')} />
-            <FormField
-              control={control}
-              name="specialty"
-              label={t('form.specialty')}
-              placeholder={t('form.specialtyPlaceholder')}
-            />
-          </>
-        ) : null}
+        <>
+          <Text variant="subtitle" weight="bold">
+            {t('form.personalInfoTitle')}
+          </Text>
+          <FormField control={control} name="fullName" label={t('form.fullName')} />
+          <FormField
+            control={control}
+            name="specialty"
+            label={t('form.specialty')}
+            placeholder={t('form.specialtyPlaceholder')}
+          />
+        </>
 
-        {step === 1 ? (
-          <>
-            <FormField
-              control={control}
-              name="qualifications"
-              label={t('form.qualifications')}
-              placeholder={t('form.qualificationsPlaceholder')}
-            />
-            <FormField
-              control={control}
-              name="experienceYears"
-              label={t('form.experienceYears')}
-              keyboardType="number-pad"
-            />
-            <FormField
-              control={control}
-              name="coverNote"
-              label={t('form.coverNote')}
-              placeholder={t('form.coverNotePlaceholder')}
-              multiline
-              numberOfLines={4}
-            />
-          </>
-        ) : null}
+        <>
+          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+            {t('form.professionalInfoTitle')}
+          </Text>
+          <FormField
+            control={control}
+            name="qualifications"
+            label={t('form.qualifications')}
+            placeholder={t('form.qualificationsPlaceholder')}
+          />
+          <FormField
+            control={control}
+            name="experienceYears"
+            label={t('form.experienceYears')}
+            keyboardType="number-pad"
+          />
+          <FormField
+            control={control}
+            name="coverNote"
+            label={t('form.coverNote')}
+            placeholder={t('form.coverNotePlaceholder')}
+            multiline
+            numberOfLines={4}
+          />
+        </>
 
-        {step === 2 ? (
-          <>
-            <FormField control={control} name="phone" label={t('form.phone')} keyboardType="phone-pad" />
-            <FormField
-              control={control}
-              name="email"
-              label={t('form.offerContactEmail')}
-              keyboardType="email-address"
-              autoCapitalize="none"
+        <>
+          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+            {t('form.cvStepTitle')}
+          </Text>
+          <FormField
+            control={control}
+            name="phone"
+            label={t('form.phone')}
+            keyboardType="phone-pad"
+          />
+          <FormField
+            control={control}
+            name="email"
+            label={t('form.offerContactEmail')}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <View style={{ rowGap: theme.spacing.xs }}>
+            <Label>{t('form.cv')}</Label>
+            <FileUploader
+              provider={attachmentProvider}
+              onChange={(r) => setCvStorageKey(r?.storageKey ?? null)}
             />
+            <Caption>{t('form.cvHint')}</Caption>
+          </View>
 
-            <View style={{ rowGap: theme.spacing.xs }}>
-              <Label>{t('form.cv')}</Label>
-              <FileUploader provider={attachmentProvider} onChange={(r) => setCvStorageKey(r?.storageKey ?? null)} />
-              <Caption>{t('form.cvHint')}</Caption>
-            </View>
+          <View style={{ rowGap: theme.spacing.xs }}>
+            <Label>{t('form.photo')}</Label>
+            <ImageUploader
+              value={null}
+              provider={attachmentProvider}
+              shape="square"
+              size={120}
+              onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
+            />
+            <Caption>{t('form.photoHint')}</Caption>
+          </View>
 
-            <View style={{ rowGap: theme.spacing.xs }}>
-              <Label>{t('form.photo')}</Label>
-              <ImageUploader
-                value={null}
-                provider={attachmentProvider}
-                shape="square"
-                size={120}
-                onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
-              />
-              <Caption>{t('form.photoHint')}</Caption>
-            </View>
-
-            {apply.isError ? <Alert tone="danger" message={apiErrorMessage(apply.error)} /> : null}
-            <Alert tone="info" message={t('form.applyReviewNote')} />
-          </>
-        ) : null}
+          {apply.isError ? <Alert tone="danger" message={apiErrorMessage(apply.error)} /> : null}
+          <Alert tone="info" message={t('form.applyReviewNote')} />
+        </>
       </ScrollView>
 
-      <View style={{ padding: theme.screenPadding, flexDirection: 'row', columnGap: theme.spacing.sm }}>
-        {step < totalSteps - 1 ? (
-          <Button label={t('form.next')} fullWidth onPress={goNext} />
-        ) : (
-          <Button
-            label={apply.isPending ? t('form.submitting') : t('form.submit')}
-            fullWidth
-            loading={apply.isPending}
-            disabled={apply.isPending}
-            onPress={handleSubmit(onSubmit)}
-          />
-        )}
+      <View
+        style={{ padding: theme.screenPadding, flexDirection: 'row', columnGap: theme.spacing.sm }}
+      >
+        <Button
+          label={apply.isPending ? t('form.submitting') : t('form.submit')}
+          fullWidth
+          loading={apply.isPending}
+          disabled={apply.isPending}
+          onPress={handleSubmit(onSubmit)}
+        />
       </View>
     </SafeAreaScreen>
   );

@@ -17,6 +17,8 @@ import { formatDate } from '@/utils';
 import { ORG_STATUS_TONE, ORG_TYPE_ICON } from '../constants';
 import type { MyOrganization } from '../types';
 
+import { OrganizationTypeBadge } from './OrganizationTypeBadge';
+
 export interface OwnedOrganizationCardProps {
   organization: MyOrganization;
   onEnterDashboard?: () => void;
@@ -26,9 +28,10 @@ export interface OwnedOrganizationCardProps {
 const SUBSCRIPTION_TONE = { ACTIVE: 'success', NOT_STARTED: 'neutral', EXPIRED: 'danger' } as const;
 
 /**
- * "My Veterinary Organizations" owned-org card (VETERINARY_OFFICE / CLINIC) —
- * owner badge, approval-status pill, address/phone, subscription valid-until,
- * stats, "دخول لوحة التحكم" CTA. Richer than the plain `OrganizationCard` (list
+ * "My Veterinary Organizations" card (VETERINARY_OFFICE / CLINIC / FARM) —
+ * photo (logo → farm photo → first gallery image), type + role, approval
+ * status, location, phone, subscription valid-until, office stats and the
+ * "دخول لوحة التحكم" CTA. Richer than the plain `OrganizationCard` (list
  * item for every membership/role) — this is specifically the owner-facing card
  * from the Veterinary Office Dashboard reference screenshots.
  */
@@ -41,6 +44,15 @@ export function OwnedOrganizationCard({
   const { t } = useTranslation('organizations');
   const isOwner = org.myRole === 'OWNER';
   const isOffice = org.type === 'VETERINARY_OFFICE';
+  const isFarm = org.type === 'FARM';
+  // FARM photos live on `imageUrl` (farm_details.image_key); clinics/offices
+  // have a logo and/or registration gallery photos.
+  const photo = org.logoUrl ?? org.imageUrl ?? org.galleryUrls?.[0] ?? null;
+  const place =
+    org.address ?? ([org.location, org.governorate].filter(Boolean).join('، ') || null);
+  const roleKey = ['OWNER', 'VETERINARIAN', 'SUPERVISOR', 'STAFF'].includes(String(org.myRole))
+    ? (org.myRole as 'OWNER' | 'VETERINARIAN' | 'SUPERVISOR' | 'STAFF')
+    : null;
 
   // Stats (products/sales/followers) are an office-only concept — no dashboard
   // summary endpoint exists for CLINIC.
@@ -64,9 +76,9 @@ export function OwnedOrganizationCard({
       ]}
     >
       <View style={{ height: 140, backgroundColor: theme.colors.surfaceAccent }}>
-        {org.logoUrl ?? org.galleryUrls?.[0] ? (
+        {photo ? (
           <Image
-            source={{ uri: (org.logoUrl ?? org.galleryUrls?.[0]) as string }}
+            source={{ uri: photo }}
             style={{ width: '100%', height: '100%' }}
             contentFit="cover"
           />
@@ -90,10 +102,20 @@ export function OwnedOrganizationCard({
           <Badge label={t(`status.${org.status}`)} tone={ORG_STATUS_TONE[org.status]} size="sm" />
         </View>
 
-        {org.address ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+          <OrganizationTypeBadge type={org.type} />
+          {isFarm && org.farmSpecies ? (
+            <Badge label={t(`card.farmSpecies.${org.farmSpecies}`)} tone="neutral" size="sm" />
+          ) : null}
+          {!isOwner && roleKey ? (
+            <Caption color="textMuted">{t('card.myRole', { role: t(`role.${roleKey}`) })}</Caption>
+          ) : null}
+        </View>
+
+        {place ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
             <Icon name="location-outline" size="iconXs" color="textMuted" />
-            <Caption numberOfLines={1}>{org.address}</Caption>
+            <Caption numberOfLines={1}>{place}</Caption>
           </View>
         ) : null}
 

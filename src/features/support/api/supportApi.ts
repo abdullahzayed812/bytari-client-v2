@@ -51,7 +51,7 @@ function normalizeMessage(raw: unknown): ThreadMessage {
  *
  *   GET  /<slug>?page&pageSize&status                 listMine (own threads only)
  *   POST /<slug>                                      create ({ body, animalId?, imageKeys? } | { body })
- *   POST /<slug>/attachments/upload-url               presign one first-message photo (400 for SUPPORT)
+ *   POST /<slug>/attachments/upload-url               presign one message photo (every kind)
  *   GET  /<slug>/:id                                  CREATOR or RESPONDER (else 404)
  *   GET  /<slug>/:id/messages?page&pageSize           CREATOR or RESPONDER
  *   POST /<slug>/:id/messages                         { body }
@@ -101,14 +101,17 @@ export function makeThreadApi(kind: ThreadKind) {
 
     async sendMessage(threadId: string, input: SendMessageInput): Promise<ThreadMessage> {
       return normalizeMessage(
-        await apiClient.post<unknown>(`/${slug}/${threadId}/messages`, { body: input.body }),
+        await apiClient.post<unknown>(`/${slug}/${threadId}/messages`, {
+          body: input.body,
+          ...(input.imageKeys && input.imageKeys.length > 0 ? { imageKeys: input.imageKeys } : {}),
+        }),
       );
     },
 
     /**
      * Presign ONE first-message photo. Standalone by design — it is callable
      * before the thread exists, so the create screen can stage photos and pass
-     * the resulting `storageKey`s as `imageKeys`. 400s for SUPPORT.
+     * the resulting `storageKey`s as `imageKeys` (create or reply).
      */
     requestAttachmentUploadUrl(input: {
       filename: string;

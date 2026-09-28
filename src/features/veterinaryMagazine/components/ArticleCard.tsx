@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -19,11 +20,8 @@ export interface ArticleCardProps {
 
 /**
  * Grid/rail card for a Veterinary Magazine article, matching the reference
- * design. No cover-image thumbnail: the backend's list DTO never exposes a
- * direct file URL (only a per-file signed `/download` endpoint, resolved one
- * at a time on the detail screen) — showing a real thumbnail per card would
- * mean one extra network round-trip per card, so — like the existing generic
- * `ContentCard` — this renders a themed type icon instead.
+ * design. Shows the cover image from the DTO's server-resolved `coverUrl`
+ * (no per-card download call); falls back to a themed type icon.
  *
  * Owns its own bookmark-toggle mutation (one fixed hook call per card
  * instance) rather than the parent list managing a variable-length set of
@@ -61,7 +59,17 @@ export function ArticleCard({ article, onPress, width }: ArticleCardProps) {
           justifyContent: 'center',
         }}
       >
-        <Icon name="newspaper-outline" size="iconXl" color="textMuted" />
+        {article.coverUrl ? (
+          <Image
+            source={{ uri: article.coverUrl }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            contentFit="cover"
+            transition={150}
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <Icon name="newspaper-outline" size="iconXl" color="textMuted" />
+        )}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={article.isBookmarked ? t('card.unbookmarkA11y') : t('card.bookmarkA11y')}

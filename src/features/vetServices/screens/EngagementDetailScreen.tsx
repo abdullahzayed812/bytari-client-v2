@@ -7,6 +7,7 @@ import { Button } from '@/components/actions';
 import { Avatar, Card } from '@/components/content';
 import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
+import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -17,7 +18,13 @@ import { useTheme } from '@/theme';
 
 import { EngagementStatusBadge, InfoGrid, type InfoItem } from '../components';
 import { formatPrice, formatVetServiceDate } from '../constants';
-import { useListingRequest, useListingRequestAction, useOffer, useOfferAction } from '../hooks';
+import {
+  useListingRequest,
+  useListingRequestAction,
+  useOffer,
+  useOfferAction,
+  useStartEngagementConversation,
+} from '../hooks';
 
 type Kind = 'offer' | 'listing-request';
 
@@ -31,6 +38,8 @@ export default function EngagementDetailScreen() {
   const kind: Kind = kindParam === 'offer' ? 'offer' : 'listing-request';
   const id = engagementId ?? '';
 
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
+  const startChat = useStartEngagementConversation();
   const offerQ = useOffer(kind === 'offer' ? id : undefined);
   const lrQ = useListingRequest(kind === 'listing-request' ? id : undefined);
   const offerAction = useOfferAction();
@@ -141,6 +150,9 @@ export default function EngagementDetailScreen() {
   }
 
   const details = kind === 'offer' ? offerQ.data?.details : lrQ.data?.notes;
+  // Photos attached by the other party (private: resolved, signed URLs that
+  // only the two sides of this engagement can fetch through this endpoint).
+  const images = (kind === 'offer' ? offerQ.data?.imageUrls : lrQ.data?.imageUrls) ?? [];
   const cancelAction = kind === 'offer' ? 'withdraw' : 'cancel';
 
   return (
@@ -170,6 +182,19 @@ export default function EngagementDetailScreen() {
             </Text>
             <Text color="textSecondary">{details}</Text>
           </Card>
+        </Section>
+      ) : null}
+
+      {images.length > 0 ? (
+        <Section spacing="lg">
+          <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.xs }}>
+            {t('engagement.imagesTitle')}
+          </Text>
+          <ImageThumbnailRow
+            images={images}
+            size={88}
+            onPress={(index) => setViewer({ images, index })}
+          />
         </Section>
       ) : null}
 
@@ -211,6 +236,28 @@ export default function EngagementDetailScreen() {
             />
           ) : null}
 
+          {/* Contact the other party at any stage (before acceptance too). */}
+          {!(status === 'ACCEPTED' && conversationId) &&
+          status !== 'REJECTED' &&
+          status !== 'CANCELLED' ? (
+            <Button
+              label={t('actions.contactOtherParty')}
+              variant="outline"
+              fullWidth
+              leftIcon="chatbubbles-outline"
+              loading={startChat.isPending}
+              onPress={() =>
+                startChat.mutate(
+                  { kind: kind === 'offer' ? 'offer' : 'listing-request', id },
+                  {
+                    onSuccess: ({ conversationId: cid }) => router.push(Routes.vetServiceDeal(cid)),
+                    onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                  },
+                )
+              }
+            />
+          ) : null}
+
           {status === 'ACCEPTED' && conversationId ? (
             <>
               <Button
@@ -247,6 +294,12 @@ export default function EngagementDetailScreen() {
           setConfirm(null);
           if (action) run(action);
         }}
+      />
+      <ImageViewer
+        visible={viewer !== null}
+        images={viewer?.images ?? []}
+        initialIndex={viewer?.index ?? 0}
+        onClose={() => setViewer(null)}
       />
     </ScrollScreen>
   );

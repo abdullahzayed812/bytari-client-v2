@@ -80,6 +80,8 @@ export interface SheepBatch {
   targetPricePerKg: string | null;
   expectedSaleDate: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   closedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -138,7 +140,9 @@ export interface SheepDailyRecord {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
-  /** Position in the batch's weekly sequence (Day 1 … Day 7), server-computed. */
+  /** Batch-relative week (server-assigned; daily data runs in 7-day cycles). */
+  weekNumber?: number | null;
+  /** Day within the week, 1 … 7. */
   dayNumber?: number | null;
   /** Who added the record (name only). */
   createdBy?: { id: string; firstName: string; lastName: string } | null;
@@ -212,6 +216,8 @@ export interface SheepHealthEvent {
   status: LivestockHealthEventStatus;
   notes: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -233,6 +239,8 @@ export interface SheepCase {
   sheepBatchId: string;
   organizationId: string;
   caseNumber: number | null;
+  /** How many animals this case covers ("عدد الحالات"), ≥ 1. */
+  caseCount?: number;
   animalTag: string | null;
   sex: LivestockCaseSex;
   diagnosis: string | null;
@@ -242,10 +250,13 @@ export interface SheepCase {
   nextFollowupOn: string | null;
   imageUrl: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
 export interface CreateSheepCaseInput {
+  caseCount?: number;
   animalTag?: string | null;
   sex?: LivestockCaseSex;
   diagnosis?: string | null;
@@ -288,6 +299,8 @@ export interface CattleBatch {
   targetPricePerKg: string | null;
   expectedSaleDate: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   closedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -346,7 +359,9 @@ export interface CattleDailyRecord {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
-  /** Position in the batch's weekly sequence (Day 1 … Day 7), server-computed. */
+  /** Batch-relative week (server-assigned; daily data runs in 7-day cycles). */
+  weekNumber?: number | null;
+  /** Day within the week, 1 … 7. */
   dayNumber?: number | null;
   /** Who added the record (name only). */
   createdBy?: { id: string; firstName: string; lastName: string } | null;
@@ -420,6 +435,8 @@ export interface CattleHealthEvent {
   status: LivestockHealthEventStatus;
   notes: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -441,6 +458,8 @@ export interface CattleCase {
   cattleBatchId: string;
   organizationId: string;
   caseNumber: number | null;
+  /** How many animals this case covers ("عدد الحالات"), ≥ 1. */
+  caseCount?: number;
   animalTag: string | null;
   sex: LivestockCaseSex;
   diagnosis: string | null;
@@ -450,10 +469,13 @@ export interface CattleCase {
   nextFollowupOn: string | null;
   imageUrl: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
 export interface CreateCattleCaseInput {
+  caseCount?: number;
   animalTag?: string | null;
   sex?: LivestockCaseSex;
   diagnosis?: string | null;

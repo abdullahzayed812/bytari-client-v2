@@ -18,7 +18,12 @@ import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { SyndicateSubmissionStatusBadge } from '../components';
-import { useCloseSyndicateSubmission, useRespondToSyndicateSubmission, useSyndicateSubmissions } from '../hooks';
+import {
+  useCloseSyndicateSubmission,
+  useMarkSyndicateSubmissionSeen,
+  useRespondToSyndicateSubmission,
+  useSyndicateSubmissions,
+} from '../hooks';
 import type { SyndicateSubmission, SyndicateSubmissionKind } from '../types';
 
 /**
@@ -30,9 +35,16 @@ import type { SyndicateSubmission, SyndicateSubmissionKind } from '../types';
 export default function SyndicateSubmissionsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
-  const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
-  const [kind, setKind] = useState<SyndicateSubmissionKind | undefined>();
+  const params = useLocalSearchParams<{ organizationId: string; kind?: string }>();
+  const { organizationId } = params;
+  // Opened from a management card ("الطلبات" / "الاستفسارات") pre-filtered.
+  const [kind, setKind] = useState<SyndicateSubmissionKind | undefined>(
+    params.kind === 'REQUEST' || params.kind === 'INQUIRY' ? params.kind : undefined,
+  );
   const q = useSyndicateSubmissions(organizationId, { kind });
+  // Opening an item marks this officer's "new submission" alert read, which
+  // is what lowers the syndicate card's unread counter.
+  const markSeen = useMarkSyndicateSubmissionSeen(organizationId ?? '');
   const [responding, setResponding] = useState<SyndicateSubmission | null>(null);
   const [closing, setClosing] = useState<SyndicateSubmission | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
@@ -57,7 +69,12 @@ export default function SyndicateSubmissionsScreen() {
           data={q.submissions}
           keyExtractor={(s) => s.id}
           renderItem={({ item }) => (
-            <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>
+            <Card
+              variant="outlined"
+              padding="md"
+              style={{ rowGap: theme.spacing.sm }}
+              onPress={() => markSeen.mutate(item.id)}
+            >
               <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
                 <Icon name="person-circle-outline" size="iconMd" color="primary" />
                 <View style={{ flex: 1 }}>

@@ -17,6 +17,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useFarmProfile, useFarmSubscriptionRenewals } from '@/features/farmShared';
+import { CompletedWeeksSection } from '@/features/farmShared/components/CompletedWeeksSection';
 import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
 import { orgCapabilities, useOrganization, useOrganizationMembers } from '@/features/organizations';
@@ -37,6 +38,7 @@ import {
 import {
   useBatchSummary,
   useDailyRecords,
+  useDailyRecordWeeks,
   usePoultryFlocks,
   useUpdatePoultryFlock,
   useWeeklySummary,
@@ -76,7 +78,15 @@ export default function PoultryFarmDetailsScreen() {
     enabled: canOperateFarm,
   });
   const summary = useBatchSummary(orgId, flock?.id, { enabled: Boolean(flock) });
-  const daily = useDailyRecords(orgId, flock?.id, { pageSize: 7, enabled: Boolean(flock) });
+  // Daily data runs in weekly cycles: the strip shows the CURRENT week, older
+  // weeks live in "الأسابيع السابقة" below it.
+  const weeks = useDailyRecordWeeks(orgId, flock?.id, { enabled: Boolean(flock) });
+  const currentWeek = weeks.data?.currentWeek;
+  const daily = useDailyRecords(orgId, flock?.id, {
+    pageSize: 7,
+    week: currentWeek,
+    enabled: Boolean(flock) && currentWeek != null,
+  });
   const weekly = useWeeklySummary(orgId, flock?.id, undefined, { enabled: Boolean(flock) });
   const members = useOrganizationMembers(orgId, {
     status: 'ACTIVE',
@@ -240,11 +250,12 @@ export default function PoultryFarmDetailsScreen() {
                       {t('daily.title')}
                     </Text>
                   </View>
-                  {daily.isLoading ? (
+                  {daily.isLoading || weeks.isLoading ? (
                     <Loading label={t('common.loading')} />
                   ) : (
                     <DailyRecordWeekStrip
                       records={daily.data?.items ?? []}
+                      weekNumber={currentWeek}
                       todayRecorded={(daily.data?.items ?? []).some(
                         (r) => r.recordDate === businessToday(),
                       )}
@@ -257,6 +268,18 @@ export default function PoultryFarmDetailsScreen() {
                     />
                   )}
                 </View>
+
+                {/* Finished weeks — kept, with their summary + daily records */}
+                {weeks.data && flock ? (
+                  <CompletedWeeksSection
+                    weeks={weeks.data.weeks}
+                    currentWeek={weeks.data.currentWeek}
+                    formatWeight={(g) => `${Number(g).toLocaleString()} ${t('weekly.weightUnit')}`}
+                    renderWeekRecords={(week) => (
+                      <PoultryWeekRecords orgId={orgId} flockId={flock.id} week={week} />
+                    )}
+                  />
+                ) : null}
 
                 {/* Weekly summary */}
                 {weekly.data ? <WeeklySummaryCard summary={weekly.data} /> : null}
@@ -399,5 +422,21 @@ function EmptyBatch({ canManage, orgId }: { canManage: boolean; orgId: string })
         </View>
       </View>
     </View>
+  );
+}
+
+/** One finished week's daily records, fetched when its card is expanded. */
+function PoultryWeekRecords({ orgId, flockId, week }: { orgId: string; flockId: string; week: number }) {
+  const { t } = useTranslation('poultry');
+  const q = useDailyRecords(orgId, flockId, { pageSize: 7, week });
+  if (q.isLoading) return <Loading label={t('common.loading')} />;
+  return (
+    <>
+      {[...(q.data?.items ?? [])]
+        .sort((a, b) => (a.dayNumber ?? 0) - (b.dayNumber ?? 0))
+        .map((r, i) => (
+          <DailyRecordCard key={r.id} record={r} dayIndex={r.dayNumber ?? i + 1} />
+        ))}
+    </>
   );
 }

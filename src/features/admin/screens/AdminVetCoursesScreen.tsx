@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
-import { Card } from '@/components/content';
+import { Avatar, Card } from '@/components/content';
 import { ConfirmationDialog, Loading, Skeleton, useToast } from '@/components/feedback';
+import { SegmentedControl } from '@/components/forms';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -54,11 +55,10 @@ type DetailKey =
 
 /**
  * `/admin/vet-courses` — the Veterinarian Courses & Seminars moderation
- * queue. Reached from TWO separate dashboard cards ("Courses" / "Seminars"),
- * each passing a `?type=COURSE`/`?type=SEMINAR` route param — `AdminVetCoursesScreen`
- * always scopes its list (and its "add" button) to that one `type`, so the
- * two entities never mix in the same screen. No `type` param (a stale deep
- * link) falls back to the original mixed moderation-queue view.
+ * queue. Reached from ONE unified dashboard card ("الدورات والندوات"); a
+ * Courses / Seminars tab scopes the list (and its "add" button) to one
+ * `type`, so the two entities never mix in one list. A `?type=` deep link
+ * pre-selects the tab (default: COURSE).
  *
  * Approve / reject / cancel are backend-authorised (`vet_course.approve` /
  * `vet_course.reject`; ADMIN or VET_COURSES supervisor). Create / edit reuse
@@ -72,22 +72,20 @@ export default function AdminVetCoursesScreen() {
   const { t: tv } = useTranslation('vetCourses');
   const theme = useTheme();
   const toast = useToast();
-  const { type } = useLocalSearchParams<{ type?: VetCourseType }>();
+  const params = useLocalSearchParams<{ type?: VetCourseType }>();
+  // "الدورات والندوات" is ONE admin section: Courses / Seminars tabs over the
+  // same `vet_courses` entity (a `?type=` deep link still pre-selects a tab).
+  const [type, setType] = useState<VetCourseType>(params.type === 'SEMINAR' ? 'SEMINAR' : 'COURSE');
 
   const [status, setStatus] = useState<VetCourseModerationStatus | undefined>('PENDING');
   const q = useAdminVetCourses({ status, type });
 
-  const title =
-    type === 'COURSE'
-      ? t('vetCourses.titleCourses')
-      : type === 'SEMINAR'
-        ? t('vetCourses.titleSeminars')
-        : t('vetCourses.title');
+  const title = t('vetCourses.titleUnified');
   const addLabel = type === 'SEMINAR' ? t('vetCourses.addSeminar') : t('vetCourses.addCourse');
   const goCreate = () =>
     router.push({
       pathname: Routes.vetCourseNew,
-      params: { origin: 'admin', ...(type ? { type } : {}) },
+      params: { origin: 'admin', type },
     });
   const approve = useAdminApproveVetCourse();
   const reject = useAdminRejectVetCourse();
@@ -189,14 +187,24 @@ export default function AdminVetCoursesScreen() {
         emptyMessage={t('vetCourses.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
         filterBar={
-          <FilterChips<VetCourseModerationStatus>
-            value={status}
-            onChange={setStatus}
-            options={[
-              { value: undefined, label: t('vetCourses.status.ALL') },
-              ...STATUSES.map((s) => ({ value: s, label: t(`vetCourses.status.${s}`) })),
-            ]}
-          />
+          <View style={{ rowGap: theme.spacing.sm }}>
+            <SegmentedControl<VetCourseType>
+              value={type}
+              onChange={setType}
+              options={[
+                { value: 'COURSE', label: t('vetCourses.tabCourses') },
+                { value: 'SEMINAR', label: t('vetCourses.tabSeminars') },
+              ]}
+            />
+            <FilterChips<VetCourseModerationStatus>
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: undefined, label: t('vetCourses.status.ALL') },
+                ...STATUSES.map((s) => ({ value: s, label: t(`vetCourses.status.${s}`) })),
+              ]}
+            />
+          </View>
         }
         renderItem={(c) => (
           <AdminRow
@@ -205,7 +213,10 @@ export default function AdminVetCoursesScreen() {
             meta={
               c.status === 'APPROVED'
                 ? c.capacity != null
-                  ? t('vetCourses.seatsMeta', { registered: c.registrationCount ?? 0, capacity: c.capacity })
+                  ? t('vetCourses.seatsMeta', {
+                      registered: c.registrationCount ?? 0,
+                      capacity: c.capacity,
+                    })
                   : t('vetCourses.seatsMetaUnlimited', { registered: c.registrationCount ?? 0 })
                 : `${t('vetCourses.submittedAt')}: ${formatDate(c.createdAt)}`
             }
@@ -227,11 +238,23 @@ export default function AdminVetCoursesScreen() {
                 />
                 {c.status === 'PENDING' ? (
                   <>
-                    <Button label={t('vetCourses.approve')} variant="primary" onPress={() => setApproving(c)} />
-                    <Button label={t('vetCourses.reject')} variant="danger" onPress={() => setRejecting(c)} />
+                    <Button
+                      label={t('vetCourses.approve')}
+                      variant="primary"
+                      onPress={() => setApproving(c)}
+                    />
+                    <Button
+                      label={t('vetCourses.reject')}
+                      variant="danger"
+                      onPress={() => setRejecting(c)}
+                    />
                   </>
                 ) : c.status === 'APPROVED' && !c.cancelledAt ? (
-                  <Button label={t('vetCourses.cancel')} variant="danger" onPress={() => setCancelling(c)} />
+                  <Button
+                    label={t('vetCourses.cancel')}
+                    variant="danger"
+                    onPress={() => setCancelling(c)}
+                  />
                 ) : null}
               </>
             }
@@ -323,7 +346,9 @@ export default function AdminVetCoursesScreen() {
         </View>
 
         {detail?.status === 'PENDING' ? (
-          <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+          <View
+            style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}
+          >
             <Button
               label={t('vetCourses.approve')}
               variant="primary"
@@ -404,15 +429,18 @@ function RegistrantsModal({ course, onClose }: { course: VetCourse | null; onClo
       ) : (
         q.registrations.map((r) => (
           <Card key={r.id} variant="outlined" padding="sm">
-            <View style={{ rowGap: 2 }}>
-              <Text variant="bodyStrong">{r.fullName}</Text>
-              <Caption color="textSecondary">
-                {[r.phone, r.email, r.governorate, r.specialty].filter(Boolean).join(' · ')}
-              </Caption>
-              {r.notes ? <Caption color="textMuted">{r.notes}</Caption> : null}
-              <Caption color="textMuted">
-                {`${t('vetCourses.registrations.registeredAt')}: ${formatDate(r.createdAt)}`}
-              </Caption>
+            <View style={{ flexDirection: 'row', columnGap: 10, alignItems: 'flex-start' }}>
+              <Avatar uri={r.registrant.avatarUrl ?? null} name={r.fullName} size="avatarSm" />
+              <View style={{ rowGap: 2, flex: 1 }}>
+                <Text variant="bodyStrong">{r.fullName}</Text>
+                <Caption color="textSecondary">
+                  {[r.phone, r.email, r.governorate, r.specialty].filter(Boolean).join(' · ')}
+                </Caption>
+                {r.notes ? <Caption color="textMuted">{r.notes}</Caption> : null}
+                <Caption color="textMuted">
+                  {`${t('vetCourses.registrations.registeredAt')}: ${formatDate(r.createdAt)}`}
+                </Caption>
+              </View>
             </View>
           </Card>
         ))

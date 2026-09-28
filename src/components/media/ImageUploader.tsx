@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { TextButton } from '@/components/actions';
 import { Icon, type IconName } from '@/components/content';
 import { useToast } from '@/components/feedback';
 import { BottomSheet } from '@/components/overlays';
@@ -37,6 +38,16 @@ export interface ImageUploaderProps {
    * use it for identity documents and certificates.
    */
   edit?: ImageEditOptions | false;
+  /**
+   * Show a "change image" action under an existing image (and make the preview
+   * tappable) so the current image can be replaced through the same provider.
+   */
+  replaceable?: boolean;
+  /**
+   * Overrides the preview's remove (×) action — e.g. a server-side delete.
+   * Without it, remove only clears the local selection via `onChange(null)`.
+   */
+  onRemove?: () => void;
 }
 
 /**
@@ -53,6 +64,8 @@ export function ImageUploader({
   disabled,
   icon = 'camera-outline',
   edit,
+  replaceable,
+  onRemove,
 }: ImageUploaderProps) {
   const { t } = useTranslation('common');
   const theme = useTheme();
@@ -97,10 +110,17 @@ export function ImageUploader({
   };
 
   const remove = () => {
+    if (onRemove) {
+      onRemove();
+      return;
+    }
     up.reset();
     setLocalUri(null);
     onChange(null);
   };
+
+  const uploading = up.status === 'uploading';
+  const canReplace = replaceable === true && !disabled && !uploading;
 
   const previewUri = localUri ?? value ?? null;
   const borderRadius = shape === 'circle' ? size / 2 : theme.radius.lg;
@@ -114,16 +134,32 @@ export function ImageUploader({
       ) : null}
 
       {previewUri ? (
-        <ImagePreview
-          uri={previewUri}
-          size={size}
-          shape={shape}
-          uploading={up.status === 'uploading'}
-          progress={up.progress}
-          error={up.status === 'error'}
-          onRetry={retry}
-          onRemove={disabled ? undefined : remove}
-        />
+        <View style={{ alignItems: 'center', rowGap: theme.spacing.xs }}>
+          <Pressable
+            accessibilityRole={canReplace ? 'button' : undefined}
+            accessibilityLabel={canReplace ? t('media.changeImage') : undefined}
+            disabled={!canReplace}
+            onPress={() => setSheet(true)}
+          >
+            <ImagePreview
+              uri={previewUri}
+              size={size}
+              shape={shape}
+              uploading={uploading}
+              progress={up.progress}
+              error={up.status === 'error'}
+              onRetry={retry}
+              onRemove={disabled ? undefined : remove}
+            />
+          </Pressable>
+          {canReplace ? (
+            <TextButton
+              label={t('media.changeImage')}
+              icon="swap-horizontal-outline"
+              onPress={() => setSheet(true)}
+            />
+          ) : null}
+        </View>
       ) : (
         <Pressable
           accessibilityRole="button"

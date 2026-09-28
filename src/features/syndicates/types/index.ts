@@ -53,7 +53,51 @@ export interface PublicSyndicate {
   branchCount: number;
   isFollowing: boolean;
   followersCount: number;
+  /** Viewer-relative: the caller holds an ACTIVE registration here. */
+  isRegistered: boolean;
+  membersCount: number;
+  /** Only for a viewer who may read this syndicate's requests/inquiries; `null` otherwise. */
+  counters: SyndicateCounters | null;
   createdAt: string;
+}
+
+/** Server-computed card counters ("unread" = this officer's unread new-submission alerts). */
+export interface SyndicateCounters {
+  unreadRequests: number;
+  unreadInquiries: number;
+  pendingRequests: number;
+  pendingInquiries: number;
+}
+
+/** A registered member as a syndicate admin sees them — basic info only. */
+export interface SyndicateMember {
+  registrationId: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  email: string;
+  phone: string | null;
+  country: string | null;
+  governorate: string | null;
+  specialization: string | null;
+  isVeterinarian: boolean;
+  status: string;
+  registeredAt: string;
+}
+
+export interface MySyndicateRegistration {
+  registrationId: string;
+  organizationId: string;
+  status: string;
+  registeredAt: string;
+}
+
+export interface MessageSyndicateMembersInput {
+  title: string;
+  body: string;
+  /** Idempotency key — a retried send never notifies anyone twice. */
+  clientRequestId: string;
 }
 
 export interface UpdateSyndicateProfileInput {
@@ -102,6 +146,12 @@ export interface MySyndicateAccess {
   canManageAnnouncements: boolean;
   canReadSubmissions: boolean;
   canRespondSubmissions: boolean;
+  canReadMembers: boolean;
+  canManageMembers: boolean;
+  canMessageMembers: boolean;
+  /** Global Admin only. */
+  canDelete: boolean;
+  isRegistered: boolean;
 }
 
 export interface SyndicateAnnouncement {

@@ -39,6 +39,7 @@ const item = (over: Partial<ContentItem> = {}): ContentItem => ({
   isLiked: false,
   categories: [],
   files: [],
+  coverUrl: null,
   createdAt: '',
   updatedAt: '',
   ...over,

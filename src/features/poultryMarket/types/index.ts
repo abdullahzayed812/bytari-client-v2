@@ -89,6 +89,9 @@ export interface PoultryOffer {
   notes: string | null;
   imageUrls: string[];
   status: PoultryOfferStatus;
+  /** New ads are PENDING until a moderator approves them; only APPROVED are public. */
+  moderationStatus?: MarketModerationStatus;
+  rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -109,12 +112,16 @@ export interface CreatePoultryOfferInput {
   galleryKeys?: string[];
 }
 
+export type MarketModerationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 export interface ListPoultryOffersFilter {
   page: number;
   pageSize: number;
   birdType?: BirdType;
   governorate?: string;
   status?: PoultryOfferStatus;
+  /** Admin listing only. */
+  moderationStatus?: MarketModerationStatus;
 }
 
 // --- egg offers --------------------------------------------------
@@ -144,6 +151,9 @@ export interface EggOffer {
   notes: string | null;
   imageUrls: string[];
   status: EggOfferStatus;
+  /** New ads are PENDING until a moderator approves them; only APPROVED are public. */
+  moderationStatus?: MarketModerationStatus;
+  rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -167,6 +177,7 @@ export interface ListEggOffersFilter {
   eggType?: EggType;
   governorate?: string;
   status?: EggOfferStatus;
+  moderationStatus?: MarketModerationStatus;
 }
 
 // --- exchange rates ("bourse") -------------------------------------

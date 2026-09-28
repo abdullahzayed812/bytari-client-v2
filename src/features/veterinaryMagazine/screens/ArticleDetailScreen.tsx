@@ -45,7 +45,12 @@ export default function ArticleDetailScreen() {
 
   // Called before the early returns so the hook order is identical on every render.
   const cover = q.data?.files.find((f) => f.kind === 'COVER');
-  const coverUrl = useContentFileUrl(id, cover?.id, { enabled: Boolean(cover) });
+  // Prefer the DTO's server-resolved cover URL; the per-file download link is
+  // only a fallback (e.g. an older cached DTO without `coverUrl`).
+  const coverUrl = useContentFileUrl(id, cover?.id, {
+    enabled: Boolean(cover) && !q.data?.coverUrl,
+  });
+  const coverSrc = q.data?.coverUrl ?? coverUrl.data?.url ?? null;
 
   const notFound =
     q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
@@ -107,9 +112,9 @@ export default function ArticleDetailScreen() {
             justifyContent: 'center',
           }}
         >
-          {q.isLoading || !article ? null : cover && coverUrl.data?.url ? (
+          {q.isLoading || !article ? null : coverSrc ? (
             <Image
-              source={{ uri: coverUrl.data.url }}
+              source={{ uri: coverSrc }}
               style={{ width: '100%', height: '100%' }}
               contentFit="cover"
             />

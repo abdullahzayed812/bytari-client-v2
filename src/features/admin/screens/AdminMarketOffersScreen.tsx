@@ -12,17 +12,23 @@ import {
   useAdminDeletePoultryOffer,
   useAdminEggOffers,
   useAdminPoultryOffers,
+  useModerateEggOffer,
+  useModeratePoultryOffer,
 } from '@/features/poultryMarket';
-import type { EggOffer, PoultryOffer } from '@/features/poultryMarket';
+import type { EggOffer, MarketModerationStatus, PoultryOffer } from '@/features/poultryMarket';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
-import { AdminListScreen, AdminRow, FilterChips } from '../components';
+import { AdminListScreen, AdminRow, FilterChips, ReasonPromptDialog } from '../components';
 
 type Offer = PoultryOffer | EggOffer;
 type Kind = 'poultry' | 'egg';
 
-/** `/admin/market-offers/[kind]` — poultry/egg offer moderation (view all, delete any). */
+/**
+ * `/admin/market-offers/[kind]` — poultry / egg advertisement moderation:
+ * approve / reject PENDING ads (only approved ads are public), view all,
+ * delete any. Defaults to the PENDING queue.
+ */
 export default function AdminMarketOffersScreen() {
   const params = useLocalSearchParams<{ kind: Kind }>();
   const { t } = useTranslation('admin');
@@ -32,11 +38,39 @@ export default function AdminMarketOffersScreen() {
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [kind, setKind] = useState<Kind>(params.kind === 'egg' ? 'egg' : 'poultry');
 
+  const [moderation, setModeration] = useState<MarketModerationStatus | undefined>('PENDING');
+  const [rejecting, setRejecting] = useState<string | null>(null);
+
   const isEgg = kind === 'egg';
-  const poultryQuery = useAdminPoultryOffers({ page: 1, pageSize: 20 });
-  const eggQuery = useAdminEggOffers({ page: 1, pageSize: 20 });
+  const poultryQuery = useAdminPoultryOffers({ page: 1, pageSize: 20, moderationStatus: moderation });
+  const eggQuery = useAdminEggOffers({ page: 1, pageSize: 20, moderationStatus: moderation });
   const deletePoultry = useAdminDeletePoultryOffer();
   const deleteEgg = useAdminDeleteEggOffer();
+  const moderatePoultry = useModeratePoultryOffer();
+  const moderateEgg = useModerateEggOffer();
+  const moderate = isEgg ? moderateEgg : moderatePoultry;
+
+  const onApprove = (offerId: string) =>
+    moderate.mutate(
+      { offerId, decision: 'approve' },
+      {
+        onSuccess: () => toast.show({ message: t('marketOffers.toast.approved'), tone: 'success' }),
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  const onReject = (reason: string) => {
+    if (!rejecting) return;
+    moderate.mutate(
+      { offerId: rejecting, decision: 'reject', reason },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('marketOffers.toast.rejected'), tone: 'success' });
+          setRejecting(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
 
   const query = isEgg ? eggQuery : poultryQuery;
   const del = isEgg ? deleteEgg : deletePoultry;
@@ -77,14 +111,26 @@ export default function AdminMarketOffersScreen() {
         emptyMessage={t('marketOffers.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
         filterBar={
-          <FilterChips<Kind>
-            value={kind}
-            onChange={(v) => setKind(v ?? 'poultry')}
-            options={[
-              { value: 'poultry', label: t('marketOffers.tab.poultry') },
-              { value: 'egg', label: t('marketOffers.tab.egg') },
-            ]}
-          />
+          <View style={{ rowGap: theme.spacing.xs }}>
+            <FilterChips<Kind>
+              value={kind}
+              onChange={(v) => setKind(v ?? 'poultry')}
+              options={[
+                { value: 'poultry', label: t('marketOffers.tab.poultry') },
+                { value: 'egg', label: t('marketOffers.tab.egg') },
+              ]}
+            />
+            <FilterChips<MarketModerationStatus>
+              value={moderation}
+              onChange={setModeration}
+              options={[
+                { value: undefined, label: t('marketOffers.moderation.ALL') },
+                { value: 'PENDING', label: t('marketOffers.moderation.PENDING') },
+                { value: 'APPROVED', label: t('marketOffers.moderation.APPROVED') },
+                { value: 'REJECTED', label: t('marketOffers.moderation.REJECTED') },
+              ]}
+            />
+          </View>
         }
         renderItem={(o) => (
           <AdminRow
@@ -98,10 +144,19 @@ export default function AdminMarketOffersScreen() {
                   ? () => setViewer({ images: o.imageUrls, index: 0 })
                   : undefined,
             }}
-            badge={{
-              label: t(`marketOffers.status.${o.status}`),
-              tone: o.status === 'ACTIVE' ? 'success' : 'danger',
-            }}
+            badge={
+              o.status === 'REMOVED'
+                ? { label: t('marketOffers.status.REMOVED'), tone: 'danger' }
+                : {
+                    label: t(`marketOffers.moderation.${o.moderationStatus ?? 'APPROVED'}`),
+                    tone:
+                      o.moderationStatus === 'PENDING'
+                        ? 'info'
+                        : o.moderationStatus === 'REJECTED'
+                          ? 'danger'
+                          : 'success',
+                  }
+            }
             actions={
               <>
                 {o.imageUrls.length > 0 ? (
@@ -114,6 +169,21 @@ export default function AdminMarketOffersScreen() {
                       onPress={(index) => setViewer({ images: o.imageUrls, index })}
                     />
                   </View>
+                ) : null}
+                {o.status === 'ACTIVE' && o.moderationStatus === 'PENDING' ? (
+                  <>
+                    <Button
+                      label={t('marketOffers.approve')}
+                      variant="primary"
+                      disabled={moderate.isPending}
+                      onPress={() => onApprove(o.id)}
+                    />
+                    <Button
+                      label={t('marketOffers.reject')}
+                      variant="outline"
+                      onPress={() => setRejecting(o.id)}
+                    />
+                  </>
                 ) : null}
                 {o.status === 'ACTIVE' ? (
                   <Button
@@ -138,6 +208,20 @@ export default function AdminMarketOffersScreen() {
         loading={del.isPending}
         onConfirm={onDelete}
         onCancel={() => setPendingDelete(null)}
+      />
+
+      <ReasonPromptDialog
+        visible={rejecting != null}
+        title={t('marketOffers.rejectTitle')}
+        message={t('marketOffers.rejectBody')}
+        label={t('marketOffers.reasonLabel')}
+        confirmLabel={t('marketOffers.reject')}
+        cancelLabel={t('common.cancel')}
+        required
+        destructive
+        loading={moderate.isPending}
+        onConfirm={onReject}
+        onCancel={() => setRejecting(null)}
       />
 
       <ImageViewer

@@ -207,6 +207,9 @@ export default function CreatePublicationScreen() {
         color: (values.color as string)?.trim() || undefined,
         ageEstimate: (values.ageEstimate as string) || undefined,
         distinguishingFeatures: (values.distinguishingFeatures as string)?.trim() || undefined,
+        // The listing's subject only — it must NOT become one of the owner's
+        // registered pets ("حيواناتي"); the server keeps it out of that list.
+        listingOnly: true,
       } as never);
 
       if (photos.length > 0) {

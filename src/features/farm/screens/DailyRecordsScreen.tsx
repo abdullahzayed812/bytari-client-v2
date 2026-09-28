@@ -19,7 +19,6 @@ import { Modal } from '@/components/overlays';
 import { Caption, Text } from '@/components/typography';
 import {
   DailyRecordWeekStrip,
-  DAILY_RECORDS_PER_BATCH,
 } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
@@ -32,6 +31,7 @@ import { DailyRecordCard } from '../components';
 import {
   useCreateDailyRecord,
   useDailyRecords,
+  useDailyRecordWeeks,
   useDeleteDailyRecord,
   usePoultryFlocks,
   useUpdateDailyRecord,
@@ -60,7 +60,15 @@ export default function DailyRecordsScreen() {
   const activeFlocks = usePoultryFlocks(orgId, { status: 'ACTIVE', pageSize: 1 });
   const flock = activeFlocks.flocks[0];
 
-  const records = useDailyRecords(orgId, flock?.id, { pageSize: 100, enabled: Boolean(flock) });
+  // Weekly cycles: this screen works on the CURRENT week; finished weeks stay
+  // in the history on the farm details screen.
+  const weeks = useDailyRecordWeeks(orgId, flock?.id, { enabled: Boolean(flock) });
+  const currentWeek = weeks.data?.currentWeek;
+  const records = useDailyRecords(orgId, flock?.id, {
+    pageSize: 7,
+    week: currentWeek,
+    enabled: Boolean(flock) && currentWeek != null,
+  });
   const create = useCreateDailyRecord(orgId, flock?.id ?? '');
   const update = useUpdateDailyRecord(orgId, flock?.id ?? '');
   const remove = useDeleteDailyRecord(orgId, flock?.id ?? '');
@@ -71,7 +79,7 @@ export default function DailyRecordsScreen() {
   const items = records.data?.items ?? [];
   const today = businessToday();
   const todayRecorded = items.some((r) => r.recordDate === today);
-  const full = items.length >= DAILY_RECORDS_PER_BATCH;
+  // Never "full": after Day 7 the server opens the next week automatically.
 
   const onError = (error: unknown) =>
     toast.show({ tone: 'danger', message: apiErrorMessage(error) });
@@ -94,15 +102,16 @@ export default function DailyRecordsScreen() {
             title={t('batch.emptyTitle')}
             message={t('batch.emptyBody')}
           />
-        ) : records.isLoading ? (
+        ) : records.isLoading || weeks.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : records.isError ? (
           <ErrorState error={records.error} onRetry={() => void records.refetch()} />
         ) : (
           <DailyRecordWeekStrip
             records={items}
+            weekNumber={currentWeek}
             todayRecorded={todayRecorded}
-            onAddPress={canManage && !full ? () => setFormOpen(true) : undefined}
+            onAddPress={canManage ? () => setFormOpen(true) : undefined}
             renderRecord={(r, day) => (
               <DailyRecordCard
                 record={r}
@@ -118,17 +127,11 @@ export default function DailyRecordsScreen() {
       {flock && canManage ? (
         <View style={{ padding: theme.screenPadding }}>
           <Button
-            label={
-              full
-                ? tf('daily.limitReached')
-                : todayRecorded
-                  ? tf('daily.alreadyToday')
-                  : t('batch.addDaily')
-            }
+            label={todayRecorded ? tf('daily.alreadyToday') : t('batch.addDaily')}
             variant="primary"
             fullWidth
             leftIcon="add"
-            disabled={full || todayRecorded}
+            disabled={todayRecorded}
             onPress={() => setFormOpen(true)}
           />
         </View>

@@ -45,6 +45,8 @@ export const poultryOpsKeys = {
     [...poultryOpsKeys.forFlock(orgId, flockId), 'weekly', weekOf ?? 'current'] as const,
   dailyRecords: (orgId: string, flockId: string, filter: Record<string, unknown>) =>
     [...poultryOpsKeys.forFlock(orgId, flockId), 'daily', filter] as const,
+  dailyWeeks: (orgId: string, flockId: string) =>
+    [...poultryOpsKeys.forFlock(orgId, flockId), 'daily', 'weeks'] as const,
   healthEvents: (orgId: string, flockId: string, filter: Record<string, unknown>) =>
     [...poultryOpsKeys.forFlock(orgId, flockId), 'health', filter] as const,
   healthEventDetail: (orgId: string, flockId: string, eventId: string) =>

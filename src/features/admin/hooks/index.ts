@@ -20,6 +20,8 @@ export {
   useAdminSupervisors,
   useAssignSupervisorMutation,
   useRemoveSupervisorMutation,
+  useSetSupervisorDomainsMutation,
+  useSupervisorDomainCatalogue,
 } from './useAdminSupervisors';
 export { useAdminAuditLog } from './useAdminAuditLog';
 export {

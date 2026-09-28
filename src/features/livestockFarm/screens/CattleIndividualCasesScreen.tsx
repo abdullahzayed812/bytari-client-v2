@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
@@ -22,6 +22,7 @@ import { useCattleBatches, useCattleCases, useCreateCattleCase } from '../hooks'
 export default function CattleIndividualCasesScreen() {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
+  const { t: tf } = useTranslation('farm');
   const toast = useToast();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
@@ -32,6 +33,9 @@ export default function CattleIndividualCasesScreen() {
   const create = useCreateCattleCase(orgId, batch?.id ?? '');
   const [formOpen, setFormOpen] = useState(false);
   const [diagnosis, setDiagnosis] = useState('');
+  const [caseCount, setCaseCount] = useState('1');
+  const parsedCount = Number(caseCount);
+  const countValid = Number.isInteger(parsedCount) && parsedCount >= 1;
   const [startedOn, setStartedOn] = useState('');
 
   return (
@@ -48,9 +52,27 @@ export default function CattleIndividualCasesScreen() {
           <EmptyState icon="paw-outline" title={t('cases.empty')} message={t('cases.emptyHint')} />
         ) : (
           cases.cases.map((c) => (
-            <Card key={c.id} variant="outlined" padding="md">
+            <Card
+              key={c.id}
+              variant="outlined"
+              padding="md"
+              onPress={() =>
+                router.push({
+                  pathname: '/(app)/livestock/cattle/[organizationId]/sections/[section]/[itemId]',
+                  params: {
+                    organizationId: orgId,
+                    section: 'cases',
+                    itemId: c.id,
+                    batchId: batch?.id ?? '',
+                  },
+                })
+              }
+            >
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text variant="bodyMedium">{c.diagnosis ?? t('daily.none')}</Text>
+                <Text variant="bodyMedium">
+                  {c.diagnosis ?? t('daily.none')}
+                  {c.caseCount && c.caseCount > 1 ? ` · ${c.caseCount}` : ''}
+                </Text>
                 <Badge label={t(`cases.status.${c.status}`)} tone={CASE_STATUS_TONE[c.status]} size="sm" />
               </View>
               <Caption>{formatDate(c.startedOn)}</Caption>
@@ -67,6 +89,13 @@ export default function CattleIndividualCasesScreen() {
 
       <Modal visible={formOpen} onClose={() => setFormOpen(false)} title={t('cases.addButton')} dismissable={!create.isPending}>
         <View style={{ rowGap: theme.spacing.md }}>
+          <Input
+            label={tf('records.caseCount')}
+            value={caseCount}
+            onChangeText={setCaseCount}
+            keyboardType="number-pad"
+            error={countValid ? undefined : tf('records.invalidCount')}
+          />
           <Input label={t('cases.diagnosisLabel')} value={diagnosis} onChangeText={setDiagnosis} />
           <Input label={t('cases.startedLabel')} placeholder="YYYY-MM-DD" value={startedOn} onChangeText={setStartedOn} />
           <Button
@@ -74,15 +103,16 @@ export default function CattleIndividualCasesScreen() {
             variant="primary"
             fullWidth
             loading={create.isPending}
-            disabled={create.isPending || !startedOn.trim()}
+            disabled={create.isPending || !startedOn.trim() || !countValid}
             onPress={() =>
               create.mutate(
-                { diagnosis: diagnosis.trim() || undefined, startedOn },
+                { caseCount: parsedCount, diagnosis: diagnosis.trim() || undefined, startedOn },
                 {
                   onSuccess: () => {
                     toast.show({ tone: 'success', message: t('cases.success') });
                     setFormOpen(false);
                     setDiagnosis('');
+                    setCaseCount('1');
                     setStartedOn('');
                   },
                   onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),

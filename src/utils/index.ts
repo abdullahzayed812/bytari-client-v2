@@ -7,3 +7,4 @@ export {
   truncate,
   formatBytes,
 } from './format';
+export { newRequestId } from './requestId';

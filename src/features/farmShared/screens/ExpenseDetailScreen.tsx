@@ -1,17 +1,22 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Card, Icon } from '@/components/content';
-import { ErrorState, Loading } from '@/components/feedback';
+import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
+import { orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { EXPENSE_CATEGORY_ICON } from '../constants';
+import { FarmRecordFooter } from '../components/FarmRecordFooter';
 import { useFarmExpense } from '../hooks';
+import { useDeleteFarmExpense } from '../records';
 
 /** Route `/poultry/[organizationId]/sections/expenses/[itemId]` — one expense's full detail. */
 export default function ExpenseDetailScreen() {
@@ -23,6 +28,12 @@ export default function ExpenseDetailScreen() {
   }>();
 
   const q = useFarmExpense(organizationId, itemId);
+  const toast = useToast();
+  const { t: tf } = useTranslation('farm');
+  const { isAdmin } = useCapabilities();
+  const org = useOrganization(organizationId ?? '');
+  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const remove = useDeleteFarmExpense(organizationId ?? '');
 
   return (
     <ScrollScreen>
@@ -70,6 +81,21 @@ export default function ExpenseDetailScreen() {
                   <Text variant="body">{q.data.description}</Text>
                 </View>
               ) : null}
+
+              <FarmRecordFooter
+                createdBy={q.data.createdBy}
+                canManage={canManage}
+                deleting={remove.isPending}
+                onDelete={() =>
+                  remove.mutate(q.data!.id, {
+                    onSuccess: () => {
+                      toast.show({ tone: 'success', message: tf('records.deleted') });
+                      router.back();
+                    },
+                    onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                  })
+                }
+              />
             </View>
           </Card>
         </Section>

@@ -61,7 +61,9 @@ export default function VetJobSeekerDetailsScreen() {
               paddingBottom: theme.spacing.huge,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
+            >
               <View
                 style={{
                   width: 72,
@@ -74,7 +76,10 @@ export default function VetJobSeekerDetailsScreen() {
                 }}
               >
                 {profile.photoUrl ? (
-                  <Image source={{ uri: profile.photoUrl }} style={{ width: '100%', height: '100%' }} />
+                  <Image
+                    source={{ uri: profile.photoUrl }}
+                    style={{ width: '100%', height: '100%' }}
+                  />
                 ) : (
                   <Icon name="person" size="iconXl" color="primary" />
                 )}
@@ -100,12 +105,17 @@ export default function VetJobSeekerDetailsScreen() {
                 <Divider spacing="sm" />
                 <InfoRow label={t('seeker.specialty')} value={profile.specialty} />
                 <InfoRow label={t('seeker.qualifications')} value={profile.qualifications} />
-                <InfoRow label={t('seeker.experienceYears')} value={String(profile.experienceYears)} />
+                <InfoRow
+                  label={t('seeker.experienceYears')}
+                  value={String(profile.experienceYears)}
+                />
                 <InfoRow
                   label={t('seeker.workDuration')}
                   value={
                     profile.preferredEmploymentTypes.length > 0
-                      ? profile.preferredEmploymentTypes.map((v) => t(`employmentType.${v}`)).join('، ')
+                      ? profile.preferredEmploymentTypes
+                          .map((v) => t(`employmentType.${v}`))
+                          .join('، ')
                       : null
                   }
                 />
@@ -145,7 +155,13 @@ export default function VetJobSeekerDetailsScreen() {
                   padding="md"
                   onPress={() => void Linking.openURL(profile.cvUrl as string)}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      columnGap: theme.spacing.md,
+                    }}
+                  >
                     <Icon name="document-text-outline" size="iconMd" color="primary" />
                     <Text variant="body" style={{ flex: 1 }}>
                       {t('seeker.cv')}

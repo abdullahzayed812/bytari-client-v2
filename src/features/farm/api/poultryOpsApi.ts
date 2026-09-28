@@ -1,3 +1,4 @@
+import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
@@ -57,7 +58,7 @@ export const poultryOpsApi = {
   async listDailyRecords(
     orgId: string,
     flockId: string,
-    query: PageQuery & { from?: string; to?: string },
+    query: PageQuery & { from?: string; to?: string; week?: number },
   ): Promise<Paginated<PoultryDailyRecord>> {
     const envelope = await apiClient.requestEnvelope<PoultryDailyRecord[]>({
       method: 'GET',
@@ -68,6 +69,10 @@ export const poultryOpsApi = {
       items: envelope.data,
       meta: readMeta(envelope.meta, query.page, query.pageSize, envelope.data.length),
     };
+  },
+  /** Week history + where the next record goes (`GET …/daily-records/weeks`). */
+  listDailyRecordWeeks(orgId: string, flockId: string): Promise<DailyRecordWeeks> {
+    return apiClient.get<DailyRecordWeeks>(`${flockBase(orgId, flockId)}/daily-records/weeks`);
   },
   createDailyRecord(
     orgId: string,

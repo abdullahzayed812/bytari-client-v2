@@ -10,7 +10,7 @@ import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
-import { useCapabilities, useDebouncedValue } from '@/hooks';
+import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { CourseCard } from '../components';
@@ -21,7 +21,6 @@ import { VET_COURSE_TYPES, type CourseBrowseFilter, type VetCourseType } from '.
 export default function VeterinaryCoursesScreen() {
   const theme = useTheme();
   const { t } = useTranslation('vetCourses');
-  const caps = useCapabilities();
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
@@ -42,14 +41,8 @@ export default function VeterinaryCoursesScreen() {
               accessibilityLabel={t('home.myCourses')}
               onPress={() => router.push(Routes.vetCourseMy)}
             />
-            {caps.isApprovedVeterinarian ? (
-              <IconButton
-                icon="add"
-                variant="soft"
-                accessibilityLabel={t('courses.addCourse')}
-                onPress={() => router.push(Routes.vetCourseNew)}
-              />
-            ) : null}
+            {/* No "add course / seminar" here — they are created only from
+                Admin management ("الدورات والندوات"); users browse, view and register. */}
           </View>
         }
       />

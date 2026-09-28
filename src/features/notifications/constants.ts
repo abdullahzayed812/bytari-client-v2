@@ -86,6 +86,7 @@ export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; 
   SYNDICATE_ANNOUNCEMENT_PUBLISHED: { icon: 'megaphone-outline', tone: 'primary' },
   SYNDICATE_SUBMISSION_CREATED: { icon: 'document-text-outline', tone: 'info' },
   SYNDICATE_SUBMISSION_RESPONDED: { icon: 'document-text-outline', tone: 'success' },
+  SYNDICATE_MEMBER_REGISTERED: { icon: 'person-add-outline', tone: 'primary' },
   CONTENT_PUBLISHED: { icon: 'library-outline', tone: 'info' },
   PUBLICATION_SUBMITTED: { icon: 'paw-outline', tone: 'info' },
   PUBLICATION_APPROVED: { icon: 'paw-outline', tone: 'success' },
@@ -260,6 +261,8 @@ function hrefByType(
       return oid ? Routes.organizationDetail(oid) : Routes.organizations;
     }
     case 'ORGANIZATION_BROADCAST':
+      // A syndicate's "رسالة إلى الأعضاء" opens the syndicate, not the org directory.
+      if (orgId && n.data?.audience === 'SYNDICATE_MEMBERS') return Routes.syndicateMain(orgId);
       return orgId ? Routes.organizationDiscoverDetail(orgId) : null;
     case 'SYSTEM_SUPERVISOR_ASSIGNED':
       return Routes.managementHome;
@@ -394,6 +397,8 @@ function hrefByType(
       return orgId ? Routes.syndicateSubmissions(orgId) : Routes.syndicates;
     case 'SYNDICATE_SUBMISSION_RESPONDED':
       return Routes.syndicateMy;
+    case 'SYNDICATE_MEMBER_REGISTERED':
+      return orgId ? Routes.syndicateMembers(orgId) : Routes.syndicates;
 
     // --- animal publications / transfers ---
     case 'PUBLICATION_SUBMITTED':

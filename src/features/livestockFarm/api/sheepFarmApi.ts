@@ -1,3 +1,4 @@
+import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import type { OrganizationWithDetails } from '@/features/organizations/types';
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
@@ -80,7 +81,7 @@ export const sheepFarmApi = {
   async listDailyRecords(
     orgId: string,
     batchId: string,
-    query: { page: number; pageSize: number },
+    query: { page: number; pageSize: number; week?: number },
   ): Promise<Paginated<SheepDailyRecord>> {
     const envelope = await apiClient.requestEnvelope<SheepDailyRecord[]>({
       method: 'GET',
@@ -91,6 +92,10 @@ export const sheepFarmApi = {
       items: envelope.data,
       meta: readMeta(envelope.meta, query.page, query.pageSize, envelope.data.length),
     };
+  },
+  /** Week history + where the next record goes (`GET …/daily-records/weeks`). */
+  listDailyRecordWeeks(orgId: string, batchId: string): Promise<DailyRecordWeeks> {
+    return apiClient.get<DailyRecordWeeks>(`${batchBase(orgId, batchId)}/daily-records/weeks`);
   },
   createDailyRecord(
     orgId: string,

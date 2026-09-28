@@ -276,6 +276,16 @@ export function useStartListingConversation() {
   });
 }
 
+export function useStartEngagementConversation() {
+  return useMutation<
+    { conversationId: string },
+    ApiError,
+    { kind: 'offer' | 'listing-request'; id: string }
+  >({
+    mutationFn: ({ kind, id }) => vetServicesApi.startEngagementConversation(kind, id),
+  });
+}
+
 export function useStartRequestConversation() {
   return useMutation<{ conversationId: string }, ApiError, string>({
     mutationFn: (requestId) => vetServicesApi.startRequestConversation(requestId),

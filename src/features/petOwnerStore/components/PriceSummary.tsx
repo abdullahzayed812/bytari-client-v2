@@ -17,7 +17,9 @@ interface PriceSummaryProps {
 export function PriceSummary({ subtotalAmount, deliveryFee, totalAmount }: PriceSummaryProps) {
   const theme = useTheme();
   const { t } = useTranslation('petOwnerStore');
-  const freeDelivery = formatAmount(deliveryFee) === '0';
+  // The platform computes no delivery fee at checkout yet (settled on
+  // delivery) — `0` means "not included", never "free delivery".
+  const feeIncluded = formatAmount(deliveryFee) !== '0';
 
   const row = (label: string, value: string, strong?: boolean) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -40,14 +42,15 @@ export function PriceSummary({ subtotalAmount, deliveryFee, totalAmount }: Price
         <Text variant="body" color="textSecondary">
           {t('summary.delivery')}
         </Text>
-        {freeDelivery ? (
-          <Caption style={{ color: theme.colors.success }}>{t('summary.freeDelivery')}</Caption>
-        ) : (
+        {feeIncluded ? (
           <Text variant="body">{t('common.price', { value: formatAmount(deliveryFee) })}</Text>
+        ) : (
+          <Caption color="textMuted">{t('summary.deliveryOnDelivery')}</Caption>
         )}
       </View>
       <Divider />
       {row(t('summary.total'), t('common.price', { value: formatAmount(totalAmount) }), true)}
+      {feeIncluded ? null : <Caption color="textMuted">{t('summary.totalExcludesDelivery')}</Caption>}
     </View>
   );
 }

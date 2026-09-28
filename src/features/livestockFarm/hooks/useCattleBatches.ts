@@ -1,3 +1,4 @@
+import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import {
   useInfiniteQuery,
   useMutation,
@@ -147,13 +148,28 @@ export function useCattleWeeklySummary(
   });
 }
 
+/** Week history + the current week (`GET …/daily-records/weeks`). */
+export function useCattleDailyRecordWeeks(
+  orgId: string | undefined,
+  batchId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<DailyRecordWeeks, ApiError>({
+    queryKey: cattleKeys.dailyWeeks(orgId ?? 'unknown', batchId ?? 'unknown'),
+    queryFn: () => cattleFarmApi.listDailyRecordWeeks(orgId as string, batchId as string),
+    enabled: Boolean(orgId) && Boolean(batchId) && (options.enabled ?? true),
+    retry: noRetryOn403,
+    staleTime: 15_000,
+  });
+}
+
 export function useCattleDailyRecords(
   orgId: string | undefined,
   batchId: string | undefined,
-  options: { pageSize?: number; enabled?: boolean } = {},
+  options: { pageSize?: number; enabled?: boolean; week?: number } = {},
 ) {
   const pageSize = options.pageSize ?? AppConfig.defaultPageSize;
-  const filter = { page: 1, pageSize };
+  const filter = options.week ? { page: 1, pageSize, week: options.week } : { page: 1, pageSize };
   return useQuery<Paginated<CattleDailyRecord>, ApiError>({
     queryKey: cattleKeys.dailyRecords(orgId ?? 'unknown', batchId ?? 'unknown', filter),
     queryFn: () => cattleFarmApi.listDailyRecords(orgId as string, batchId as string, filter),

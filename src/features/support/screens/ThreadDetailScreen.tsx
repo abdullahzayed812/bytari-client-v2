@@ -29,6 +29,7 @@ import {
   useSetSenderBlocked,
   useThread,
   useThreadMessages,
+  useThreadAttachmentProvider,
   useThreadRealtime,
 } from '../hooks';
 import { supportErrorMessage } from '../validation/schemas';
@@ -62,6 +63,7 @@ export default function ThreadDetailScreen() {
   useThreadRealtime(kind, id, { enabled: Boolean(id) });
 
   const send = useSendMessage(kind, id);
+  const attachmentProvider = useThreadAttachmentProvider(kind);
   const close = useCloseThread(kind, id);
   const block = useSetSenderBlocked(kind, id);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -104,10 +106,10 @@ export default function ThreadDetailScreen() {
       ? t('detail.blockedNotice')
       : null;
 
-  const onSend = (body: string): void => {
+  const onSend = (body: string, imageKeys?: string[]): void => {
     setSendError(null);
     send.mutate(
-      { body },
+      { body, imageKeys },
       {
         onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
         onError: (error) => setSendError(supportErrorMessage(error, t)),
@@ -228,6 +230,7 @@ export default function ThreadDetailScreen() {
             sending={send.isPending}
             error={sendError}
             onSend={onSend}
+            attachmentProvider={attachmentProvider}
           />
         ) : null}
       </KeyboardAvoidingView>

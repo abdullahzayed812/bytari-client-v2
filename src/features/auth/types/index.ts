@@ -49,7 +49,14 @@ export type SupervisorDomain =
   | 'VETERINARIAN_STORE'
   | 'VET_JOBS'
   | 'VET_COURSES'
-  | 'ADVERTISEMENT';
+  | 'ADVERTISEMENT'
+  | 'USERS'
+  | 'VETERINARIANS'
+  | 'FARMS'
+  | 'SYNDICATE'
+  | 'TRADERS'
+  | 'REPORTS'
+  | 'NOTIFICATIONS';
 
 // --- user DTO ---------------------------------------------------------
 /**

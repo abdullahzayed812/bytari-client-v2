@@ -54,14 +54,23 @@ export default function ManagementScreen() {
     [caps],
   );
 
-  const countFor = (id: AdminDashboardCardId): number =>
+  const serverCount = (id: AdminDashboardCardId): number =>
     summary.data?.cards.find((c) => c.id === id)?.count ?? 0;
+  const idsOf = (id: AdminDashboardCardId): AdminDashboardCardId[] =>
+    DASHBOARD_CARD_DEFS.find((d) => d.id === id)?.mergedIds ?? [id];
+
+  // A merged tile (e.g. "الدورات والندوات") sums its server counters.
+  const countFor = (id: AdminDashboardCardId): number =>
+    idsOf(id).reduce((sum, i) => sum + serverCount(i), 0);
 
   const activeCountFor = (id: AdminDashboardCardId): number =>
-    summary.data?.cards.find((c) => c.id === id)?.activeCount ?? 0;
+    idsOf(id).reduce(
+      (sum, i) => sum + (summary.data?.cards.find((c) => c.id === i)?.activeCount ?? 0),
+      0,
+    );
 
   const openCard = (card: (typeof DASHBOARD_CARD_DEFS)[number]) => {
-    if (countFor(card.id) > 0) markSeen.mutate(card.id);
+    for (const id of idsOf(card.id)) if (serverCount(id) > 0) markSeen.mutate(id);
     router.push(card.route);
   };
 

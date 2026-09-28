@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Badge, Card, Chip } from '@/components/content';
@@ -64,6 +64,7 @@ export default function AdminUserDetailScreen() {
 
   const [pendingAction, setPendingAction] = useState<UserStatusAction | null>(null);
   const [avatarViewer, setAvatarViewer] = useState(false);
+  const [docViewer, setDocViewer] = useState<{ images: string[]; index: number } | null>(null);
   const isSelf = session?.user.id === userId;
 
   const runStatus = (reason?: string) => {
@@ -276,6 +277,38 @@ export default function AdminUserDetailScreen() {
                     label={t('users.detail.vetDocumentsLabel')}
                     value={String(q.data.veterinarianApplication.documents.length)}
                   />
+                  {(() => {
+                    // Identity / licence documents — private, signed URLs only
+                    // (present only when this admin may review applications).
+                    const docs = q.data.veterinarianApplication.documents.filter(
+                      (d): d is typeof d & { downloadUrl: string } => Boolean(d.downloadUrl),
+                    );
+                    const images = docs.filter((d) => d.mimeType.startsWith('image/'));
+                    const files = docs.filter((d) => !d.mimeType.startsWith('image/'));
+                    if (docs.length === 0) return null;
+                    return (
+                      <View style={{ rowGap: theme.spacing.xs }}>
+                        {images.length > 0 ? (
+                          <ImageThumbnailRow
+                            images={images.map((d) => d.downloadUrl)}
+                            size={72}
+                            onPress={(index) =>
+                              setDocViewer({ images: images.map((d) => d.downloadUrl), index })
+                            }
+                          />
+                        ) : null}
+                        {files.map((d) => (
+                          <Button
+                            key={d.downloadUrl}
+                            label={`${t('users.detail.openDocument')} · ${d.filename}`}
+                            variant="outline"
+                            leftIcon="document-outline"
+                            onPress={() => void Linking.openURL(d.downloadUrl)}
+                          />
+                        ))}
+                      </View>
+                    );
+                  })()}
                 </View>
               </Card>
             </Section>
@@ -463,6 +496,13 @@ export default function AdminUserDetailScreen() {
         loading={sendReset.isPending}
         onConfirm={onSendReset}
         onCancel={() => setConfirmReset(false)}
+      />
+
+      <ImageViewer
+        visible={docViewer !== null}
+        images={docViewer?.images ?? []}
+        initialIndex={docViewer?.index ?? 0}
+        onClose={() => setDocViewer(null)}
       />
 
       <ImageViewer

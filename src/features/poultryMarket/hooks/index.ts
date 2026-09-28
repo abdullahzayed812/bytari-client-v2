@@ -8,6 +8,7 @@ export {
   useDeletePoultryOffer,
   useAdminPoultryOffers,
   useAdminDeletePoultryOffer,
+  useModeratePoultryOffer,
   type UsePoultryOffersParams,
 } from './usePoultryOffers';
 export {
@@ -18,6 +19,7 @@ export {
   useDeleteEggOffer,
   useAdminEggOffers,
   useAdminDeleteEggOffer,
+  useModerateEggOffer,
   type UseEggOffersParams,
 } from './useEggOffers';
 export {

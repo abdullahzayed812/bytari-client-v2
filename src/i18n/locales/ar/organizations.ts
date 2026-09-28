@@ -142,6 +142,14 @@ export default {
     sales: 'مبيعات',
     followers: 'متابع',
     enterDashboard: 'دخول لوحة التحكم',
+    myRole: 'دوري: {{role}}',
+    openFarm: 'فتح المزرعة',
+    farmSpecies: {
+      POULTRY: 'دواجن',
+      SHEEP: 'أغنام',
+      CATTLE: 'أبقار',
+      MIXED: 'مختلطة',
+    },
   },
   subscriptionStatus: {
     NOT_STARTED: 'لم يبدأ',
@@ -191,6 +199,14 @@ export default {
     logoRemoveCta: 'إزالة الشعار',
     galleryLabel: 'صور المعرض',
     licenseImagesLabel: 'صور الترخيص',
+    licenseImagesHint: 'حتى {{max}} صور. اضغط على الصورة لاستبدالها أو × لحذفها.',
+    licenseUploaded: 'تم رفع صورة الترخيص.',
+    licenseReplaced: 'تم استبدال صورة الترخيص.',
+    licenseRemoved: 'تم حذف صورة الترخيص.',
+    licenseRemoveTitle: 'حذف صورة الترخيص',
+    licenseRemoveBody: 'هل تريد حذف صورة الترخيص هذه؟ يمكنك رفع صورة جديدة بعد ذلك.',
+    licenseRemoveCta: 'حذف',
+    cancel: 'إلغاء',
     errors: {
       typeRequired: 'يرجى اختيار نوع المؤسسة.',
       nameRequired: 'اسم المؤسسة مطلوب (حرفان على الأقل).',
@@ -383,6 +399,7 @@ export default {
     supervisors: 'المشرفون',
     veterinarians: 'الأطباء البيطريون',
     chat_room: 'إدارة الغرفة',
+    syndicate: 'إدارة النقابة',
   },
   permissions: {
     'organization.read': {
@@ -436,6 +453,34 @@ export default {
     'chat_room.message.delete': {
       label: 'حذف رسائل الأعضاء',
       hint: 'حذف أي رسالة يرسلها عضو آخر في الغرفة.',
+    },
+    'syndicate.profile.manage': {
+      label: 'تعديل بيانات النقابة',
+      hint: 'تعديل اسم النقابة ووصفها ومعلومات الاتصال والشعار.',
+    },
+    'syndicate.announcement.manage': {
+      label: 'إدارة الإعلانات',
+      hint: 'نشر إعلانات النقابة وتعديلها وحذفها.',
+    },
+    'syndicate.submission.read': {
+      label: 'عرض الطلبات والاستفسارات',
+      hint: 'الاطلاع على طلبات واستفسارات الأعضاء.',
+    },
+    'syndicate.submission.respond': {
+      label: 'الرد على الطلبات والاستفسارات',
+      hint: 'الرد على الطلبات والاستفسارات وإغلاقها.',
+    },
+    'syndicate.member.read': {
+      label: 'عرض الأعضاء المسجلين',
+      hint: 'الاطلاع على قائمة الأعضاء وبياناتهم الأساسية.',
+    },
+    'syndicate.member.manage': {
+      label: 'إدارة الأعضاء',
+      hint: 'إلغاء تسجيل عضو من النقابة.',
+    },
+    'syndicate.member.message': {
+      label: 'مراسلة الأعضاء',
+      hint: 'مراسلة عضو مباشرةً أو إرسال رسالة لجميع الأعضاء.',
     },
   },
 };

@@ -15,3 +15,4 @@ export function Label(props: Omit<TextProps, 'variant'>) {
 export function Caption(props: Omit<TextProps, 'variant'>) {
   return <Text variant="caption" color="textMuted" {...props} />;
 }
+export { LinkifiedText, type LinkifiedTextProps } from './LinkifiedText';

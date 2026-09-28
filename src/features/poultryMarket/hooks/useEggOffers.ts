@@ -139,6 +139,7 @@ export function useAdminEggOffers(filter: ListEggOffersFilter) {
       eggType: filter.eggType,
       governorate: filter.governorate,
       status: filter.status,
+      moderationStatus: filter.moderationStatus,
       pageSize: filter.pageSize,
     }),
     initialPageParam: 1,
@@ -164,6 +165,25 @@ export function useAdminDeleteEggOffer(): UseMutationResult<
   return useMutation({
     mutationKey: ['market', 'egg-offers', 'admin-delete'],
     mutationFn: ({ offerId }) => poultryMarketApi.eggOffers.adminRemove(offerId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryMarketKeys.eggOffers.all });
+    },
+  });
+}
+
+/** Approve / reject a PENDING ad (`market.offer.admin.moderate`). */
+export function useModerateEggOffer(): UseMutationResult<
+  unknown,
+  unknown,
+  { offerId: string; decision: 'approve' } | { offerId: string; decision: 'reject'; reason: string }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['market', 'eggOffers', 'moderate'],
+    mutationFn: (input) =>
+      input.decision === 'approve'
+        ? poultryMarketApi.eggOffers.approve(input.offerId)
+        : poultryMarketApi.eggOffers.reject(input.offerId, input.reason),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: poultryMarketKeys.eggOffers.all });
     },

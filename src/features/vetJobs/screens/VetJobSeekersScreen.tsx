@@ -46,7 +46,9 @@ export default function VetJobSeekersScreen() {
               variant="soft"
               accessibilityLabel={t('seekers.addProfile')}
               onPress={() =>
-                router.push(mine.data ? Routes.vetJobSeekerProfileEdit : Routes.vetJobSeekerProfileNew)
+                router.push(
+                  mine.data ? Routes.vetJobSeekerProfileEdit : Routes.vetJobSeekerProfileNew,
+                )
               }
             />
           ) : undefined
@@ -71,7 +73,11 @@ export default function VetJobSeekersScreen() {
           paddingVertical: theme.spacing.sm,
         }}
       >
-        <Chip label={t('filters.all')} selected={!governorate} onPress={() => setGovernorate(undefined)} />
+        <Chip
+          label={t('filters.all')}
+          selected={!governorate}
+          onPress={() => setGovernorate(undefined)}
+        />
         {IRAQ_GOVERNORATES.map((g) => (
           <Chip key={g} label={g} selected={governorate === g} onPress={() => setGovernorate(g)} />
         ))}
@@ -91,13 +97,22 @@ export default function VetJobSeekersScreen() {
           columnWrapperStyle={{ gap: theme.spacing.md }}
           renderItem={({ item }) => (
             <View style={{ flex: 1 }}>
-              <JobSeekerCard profile={item} onPress={() => router.push(Routes.vetJobSeeker(item.id))} />
+              <JobSeekerCard
+                profile={item}
+                onPress={() => router.push(Routes.vetJobSeeker(item.id))}
+              />
             </View>
           )}
           ListEmptyComponent={
-            <EmptyState icon="person-outline" title={t('seekers.empty')} message={t('seekers.emptyHint')} />
+            <EmptyState
+              icon="person-outline"
+              title={t('seekers.empty')}
+              message={t('seekers.emptyHint')}
+            />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('seekers.loadingMore')} /> : null}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('seekers.loadingMore')} /> : null
+          }
           contentContainerStyle={{
             padding: theme.screenPadding,
             paddingBottom: theme.spacing.huge,

@@ -100,10 +100,34 @@ export const CHAT_ROOM_PERMISSION_GROUPS = [
   },
 ] as const satisfies readonly { key: string; permissions: readonly string[] }[];
 
+/**
+ * SYNDICATE-only supervisor permissions ("مسؤول النقابة"). Copied VERBATIM
+ * from the backend `ORG_PERMISSION_KEYS` catalogue. Without these a syndicate
+ * supervisor assigned through the generic flow received no syndicate rights.
+ */
+export const SYNDICATE_PERMISSION_GROUPS = [
+  {
+    key: 'syndicate',
+    permissions: [
+      'syndicate.profile.manage',
+      'syndicate.announcement.manage',
+      'syndicate.submission.read',
+      'syndicate.submission.respond',
+      'syndicate.member.read',
+      'syndicate.member.manage',
+      'syndicate.member.message',
+    ],
+  },
+] as const satisfies readonly { key: string; permissions: readonly string[] }[];
+
 export type AnyOrgPermissionGroupKey =
-  OrgPermissionGroupKey | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key'];
+  | OrgPermissionGroupKey
+  | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key']
+  | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['key'];
 export type AnyOrgPermissionKey =
-  OrgManagementPermissionKey | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number];
+  | OrgManagementPermissionKey
+  | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number]
+  | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['permissions'][number];
 
 export interface OrgPermissionGroup {
   key: AnyOrgPermissionGroupKey;
@@ -114,9 +138,9 @@ export interface OrgPermissionGroup {
 export function permissionGroupsFor(
   type: OrganizationType | undefined,
 ): readonly OrgPermissionGroup[] {
-  return type === 'CHAT_ROOM'
-    ? [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS]
-    : ORG_PERMISSION_GROUPS;
+  if (type === 'CHAT_ROOM') return [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS];
+  if (type === 'SYNDICATE') return [...SYNDICATE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  return ORG_PERMISSION_GROUPS;
 }
 
 export interface OrgCapabilities {

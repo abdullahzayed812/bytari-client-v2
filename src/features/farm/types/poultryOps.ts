@@ -131,7 +131,9 @@ export interface PoultryDailyRecord {
   createdByUserId: string | null;
   createdAt: string;
   updatedAt: string;
-  /** Position in the batch's weekly sequence (Day 1 … Day 7), server-computed. */
+  /** Batch-relative week (server-assigned; daily data runs in 7-day cycles). */
+  weekNumber?: number | null;
+  /** Day within the week, 1 … 7. */
   dayNumber?: number | null;
   /** Who added the record (name only). */
   createdBy?: DailyRecordAuthor | null;
@@ -210,6 +212,8 @@ export interface FarmExpense {
   description: string | null;
   spentOn: string;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -245,6 +249,8 @@ export interface PoultryHealthEvent {
   status: PoultryHealthEventStatus;
   notes: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -274,6 +280,8 @@ export interface FarmAppointment {
   scheduledFor: string;
   status: FarmAppointmentStatus;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -293,6 +301,8 @@ export interface PoultryCase {
   poultryFlockId: string;
   organizationId: string;
   caseNumber: number | null;
+  /** How many animals this case covers ("عدد الحالات"), ≥ 1. */
+  caseCount?: number;
   animalTag: string | null;
   sex: PoultryCaseSex;
   diagnosis: string | null;
@@ -302,11 +312,14 @@ export interface PoultryCase {
   nextFollowupOn: string | null;
   imageUrl: string | null;
   createdByUserId: string | null;
+  /** Server-resolved creator name ("أضيف بواسطة"). */
+  createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreatePoultryCaseInput {
+  caseCount?: number;
   animalTag?: string | null;
   sex?: PoultryCaseSex;
   diagnosis?: string | null;

@@ -15,3 +15,4 @@ export {
 export { DailyRecordFooter, type DailyRecordFooterProps } from './DailyRecordFooter';
 export { FarmQrScannerModal, type FarmQrScannerModalProps } from './FarmQrScannerModal';
 export { FarmAddStaffSheet, type FarmAddStaffSheetProps } from './FarmAddStaffSheet';
+export { CompletedWeeksSection, type CompletedWeeksSectionProps } from './CompletedWeeksSection';

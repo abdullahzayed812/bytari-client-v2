@@ -284,6 +284,13 @@ export const Routes = {
     `/(app)/syndicates/${organizationId}/inquiry` as const,
   syndicateSubmissions: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/submissions` as const,
+  syndicateMembers: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/members` as const,
+  syndicateMembersBroadcast: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/members/broadcast` as const,
+  syndicateEdit: (organizationId: string) => `/(app)/syndicates/${organizationId}/edit` as const,
+  syndicateAdminNew: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/admins/new` as const,
   syndicateMy: '/(app)/syndicates/my',
   syndicateIdRequirements: '/(app)/syndicates/id-requirements',
   syndicateOfficeLicenses: '/(app)/syndicates/office-licenses',
@@ -459,6 +466,7 @@ export const Routes = {
   adminCreateChatRoom: '/(app)/admin/chat-rooms/new',
   /** Admin dashboard "الخدمات" card — hub linking to the listings + requests queues. */
   adminServicesHub: '/(app)/admin/services-hub',
+  adminPoultryMarketHub: '/(app)/admin/poultry-market-hub',
   /** Admin dashboard "الوظائف المتاحة" card — hub linking to offers + seekers. */
   adminJobsHub: '/(app)/admin/jobs-hub',
   /** Admin dashboard "الكتب والمجلات" card — hub linking to magazine + books + categories. */

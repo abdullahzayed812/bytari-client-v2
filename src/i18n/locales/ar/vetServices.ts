@@ -118,6 +118,7 @@ const vetServices = {
   },
 
   actions: {
+    contactOtherParty: 'تواصل',
     viewService: 'عرض الخدمة',
     requestService: 'طلب الخدمة',
     contactVet: 'تواصل مع الطبيب',
@@ -274,6 +275,7 @@ const vetServices = {
   },
 
   engagement: {
+    imagesTitle: 'الصور المرفقة',
     title: 'تفاصيل الطلب',
     notesTitle: 'ملاحظات',
     acceptDone: 'تم القبول.',

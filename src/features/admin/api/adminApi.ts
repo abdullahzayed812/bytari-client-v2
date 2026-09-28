@@ -30,7 +30,10 @@ import type {
   SendBroadcastInput,
   SendBroadcastResult,
   SetFarmSubscriptionInput,
+  SetSupervisorDomainsInput,
   SupervisorAssignment,
+  SupervisorDomain,
+  SupervisorDomainInfo,
   SupervisorListFilter,
   UserListFilter,
   UserRolesResult,
@@ -179,6 +182,11 @@ export const adminApi = {
     });
   },
 
+  /** Soft delete (→ DEACTIVATED) from any status — `DELETE /admin/organizations/:id`. */
+  deleteOrganization(organizationId: string): Promise<Organization> {
+    return apiClient.delete<Organization>(`/admin/organizations/${organizationId}`);
+  },
+
   changeOrganizationStatus(
     organizationId: string,
     action: OrgStatusAction,
@@ -263,11 +271,22 @@ export const adminApi = {
     return listPaged<SupervisorAssignment>('/admin/supervisors', f.page, f.pageSize, {
       domain: f.domain,
       status: f.status,
+      userId: f.userId,
     });
   },
 
   assignSupervisor(input: AssignSupervisorInput): Promise<SupervisorAssignment> {
     return apiClient.post<SupervisorAssignment>('/admin/supervisors', input);
+  },
+
+  supervisorDomains(): Promise<SupervisorDomainInfo[]> {
+    return apiClient.get<SupervisorDomainInfo[]>('/admin/supervisors/domains');
+  },
+
+  setSupervisorDomains(
+    input: SetSupervisorDomainsInput,
+  ): Promise<{ userId: string; domains: SupervisorDomain[] }> {
+    return apiClient.put('/admin/supervisors/domains', input);
   },
 
   removeSupervisor(assignmentId: string): Promise<SupervisorAssignment> {

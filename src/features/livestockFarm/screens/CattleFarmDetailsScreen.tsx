@@ -24,6 +24,7 @@ import {
   FarmStaffRow,
   FarmStatusCard,
 } from '@/features/farmShared';
+import { CompletedWeeksSection } from '@/features/farmShared/components/CompletedWeeksSection';
 import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
 import { orgCapabilities, useOrganization, useOrganizationMembers } from '@/features/organizations';
@@ -41,6 +42,7 @@ import {
   useCattleBatches,
   useCattleBatchSummary,
   useCattleDailyRecords,
+  useCattleDailyRecordWeeks,
   useCattleWeeklySummary,
   useUpdateCattleBatch,
 } from '../hooks';
@@ -74,7 +76,15 @@ export default function CattleFarmDetailsScreen() {
     enabled: canOperateFarm,
   });
   const summary = useCattleBatchSummary(orgId, batch?.id, { enabled: Boolean(batch) });
-  const daily = useCattleDailyRecords(orgId, batch?.id, { pageSize: 7, enabled: Boolean(batch) });
+  // Daily data runs in weekly cycles: the strip shows the CURRENT week, older
+  // weeks live in "الأسابيع السابقة" below it.
+  const weeks = useCattleDailyRecordWeeks(orgId, batch?.id, { enabled: Boolean(batch) });
+  const currentWeek = weeks.data?.currentWeek;
+  const daily = useCattleDailyRecords(orgId, batch?.id, {
+    pageSize: 7,
+    week: currentWeek,
+    enabled: Boolean(batch) && currentWeek != null,
+  });
   const weekly = useCattleWeeklySummary(orgId, batch?.id, undefined, { enabled: Boolean(batch) });
   const members = useOrganizationMembers(orgId, {
     status: 'ACTIVE',
@@ -236,11 +246,12 @@ export default function CattleFarmDetailsScreen() {
                       {t('daily.title')}
                     </Text>
                   </View>
-                  {daily.isLoading ? (
+                  {daily.isLoading || weeks.isLoading ? (
                     <Loading label={t('common.loading')} />
                   ) : (
                     <DailyRecordWeekStrip
                       records={daily.data?.items ?? []}
+                      weekNumber={currentWeek}
                       todayRecorded={(daily.data?.items ?? []).some(
                         (r) => r.recordDate === businessToday(),
                       )}
@@ -255,6 +266,17 @@ export default function CattleFarmDetailsScreen() {
                     />
                   )}
                 </View>
+
+                {weeks.data && batch ? (
+                  <CompletedWeeksSection
+                    weeks={weeks.data.weeks}
+                    currentWeek={weeks.data.currentWeek}
+                    formatWeight={(kg) => `${Number(kg).toLocaleString()} kg`}
+                    renderWeekRecords={(week) => (
+                      <CattleWeekRecords orgId={orgId} batchId={batch.id} week={week} />
+                    )}
+                  />
+                ) : null}
 
                 {weekly.data ? <LivestockWeeklySummaryCard summary={weekly.data} /> : null}
               </>
@@ -376,5 +398,21 @@ function EmptyBatch({ canManage, orgId }: { canManage: boolean; orgId: string })
         onAction={canManage ? () => router.push(Routes.cattleBatchCreate(orgId)) : undefined}
       />
     </View>
+  );
+}
+
+/** One finished week's daily records, fetched when its card is expanded. */
+function CattleWeekRecords({ orgId, batchId, week }: { orgId: string; batchId: string; week: number }) {
+  const { t } = useTranslation('sheepCattleFarm');
+  const q = useCattleDailyRecords(orgId, batchId, { pageSize: 7, week });
+  if (q.isLoading) return <Loading label={t('common.loading')} />;
+  return (
+    <>
+      {[...(q.data?.items ?? [])]
+        .sort((a, b) => (a.dayNumber ?? 0) - (b.dayNumber ?? 0))
+        .map((r, i) => (
+          <LivestockDailyRecordCard key={r.id} record={r} dayIndex={r.dayNumber ?? i + 1} />
+        ))}
+    </>
   );
 }

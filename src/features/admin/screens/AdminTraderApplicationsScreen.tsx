@@ -4,6 +4,8 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { Input } from '@/components/forms';
+import { Modal } from '@/components/overlays';
 import type { TraderApplicationSummary, TraderStatus } from '@/features/poultryMarket';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -38,6 +40,44 @@ export default function AdminTraderApplicationsScreen() {
   const [approving, setApproving] = useState<TraderApplicationSummary | null>(null);
   const [rejecting, setRejecting] = useState<TraderApplicationSummary | null>(null);
   const [suspending, setSuspending] = useState<TraderApplicationSummary | null>(null);
+  const [removing, setRemoving] = useState<TraderApplicationSummary | null>(null);
+  const [editing, setEditing] = useState<TraderApplicationSummary | null>(null);
+  const [edit, setEdit] = useState({ displayName: '', governorate: '', phone: '' });
+
+  const onRemove = () => {
+    if (!removing) return;
+    decide.mutate(
+      { userId: removing.userId, decision: 'remove' },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('traders.toast.removed'), tone: 'success' });
+          setRemoving(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
+  const onSaveEdit = () => {
+    if (!editing) return;
+    decide.mutate(
+      {
+        userId: editing.userId,
+        decision: 'update',
+        input: {
+          displayName: edit.displayName.trim(),
+          governorate: edit.governorate.trim(),
+          phone: edit.phone.trim(),
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('traders.toast.updated'), tone: 'success' });
+          setEditing(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
   const [reactivating, setReactivating] = useState<TraderApplicationSummary | null>(null);
 
   const onApprove = () => {
@@ -130,7 +170,7 @@ export default function AdminTraderApplicationsScreen() {
           <AdminRow
             title={`${a.user.firstName} ${a.user.lastName}`.trim() || a.user.email}
             subtitle={`${a.displayName} — ${t(`traders.type.${a.traderType}`)}`}
-            meta={[a.governorate, a.district].filter(Boolean).join(' - ')}
+            meta={[a.governorate, a.district, a.phone].filter(Boolean).join(' - ')}
             badge={{ label: t(`traders.status.${a.status}`), tone: statusTone(a.status) }}
             actions={
               <>
@@ -162,6 +202,19 @@ export default function AdminTraderApplicationsScreen() {
                     onPress={() => setReactivating(a)}
                   />
                 ) : null}
+                <Button
+                  label={t('traders.detail.edit')}
+                  variant="outline"
+                  onPress={() => {
+                    setEdit({ displayName: a.displayName, governorate: a.governorate, phone: a.phone });
+                    setEditing(a);
+                  }}
+                />
+                <Button
+                  label={t('traders.detail.remove')}
+                  variant="danger"
+                  onPress={() => setRemoving(a)}
+                />
               </>
             }
           />
@@ -204,6 +257,46 @@ export default function AdminTraderApplicationsScreen() {
         onConfirm={onSuspend}
         onCancel={() => setSuspending(null)}
       />
+
+      <ConfirmationDialog
+        visible={removing != null}
+        title={t('traders.detail.removeTitle')}
+        message={t('traders.detail.removeBody')}
+        confirmLabel={t('traders.detail.remove')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={decide.isPending}
+        onConfirm={onRemove}
+        onCancel={() => setRemoving(null)}
+      />
+
+      <Modal visible={editing != null} onClose={() => setEditing(null)} title={t('traders.detail.edit')}>
+        <View style={{ rowGap: theme.spacing.md }}>
+          <Input
+            label={t('traders.detail.displayName')}
+            value={edit.displayName}
+            onChangeText={(v) => setEdit((e) => ({ ...e, displayName: v }))}
+          />
+          <Input
+            label={t('traders.detail.governorate')}
+            value={edit.governorate}
+            onChangeText={(v) => setEdit((e) => ({ ...e, governorate: v }))}
+          />
+          <Input
+            label={t('traders.detail.phone')}
+            value={edit.phone}
+            keyboardType="phone-pad"
+            onChangeText={(v) => setEdit((e) => ({ ...e, phone: v }))}
+          />
+          <Button
+            label={t('traders.detail.save')}
+            fullWidth
+            loading={decide.isPending}
+            disabled={decide.isPending || edit.displayName.trim().length < 2}
+            onPress={onSaveEdit}
+          />
+        </View>
+      </Modal>
 
       <ConfirmationDialog
         visible={reactivating != null}

@@ -19,5 +19,13 @@ export {
   useCloseSyndicateSubmission,
   useMySyndicateSubmissions,
   useMySyndicateSubmission,
+  useSyndicateRegistration,
+  useSyndicateMembers,
+  useSyndicateMember,
+  useRemoveSyndicateMember,
+  useOpenSyndicateMemberConversation,
+  useMessageSyndicateMembers,
+  useAssignSyndicateAdmin,
+  useMarkSyndicateSubmissionSeen,
 } from './useSyndicates';
-export { useCreateSyndicateAdmin } from './useAdminSyndicates';
+export { useCreateSyndicateAdmin, useDeleteSyndicate } from './useAdminSyndicates';

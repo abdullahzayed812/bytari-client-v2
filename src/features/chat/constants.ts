@@ -7,12 +7,15 @@ export function conversationIcon(type: Conversation['type']): IconName {
   if (type === 'FARM_OWNER_MEMBER') return 'leaf-outline';
   if (type === 'PET_OWNER_VETERINARY_OFFICE') return 'business-outline';
   if (type === 'CHAT_ROOM') return 'people-outline';
+  if (type === 'SYNDICATE_MEMBER') return 'ribbon-outline';
   return 'medkit-outline';
 }
 
 /** `true` when the caller is on the organization side and the title is a person's name. */
 export function titleIsCounterpart(side: ConversationSide): boolean {
-  return side === 'CLINIC' || side === 'FARM_OWNER' || side === 'VETERINARY_OFFICE';
+  return (
+    side === 'CLINIC' || side === 'FARM_OWNER' || side === 'VETERINARY_OFFICE' || side === 'SYNDICATE'
+  );
 }
 
 /** Realtime room for one conversation (mirrors `server/src/infra/realtime/rooms.ts`). */

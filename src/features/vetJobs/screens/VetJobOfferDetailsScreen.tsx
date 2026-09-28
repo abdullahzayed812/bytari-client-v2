@@ -42,7 +42,10 @@ function BulletList({ items }: { items: string[] }) {
   return (
     <View style={{ rowGap: theme.spacing.xs }}>
       {items.map((item, i) => (
-        <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.xs }}>
+        <View
+          key={i}
+          style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.xs }}
+        >
           <Icon name="checkmark-circle" size="iconXs" color="success" />
           <Text variant="body" style={{ flex: 1 }}>
             {item}
@@ -80,7 +83,13 @@ export default function VetJobOfferDetailsScreen() {
               paddingBottom: theme.spacing.huge,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.md }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                columnGap: theme.spacing.md,
+              }}
+            >
               <View
                 style={{
                   width: 56,
@@ -120,7 +129,11 @@ export default function VetJobOfferDetailsScreen() {
                   />
                 ) : null}
                 {offer.qualifications ? (
-                  <InfoRow icon="school-outline" label={t('offer.qualifications')} value={offer.qualifications} />
+                  <InfoRow
+                    icon="school-outline"
+                    label={t('offer.qualifications')}
+                    value={offer.qualifications}
+                  />
                 ) : null}
                 {offer.applicationDeadline ? (
                   <InfoRow

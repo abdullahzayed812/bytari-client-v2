@@ -5,3 +5,5 @@ export { default as FarmAppointmentsScreen } from './FarmAppointmentsScreen';
 export { default as ExpenseDetailScreen } from './ExpenseDetailScreen';
 export { default as AppointmentDetailScreen } from './AppointmentDetailScreen';
 export { default as FarmSectionPlaceholderScreen } from './FarmSectionPlaceholderScreen';
+export { default as FarmCaseDetailScreen } from './FarmCaseDetailScreen';
+export { default as FarmHealthEventDetailScreen } from './FarmHealthEventDetailScreen';

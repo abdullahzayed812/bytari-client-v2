@@ -28,6 +28,7 @@ const item: ContentItem = {
   isLiked: false,
   categories: [],
   files: [],
+  coverUrl: null,
   createdAt: '',
   updatedAt: '',
 };

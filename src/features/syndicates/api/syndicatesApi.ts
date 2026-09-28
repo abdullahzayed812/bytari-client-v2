@@ -2,8 +2,13 @@ import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/files/types';
 
+import type { Conversation } from '@/features/chat';
+
 import type {
   CreateAnnouncementInput,
+  MessageSyndicateMembersInput,
+  MySyndicateRegistration,
+  SyndicateMember,
   CreateSubmissionInput,
   MySubmissionListFilter,
   MySyndicateAccess,
@@ -141,6 +146,48 @@ export const syndicatesApi = {
   },
   getMySubmission(id: string): Promise<SyndicateSubmission> {
     return apiClient.get<SyndicateSubmission>(`/syndicates/submissions/mine/${id}`);
+  },
+
+  // --- registration ("التسجيل في النقابة") -------------------------
+  register(organizationId: string): Promise<MySyndicateRegistration> {
+    return apiClient.post<MySyndicateRegistration>(`/syndicates/${organizationId}/registration`);
+  },
+  cancelRegistration(organizationId: string): Promise<unknown> {
+    return apiClient.delete(`/syndicates/${organizationId}/registration`);
+  },
+
+  // --- registered members (syndicate admin) --------------------------
+  listMembers(
+    organizationId: string,
+    params: { page: number; pageSize: number; search?: string },
+  ): Promise<Paginated<SyndicateMember>> {
+    return page<SyndicateMember>(`/syndicates/${organizationId}/members`, {
+      page: params.page,
+      pageSize: params.pageSize,
+      search: params.search || undefined,
+    });
+  },
+  getMember(organizationId: string, userId: string): Promise<SyndicateMember> {
+    return apiClient.get<SyndicateMember>(`/syndicates/${organizationId}/members/${userId}`);
+  },
+  removeMember(organizationId: string, userId: string): Promise<unknown> {
+    return apiClient.delete(`/syndicates/${organizationId}/members/${userId}`);
+  },
+  openMemberConversation(organizationId: string, userId: string): Promise<Conversation> {
+    return apiClient.post<Conversation>(
+      `/syndicates/${organizationId}/members/${userId}/conversation`,
+    );
+  },
+  messageAllMembers(
+    organizationId: string,
+    input: MessageSyndicateMembersInput,
+  ): Promise<{ broadcastId: string; recipientCount: number }> {
+    return apiClient.post(`/syndicates/${organizationId}/members/broadcast`, input);
+  },
+
+  // --- syndicate admins ("مسؤول النقابة") ----------------------------
+  assignAdmin(organizationId: string, email: string): Promise<unknown> {
+    return apiClient.post(`/syndicates/${organizationId}/admins`, { email });
   },
 };
 

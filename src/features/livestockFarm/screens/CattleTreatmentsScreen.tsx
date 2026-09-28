@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
@@ -50,7 +50,22 @@ export default function CattleTreatmentsScreen() {
           <EmptyState icon="medkit-outline" title={t('health.empty')} message={t('health.emptyHint')} />
         ) : (
           events.events.map((e) => (
-            <Card key={e.id} variant="outlined" padding="md">
+            <Card
+              key={e.id}
+              variant="outlined"
+              padding="md"
+              onPress={() =>
+                router.push({
+                  pathname: '/(app)/livestock/cattle/[organizationId]/sections/[section]/[itemId]',
+                  params: {
+                    organizationId: orgId,
+                    section: 'treatments',
+                    itemId: e.id,
+                    batchId: batch?.id ?? '',
+                  },
+                })
+              }
+            >
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
                   <Icon name={e.kind === 'VACCINATION' ? 'shield-checkmark-outline' : 'medkit-outline'} size="iconSm" color="primary" />

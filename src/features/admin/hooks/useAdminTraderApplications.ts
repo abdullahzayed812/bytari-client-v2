@@ -42,7 +42,13 @@ type TraderDecisionInput =
   | { userId: string; decision: 'approve' }
   | { userId: string; decision: 'reject'; reason: string }
   | { userId: string; decision: 'suspend'; reason?: string }
-  | { userId: string; decision: 'reactivate' };
+  | { userId: string; decision: 'reactivate' }
+  | { userId: string; decision: 'remove' }
+  | {
+      userId: string;
+      decision: 'update';
+      input: { displayName?: string; governorate?: string; phone?: string };
+    };
 
 export function useTraderDecisionMutation(): UseMutationResult<
   unknown,
@@ -52,12 +58,15 @@ export function useTraderDecisionMutation(): UseMutationResult<
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['admin', 'trader-applications', 'decision'],
-    mutationFn: (input: TraderDecisionInput) => {
+    mutationFn: (input: TraderDecisionInput): Promise<unknown> => {
       if (input.decision === 'approve') return poultryMarketApi.traders.approve(input.userId);
       if (input.decision === 'reject')
         return poultryMarketApi.traders.reject(input.userId, input.reason);
       if (input.decision === 'suspend')
         return poultryMarketApi.traders.suspend(input.userId, input.reason);
+      if (input.decision === 'remove') return poultryMarketApi.traders.adminRemove(input.userId);
+      if (input.decision === 'update')
+        return poultryMarketApi.traders.adminUpdate(input.userId, input.input);
       return poultryMarketApi.traders.reactivate(input.userId);
     },
     onSuccess: () => {

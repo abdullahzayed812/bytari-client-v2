@@ -1,5 +1,6 @@
 import {
   useInfiniteQuery,
+  useQuery,
   useMutation,
   useQueryClient,
   type InfiniteData,
@@ -17,6 +18,8 @@ import type {
   SupervisorAssignment,
   SupervisorAssignmentStatus,
   SupervisorDomain,
+  SetSupervisorDomainsInput,
+  SupervisorDomainInfo,
 } from '../types';
 
 export function useAdminSupervisors(
@@ -72,6 +75,29 @@ export function useRemoveSupervisorMutation(): UseMutationResult<
   return useMutation({
     mutationKey: ['admin', 'supervisors', 'remove'],
     mutationFn: ({ assignmentId }) => adminApi.removeSupervisor(assignmentId),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.supervisors.all }),
+  });
+}
+
+/** The assignable management sections (server catalogue). */
+export function useSupervisorDomainCatalogue() {
+  return useQuery<SupervisorDomainInfo[]>({
+    queryKey: [...adminKeys.supervisors.all, 'domains'],
+    queryFn: () => adminApi.supervisorDomains(),
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Set the exact list of sections one supervisor holds (multi-select). */
+export function useSetSupervisorDomainsMutation(): UseMutationResult<
+  { userId: string; domains: SupervisorDomain[] },
+  unknown,
+  SetSupervisorDomainsInput
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['admin', 'supervisors', 'set-domains'],
+    mutationFn: (input) => adminApi.setSupervisorDomains(input),
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.supervisors.all }),
   });
 }

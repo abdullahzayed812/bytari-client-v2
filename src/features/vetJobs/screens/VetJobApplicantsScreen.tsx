@@ -6,7 +6,13 @@ import { FlatList, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { useCloseConversation } from '@/features/chat';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -85,9 +91,16 @@ export default function VetJobApplicantsScreen() {
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
           ListEmptyComponent={
-            <EmptyState icon="people-outline" title={t('applicants.empty')} message={t('applicants.emptyHint')} />
+            <EmptyState
+              icon="people-outline"
+              title={t('applicants.empty')}
+              message={t('applicants.emptyHint')}
+            />
           }
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+          }}
         />
       )}
 
@@ -155,7 +168,10 @@ function ApplicantRow({
           }}
         >
           {application.photoUrl ? (
-            <Image source={{ uri: application.photoUrl }} style={{ width: '100%', height: '100%' }} />
+            <Image
+              source={{ uri: application.photoUrl }}
+              style={{ width: '100%', height: '100%' }}
+            />
           ) : (
             <Icon name="person" size="iconMd" color="primary" />
           )}
@@ -182,7 +198,11 @@ function ApplicantRow({
       >
         {application.status === 'PENDING' ? (
           <>
-            <Button label={t('applicants.accept')} size="sm" onPress={() => onAccept(application)} />
+            <Button
+              label={t('applicants.accept')}
+              size="sm"
+              onPress={() => onAccept(application)}
+            />
             <Button
               label={t('applicants.reject')}
               variant="danger"
@@ -196,7 +216,11 @@ function ApplicantRow({
               label={t('applicants.contact')}
               onPress={() => router.push(Routes.chatThread(application.conversationId as string))}
             />
-            <TextButton label={t('applicants.endHiring')} tone="danger" onPress={() => setEndingHire(true)} />
+            <TextButton
+              label={t('applicants.endHiring')}
+              tone="danger"
+              onPress={() => setEndingHire(true)}
+            />
           </>
         ) : null}
       </View>

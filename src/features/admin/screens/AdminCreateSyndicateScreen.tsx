@@ -10,8 +10,15 @@ import { Button } from '@/components/actions';
 import { Alert, useToast } from '@/components/feedback';
 import { FormField, Select, SegmentedControl } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
-import { useCreateSyndicateAdmin, useMainSyndicates } from '@/features/syndicates';
+import { Label } from '@/components/typography';
+import {
+  syndicatesApi,
+  useCreateSyndicateAdmin,
+  useMainSyndicates,
+  useSyndicateMediaProvider,
+} from '@/features/syndicates';
 import { IRAQ_GOVERNORATES } from '@/features/vetServices';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -56,6 +63,8 @@ export default function AdminCreateSyndicateScreen() {
   const mains = useMainSyndicates();
   const [tab, setTab] = useState<Tab>('MAIN');
   const [parentOrganizationId, setParentOrganizationId] = useState<string | null>(null);
+  const logoProvider = useSyndicateMediaProvider('LOGO');
+  const [logoStorageKey, setLogoStorageKey] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
@@ -113,7 +122,16 @@ export default function AdminCreateSyndicateScreen() {
         termEndYear: values.termEndYear ? Number(values.termEndYear) : undefined,
       },
       {
-        onSuccess: () => {
+        onSuccess: async (created) => {
+          // The create contract has no logo field — the uploaded logo is
+          // attached through the same profile PATCH the edit screen uses.
+          if (logoStorageKey) {
+            try {
+              await syndicatesApi.updateProfile(created.id, { logoStorageKey });
+            } catch (e) {
+              toast.show({ message: apiErrorMessage(e), tone: 'danger' });
+            }
+          }
           toast.show({ message: t('admin.created'), tone: 'success' });
           router.back();
         },
@@ -144,6 +162,16 @@ export default function AdminCreateSyndicateScreen() {
             onChange={setParentOrganizationId}
           />
         ) : null}
+
+        <View style={{ alignItems: 'center', rowGap: theme.spacing.xs }}>
+          <Label>{t('edit.logo')}</Label>
+          <ImageUploader
+            value={null}
+            provider={logoProvider}
+            size={96}
+            onChange={(r) => setLogoStorageKey(r?.storageKey ?? null)}
+          />
+        </View>
 
         <FormField control={control} name="name" label={t('admin.name')} placeholder={t('admin.namePlaceholder')} />
         <FormField

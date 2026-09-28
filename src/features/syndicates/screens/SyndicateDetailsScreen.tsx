@@ -1,11 +1,12 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
-import { Card, Icon } from '@/components/content';
-import { EmptyState, Loading, useToast } from '@/components/feedback';
+import { Badge, Card, Icon, type IconName } from '@/components/content';
+import { ConfirmationDialog, EmptyState, Loading, useToast } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
@@ -15,12 +16,51 @@ import { useTheme } from '@/theme';
 
 import { AnnouncementCard } from '../components';
 import {
+  useDeleteSyndicate,
   useFollowSyndicate,
   useMySyndicateAccess,
   useSyndicate,
   useSyndicateAnnouncements,
+  useSyndicateRegistration,
   useUnfollowSyndicate,
 } from '../hooks';
+
+/** One management tile — optional unread badge + secondary line (e.g. pending count). */
+function ManageTile({
+  icon,
+  label,
+  badge,
+  hint,
+  tone = 'primary',
+  onPress,
+}: {
+  icon: IconName;
+  label: string;
+  badge?: string | null;
+  hint?: string | null;
+  tone?: 'primary' | 'danger';
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Card
+      variant="outlined"
+      padding="md"
+      onPress={onPress}
+      style={{ width: '48%', rowGap: 6 }}
+      accessibilityLabel={label}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Icon name={icon} size="iconMd" color={tone} />
+        {badge ? <Badge label={badge} tone="danger" /> : null}
+      </View>
+      <Text variant="bodyStrong" numberOfLines={2} color={tone === 'danger' ? 'danger' : undefined}>
+        {label}
+      </Text>
+      {hint ? <Caption color="textMuted">{hint}</Caption> : null}
+    </Card>
+  );
+}
 
 const SERVICE_TILES = [
   { key: 'idCard', labelKey: 'home.servicesTiles.idCard', icon: 'card-outline' as const, route: 'idRequirements' as const },
@@ -47,7 +87,33 @@ export default function SyndicateDetailsScreen() {
   const access = useMySyndicateAccess(organizationId);
   const follow = useFollowSyndicate(organizationId ?? '_');
   const unfollow = useUnfollowSyndicate(organizationId ?? '_');
+  const registration = useSyndicateRegistration(organizationId ?? '_');
+  const deleteSyndicate = useDeleteSyndicate();
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const syndicate = q.data;
+  const a = access.data;
+  const canManageAnything = Boolean(
+    a &&
+      (a.canReadSubmissions ||
+        a.canReadMembers ||
+        a.canMessageMembers ||
+        a.canManageProfile ||
+        a.canManageAnnouncements ||
+        a.isOwner ||
+        a.isAdmin),
+  );
+
+  const onRegister = (): void => {
+    if (syndicate?.isRegistered) {
+      setConfirmCancel(true);
+      return;
+    }
+    registration.register.mutate(undefined, {
+      onSuccess: () => toast.show({ message: t('registration.registeredSuccess'), tone: 'success' }),
+      onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+    });
+  };
 
   const onToggleFollow = (): void => {
     const mutation = syndicate?.isFollowing ? unfollow : follow;
@@ -73,7 +139,7 @@ export default function SyndicateDetailsScreen() {
         router.push(Routes.syndicateOfficeLicenses);
         return;
       case 'register':
-        toast.show({ message: t('home.registerUnavailable'), tone: 'info' });
+        onRegister();
     }
   };
 
@@ -125,12 +191,33 @@ export default function SyndicateDetailsScreen() {
                   {syndicate.description}
                 </Caption>
               ) : null}
-              <Button
-                label={t('home.register')}
-                leftIcon="person-add-outline"
-                size="sm"
-                onPress={() => onServiceTile('register')}
-              />
+              <Caption color="textMuted">
+                {t('registration.membersCount', { count: syndicate.membersCount })}
+              </Caption>
+              {syndicate.isRegistered ? (
+                <View style={{ rowGap: 4 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
+                    <Icon name="checkmark-done-outline" size="iconSm" color="success" />
+                    <Caption color="success">{t('registration.registered')}</Caption>
+                  </View>
+                  <Button
+                    label={t('registration.cancelCta')}
+                    variant="outline"
+                    size="sm"
+                    disabled={registration.cancel.isPending}
+                    onPress={onRegister}
+                  />
+                </View>
+              ) : (
+                <Button
+                  label={t('registration.registerCta')}
+                  leftIcon="person-add-outline"
+                  size="sm"
+                  loading={registration.register.isPending}
+                  disabled={registration.register.isPending}
+                  onPress={onRegister}
+                />
+              )}
             </View>
             <View
               style={{
@@ -258,33 +345,96 @@ export default function SyndicateDetailsScreen() {
           </Card>
         </View>
 
-        {access.data?.canReadSubmissions || access.data?.isOwner || access.data?.isAdmin ? (
+        {canManageAnything && a ? (
           <View style={{ rowGap: theme.spacing.sm }}>
-            <Text variant="bodyStrong">{t('management.submissionsTitle')}</Text>
-            <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-              {access.data?.canReadSubmissions ? (
-                <View style={{ flex: 1 }}>
-                  <Button
-                    label={t('management.submissionsTitle')}
-                    variant="outline"
-                    size="sm"
-                    leftIcon="chatbubbles-outline"
-                    fullWidth
-                    onPress={() => router.push(Routes.syndicateSubmissions(syndicate.id))}
+            <Text variant="bodyStrong">{t('manage.title')}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+              {a.canReadSubmissions ? (
+                <>
+                  <ManageTile
+                    icon="document-text-outline"
+                    label={t('manage.requests')}
+                    badge={
+                      syndicate.counters?.unreadRequests
+                        ? t('manage.newCount', { count: syndicate.counters.unreadRequests })
+                        : null
+                    }
+                    hint={t('manage.pendingCount', { count: syndicate.counters?.pendingRequests ?? 0 })}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(app)/syndicates/[organizationId]/submissions',
+                        params: { organizationId: syndicate.id, kind: 'REQUEST' },
+                      })
+                    }
                   />
-                </View>
+                  <ManageTile
+                    icon="chatbubbles-outline"
+                    label={t('manage.inquiries')}
+                    badge={
+                      syndicate.counters?.unreadInquiries
+                        ? t('manage.newCount', { count: syndicate.counters.unreadInquiries })
+                        : null
+                    }
+                    hint={t('manage.pendingCount', { count: syndicate.counters?.pendingInquiries ?? 0 })}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(app)/syndicates/[organizationId]/submissions',
+                        params: { organizationId: syndicate.id, kind: 'INQUIRY' },
+                      })
+                    }
+                  />
+                </>
               ) : null}
-              {access.data?.isOwner || access.data?.isAdmin ? (
-                <View style={{ flex: 1 }}>
-                  <Button
-                    label={t('home.manageSupervisors')}
-                    variant="outline"
-                    size="sm"
-                    leftIcon="people-outline"
-                    fullWidth
+              {a.canReadMembers ? (
+                <ManageTile
+                  icon="people-outline"
+                  label={t('manage.members')}
+                  hint={t('registration.membersCount', { count: syndicate.membersCount })}
+                  onPress={() => router.push(Routes.syndicateMembers(syndicate.id))}
+                />
+              ) : null}
+              {a.canMessageMembers ? (
+                <ManageTile
+                  icon="send-outline"
+                  label={t('manage.messageMembers')}
+                  onPress={() => router.push(Routes.syndicateMembersBroadcast(syndicate.id))}
+                />
+              ) : null}
+              {a.canManageAnnouncements ? (
+                <ManageTile
+                  icon="megaphone-outline"
+                  label={t('announcements.addAnnouncement')}
+                  onPress={() => router.push(Routes.syndicateAnnouncementNew(syndicate.id))}
+                />
+              ) : null}
+              {a.canManageProfile ? (
+                <ManageTile
+                  icon="create-outline"
+                  label={t('manage.edit')}
+                  onPress={() => router.push(Routes.syndicateEdit(syndicate.id))}
+                />
+              ) : null}
+              {a.isOwner || a.isAdmin ? (
+                <>
+                  <ManageTile
+                    icon="shield-outline"
+                    label={t('manage.admins')}
                     onPress={() => router.push(Routes.organizationSupervisors(syndicate.id))}
                   />
-                </View>
+                  <ManageTile
+                    icon="person-add-outline"
+                    label={t('manage.addAdmin')}
+                    onPress={() => router.push(Routes.syndicateAdminNew(syndicate.id))}
+                  />
+                </>
+              ) : null}
+              {a.canDelete ? (
+                <ManageTile
+                  icon="trash-outline"
+                  label={t('manage.delete')}
+                  tone="danger"
+                  onPress={() => setConfirmDelete(true)}
+                />
               ) : null}
             </View>
           </View>
@@ -311,6 +461,47 @@ export default function SyndicateDetailsScreen() {
           </View>
         ) : null}
       </ScrollView>
+      <ConfirmationDialog
+        visible={confirmCancel}
+        title={t('registration.cancelConfirmTitle')}
+        message={t('registration.cancelConfirmBody')}
+        destructive
+        loading={registration.cancel.isPending}
+        onCancel={() => setConfirmCancel(false)}
+        onConfirm={() =>
+          registration.cancel.mutate(undefined, {
+            onSuccess: () => {
+              setConfirmCancel(false);
+              toast.show({ message: t('registration.cancelledSuccess'), tone: 'success' });
+            },
+            onError: (e) => {
+              setConfirmCancel(false);
+              toast.show({ message: apiErrorMessage(e), tone: 'danger' });
+            },
+          })
+        }
+      />
+      <ConfirmationDialog
+        visible={confirmDelete}
+        title={t('manage.deleteConfirmTitle')}
+        message={t('manage.deleteConfirmBody')}
+        destructive
+        loading={deleteSyndicate.isPending}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() =>
+          deleteSyndicate.mutate(syndicate.id, {
+            onSuccess: () => {
+              setConfirmDelete(false);
+              toast.show({ message: t('manage.deleted'), tone: 'success' });
+              router.back();
+            },
+            onError: (e) => {
+              setConfirmDelete(false);
+              toast.show({ message: apiErrorMessage(e), tone: 'danger' });
+            },
+          })
+        }
+      />
     </SafeAreaScreen>
   );
 }

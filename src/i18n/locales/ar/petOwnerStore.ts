@@ -1,6 +1,6 @@
 export default {
   common: {
-    price: '{{value}} ر.س',
+    price: '{{value}} د.ع',
     back: 'رجوع',
     delete: 'حذف',
     cancel: 'إلغاء',
@@ -52,7 +52,7 @@ export default {
     browse: 'تصفّح المتجر',
     itemCount: '{{count}} منتجات',
     clear: 'إفراغ السلة',
-    freeDeliveryNote: 'توصيل مجاني — لا حد أدنى للطلب حالياً.',
+    deliveryNote: 'تُحتسب رسوم التوصيل وتُدفع عند التسليم.',
     checkout: 'إتمام الطلب',
   },
 
@@ -98,7 +98,8 @@ export default {
     title: 'ملخص الطلب',
     subtotal: 'إجمالي المنتجات',
     delivery: 'التوصيل',
-    freeDelivery: 'مجاني',
+    deliveryOnDelivery: 'تُحدَّد عند التسليم',
+    totalExcludesDelivery: 'المجموع لا يشمل رسوم التوصيل.',
     total: 'المجموع الكلي',
   },
 
@@ -161,7 +162,7 @@ export default {
       fieldName: 'اسم المنتج',
       fieldCategory: 'الفئة',
       fieldCategoryPlaceholder: 'اختر فئة',
-      fieldPrice: 'السعر (ر.س)',
+      fieldPrice: 'السعر (د.ع)',
       fieldStock: 'الكمية في المخزون',
       fieldDescription: 'الوصف',
       fieldStatus: 'الحالة',
@@ -173,7 +174,7 @@ export default {
       saved: 'تم حفظ التغييرات',
       errors: {
         name: 'الرجاء إدخال اسم المنتج.',
-        price: 'أدخل سعراً صالحاً مثل 12.50',
+        price: 'أدخل سعراً صالحاً بالدينار العراقي مثل 25000',
         stock: 'أدخل كمية صحيحة.',
       },
     },

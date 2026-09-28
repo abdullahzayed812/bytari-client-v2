@@ -1,12 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import { TextButton } from '@/components/actions';
 import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { ImagePreview, ImageUploader } from '@/components/media';
-import { Label } from '@/components/typography';
+import { Caption, Label } from '@/components/typography';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -31,6 +31,43 @@ import { servicesToArray, type EditOrganizationFormValues } from '../validation/
 
 const MAX_GALLERY_IMAGES = 8;
 const MAX_LICENSE_DOCUMENTS = 3;
+
+/**
+ * One stored license photo: tap / "change image" swaps it in place through
+ * the server's `replacesStorageKey` flow (works even at the 3-photo cap);
+ * × deletes it server-side after a confirmation.
+ */
+function LicenseDocumentTile({
+  organizationId,
+  url,
+  storageKey,
+  removing,
+  onRemove,
+}: {
+  organizationId: string;
+  url: string;
+  storageKey: string;
+  removing: boolean;
+  onRemove: () => void;
+}) {
+  const { t } = useTranslation('organizations');
+  const toast = useToast();
+  const provider = useOrganizationLicenseDocumentPresignProvider(organizationId, storageKey);
+  return (
+    <ImageUploader
+      value={url}
+      provider={provider}
+      edit={false}
+      size={88}
+      replaceable
+      disabled={removing}
+      onRemove={onRemove}
+      onChange={(result) => {
+        if (result) toast.show({ tone: 'success', message: t('form.licenseReplaced') });
+      }}
+    />
+  );
+}
 
 /** `''` clears an optional field; anything else is trimmed and sent as-is. */
 function clearable(value: string | undefined): string | null | undefined {
@@ -230,24 +267,36 @@ export default function OrganizationEditScreen() {
       {isLicensable ? (
         <View style={{ rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
           <Label>{t('form.licenseImagesLabel')}</Label>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+          <Caption>{t('form.licenseImagesHint', { max: MAX_LICENSE_DOCUMENTS })}</Caption>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
             {(org.details.licenseDocumentUrls ?? []).map((url, index) => {
               const key = org.details.licenseDocumentKeys?.[index];
-              return (
-                <ImagePreview
-                  key={url}
-                  uri={url}
-                  size={88}
-                  onRemove={
-                    key
-                      ? () =>
+              return key ? (
+                <LicenseDocumentTile
+                  key={key}
+                  organizationId={orgId}
+                  url={url}
+                  storageKey={key}
+                  removing={removeLicenseDocument.isPending}
+                  onRemove={() =>
+                    Alert.alert(t('form.licenseRemoveTitle'), t('form.licenseRemoveBody'), [
+                      { text: t('form.cancel'), style: 'cancel' },
+                      {
+                        text: t('form.licenseRemoveCta'),
+                        style: 'destructive',
+                        onPress: () =>
                           removeLicenseDocument.mutate(key, {
+                            onSuccess: () =>
+                              toast.show({ tone: 'success', message: t('form.licenseRemoved') }),
                             onError: (error) =>
                               toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
-                          })
-                      : undefined
+                          }),
+                      },
+                    ])
                   }
                 />
+              ) : (
+                <ImagePreview key={url} uri={url} size={88} />
               );
             })}
             {(org.details.licenseDocumentUrls?.length ?? 0) < MAX_LICENSE_DOCUMENTS ? (
@@ -260,7 +309,10 @@ export default function OrganizationEditScreen() {
                 icon="add"
                 size={88}
                 onChange={(result) => {
-                  if (result) setLicenseUploadKey((k) => k + 1);
+                  if (result) {
+                    setLicenseUploadKey((k) => k + 1);
+                    toast.show({ tone: 'success', message: t('form.licenseUploaded') });
+                  }
                 }}
               />
             ) : null}

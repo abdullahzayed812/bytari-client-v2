@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -19,9 +20,8 @@ export interface BookCardProps {
 
 /**
  * Grid/rail card for a Veterinary Books entry, matching the reference design.
- * No cover-image thumbnail — same reasoning as `ArticleCard`: the backend's
- * list DTO never exposes a direct file URL, so this renders a themed book
- * icon instead of an N+1 per-card download call.
+ * Shows the cover from the DTO's server-resolved `coverUrl` (no per-card
+ * download call); falls back to a themed book icon.
  *
  * Owns its own bookmark-toggle mutation (one fixed hook call per card
  * instance) rather than the parent list managing a variable-length set of
@@ -59,7 +59,17 @@ export function BookCard({ book, onPress, width }: BookCardProps) {
           justifyContent: 'center',
         }}
       >
-        <Icon name="book-outline" size="iconXl" color="textMuted" />
+        {book.coverUrl ? (
+          <Image
+            source={{ uri: book.coverUrl }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            contentFit="cover"
+            transition={150}
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <Icon name="book-outline" size="iconXl" color="textMuted" />
+        )}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={book.isBookmarked ? t('card.unfavoriteA11y') : t('card.favoriteA11y')}

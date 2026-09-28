@@ -24,6 +24,7 @@ export {
   useListingRequestAction,
   useStartListingConversation,
   useStartRequestConversation,
+  useStartEngagementConversation,
 } from './useVetServices';
 export {
   useAdminVetServiceListings,

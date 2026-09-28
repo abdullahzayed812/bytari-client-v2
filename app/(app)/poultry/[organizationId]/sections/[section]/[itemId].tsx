@@ -1,13 +1,13 @@
-/** Route: /(app)/poultry/[organizationId]/sections/[section]/[itemId] — one item's read-only detail. */
+/** Route: /(app)/poultry/[organizationId]/sections/[section]/[itemId] — one item's detail (view / edit / delete). */
 import { useLocalSearchParams } from 'expo-router';
 
 import {
   AppointmentDetailScreen,
   ExpenseDetailScreen,
+  FarmCaseDetailScreen,
+  FarmHealthEventDetailScreen,
   FarmSectionPlaceholderScreen,
-  HealthEventDetailScreen,
-  PoultryCaseDetailScreen,
-} from '@/features/farm/screens';
+} from '@/features/farmShared/screens';
 
 type Section = 'treatments' | 'cases' | 'appointments' | 'expenses';
 
@@ -16,9 +16,9 @@ export default function FarmSectionItemRoute() {
 
   switch (section) {
     case 'treatments':
-      return <HealthEventDetailScreen />;
+      return <FarmHealthEventDetailScreen scope="poultry" />;
     case 'cases':
-      return <PoultryCaseDetailScreen />;
+      return <FarmCaseDetailScreen scope="poultry" />;
     case 'appointments':
       return <AppointmentDetailScreen />;
     case 'expenses':

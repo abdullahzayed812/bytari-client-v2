@@ -21,7 +21,7 @@ export function useVeterinarianStore(): VeterinarianStoreSummary {
     () => ({
       itemCount: cart.data?.itemCount ?? 0,
       subtotalAmount: cart.data?.subtotalAmount ?? '0.00',
-      currency: cart.data?.currency ?? 'SAR',
+      currency: cart.data?.currency ?? 'IQD',
       isLoading: cart.isLoading,
     }),
     [cart.data, cart.isLoading],

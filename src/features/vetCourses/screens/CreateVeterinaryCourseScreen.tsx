@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm, type FieldPath } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { z } from 'zod';
@@ -13,10 +13,9 @@ import { FormField, Select } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
-import { Caption, Label } from '@/components/typography';
-import { Routes } from '@/constants/routes';
+import { Caption, Label, Text } from '@/components/typography';
 import { DateTimeField } from '@/features/clinicAppointments';
-import { DateField, StepProgress } from '@/features/vetJobs';
+import { DateField } from '@/features/vetJobs';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -78,14 +77,6 @@ const EMPTY: FormValues = {
   topics: 'المفاهيم الأساسية في تغذية الحيوانات\nالاحتياجات الغذائية حسب العمر',
 };
 
-const STEP_FIELDS: FieldPath<FormValues>[][] = [
-  ['type', 'title', 'description', 'organizingBody', 'instructorName'],
-  ['startDate', 'endDate', 'locationMode', 'locationDetails'],
-  [],
-];
-
-const STEP_TITLE_KEYS = ['form.step1Title', 'form.step2Title', 'form.step3Title'] as const;
-
 function linesToList(text: string): string[] {
   return text
     .split('\n')
@@ -106,36 +97,27 @@ function dateToTime(d: Date): string {
 
 /**
  * Routes `/(app)/vet-courses/new` and `/(app)/vet-courses/[courseId]/edit` —
- * one shared multi-step form for a COURSE / SEMINAR / WORKSHOP, with `type`
- * as a form field rather than three separate creation screens. Editing loads
- * the creator's existing course first (`getMyCourse`).
- *
- * ALSO the screen `AdminVetCoursesScreen`'s "add" button opens — the backend
- * accepts an ADMIN creator/editor on the same `/vet-courses` endpoints (see
- * `VetCourseService.create`/`.update`), so this one form serves both
- * self-service vets and admin-authored submissions rather than a second,
- * duplicated admin form. `?origin=admin` (set only by that entry point)
- * routes success back to the admin list instead of the vet's own "دوراتي";
- * `?type=` pre-selects COURSE/SEMINAR to match whichever dashboard card was
- * tapped.
+ * ONE single-page form (no steps) for a COURSE / SEMINAR / WORKSHOP: every
+ * required + optional field, dates, capacity and cover image on one screen,
+ * one "Create / Save" button. Creation is opened only from Admin management
+ * (`AdminVetCoursesScreen`'s add button, `?type=` pre-selects COURSE /
+ * SEMINAR); the backend enforces that only an ADMIN (published directly) or a
+ * VET_COURSES supervisor (pending review) may create. Editing loads the
+ * existing course first.
  */
 export default function CreateVeterinaryCourseScreen() {
   const theme = useTheme();
   const { t } = useTranslation('vetCourses');
   const toast = useToast();
-  const { courseId, type: typeParam, origin } = useLocalSearchParams<{
+  const { courseId, type: typeParam } = useLocalSearchParams<{
     courseId?: string;
     type?: VetCourseType;
-    origin?: string;
   }>();
   const isEdit = Boolean(courseId);
-  const isAdminOrigin = origin === 'admin';
   const existing = useVetCourse(courseId, { manage: true });
   const create = useCreateVetCourse();
   const update = useUpdateVetCourse();
   const imageProvider = useVetCourseImageProvider();
-  const [step, setStep] = useState(0);
-  const totalSteps = 3;
   const [coverImageStorageKey, setCoverImageStorageKey] = useState<string | null>(null);
 
   const schema = useMemo(
@@ -167,7 +149,7 @@ export default function CreateVeterinaryCourseScreen() {
     [t],
   );
 
-  const { control, handleSubmit, trigger, setValue, reset } = useForm<FormValues>({
+  const { control, handleSubmit, setValue, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: typeParam ? { ...EMPTY, type: typeParam } : EMPTY,
     mode: 'onTouched',
@@ -198,15 +180,6 @@ export default function CreateVeterinaryCourseScreen() {
     setCoverImageStorageKey(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existing.data, isEdit]);
-
-  const goNext = async (): Promise<void> => {
-    const valid = await trigger(STEP_FIELDS[step]);
-    if (valid) setStep((s) => Math.min(s + 1, totalSteps - 1));
-  };
-  const goBack = (): void => {
-    if (step === 0) router.back();
-    else setStep((s) => s - 1);
-  };
 
   const onSubmit = (values: FormValues): void => {
     const input: CreateVetCourseInput = {
@@ -246,11 +219,8 @@ export default function CreateVeterinaryCourseScreen() {
       create.mutate(input, {
         onSuccess: () => {
           toast.show({ message: t('form.created'), tone: 'success' });
-          // Admin-authored: back to the admin list it was opened from.
-          // Self-service vet: funnel to "دوراتي" to see the new PENDING
-          // submission, same as before, regardless of where they entered from.
-          if (isAdminOrigin) router.back();
-          else router.replace(Routes.vetCourseMy);
+          // Back to the Admin management list it was opened from.
+          router.back();
         },
         onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
       });
@@ -271,24 +241,20 @@ export default function CreateVeterinaryCourseScreen() {
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t(STEP_TITLE_KEYS[step] ?? STEP_TITLE_KEYS[0])} onBack={goBack} showBack />
-      <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.sm }}>
-        <StepProgress current={step} total={totalSteps} />
-        <Caption style={{ marginTop: theme.spacing.xs }}>
-          {t('form.step', { current: step + 1, total: totalSteps })}
-        </Caption>
-      </View>
+      <AppHeader title={isEdit ? t('details.editCourse') : t('form.createTitle')} showBack />
 
       <ScrollView
         contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
         keyboardShouldPersistTaps="handled"
       >
-        {step === 0 && isEdit && (existing.data as VetCourse | undefined)?.status === 'REJECTED' ? (
+        {isEdit && (existing.data as VetCourse | undefined)?.status === 'REJECTED' ? (
           <Alert tone="danger" message={(existing.data as VetCourse | undefined)?.rejectionReason ?? ''} />
         ) : null}
 
-        {step === 0 ? (
-          <>
+        <>
+            <Text variant="subtitle" weight="bold">
+              {t('form.step1Title')}
+            </Text>
             <View style={{ rowGap: theme.spacing.xs }}>
               <Label>{t('form.type')}</Label>
               <Controller
@@ -343,11 +309,10 @@ export default function CreateVeterinaryCourseScreen() {
               label={t('form.instructorSpecialty')}
               placeholder={t('form.instructorSpecialtyPlaceholder')}
             />
-          </>
-        ) : null}
 
-        {step === 1 ? (
-          <>
+            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+              {t('form.step2Title')}
+            </Text>
             <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
               <Controller
                 control={control}
@@ -449,11 +414,10 @@ export default function CreateVeterinaryCourseScreen() {
                 />
               )}
             />
-          </>
-        ) : null}
 
-        {step === 2 ? (
-          <>
+            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+              {t('form.step3Title')}
+            </Text>
             <FormField
               control={control}
               name="capacity"
@@ -489,23 +453,17 @@ export default function CreateVeterinaryCourseScreen() {
             </View>
 
             {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
-            <Alert tone="info" message={t('form.reviewNote')} />
-          </>
-        ) : null}
+        </>
       </ScrollView>
 
-      <View style={{ padding: theme.screenPadding, flexDirection: 'row', columnGap: theme.spacing.sm }}>
-        {step < totalSteps - 1 ? (
-          <Button label={t('form.next')} fullWidth onPress={goNext} />
-        ) : (
-          <Button
-            label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
-            fullWidth
-            loading={submitting}
-            disabled={submitting}
-            onPress={handleSubmit(onSubmit)}
-          />
-        )}
+      <View style={{ padding: theme.screenPadding }}>
+        <Button
+          label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
+          fullWidth
+          loading={submitting}
+          disabled={submitting}
+          onPress={handleSubmit(onSubmit)}
+        />
       </View>
     </SafeAreaScreen>
   );

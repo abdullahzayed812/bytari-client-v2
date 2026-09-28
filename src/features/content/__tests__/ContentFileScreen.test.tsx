@@ -45,6 +45,7 @@ const withFiles = (files: ContentItem['files']): ContentItem => ({
   isLiked: false,
   categories: [],
   files,
+  coverUrl: null,
   createdAt: '',
   updatedAt: '',
 });

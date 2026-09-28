@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { Caption, Text } from '@/components/typography';
+import { Caption, LinkifiedText, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -68,13 +68,12 @@ export function MessageBubble({ message, currentUserId, onDelete }: MessageBubbl
             <MessageAttachmentView message={message} attachment={message.attachment} />
           </View>
         ) : null}
-        {deleted || message.body ? (
-          <Text
-            variant="body"
-            style={deleted ? { color: theme.colors.textMuted, fontStyle: 'italic' } : undefined}
-          >
-            {deleted ? t('message.deleted') : message.body}
+        {deleted ? (
+          <Text variant="body" style={{ color: theme.colors.textMuted, fontStyle: 'italic' }}>
+            {t('message.deleted')}
           </Text>
+        ) : message.body ? (
+          <LinkifiedText variant="body">{message.body}</LinkifiedText>
         ) : null}
       </View>
       <Caption style={{ alignSelf: mine ? 'flex-end' : 'flex-start' }}>

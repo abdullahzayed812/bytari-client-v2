@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Image, View } from 'react-native';
+import { Image } from 'expo-image';
+import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
@@ -32,7 +33,13 @@ export function ServiceRequestCard({
     <Card variant="elevated" padding="none" onPress={onPress} style={{ overflow: 'hidden' }}>
       <View style={{ height: 110, backgroundColor: theme.colors.requestSurface }}>
         {img ? (
-          <Image source={{ uri: img }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          <Image
+            source={{ uri: img }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            transition={150}
+            accessibilityIgnoresInvertColors
+          />
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={ANIMAL_TYPE_ICON[request.animalType]} size="iconXl" color="requestAccent" />
@@ -72,7 +79,9 @@ export function ServiceRequestCard({
           <Text variant="bodyStrong" style={{ color: theme.colors.requestAccent }}>
             {formatPrice(request.budgetAmount)}
           </Text>
-          <Caption color="textMuted">{formatVetServiceDate(request.createdAt, i18n.language)}</Caption>
+          <Caption color="textMuted">
+            {formatVetServiceDate(request.createdAt, i18n.language)}
+          </Caption>
         </View>
         {onPrimary ? (
           <View style={{ marginTop: theme.spacing.xs }}>

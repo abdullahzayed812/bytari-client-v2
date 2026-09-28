@@ -88,7 +88,7 @@ describe('MessageComposer', () => {
 
     fireEvent.changeText(screen.getByLabelText('اكتب رسالة…'), '  hi  ');
     fireEvent.press(screen.getByLabelText('إرسال'));
-    expect(onSend).toHaveBeenCalledWith('hi');
+    expect(onSend).toHaveBeenCalledWith('hi', undefined);
   });
 
   it('is fully disabled (not just hidden) with a reason line when the thread is not writable', () => {

@@ -127,7 +127,8 @@ export interface CourseBrowseFilter {
 export interface VetCourseRegistration {
   id: string;
   courseId: string;
-  registrant: VetCourseUserSummary;
+  /** `avatarUrl` is server-resolved (never a storage key); absent on older payloads. */
+  registrant: VetCourseUserSummary & { avatarUrl?: string | null };
   fullName: string;
   phone: string;
   email: string | null;

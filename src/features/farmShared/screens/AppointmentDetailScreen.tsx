@@ -1,17 +1,24 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Badge, Card } from '@/components/content';
-import { ErrorState, Loading } from '@/components/feedback';
+import { Badge, Card, Chip } from '@/components/content';
+import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
+import { orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate, formatWeekday } from '@/utils';
 
 import { APPOINTMENT_CATEGORY_TONE } from '../constants';
+import { FarmRecordFooter } from '../components/FarmRecordFooter';
 import { useFarmAppointment } from '../hooks';
+import { useDeleteFarmAppointment, useUpdateFarmAppointmentStatus } from '../records';
+
+const APPOINTMENT_STATUSES = ['UPCOMING', 'DONE', 'CANCELLED'] as const;
 
 /** Route `/poultry/[organizationId]/sections/appointments/[itemId]` — one appointment's full detail. */
 export default function AppointmentDetailScreen() {
@@ -23,6 +30,13 @@ export default function AppointmentDetailScreen() {
   }>();
 
   const q = useFarmAppointment(organizationId, itemId);
+  const toast = useToast();
+  const { t: tf } = useTranslation('farm');
+  const { isAdmin } = useCapabilities();
+  const org = useOrganization(organizationId ?? '');
+  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const remove = useDeleteFarmAppointment(organizationId ?? '');
+  const setStatus = useUpdateFarmAppointmentStatus(organizationId ?? '');
 
   return (
     <ScrollScreen>
@@ -58,6 +72,45 @@ export default function AppointmentDetailScreen() {
                   <Text variant="body">{q.data.description}</Text>
                 </View>
               ) : null}
+
+              {canManage ? (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                  {APPOINTMENT_STATUSES.map((s) => (
+                    <Chip
+                      key={s}
+                      label={tf(`records.appointmentStatus.${s}`)}
+                      selected={q.data!.status === s}
+                      onPress={() =>
+                        q.data!.status !== s &&
+                        setStatus.mutate(
+                          { id: q.data!.id, status: s },
+                          {
+                            onSuccess: () =>
+                              toast.show({ tone: 'success', message: tf('records.updated') }),
+                            onError: (e) =>
+                              toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                          },
+                        )
+                      }
+                    />
+                  ))}
+                </View>
+              ) : null}
+
+              <FarmRecordFooter
+                createdBy={q.data.createdBy}
+                canManage={canManage}
+                deleting={remove.isPending}
+                onDelete={() =>
+                  remove.mutate(q.data!.id, {
+                    onSuccess: () => {
+                      toast.show({ tone: 'success', message: tf('records.deleted') });
+                      router.back();
+                    },
+                    onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                  })
+                }
+              />
             </View>
           </Card>
         </Section>

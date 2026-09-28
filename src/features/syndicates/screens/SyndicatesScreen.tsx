@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 
+import { SyndicateCounterBadges } from '../components';
 import { useMainSyndicates } from '../hooks';
 
 /**
@@ -56,10 +58,27 @@ export default function SyndicatesScreen() {
         renderItem={({ item }) => (
           <Card variant="outlined" padding="md" onPress={() => router.push(Routes.syndicateMain(item.id))}>
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
-              <Icon name="shield-checkmark-outline" size="iconLg" color="primary" />
+              <View
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: theme.radius.md,
+                  backgroundColor: theme.colors.surfaceAccent,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                }}
+              >
+                {item.logoUrl ? (
+                  <Image source={{ uri: item.logoUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                ) : (
+                  <Icon name="shield-checkmark-outline" size="iconLg" color="primary" />
+                )}
+              </View>
               <View style={{ flex: 1, rowGap: 4 }}>
                 <Text variant="bodyStrong">{item.name}</Text>
                 {item.description ? <Caption numberOfLines={2}>{item.description}</Caption> : null}
+                <SyndicateCounterBadges counters={item.counters} />
               </View>
             </View>
           </Card>

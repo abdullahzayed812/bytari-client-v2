@@ -7,8 +7,6 @@ export { default as PoultryMarketScreen } from './PoultryMarketScreen';
 export { default as PoultryFarmCreateScreen } from './PoultryFarmCreateScreen';
 export { default as TreatmentsScreen } from './TreatmentsScreen';
 export { default as IndividualCasesScreen } from './IndividualCasesScreen';
-export { default as HealthEventDetailScreen } from './HealthEventDetailScreen';
-export { default as PoultryCaseDetailScreen } from './PoultryCaseDetailScreen';
 export { default as DailyRecordsScreen } from './DailyRecordsScreen';
 export { default as WeeklyReportScreen } from './WeeklyReportScreen';
 

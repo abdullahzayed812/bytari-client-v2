@@ -78,7 +78,18 @@ export interface AdminUserDetail extends AdminUser {
     decidedAt: string | null;
     decisionReason: string | null;
     createdAt: string;
-    documents: { kind: string; filename: string; mimeType: string; sizeBytes: number }[];
+    /**
+     * `downloadUrl` (short-lived signed URL) only for a caller holding
+     * `veterinarian.read` — identity documents are private.
+     */
+    documents: {
+      kind: string;
+      filename: string;
+      mimeType: string;
+      sizeBytes: number;
+      downloadUrl?: string;
+    }[];
+    documentsVisible?: boolean;
   } | null;
   organizations?: { id: string; name: string; type: string; status: string; role: string }[];
 }
@@ -189,16 +200,40 @@ export type OrgStatusAction = 'suspend' | 'activate' | 'deactivate';
 
 // --- system supervisors ------------------------------------------
 
+/**
+ * Fallback only — the supervisor form renders the server's catalogue
+ * (`GET /admin/supervisors/domains`), so a newly added section appears without
+ * a client release. Kept in sync with `SUPERVISOR_DOMAINS` on the server.
+ */
 export const SUPERVISOR_DOMAINS: readonly SupervisorDomain[] = [
-  'ANIMAL',
+  'USERS',
+  'VETERINARIANS',
   'CLINIC',
-  'STORE',
+  'FARMS',
+  'SYNDICATE',
+  'ANIMAL',
   'CONTENT',
   'CONSULTATION',
   'INQUIRY',
   'SUPPORT',
+  'VET_SERVICE',
+  'VET_JOBS',
+  'VET_COURSES',
+  'ADVERTISEMENT',
   'MARKET',
+  'TRADERS',
+  'PET_OWNER_STORE',
+  'VETERINARIAN_STORE',
+  'REPORTS',
+  'NOTIFICATIONS',
+  'STORE',
 ];
+
+/** One assignable management section and the permissions it grants (server catalogue). */
+export interface SupervisorDomainInfo {
+  domain: SupervisorDomain;
+  permissions: string[];
+}
 export type SupervisorAssignmentStatus = 'ACTIVE' | 'INACTIVE';
 
 export interface SupervisorAssignment {
@@ -217,6 +252,7 @@ export interface SupervisorListFilter {
   pageSize: number;
   domain?: SupervisorDomain;
   status?: SupervisorAssignmentStatus;
+  userId?: string;
 }
 
 /** The admin UI assigns by email; the server resolves the account and checks eligibility. */
@@ -224,6 +260,11 @@ export interface AssignSupervisorInput {
   email: string;
   domain: SupervisorDomain;
 }
+
+/** The EXACT set of sections for one supervisor (`PUT /admin/supervisors/domains`). */
+export type SetSupervisorDomainsInput =
+  | { email: string; domains: SupervisorDomain[] }
+  | { userId: string; domains: SupervisorDomain[] };
 
 // --- audit log --------------------------------------------------
 
@@ -409,6 +450,7 @@ export type AdminDashboardCardId =
   | 'vetApprovals'
   | 'courses'
   | 'seminars'
+  | 'poultryMarket'
   | 'services'
   | 'content'
   | 'syndicate'

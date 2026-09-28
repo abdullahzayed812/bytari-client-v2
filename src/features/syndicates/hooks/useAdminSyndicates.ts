@@ -13,3 +13,15 @@ export function useCreateSyndicateAdmin() {
     onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() }),
   });
 }
+
+/** `DELETE /admin/syndicates/:id` — ADMIN only (soft delete). */
+export function useDeleteSyndicate() {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, string>({
+    mutationFn: (organizationId) => adminSyndicatesApi.remove(organizationId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: syndicateKeys.all });
+      void qc.invalidateQueries({ queryKey: ['admin'] });
+    },
+  });
+}

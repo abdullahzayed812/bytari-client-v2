@@ -71,6 +71,22 @@ export const poultryMarketApi = {
     reactivate(userId: string): Promise<TraderProfile> {
       return apiClient.post<TraderProfile>(`/admin/traders/${userId}/reactivate`);
     },
+    adminUpdate(
+      userId: string,
+      input: Partial<{
+        displayName: string;
+        governorate: string;
+        district: string | null;
+        phone: string;
+        whatsapp: string | null;
+        bio: string | null;
+      }>,
+    ): Promise<TraderProfile> {
+      return apiClient.patch<TraderProfile>(`/admin/traders/${userId}`, input);
+    },
+    adminRemove(userId: string): Promise<{ removed: boolean }> {
+      return apiClient.delete<{ removed: boolean }>(`/admin/traders/${userId}`);
+    },
   },
 
   poultryOffers: {
@@ -124,6 +140,7 @@ export const poultryMarketApi = {
           birdType: filter.birdType,
           governorate: filter.governorate,
           status: filter.status,
+          moderationStatus: filter.moderationStatus,
         },
       });
       return {
@@ -133,6 +150,12 @@ export const poultryMarketApi = {
     },
     adminRemove(offerId: string): Promise<{ success: boolean }> {
       return apiClient.delete<{ success: boolean }>(`/admin/poultry-offers/${offerId}`);
+    },
+    approve(offerId: string): Promise<unknown> {
+      return apiClient.post(`/admin/poultry-offers/${offerId}/approve`);
+    },
+    reject(offerId: string, reason: string): Promise<unknown> {
+      return apiClient.post(`/admin/poultry-offers/${offerId}/reject`, { reason });
     },
   },
 
@@ -187,6 +210,7 @@ export const poultryMarketApi = {
           eggType: filter.eggType,
           governorate: filter.governorate,
           status: filter.status,
+          moderationStatus: filter.moderationStatus,
         },
       });
       return {
@@ -196,6 +220,12 @@ export const poultryMarketApi = {
     },
     adminRemove(offerId: string): Promise<{ success: boolean }> {
       return apiClient.delete<{ success: boolean }>(`/admin/egg-offers/${offerId}`);
+    },
+    approve(offerId: string): Promise<unknown> {
+      return apiClient.post(`/admin/egg-offers/${offerId}/approve`);
+    },
+    reject(offerId: string, reason: string): Promise<unknown> {
+      return apiClient.post(`/admin/egg-offers/${offerId}/reject`, { reason });
     },
   },
 

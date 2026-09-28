@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
@@ -6,6 +7,8 @@ import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import type { PublicSyndicate } from '../types';
+
+import { SyndicateCounterBadges } from './SyndicateCounterBadges';
 
 /** A syndicate branch card, matching the "فروع النقابة" reference grid. */
 export function SyndicateBranchCard({ branch, onPress }: { branch: PublicSyndicate; onPress: () => void }) {
@@ -23,9 +26,14 @@ export function SyndicateBranchCard({ branch, onPress }: { branch: PublicSyndica
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: theme.spacing.sm,
+          overflow: 'hidden',
         }}
       >
-        <Icon name="business-outline" size="iconLg" color="primary" />
+        {branch.logoUrl ? (
+          <Image source={{ uri: branch.logoUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        ) : (
+          <Icon name="business-outline" size="iconLg" color="primary" />
+        )}
       </View>
       <Text variant="bodyStrong" numberOfLines={1} style={{ textAlign: 'center' }}>
         {branch.governorate ?? branch.name}
@@ -33,6 +41,7 @@ export function SyndicateBranchCard({ branch, onPress }: { branch: PublicSyndica
       <Caption numberOfLines={2} style={{ textAlign: 'center' }}>
         {t('branches.cardSubtitle')}
       </Caption>
+      <SyndicateCounterBadges counters={branch.counters} />
     </Card>
   );
 }

@@ -82,6 +82,7 @@ function toContentItem(raw: unknown): ContentItem {
     isLiked: Boolean(r.isLiked),
     categories,
     files,
+    coverUrl: typeof r.coverUrl === 'string' && r.coverUrl ? r.coverUrl : null,
     createdAt: String(r.createdAt ?? ''),
     updatedAt: String(r.updatedAt ?? ''),
   };

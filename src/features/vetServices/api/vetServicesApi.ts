@@ -128,6 +128,14 @@ export const vetServicesApi = {
   startRequestConversation(id: string): Promise<{ conversationId: string }> {
     return apiClient.post<{ conversationId: string }>(`/vet-services/requests/${id}/conversation`);
   },
+  /** Either party of an offer / listing-request opens their direct chat (any stage). */
+  startEngagementConversation(
+    kind: 'offer' | 'listing-request',
+    id: string,
+  ): Promise<{ conversationId: string }> {
+    const base = kind === 'offer' ? 'offers' : 'listing-requests';
+    return apiClient.post<{ conversationId: string }>(`/vet-services/${base}/${id}/conversation`);
+  },
 
   // --- offers (vet → request) --------------------------
   createOffer(requestId: string, input: CreateOfferInput): Promise<ServiceOffer> {

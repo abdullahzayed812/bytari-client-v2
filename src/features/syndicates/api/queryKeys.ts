@@ -23,4 +23,10 @@ export const syndicateKeys = {
     [...syndicateKeys.submissions(), 'detail', organizationId, id] as const,
   mySubmissions: (f: MySubmissionListFilter) => [...syndicateKeys.submissions(), 'mine', f] as const,
   mySubmission: (id: string) => [...syndicateKeys.submissions(), 'mine', 'detail', id] as const,
+
+  members: (organizationId: string) => [...syndicateKeys.all, 'members', organizationId] as const,
+  memberList: (organizationId: string, search: string) =>
+    [...syndicateKeys.members(organizationId), 'list', search] as const,
+  member: (organizationId: string, userId: string) =>
+    [...syndicateKeys.members(organizationId), 'detail', userId] as const,
 };

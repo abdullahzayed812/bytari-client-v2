@@ -11,6 +11,7 @@ export {
   useBatchSummary,
   useWeeklySummary,
   useDailyRecords,
+  useDailyRecordWeeks,
   useCreateDailyRecord,
   useUpdateDailyRecord,
   useDeleteDailyRecord,
