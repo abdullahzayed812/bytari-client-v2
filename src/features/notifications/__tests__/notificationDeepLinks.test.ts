@@ -40,7 +40,7 @@ describe('notificationHref — post-Phase-15 types (push payloads)', () => {
     [
       'PUBLICATION_SUBMITTED',
       { publicationId: 'p1', kind: 'LOST' },
-      '/(app)/admin/animal-publications',
+      '/(app)/admin/animal-publications?kind=LOST',
     ],
     [
       'PUBLICATION_APPROVED',

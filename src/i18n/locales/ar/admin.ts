@@ -128,7 +128,12 @@ export default {
       },
       books: { title: 'الكتب', subtitle: 'إدارة الكتب البيطرية وملفاتها', unit: 'كتاب منشور' },
       magazines: { title: 'المجلات', subtitle: 'إدارة أعداد المجلة البيطرية', unit: 'عدد منشور' },
-      adoption: { title: 'التبني', subtitle: 'إدارة إعلانات تبني الحيوانات', unit: 'إعلان منشور' },
+      // One combined tile for adoption / mating / lost (sums the three server counters).
+      adoption: {
+        title: 'التبني والتزاوج والحيوانات المفقودة',
+        subtitle: 'إدارة إعلانات التبني والتزاوج وبلاغات الحيوانات المفقودة',
+        unit: 'إعلان منشور',
+      },
       mating: { title: 'التزاوج', subtitle: 'إدارة إعلانات تزاوج الحيوانات', unit: 'إعلان منشور' },
       lostAnimals: {
         title: 'الحيوانات المفقودة',
@@ -515,8 +520,9 @@ export default {
       intro: 'إدارة عروض الوظائف وملفات الباحثين عن عمل.',
     },
     content: {
-      title: 'الكتب والمجلات',
-      intro: 'إدارة المحتوى العلمي المنشور وتصنيفاته.',
+      title: 'إدارة الكتب والمجلات',
+      tabs: { BOOK: 'الكتب', MAGAZINE: 'المجلات' },
+      relatedLabel: 'أقسام ذات صلة',
     },
     petOwnerStore: {
       title: 'متجر أصحاب الحيوانات',
@@ -967,7 +973,7 @@ export default {
   },
 
   animalPublications: {
-    title: 'طلبات نشر الحيوانات',
+    title: 'إدارة التبني والتزاوج والحيوانات المفقودة',
     empty: 'لا توجد طلبات',
     emptyHint: 'لا توجد طلبات تطابق هذه التصفية.',
     submittedAt: 'أُرسل في',
@@ -995,11 +1001,7 @@ export default {
       updated: 'تم حفظ التعديلات',
       unpublished: 'تم إخفاء الإعلان من القوائم العامة',
     },
-    dedicatedTitle: {
-      ADOPTION: 'إدارة إعلانات التبني',
-      MATING: 'إدارة إعلانات التزاوج',
-      LOST: 'إدارة بلاغات الحيوانات المفقودة',
-    },
+    tabs: { ADOPTION: 'التبني', MATING: 'التزاوج', LOST: 'المفقودة' },
     edit: { cta: 'تعديل', title: 'تعديل الإعلان', save: 'حفظ التعديلات' },
     unpublish: 'إخفاء الإعلان',
     unpublishTitle: 'إخفاء الإعلان',

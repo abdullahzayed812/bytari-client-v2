@@ -5,6 +5,7 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { SegmentedControl } from '@/components/forms';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Label } from '@/components/typography';
 import {
@@ -58,7 +59,8 @@ type DetailKey =
   | 'yes'
   | 'no';
 
-const KINDS: PublicationKind[] = ['LOST', 'ADOPTION', 'MATING'];
+/** Tab order of the combined "التبني والتزاوج والحيوانات المفقودة" section. */
+const KINDS: PublicationKind[] = ['ADOPTION', 'MATING', 'LOST'];
 const STATUSES: PublicationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
 const STATUS_TONE = {
   PENDING: 'warning',
@@ -71,8 +73,13 @@ const STATUS_TONE = {
  * Defaults to PENDING (the requests awaiting action). Approve / reject are
  * backend-authorised (`animal.approve` / `animal.reject`); removing a listing
  * (e.g. a published one) is `DELETE /animal-publications/:id` — ADMIN / ANIMAL
- * supervisor only for someone else's listing, audited. `?kind=` pre-selects
- * the kind (the separate Adoption / Mating / Lost dashboard cards).
+ * supervisor only for someone else's listing, audited.
+ *
+ * ONE admin section for the three kinds: Adoption / Mating / Lost tabs over the
+ * same `animal_publications` queue (each tab = the existing `?kind=` filter of
+ * `GET /admin/animal-publications`; the listings stay separate from pet
+ * profiles). A `?kind=` deep link (e.g. a PUBLICATION_SUBMITTED notification)
+ * pre-selects its tab.
  */
 export default function AdminAnimalPublicationsScreen() {
   const { t } = useTranslation('admin');
@@ -81,10 +88,9 @@ export default function AdminAnimalPublicationsScreen() {
   const toast = useToast();
 
   const { kind: kindParam } = useLocalSearchParams<{ kind?: string }>();
-  const initialKind = KINDS.includes(kindParam as PublicationKind)
-    ? (kindParam as PublicationKind)
-    : undefined;
-  const [kind, setKind] = useState<PublicationKind | undefined>(initialKind);
+  const [kind, setKind] = useState<PublicationKind>(
+    KINDS.includes(kindParam as PublicationKind) ? (kindParam as PublicationKind) : 'ADOPTION',
+  );
   const [status, setStatus] = useState<PublicationStatus | undefined>('PENDING');
   const q = useAdminAnimalPublications({ kind, status });
   const approve = useAdminApprovePublication();
@@ -213,11 +219,7 @@ export default function AdminAnimalPublicationsScreen() {
   return (
     <>
       <AdminListScreen<AnimalPublication>
-        title={
-          initialKind
-            ? t(`animalPublications.dedicatedTitle.${initialKind}`)
-            : t('animalPublications.title')
-        }
+        title={t('animalPublications.title')}
         query={q}
         data={q.publications}
         keyExtractor={(p) => p.id}
@@ -232,18 +234,18 @@ export default function AdminAnimalPublicationsScreen() {
         emptyMessage={t('animalPublications.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
         filterBar={
-          <View style={{ rowGap: theme.spacing.xs }}>
-            {/* A dedicated (single-kind) dashboard page keeps its kind fixed. */}
-            {initialKind ? null : (
-              <FilterChips<PublicationKind>
+          <View style={{ rowGap: theme.spacing.sm }}>
+            <View style={{ paddingHorizontal: theme.screenPadding }}>
+              <SegmentedControl<PublicationKind>
                 value={kind}
                 onChange={setKind}
                 options={[
-                  { value: undefined, label: t('animalPublications.kind.ALL') },
-                  ...KINDS.map((k) => ({ value: k, label: t(`animalPublications.kind.${k}`) })),
+                  { value: 'ADOPTION', label: t('animalPublications.tabs.ADOPTION') },
+                  { value: 'MATING', label: t('animalPublications.tabs.MATING') },
+                  { value: 'LOST', label: t('animalPublications.tabs.LOST') },
                 ]}
               />
-            )}
+            </View>
             <FilterChips<PublicationStatus>
               value={status}
               onChange={setStatus}

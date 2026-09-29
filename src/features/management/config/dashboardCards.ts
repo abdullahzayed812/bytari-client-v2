@@ -14,8 +14,9 @@ export interface DashboardCardDef {
   route: Href;
   /**
    * Server card ids whose counters this ONE tile aggregates (and marks seen
-   * when opened). Used for "الدورات والندوات" — the server keeps separate
-   * `courses` / `seminars` counters, the dashboard shows one unified section.
+   * when opened). Used for "الدورات والندوات" and "التبني والتزاوج والحيوانات
+   * المفقودة" — the server keeps separate counters, the dashboard shows one
+   * unified section.
    */
   mergedIds?: AdminDashboardCardId[];
   /** Same RBAC gating the pre-redesign `ManagementScreen` used per area — unchanged, only the presentation changed. */
@@ -134,6 +135,8 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     show: (c) => c.isAdmin || c.isSupervisorOf('VET_SERVICE') || c.can('vet_service.read'),
   },
   {
+    // "الكتب والمجلات" — ONE section with Books / Magazines tabs. The server's
+    // `content` counter already sums both types.
     id: 'content',
     icon: 'library-outline',
     tint: dashboardTint(2),
@@ -141,38 +144,13 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     show: (c) => c.isAdmin || c.isSupervisorOf('CONTENT') || c.can('content.read'),
   },
   {
-    id: 'books',
-    icon: 'book-outline',
-    tint: dashboardTint(1),
-    route: Routes.adminVeterinaryContent('BOOK'),
-    show: (c) => c.isAdmin || c.isSupervisorOf('CONTENT') || c.can('content.read'),
-  },
-  {
-    id: 'magazines',
-    icon: 'newspaper-outline',
-    tint: dashboardTint(4),
-    route: Routes.adminVeterinaryContent('MAGAZINE'),
-    show: (c) => c.isAdmin || c.isSupervisorOf('CONTENT') || c.can('content.read'),
-  },
-  {
+    // "التبني والتزاوج والحيوانات المفقودة" — ONE section with Adoption / Mating /
+    // Lost tabs; the server keeps separate per-kind counters, summed here.
     id: 'adoption',
     icon: 'heart-outline',
     tint: dashboardTint(5),
-    route: { pathname: Routes.adminAnimalPublications, params: { kind: 'ADOPTION' } },
-    show: (c) => c.isAdmin || c.isSupervisorOf('ANIMAL') || c.can('animal.read'),
-  },
-  {
-    id: 'mating',
-    icon: 'git-merge-outline',
-    tint: dashboardTint(6),
-    route: { pathname: Routes.adminAnimalPublications, params: { kind: 'MATING' } },
-    show: (c) => c.isAdmin || c.isSupervisorOf('ANIMAL') || c.can('animal.read'),
-  },
-  {
-    id: 'lostAnimals',
-    icon: 'search-outline',
-    tint: dashboardTint(3),
-    route: { pathname: Routes.adminAnimalPublications, params: { kind: 'LOST' } },
+    route: Routes.adminAnimalPublications,
+    mergedIds: ['adoption', 'mating', 'lostAnimals'],
     show: (c) => c.isAdmin || c.isSupervisorOf('ANIMAL') || c.can('animal.read'),
   },
   {

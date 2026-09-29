@@ -1,5 +1,5 @@
 import { renderWithProviders, screen, waitFor, fireEvent } from '@/test-utils/render';
-import { resetRouterMock } from '@/test-utils/routerMock';
+import { resetRouterMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { adminPublicationsApi } from '@/features/publications';
 
@@ -100,10 +100,10 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('AdminAnimalPublicationsScreen — moderation queue', () => {
-  it('lists PENDING requests by default and approves one', async () => {
+  it('lists PENDING requests of the Adoption tab by default and approves one', async () => {
     renderWithProviders(<AdminAnimalPublicationsScreen />);
     await waitFor(() => expect(screen.getByText('أحمد')).toBeTruthy());
-    expect(listPub).toHaveBeenCalledWith(1, 20, { kind: undefined, status: 'PENDING' });
+    expect(listPub).toHaveBeenCalledWith(1, 20, { kind: 'ADOPTION', status: 'PENDING' });
 
     fireEvent.press(screen.getByText('موافقة'));
     fireEvent.press(screen.getByText('تأكيد الموافقة'));
@@ -157,6 +157,37 @@ describe('AdminAnimalPublicationsScreen — moderation queue', () => {
     // contact phone + city are modal-only — never shown on the row
     await waitFor(() => expect(screen.getByText('0555')).toBeTruthy());
     expect(screen.getByText('الرياض')).toBeTruthy();
+  });
+});
+
+describe('AdminAnimalPublicationsScreen — combined Adoption / Mating / Lost tabs', () => {
+  it('shows the combined title and one tab per kind, each loading its own kind', async () => {
+    renderWithProviders(<AdminAnimalPublicationsScreen />);
+    await waitFor(() => expect(screen.getByText('أحمد')).toBeTruthy());
+
+    expect(screen.getByText('إدارة التبني والتزاوج والحيوانات المفقودة')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'التبني' }).props.accessibilityState.selected).toBe(
+      true,
+    );
+
+    fireEvent.press(screen.getByRole('tab', { name: 'التزاوج' }));
+    await waitFor(() =>
+      expect(listPub).toHaveBeenCalledWith(1, 20, { kind: 'MATING', status: 'PENDING' }),
+    );
+
+    fireEvent.press(screen.getByRole('tab', { name: 'المفقودة' }));
+    await waitFor(() =>
+      expect(listPub).toHaveBeenCalledWith(1, 20, { kind: 'LOST', status: 'PENDING' }),
+    );
+  });
+
+  it('a ?kind= deep link pre-selects its tab', async () => {
+    setSearchParams({ kind: 'LOST' });
+    renderWithProviders(<AdminAnimalPublicationsScreen />);
+    await waitFor(() =>
+      expect(listPub).toHaveBeenCalledWith(1, 20, { kind: 'LOST', status: 'PENDING' }),
+    );
+    expect(listPub).not.toHaveBeenCalledWith(1, 20, { kind: 'ADOPTION', status: 'PENDING' });
   });
 });
 

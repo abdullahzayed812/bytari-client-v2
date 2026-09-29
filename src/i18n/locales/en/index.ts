@@ -5338,8 +5338,8 @@ export const en: TranslationResources = {
           unit: 'published issues',
         },
         adoption: {
-          title: 'Adoption',
-          subtitle: 'Manage adoption listings',
+          title: 'Adoption, Mating & Lost Pets',
+          subtitle: 'Manage adoption and mating listings and lost-pet reports',
           unit: 'live listings',
         },
         mating: { title: 'Mating', subtitle: 'Manage mating listings', unit: 'live listings' },
@@ -5727,8 +5727,9 @@ export const en: TranslationResources = {
         intro: 'Manage job offers and job-seeker profiles.',
       },
       content: {
-        title: 'Books & magazines',
-        intro: 'Manage published scientific content and its categories.',
+        title: 'Books & Magazines Management',
+        tabs: { BOOK: 'Books', MAGAZINE: 'Magazines' },
+        relatedLabel: 'Related sections',
       },
       petOwnerStore: {
         title: 'Pet owners store',
@@ -6173,7 +6174,7 @@ export const en: TranslationResources = {
     },
 
     animalPublications: {
-      title: 'Animal listing requests',
+      title: 'Adoption, Mating & Lost Pets Management',
       empty: 'No requests',
       emptyHint: 'No requests match this filter.',
       submittedAt: 'Submitted',
@@ -6201,11 +6202,7 @@ export const en: TranslationResources = {
         updated: 'Changes saved',
         unpublished: 'Listing hidden from public lists',
       },
-      dedicatedTitle: {
-        ADOPTION: 'Manage adoption listings',
-        MATING: 'Manage mating listings',
-        LOST: 'Manage lost-animal reports',
-      },
+      tabs: { ADOPTION: 'Adoption', MATING: 'Mating', LOST: 'Lost Pets' },
       edit: { cta: 'Edit', title: 'Edit listing', save: 'Save changes' },
       unpublish: 'Hide listing',
       unpublishTitle: 'Hide listing',

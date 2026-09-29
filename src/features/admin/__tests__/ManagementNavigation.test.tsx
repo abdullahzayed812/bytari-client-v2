@@ -101,4 +101,59 @@ describe('Admin dashboard — role/permission-gated navigation', () => {
     fireEvent.press(screen.getByText('الدورات والندوات'));
     expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/admin/vet-courses');
   });
+  it('Adoption, Mating and Lost share one card that opens the combined tabbed screen', () => {
+    useAuthStore.setState({ session: session({ isAdmin: true, roles: ['ADMIN', 'PET_OWNER'] }) });
+    renderWithProviders(<ManagementScreen />);
+
+    expect(screen.getAllByText('التبني والتزاوج والحيوانات المفقودة')).toHaveLength(1);
+    expect(screen.queryByText('التبني')).toBeNull();
+    expect(screen.queryByText('التزاوج')).toBeNull();
+    expect(screen.queryByText('الحيوانات المفقودة')).toBeNull();
+
+    fireEvent.press(screen.getByText('التبني والتزاوج والحيوانات المفقودة'));
+    expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/admin/animal-publications');
+  });
+
+  it('Books and Magazines share one card that opens the combined tabbed screen', () => {
+    useAuthStore.setState({ session: session({ isAdmin: true, roles: ['ADMIN', 'PET_OWNER'] }) });
+    renderWithProviders(<ManagementScreen />);
+
+    expect(screen.getAllByText('الكتب والمجلات')).toHaveLength(1);
+    expect(screen.queryByText('الكتب')).toBeNull();
+    expect(screen.queryByText('المجلات')).toBeNull();
+
+    fireEvent.press(screen.getByText('الكتب والمجلات'));
+    expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/admin/content-hub');
+  });
+
+  it('the combined adoption badge sums the three per-kind server counters', async () => {
+    getDashboardSummary.mockResolvedValue({
+      cards: [
+        { id: 'adoption', count: 1, activeCount: 4 },
+        { id: 'mating', count: 2, activeCount: 5 },
+        { id: 'lostAnimals', count: 3, activeCount: 6 },
+      ],
+      recentActivity: [],
+      pendingTasks: [],
+    });
+    useAuthStore.setState({ session: session({ supervisorDomains: ['ANIMAL'] }) });
+    renderWithProviders(<ManagementScreen />);
+
+    expect(await screen.findByText('15')).toBeTruthy();
+    expect(screen.getByText('6')).toBeTruthy();
+  });
+
+  it('section gating is unchanged: an ANIMAL supervisor sees the adoption card but not Books & Magazines', () => {
+    useAuthStore.setState({ session: session({ supervisorDomains: ['ANIMAL'] }) });
+    renderWithProviders(<ManagementScreen />);
+    expect(screen.getByText('التبني والتزاوج والحيوانات المفقودة')).toBeTruthy();
+    expect(screen.queryByText('الكتب والمجلات')).toBeNull();
+  });
+
+  it('a CONTENT supervisor sees Books & Magazines but not the adoption card', () => {
+    useAuthStore.setState({ session: session({ supervisorDomains: ['CONTENT'] }) });
+    renderWithProviders(<ManagementScreen />);
+    expect(screen.getByText('الكتب والمجلات')).toBeTruthy();
+    expect(screen.queryByText('التبني والتزاوج والحيوانات المفقودة')).toBeNull();
+  });
 });

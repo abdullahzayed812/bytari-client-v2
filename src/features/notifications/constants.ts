@@ -401,8 +401,13 @@ function hrefByType(
       return orgId ? Routes.syndicateMembers(orgId) : Routes.syndicates;
 
     // --- animal publications / transfers ---
-    case 'PUBLICATION_SUBMITTED':
-      return Routes.adminAnimalPublications;
+    case 'PUBLICATION_SUBMITTED': {
+      // Opens the combined admin section on the submitted listing's tab.
+      const kind = pick(d, 'kind');
+      return kind
+        ? `${Routes.adminAnimalPublications}?kind=${encodeURIComponent(kind)}`
+        : Routes.adminAnimalPublications;
+    }
     case 'PUBLICATION_APPROVED':
     case 'PUBLICATION_REJECTED':
     case 'PUBLICATION_ADOPTION_REQUESTED':

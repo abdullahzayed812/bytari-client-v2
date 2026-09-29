@@ -9,14 +9,15 @@ export interface SegmentedControlOption<T extends string> {
 }
 
 export interface SegmentedControlProps<T extends string> {
-  options: [SegmentedControlOption<T>, SegmentedControlOption<T>];
+  /** Two or more segments (e.g. Books / Magazines, or Adoption / Mating / Lost). */
+  options: [SegmentedControlOption<T>, SegmentedControlOption<T>, ...SegmentedControlOption<T>[]];
   value: T;
   onChange: (value: T) => void;
   disabled?: boolean;
 }
 
 /**
- * Two-option inline pill switcher (e.g. "Veterinarian" / "Student"). `Row`
+ * Inline pill switcher (e.g. "Veterinarian" / "Student"). `Row`
  * already uses logical flex direction, so the segment order flows correctly
  * start→end in RTL without any manual reversing.
  */
@@ -60,6 +61,7 @@ export function SegmentedControl<T extends string>({
           >
             <Text
               variant="label"
+              numberOfLines={1}
               style={{ color: active ? theme.colors.onPrimary : theme.colors.textSecondary }}
             >
               {option.label}
