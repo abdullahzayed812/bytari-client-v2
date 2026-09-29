@@ -6,7 +6,13 @@ import { FlatList, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Card, Chip, Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
@@ -52,10 +58,29 @@ export default function SyndicateSubmissionsScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('management.submissionsTitle')} showBack />
-      <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm, paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.sm }}>
-        <Chip label={t('management.filterAll')} selected={!kind} onPress={() => setKind(undefined)} />
-        <Chip label={t('management.filterInquiries')} selected={kind === 'INQUIRY'} onPress={() => setKind('INQUIRY')} />
-        <Chip label={t('management.filterRequests')} selected={kind === 'REQUEST'} onPress={() => setKind('REQUEST')} />
+      <View
+        style={{
+          flexDirection: 'row',
+          columnGap: theme.spacing.sm,
+          paddingHorizontal: theme.screenPadding,
+          paddingTop: theme.spacing.sm,
+        }}
+      >
+        <Chip
+          label={t('management.filterAll')}
+          selected={!kind}
+          onPress={() => setKind(undefined)}
+        />
+        <Chip
+          label={t('management.filterInquiries')}
+          selected={kind === 'INQUIRY'}
+          onPress={() => setKind('INQUIRY')}
+        />
+        <Chip
+          label={t('management.filterRequests')}
+          selected={kind === 'REQUEST'}
+          onPress={() => setKind('REQUEST')}
+        />
       </View>
 
       {q.isLoading ? (
@@ -75,7 +100,9 @@ export default function SyndicateSubmissionsScreen() {
               style={{ rowGap: theme.spacing.sm }}
               onPress={() => markSeen.mutate(item.id)}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
+              >
                 <Icon name="person-circle-outline" size="iconMd" color="primary" />
                 <View style={{ flex: 1 }}>
                   <Text variant="bodyStrong" numberOfLines={1}>
@@ -85,7 +112,9 @@ export default function SyndicateSubmissionsScreen() {
                 </View>
                 <SyndicateSubmissionStatusBadge status={item.status} />
               </View>
-              {item.requestType ? <Text variant="label">{t(`requestType.${item.requestType}`)}</Text> : null}
+              {item.requestType ? (
+                <Text variant="label">{t(`requestType.${item.requestType}`)}</Text>
+              ) : null}
               <Text variant="body" numberOfLines={4}>
                 {item.message}
               </Text>
@@ -108,24 +137,50 @@ export default function SyndicateSubmissionsScreen() {
                 </View>
               ) : null}
               {item.status !== 'CLOSED' ? (
-                <View style={{ flexDirection: 'row', columnGap: theme.spacing.md, marginTop: theme.spacing.xs }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    columnGap: theme.spacing.md,
+                    marginTop: theme.spacing.xs,
+                  }}
+                >
                   {item.status === 'PENDING' ? (
-                    <TextButton label={t('management.respond')} onPress={() => setResponding(item)} />
+                    <TextButton
+                      label={t('management.respond')}
+                      onPress={() => setResponding(item)}
+                    />
                   ) : null}
-                  <TextButton label={t('management.close')} tone="danger" onPress={() => setClosing(item)} />
+                  <TextButton
+                    label={t('management.close')}
+                    tone="danger"
+                    onPress={() => setClosing(item)}
+                  />
                 </View>
               ) : null}
             </Card>
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
-          ListEmptyComponent={<EmptyState icon="chatbubbles-outline" title={t('management.empty')} />}
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+          ListEmptyComponent={
+            <EmptyState icon="chatbubbles-outline" title={t('management.empty')} />
+          }
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+          }}
         />
       )}
 
-      <RespondDialog organizationId={organizationId} submission={responding} onClose={() => setResponding(null)} />
+      <RespondDialog
+        organizationId={organizationId}
+        submission={responding}
+        onClose={() => setResponding(null)}
+      />
 
-      <CloseConfirmDialog organizationId={organizationId} submission={closing} onClose={() => setClosing(null)} />
+      <CloseConfirmDialog
+        organizationId={organizationId}
+        submission={closing}
+        onClose={() => setClosing(null)}
+      />
 
       <ImageViewer
         visible={viewer !== null}
@@ -153,7 +208,9 @@ function RespondDialog({
   const respond = useRespondToSyndicateSubmission(organizationId);
   // Pre-filled so a test response needs no typing — the field stays editable.
   const { control, handleSubmit, reset } = useForm<{ responseText: string }>({
-    defaultValues: { responseText: 'شكراً لتواصلكم، تم استلام طلبكم وسيتم الرد عليه في أقرب وقت ممكن.' },
+    defaultValues: {
+      responseText: 'شكراً لتواصلكم، تم استلام طلبكم وسيتم الرد عليه في أقرب وقت ممكن.',
+    },
   });
 
   const onSubmit = (values: { responseText: string }): void => {
@@ -182,7 +239,12 @@ function RespondDialog({
       />
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
         <View style={{ flex: 1 }}>
-          <Button label={t('management.responseSubmit')} loading={respond.isPending} fullWidth onPress={handleSubmit(onSubmit)} />
+          <Button
+            label={t('management.responseSubmit')}
+            loading={respond.isPending}
+            fullWidth
+            onPress={handleSubmit(onSubmit)}
+          />
         </View>
         <TextButton label={tc('actions.cancel')} onPress={onClose} />
       </View>

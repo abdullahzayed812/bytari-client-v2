@@ -126,7 +126,9 @@ export default function AdminOrganizationDetailScreen() {
                     <Caption>{t('orgs.detail.galleryTitle')}</Caption>
                     <ImageThumbnailRow
                       images={org.details.galleryUrls}
-                      onPress={(index) => setViewer({ images: org.details.galleryUrls ?? [], index })}
+                      onPress={(index) =>
+                        setViewer({ images: org.details.galleryUrls ?? [], index })
+                      }
                     />
                   </View>
                 ) : null}

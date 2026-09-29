@@ -50,11 +50,18 @@ function useInfinite<T>(
   fetcher: (page: number) => Promise<Paginated<T>>,
   enabled = true,
 ) {
-  return useInfiniteQuery<Paginated<T>, unknown, InfiniteData<Paginated<T>>, readonly unknown[], number>({
+  return useInfiniteQuery<
+    Paginated<T>,
+    unknown,
+    InfiniteData<Paginated<T>>,
+    readonly unknown[],
+    number
+  >({
     queryKey: key,
     initialPageParam: 1,
     queryFn: ({ pageParam }) => fetcher(pageParam),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled,
     staleTime: 10_000,
   });
@@ -85,7 +92,10 @@ export function useMyServiceListings(status?: ModerationStatus, opts: { enabled?
 export function useServiceListing(id: string | undefined, opts: { manage?: boolean } = {}) {
   return useQuery<ServiceListing, ApiError>({
     queryKey: opts.manage ? vetServiceKeys.myListing(id ?? '_') : vetServiceKeys.listing(id ?? '_'),
-    queryFn: () => (opts.manage ? vetServicesApi.getMyListing(id as string) : vetServicesApi.getListing(id as string)),
+    queryFn: () =>
+      opts.manage
+        ? vetServicesApi.getMyListing(id as string)
+        : vetServicesApi.getListing(id as string),
     enabled: Boolean(id),
   });
 }
@@ -173,7 +183,8 @@ export function useCloseServiceRequest() {
 export function useRequestOffers(requestId: string | undefined, status?: EngagementStatus) {
   const q = useInfinite<ServiceOffer>(
     vetServiceKeys.requestOffers(requestId ?? '_', status),
-    (page) => vetServicesApi.listRequestOffers(requestId as string, { page, pageSize: PAGE, status }),
+    (page) =>
+      vetServicesApi.listRequestOffers(requestId as string, { page, pageSize: PAGE, status }),
     Boolean(requestId),
   );
   const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
@@ -220,7 +231,10 @@ export function useOfferAction() {
 
 // ================= listing-requests (owner → listing) =================
 
-export function useReceivedListingRequests(status?: EngagementStatus, opts: { enabled?: boolean } = {}) {
+export function useReceivedListingRequests(
+  status?: EngagementStatus,
+  opts: { enabled?: boolean } = {},
+) {
   const q = useInfinite<ListingRequest>(
     vetServiceKeys.receivedListingRequests(status),
     (page) => vetServicesApi.listReceivedListingRequests({ page, pageSize: PAGE, status }),

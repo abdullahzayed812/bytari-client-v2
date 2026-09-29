@@ -11,7 +11,13 @@ import type { PublicSyndicate } from '../types';
 import { SyndicateCounterBadges } from './SyndicateCounterBadges';
 
 /** A syndicate branch card, matching the "فروع النقابة" reference grid. */
-export function SyndicateBranchCard({ branch, onPress }: { branch: PublicSyndicate; onPress: () => void }) {
+export function SyndicateBranchCard({
+  branch,
+  onPress,
+}: {
+  branch: PublicSyndicate;
+  onPress: () => void;
+}) {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
 
@@ -30,7 +36,11 @@ export function SyndicateBranchCard({ branch, onPress }: { branch: PublicSyndica
         }}
       >
         {branch.logoUrl ? (
-          <Image source={{ uri: branch.logoUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+          <Image
+            source={{ uri: branch.logoUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+          />
         ) : (
           <Icon name="business-outline" size="iconLg" color="primary" />
         )}

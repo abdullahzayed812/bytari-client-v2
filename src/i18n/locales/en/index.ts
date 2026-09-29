@@ -5805,7 +5805,7 @@ export const en: TranslationResources = {
         vetAppliedAtLabel: 'Applied on',
         vetDecisionReasonLabel: 'Decision reason',
         openDocument: 'Open document',
-      vetDocumentsLabel: 'Attached documents',
+        vetDocumentsLabel: 'Attached documents',
         organizationsSection: 'Linked organizations',
         noOrganizations: 'No linked organizations',
         actionsSection: 'Actions',
@@ -6169,7 +6169,7 @@ export const en: TranslationResources = {
       deleteAction: 'Delete',
       deleteConfirmTitle: 'Delete offer',
       deleteConfirmBody: 'This offer will be permanently removed from the market.',
-      toast: { deleted: 'Offer deleted' , approved: 'Ad approved', rejected: 'Ad rejected' },
+      toast: { deleted: 'Offer deleted', approved: 'Ad approved', rejected: 'Ad rejected' },
     },
 
     animalPublications: {
@@ -6525,7 +6525,8 @@ export const en: TranslationResources = {
         REPORTS: 'Reports',
         NOTIFICATIONS: 'Broadcast notifications',
       },
-      sectionsHint: 'Choose the management sections this supervisor handles — several are allowed; they will only see these.',
+      sectionsHint:
+        'Choose the management sections this supervisor handles — several are allowed; they will only see these.',
       editSections: 'Edit sections',
       saveSections: 'Save sections',
       status: { ACTIVE: 'Active', INACTIVE: 'Inactive' },

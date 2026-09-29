@@ -86,7 +86,9 @@ export default function FarmCaseDetailScreen({ scope }: { scope: FarmRecordScope
       ) : (
         <Section spacing="lg">
           <Card variant="outlined" padding="lg" style={{ rowGap: theme.spacing.lg }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
+            >
               {item.imageUrl ? (
                 <Image
                   source={item.imageUrl}
@@ -117,7 +119,9 @@ export default function FarmCaseDetailScreen({ scope }: { scope: FarmRecordScope
                 <Text variant="bodyMedium">
                   {t('records.caseCountValue', { count: item.caseCount })}
                 </Text>
-                {item.animalTag ? <Caption>{`${t('records.animalTag')}: ${item.animalTag}`}</Caption> : null}
+                {item.animalTag ? (
+                  <Caption>{`${t('records.animalTag')}: ${item.animalTag}`}</Caption>
+                ) : null}
               </View>
               <Badge
                 label={t(`records.caseStatus.${item.status}`)}
@@ -142,8 +146,12 @@ export default function FarmCaseDetailScreen({ scope }: { scope: FarmRecordScope
               </View>
             ) : null}
 
-            {item.diagnosis ? <Field label={t('records.diagnosis')} value={item.diagnosis} /> : null}
-            {item.treatment ? <Field label={t('records.treatment')} value={item.treatment} /> : null}
+            {item.diagnosis ? (
+              <Field label={t('records.diagnosis')} value={item.diagnosis} />
+            ) : null}
+            {item.treatment ? (
+              <Field label={t('records.treatment')} value={item.treatment} />
+            ) : null}
             <Row label={t('records.startedOn')} value={formatDate(item.startedOn)} />
             {item.nextFollowupOn ? (
               <Row label={t('records.nextFollowup')} value={formatDate(item.nextFollowupOn)} />
@@ -218,7 +226,10 @@ function CaseEditModal({
 
   return (
     <Modal visible onClose={onClose} title={t('records.editCase')}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Input
           label={t('records.caseCount')}
           value={count}

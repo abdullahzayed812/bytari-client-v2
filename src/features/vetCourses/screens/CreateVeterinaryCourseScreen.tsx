@@ -19,7 +19,12 @@ import { DateField } from '@/features/vetJobs';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
-import { useCreateVetCourse, useUpdateVetCourse, useVetCourse, useVetCourseImageProvider } from '../hooks';
+import {
+  useCreateVetCourse,
+  useUpdateVetCourse,
+  useVetCourse,
+  useVetCourseImageProvider,
+} from '../hooks';
 import {
   VET_COURSE_LOCATION_MODES,
   VET_COURSE_TYPES,
@@ -248,211 +253,221 @@ export default function CreateVeterinaryCourseScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {isEdit && (existing.data as VetCourse | undefined)?.status === 'REJECTED' ? (
-          <Alert tone="danger" message={(existing.data as VetCourse | undefined)?.rejectionReason ?? ''} />
+          <Alert
+            tone="danger"
+            message={(existing.data as VetCourse | undefined)?.rejectionReason ?? ''}
+          />
         ) : null}
 
         <>
-            <Text variant="subtitle" weight="bold">
-              {t('form.step1Title')}
-            </Text>
-            <View style={{ rowGap: theme.spacing.xs }}>
-              <Label>{t('form.type')}</Label>
-              <Controller
-                control={control}
-                name="type"
-                render={({ field: { value }, fieldState }) => (
-                  <>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-                      {VET_COURSE_TYPES.map((v) => (
-                        <Chip
-                          key={v}
-                          label={t(`type.${v}`)}
-                          selected={value === v}
-                          onPress={() => setValue('type', v, { shouldValidate: true })}
-                        />
-                      ))}
-                    </View>
-                    {fieldState.error ? <Caption color="danger">{fieldState.error.message}</Caption> : null}
-                  </>
-                )}
-              />
-            </View>
-            <FormField
-              control={control}
-              name="title"
-              label={t('form.title')}
-              placeholder={t('form.titlePlaceholder')}
-            />
-            <FormField
-              control={control}
-              name="description"
-              label={t('form.description')}
-              placeholder={t('form.descriptionPlaceholder')}
-              multiline
-              numberOfLines={4}
-            />
-            <FormField
-              control={control}
-              name="organizingBody"
-              label={t('form.organizingBody')}
-              placeholder={t('form.organizingBodyPlaceholder')}
-            />
-            <FormField
-              control={control}
-              name="instructorName"
-              label={t('form.instructorName')}
-              placeholder={t('form.instructorNamePlaceholder')}
-            />
-            <FormField
-              control={control}
-              name="instructorSpecialty"
-              label={t('form.instructorSpecialty')}
-              placeholder={t('form.instructorSpecialtyPlaceholder')}
-            />
-
-            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
-              {t('form.step2Title')}
-            </Text>
-            <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-              <Controller
-                control={control}
-                name="startDate"
-                render={({ field: { value, onChange }, fieldState }) => (
-                  <DateField
-                    label={t('form.startDate')}
-                    value={value}
-                    onChange={onChange}
-                    placeholder={t('form.startDate')}
-                    minimumDate={new Date()}
-                    error={fieldState.error?.message}
-                    accessibilityLabel={t('form.startDate')}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="endDate"
-                render={({ field: { value, onChange }, fieldState }) => (
-                  <DateField
-                    label={t('form.endDate')}
-                    value={value}
-                    onChange={onChange}
-                    placeholder={t('form.endDate')}
-                    minimumDate={new Date()}
-                    error={fieldState.error?.message}
-                    accessibilityLabel={t('form.endDate')}
-                  />
-                )}
-              />
-            </View>
-            <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-              <Controller
-                control={control}
-                name="startTime"
-                render={({ field: { value, onChange } }) => (
-                  <DateTimeField
-                    label={t('form.startTime')}
-                    mode="time"
-                    value={timeToDate(value || '09:00')}
-                    onChange={(d) => onChange(dateToTime(d))}
-                    display={value || t('form.startTime')}
-                    accessibilityLabel={t('form.startTime')}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="endTime"
-                render={({ field: { value, onChange } }) => (
-                  <DateTimeField
-                    label={t('form.endTime')}
-                    mode="time"
-                    value={timeToDate(value || '17:00')}
-                    onChange={(d) => onChange(dateToTime(d))}
-                    display={value || t('form.endTime')}
-                    accessibilityLabel={t('form.endTime')}
-                  />
-                )}
-              />
-            </View>
-            <FormField
-              control={control}
-              name="timezoneNote"
-              label={t('form.timezoneNote')}
-              placeholder={t('form.timezoneNotePlaceholder')}
-            />
+          <Text variant="subtitle" weight="bold">
+            {t('form.step1Title')}
+          </Text>
+          <View style={{ rowGap: theme.spacing.xs }}>
+            <Label>{t('form.type')}</Label>
             <Controller
               control={control}
-              name="locationMode"
+              name="type"
               render={({ field: { value }, fieldState }) => (
-                <Select<VetCourseLocationMode>
-                  label={t('form.locationMode')}
-                  value={value}
-                  options={VET_COURSE_LOCATION_MODES.map((v) => ({ value: v, label: t(`locationMode.${v}`) }))}
-                  onChange={(v) => setValue('locationMode', v, { shouldValidate: true })}
-                  error={fieldState.error?.message}
-                />
+                <>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                    {VET_COURSE_TYPES.map((v) => (
+                      <Chip
+                        key={v}
+                        label={t(`type.${v}`)}
+                        selected={value === v}
+                        onPress={() => setValue('type', v, { shouldValidate: true })}
+                      />
+                    ))}
+                  </View>
+                  {fieldState.error ? (
+                    <Caption color="danger">{fieldState.error.message}</Caption>
+                  ) : null}
+                </>
               )}
             />
-            <FormField
-              control={control}
-              name="locationDetails"
-              label={t('form.locationDetails')}
-              placeholder={t('form.locationDetailsPlaceholder')}
-            />
+          </View>
+          <FormField
+            control={control}
+            name="title"
+            label={t('form.title')}
+            placeholder={t('form.titlePlaceholder')}
+          />
+          <FormField
+            control={control}
+            name="description"
+            label={t('form.description')}
+            placeholder={t('form.descriptionPlaceholder')}
+            multiline
+            numberOfLines={4}
+          />
+          <FormField
+            control={control}
+            name="organizingBody"
+            label={t('form.organizingBody')}
+            placeholder={t('form.organizingBodyPlaceholder')}
+          />
+          <FormField
+            control={control}
+            name="instructorName"
+            label={t('form.instructorName')}
+            placeholder={t('form.instructorNamePlaceholder')}
+          />
+          <FormField
+            control={control}
+            name="instructorSpecialty"
+            label={t('form.instructorSpecialty')}
+            placeholder={t('form.instructorSpecialtyPlaceholder')}
+          />
+
+          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+            {t('form.step2Title')}
+          </Text>
+          <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
             <Controller
               control={control}
-              name="registrationDeadline"
-              render={({ field: { value, onChange } }) => (
+              name="startDate"
+              render={({ field: { value, onChange }, fieldState }) => (
                 <DateField
-                  label={t('form.registrationDeadline')}
+                  label={t('form.startDate')}
                   value={value}
                   onChange={onChange}
-                  placeholder={t('form.registrationDeadline')}
+                  placeholder={t('form.startDate')}
                   minimumDate={new Date()}
-                  accessibilityLabel={t('form.registrationDeadline')}
+                  error={fieldState.error?.message}
+                  accessibilityLabel={t('form.startDate')}
                 />
               )}
             />
-
-            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
-              {t('form.step3Title')}
-            </Text>
-            <FormField
+            <Controller
               control={control}
-              name="capacity"
-              label={t('form.capacity')}
-              placeholder={t('form.capacityPlaceholder')}
-              keyboardType="number-pad"
+              name="endDate"
+              render={({ field: { value, onChange }, fieldState }) => (
+                <DateField
+                  label={t('form.endDate')}
+                  value={value}
+                  onChange={onChange}
+                  placeholder={t('form.endDate')}
+                  minimumDate={new Date()}
+                  error={fieldState.error?.message}
+                  accessibilityLabel={t('form.endDate')}
+                />
+              )}
             />
-            <FormField
+          </View>
+          <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
+            <Controller
               control={control}
-              name="price"
-              label={t('form.price')}
-              placeholder={t('form.pricePlaceholder')}
-              keyboardType="decimal-pad"
+              name="startTime"
+              render={({ field: { value, onChange } }) => (
+                <DateTimeField
+                  label={t('form.startTime')}
+                  mode="time"
+                  value={timeToDate(value || '09:00')}
+                  onChange={(d) => onChange(dateToTime(d))}
+                  display={value || t('form.startTime')}
+                  accessibilityLabel={t('form.startTime')}
+                />
+              )}
             />
-            <FormField
+            <Controller
               control={control}
-              name="topics"
-              label={t('form.topics')}
-              placeholder={t('form.topicsPlaceholder')}
-              multiline
-              numberOfLines={4}
+              name="endTime"
+              render={({ field: { value, onChange } }) => (
+                <DateTimeField
+                  label={t('form.endTime')}
+                  mode="time"
+                  value={timeToDate(value || '17:00')}
+                  onChange={(d) => onChange(dateToTime(d))}
+                  display={value || t('form.endTime')}
+                  accessibilityLabel={t('form.endTime')}
+                />
+              )}
             />
-            <View style={{ rowGap: theme.spacing.xs }}>
-              <Label>{t('form.coverImage')}</Label>
-              <ImageUploader
-                value={isEdit ? ((existing.data as VetCourse | undefined)?.coverImageUrl ?? null) : null}
-                provider={imageProvider}
-                shape="square"
-                size={160}
-                onChange={(r) => setCoverImageStorageKey(r?.storageKey ?? null)}
+          </View>
+          <FormField
+            control={control}
+            name="timezoneNote"
+            label={t('form.timezoneNote')}
+            placeholder={t('form.timezoneNotePlaceholder')}
+          />
+          <Controller
+            control={control}
+            name="locationMode"
+            render={({ field: { value }, fieldState }) => (
+              <Select<VetCourseLocationMode>
+                label={t('form.locationMode')}
+                value={value}
+                options={VET_COURSE_LOCATION_MODES.map((v) => ({
+                  value: v,
+                  label: t(`locationMode.${v}`),
+                }))}
+                onChange={(v) => setValue('locationMode', v, { shouldValidate: true })}
+                error={fieldState.error?.message}
               />
-              <Caption>{t('form.coverImageHint')}</Caption>
-            </View>
+            )}
+          />
+          <FormField
+            control={control}
+            name="locationDetails"
+            label={t('form.locationDetails')}
+            placeholder={t('form.locationDetailsPlaceholder')}
+          />
+          <Controller
+            control={control}
+            name="registrationDeadline"
+            render={({ field: { value, onChange } }) => (
+              <DateField
+                label={t('form.registrationDeadline')}
+                value={value}
+                onChange={onChange}
+                placeholder={t('form.registrationDeadline')}
+                minimumDate={new Date()}
+                accessibilityLabel={t('form.registrationDeadline')}
+              />
+            )}
+          />
 
-            {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
+          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+            {t('form.step3Title')}
+          </Text>
+          <FormField
+            control={control}
+            name="capacity"
+            label={t('form.capacity')}
+            placeholder={t('form.capacityPlaceholder')}
+            keyboardType="number-pad"
+          />
+          <FormField
+            control={control}
+            name="price"
+            label={t('form.price')}
+            placeholder={t('form.pricePlaceholder')}
+            keyboardType="decimal-pad"
+          />
+          <FormField
+            control={control}
+            name="topics"
+            label={t('form.topics')}
+            placeholder={t('form.topicsPlaceholder')}
+            multiline
+            numberOfLines={4}
+          />
+          <View style={{ rowGap: theme.spacing.xs }}>
+            <Label>{t('form.coverImage')}</Label>
+            <ImageUploader
+              value={
+                isEdit ? ((existing.data as VetCourse | undefined)?.coverImageUrl ?? null) : null
+              }
+              provider={imageProvider}
+              shape="square"
+              size={160}
+              onChange={(r) => setCoverImageStorageKey(r?.storageKey ?? null)}
+            />
+            <Caption>{t('form.coverImageHint')}</Caption>
+          </View>
+
+          {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
         </>
       </ScrollView>
 

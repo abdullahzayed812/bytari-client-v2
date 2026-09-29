@@ -402,7 +402,15 @@ function EmptyBatch({ canManage, orgId }: { canManage: boolean; orgId: string })
 }
 
 /** One finished week's daily records, fetched when its card is expanded. */
-function CattleWeekRecords({ orgId, batchId, week }: { orgId: string; batchId: string; week: number }) {
+function CattleWeekRecords({
+  orgId,
+  batchId,
+  week,
+}: {
+  orgId: string;
+  batchId: string;
+  week: number;
+}) {
   const { t } = useTranslation('sheepCattleFarm');
   const q = useCattleDailyRecords(orgId, batchId, { pageSize: 7, week });
   if (q.isLoading) return <Loading label={t('common.loading')} />;

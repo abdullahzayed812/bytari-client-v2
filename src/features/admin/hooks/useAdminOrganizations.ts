@@ -109,8 +109,7 @@ export function useOrgDecisionMutation(
       if (input.decision === 'approve') return adminApi.approveOrganization(organizationId);
       if (input.decision === 'reject')
         return adminApi.rejectOrganization(organizationId, input.reason);
-      if (input.decision === 'delete')
-        return adminApi.deleteOrganization(organizationId);
+      if (input.decision === 'delete') return adminApi.deleteOrganization(organizationId);
       return adminApi.changeOrganizationStatus(organizationId, input.decision, input.reason);
     },
     onSuccess: () => {

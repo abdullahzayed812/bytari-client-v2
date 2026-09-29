@@ -157,7 +157,10 @@ export const vetServicesApi = {
   getOffer(id: string): Promise<ServiceOffer> {
     return apiClient.get<ServiceOffer>(`/vet-services/offers/${id}`);
   },
-  offerAction(id: string, action: 'accept' | 'reject' | 'withdraw' | 'complete'): Promise<ServiceOffer> {
+  offerAction(
+    id: string,
+    action: 'accept' | 'reject' | 'withdraw' | 'complete',
+  ): Promise<ServiceOffer> {
     return apiClient.post<ServiceOffer>(`/vet-services/offers/${id}/${action}`);
   },
 

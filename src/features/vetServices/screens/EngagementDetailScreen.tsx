@@ -5,7 +5,13 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Avatar, Card } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -34,7 +40,10 @@ export default function EngagementDetailScreen() {
   const { t, i18n } = useTranslation('vetServices');
   const toast = useToast();
   const { user } = useAuth();
-  const { kind: kindParam, engagementId } = useLocalSearchParams<{ kind: string; engagementId: string }>();
+  const { kind: kindParam, engagementId } = useLocalSearchParams<{
+    kind: string;
+    engagementId: string;
+  }>();
   const kind: Kind = kindParam === 'offer' ? 'offer' : 'listing-request';
   const id = engagementId ?? '';
 
@@ -44,12 +53,15 @@ export default function EngagementDetailScreen() {
   const lrQ = useListingRequest(kind === 'listing-request' ? id : undefined);
   const offerAction = useOfferAction();
   const lrAction = useListingRequestAction();
-  const [confirm, setConfirm] = useState<null | 'reject' | 'cancel' | 'withdraw' | 'complete'>(null);
+  const [confirm, setConfirm] = useState<null | 'reject' | 'cancel' | 'withdraw' | 'complete'>(
+    null,
+  );
 
   const q = kind === 'offer' ? offerQ : lrQ;
   const busy = offerAction.isPending || lrAction.isPending;
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
@@ -83,11 +95,18 @@ export default function EngagementDetailScreen() {
   const uid = user?.id;
   const run = (action: 'accept' | 'reject' | 'withdraw' | 'cancel' | 'complete') => {
     const onSuccess = () => toast.show({ tone: 'success', message: t(`engagement.${action}Done`) });
-    const onError = (error: unknown) => toast.show({ tone: 'danger', message: apiErrorMessage(error) });
+    const onError = (error: unknown) =>
+      toast.show({ tone: 'danger', message: apiErrorMessage(error) });
     if (kind === 'offer') {
-      offerAction.mutate({ id, action: action as 'accept' | 'reject' | 'withdraw' | 'complete' }, { onSuccess, onError });
+      offerAction.mutate(
+        { id, action: action as 'accept' | 'reject' | 'withdraw' | 'complete' },
+        { onSuccess, onError },
+      );
     } else {
-      lrAction.mutate({ id, action: action as 'accept' | 'reject' | 'cancel' | 'complete' }, { onSuccess, onError });
+      lrAction.mutate(
+        { id, action: action as 'accept' | 'reject' | 'cancel' | 'complete' },
+        { onSuccess, onError },
+      );
     }
   };
 
@@ -108,12 +127,28 @@ export default function EngagementDetailScreen() {
     canDecide = o.status === 'PENDING' && o.request?.petOwnerUserId === uid;
     canCancel = o.status === 'PENDING' && o.veterinarianUserId === uid;
     info = [
-      { icon: 'cash-outline', label: t('fields.proposedAmount'), value: formatPrice(o.proposedAmount) },
+      {
+        icon: 'cash-outline',
+        label: t('fields.proposedAmount'),
+        value: formatPrice(o.proposedAmount),
+      },
       ...(o.executionDate
-        ? [{ icon: 'calendar-outline' as const, label: t('fields.executionDate'), value: formatVetServiceDate(o.executionDate, i18n.language) }]
+        ? [
+            {
+              icon: 'calendar-outline' as const,
+              label: t('fields.executionDate'),
+              value: formatVetServiceDate(o.executionDate, i18n.language),
+            },
+          ]
         : []),
       ...(o.expectedDuration
-        ? [{ icon: 'hourglass-outline' as const, label: t('fields.expectedDuration'), value: o.expectedDuration }]
+        ? [
+            {
+              icon: 'hourglass-outline' as const,
+              label: t('fields.expectedDuration'),
+              value: o.expectedDuration,
+            },
+          ]
         : []),
       {
         icon: 'home-outline',
@@ -130,12 +165,28 @@ export default function EngagementDetailScreen() {
     canDecide = lr.status === 'PENDING' && lr.listing?.veterinarianUserId === uid;
     canCancel = lr.status === 'PENDING' && lr.petOwnerUserId === uid;
     info = [
-      { icon: 'paw-outline', label: t('fields.animalType'), value: t(`animalType.${lr.animalType}`) },
+      {
+        icon: 'paw-outline',
+        label: t('fields.animalType'),
+        value: t(`animalType.${lr.animalType}`),
+      },
       ...(lr.animalCount
-        ? [{ icon: 'apps-outline' as const, label: t('fields.animalCount'), value: String(lr.animalCount) }]
+        ? [
+            {
+              icon: 'apps-outline' as const,
+              label: t('fields.animalCount'),
+              value: String(lr.animalCount),
+            },
+          ]
         : []),
       ...(lr.governorate
-        ? [{ icon: 'location-outline' as const, label: t('fields.location'), value: [lr.governorate, lr.district].filter(Boolean).join(' - ') }]
+        ? [
+            {
+              icon: 'location-outline' as const,
+              label: t('fields.location'),
+              value: [lr.governorate, lr.district].filter(Boolean).join(' - '),
+            },
+          ]
         : []),
       { icon: 'cash-outline', label: t('fields.budget'), value: formatPrice(lr.budgetAmount) },
       {
@@ -144,7 +195,13 @@ export default function EngagementDetailScreen() {
         value: lr.needsFieldVisit ? t('common.yes') : t('common.no'),
       },
       ...(lr.preferredDatetime
-        ? [{ icon: 'time-outline' as const, label: t('fields.preferredDatetime'), value: formatVetServiceDate(lr.preferredDatetime, i18n.language) }]
+        ? [
+            {
+              icon: 'time-outline' as const,
+              label: t('fields.preferredDatetime'),
+              value: formatVetServiceDate(lr.preferredDatetime, i18n.language),
+            },
+          ]
         : []),
     ];
   }
@@ -284,7 +341,9 @@ export default function EngagementDetailScreen() {
         visible={confirm !== null}
         title={t(`engagement.confirm.${confirm ?? 'reject'}.title`)}
         message={t(`engagement.confirm.${confirm ?? 'reject'}.body`)}
-        confirmLabel={t(`actions.${confirm === 'complete' ? 'completeDeal' : confirm ?? 'reject'}`)}
+        confirmLabel={t(
+          `actions.${confirm === 'complete' ? 'completeDeal' : (confirm ?? 'reject')}`,
+        )}
         cancelLabel={t('common.cancel')}
         destructive={confirm !== 'complete'}
         loading={busy}

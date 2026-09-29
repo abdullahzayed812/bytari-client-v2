@@ -8,8 +8,10 @@ export const syndicateKeys = {
   mainList: (f: SyndicateBrowseFilter) => [...syndicateKeys.syndicates(), 'main', f] as const,
   branchList: (organizationId: string, f: SyndicateBrowseFilter) =>
     [...syndicateKeys.syndicates(), 'branches', organizationId, f] as const,
-  syndicate: (organizationId: string) => [...syndicateKeys.syndicates(), 'detail', organizationId] as const,
-  myAccess: (organizationId: string) => [...syndicateKeys.syndicates(), 'my-access', organizationId] as const,
+  syndicate: (organizationId: string) =>
+    [...syndicateKeys.syndicates(), 'detail', organizationId] as const,
+  myAccess: (organizationId: string) =>
+    [...syndicateKeys.syndicates(), 'my-access', organizationId] as const,
 
   announcements: () => [...syndicateKeys.all, 'announcements'] as const,
   announcementList: (organizationId: string) =>
@@ -21,7 +23,8 @@ export const syndicateKeys = {
     [...syndicateKeys.submissions(), 'for-syndicate', organizationId, f] as const,
   submission: (organizationId: string, id: string) =>
     [...syndicateKeys.submissions(), 'detail', organizationId, id] as const,
-  mySubmissions: (f: MySubmissionListFilter) => [...syndicateKeys.submissions(), 'mine', f] as const,
+  mySubmissions: (f: MySubmissionListFilter) =>
+    [...syndicateKeys.submissions(), 'mine', f] as const,
   mySubmission: (id: string) => [...syndicateKeys.submissions(), 'mine', 'detail', id] as const,
 
   members: (organizationId: string) => [...syndicateKeys.all, 'members', organizationId] as const,

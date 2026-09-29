@@ -41,9 +41,20 @@ export default function SheepIndividualCasesScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('cases.title')} showBack />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge, rowGap: theme.spacing.md }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          paddingBottom: theme.spacing.huge,
+          rowGap: theme.spacing.md,
+        }}
+      >
         {!batch ? (
-          <EmptyState icon="paw-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="paw-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : cases.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : cases.isError ? (
@@ -68,12 +79,22 @@ export default function SheepIndividualCasesScreen() {
                 })
               }
             >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Text variant="bodyMedium">
                   {c.diagnosis ?? t('daily.none')}
                   {c.caseCount && c.caseCount > 1 ? ` · ${c.caseCount}` : ''}
                 </Text>
-                <Badge label={t(`cases.status.${c.status}`)} tone={CASE_STATUS_TONE[c.status]} size="sm" />
+                <Badge
+                  label={t(`cases.status.${c.status}`)}
+                  tone={CASE_STATUS_TONE[c.status]}
+                  size="sm"
+                />
               </View>
               <Caption>{formatDate(c.startedOn)}</Caption>
             </Card>
@@ -83,11 +104,22 @@ export default function SheepIndividualCasesScreen() {
 
       {batch ? (
         <View style={{ padding: theme.screenPadding }}>
-          <Button label={t('cases.addButton')} variant="primary" fullWidth leftIcon="add" onPress={() => setFormOpen(true)} />
+          <Button
+            label={t('cases.addButton')}
+            variant="primary"
+            fullWidth
+            leftIcon="add"
+            onPress={() => setFormOpen(true)}
+          />
         </View>
       ) : null}
 
-      <Modal visible={formOpen} onClose={() => setFormOpen(false)} title={t('cases.addButton')} dismissable={!create.isPending}>
+      <Modal
+        visible={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={t('cases.addButton')}
+        dismissable={!create.isPending}
+      >
         <View style={{ rowGap: theme.spacing.md }}>
           <Input
             label={tf('records.caseCount')}
@@ -97,7 +129,12 @@ export default function SheepIndividualCasesScreen() {
             error={countValid ? undefined : tf('records.invalidCount')}
           />
           <Input label={t('cases.diagnosisLabel')} value={diagnosis} onChangeText={setDiagnosis} />
-          <Input label={t('cases.startedLabel')} placeholder="YYYY-MM-DD" value={startedOn} onChangeText={setStartedOn} />
+          <Input
+            label={t('cases.startedLabel')}
+            placeholder="YYYY-MM-DD"
+            value={startedOn}
+            onChangeText={setStartedOn}
+          />
           <Button
             label={t('common.save')}
             variant="primary"
@@ -115,7 +152,8 @@ export default function SheepIndividualCasesScreen() {
                     setCaseCount('1');
                     setStartedOn('');
                   },
-                  onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                  onError: (error) =>
+                    toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                 },
               )
             }

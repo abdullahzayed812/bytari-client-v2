@@ -9,7 +9,12 @@ import { Alert, useToast } from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { Caption } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
-import { isPermissionError, pickImage, useMediaUpload, type PresignProvider } from '@/services/media';
+import {
+  isPermissionError,
+  pickImage,
+  useMediaUpload,
+  type PresignProvider,
+} from '@/services/media';
 import { useTheme } from '@/theme';
 
 export interface MessageComposerProps {
@@ -48,8 +53,7 @@ export function MessageComposer({
   const disabled = Boolean(disabledReason);
   const uploading = upload.status === 'uploading';
   const imageKey = upload.status === 'success' ? (upload.result?.storageKey ?? null) : null;
-  const canSend =
-    !disabled && !sending && !uploading && value.trim().length > 0;
+  const canSend = !disabled && !sending && !uploading && value.trim().length > 0;
 
   const clearImage = (): void => {
     upload.reset();
@@ -96,13 +100,26 @@ export function MessageComposer({
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
           <Image
             source={{ uri: preview }}
-            style={{ width: 56, height: 56, borderRadius: theme.radius.md, opacity: uploading ? 0.5 : 1 }}
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: theme.radius.md,
+              opacity: uploading ? 0.5 : 1,
+            }}
             contentFit="cover"
           />
           <Caption style={{ flex: 1 }}>
-            {uploading ? tc('media.uploading') : upload.status === 'error' ? tc('media.uploadFailed') : ''}
+            {uploading
+              ? tc('media.uploading')
+              : upload.status === 'error'
+                ? tc('media.uploadFailed')
+                : ''}
           </Caption>
-          <Pressable accessibilityRole="button" accessibilityLabel={tc('media.remove')} onPress={clearImage}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={tc('media.remove')}
+            onPress={clearImage}
+          >
             <Icon name="close-circle" size="iconMd" color="danger" />
           </Pressable>
         </View>

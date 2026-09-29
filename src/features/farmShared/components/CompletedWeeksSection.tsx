@@ -48,8 +48,15 @@ export function CompletedWeeksSection({
       {previous.map((w) => {
         const expanded = open === w.weekNumber;
         return (
-          <Card key={w.weekNumber} variant="outlined" padding="md" style={{ rowGap: theme.spacing.xs }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+          <Card
+            key={w.weekNumber}
+            variant="outlined"
+            padding="md"
+            style={{ rowGap: theme.spacing.xs }}
+          >
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
+            >
               <Text variant="bodyStrong" style={{ flex: 1 }}>
                 {t('daily.weekTitle', { week: w.weekNumber })}
               </Text>
@@ -61,13 +68,26 @@ export function CompletedWeeksSection({
                 {t('daily.weekRange', { from: w.firstDate, to: w.lastDate })}
               </Caption>
             ) : null}
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: theme.spacing.md, rowGap: 2 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                columnGap: theme.spacing.md,
+                rowGap: 2,
+              }}
+            >
               <Caption>{t('daily.weekMortality', { count: w.totalMortality })}</Caption>
               <Caption>{t('daily.weekFeed', { kg: w.totalFeedKg.toLocaleString() })}</Caption>
-              <Caption>{t('daily.weekWater', { liters: w.totalWaterLiters.toLocaleString() })}</Caption>
-              <Caption>{t('daily.weekExpenses', { amount: w.totalExpenses.toLocaleString() })}</Caption>
+              <Caption>
+                {t('daily.weekWater', { liters: w.totalWaterLiters.toLocaleString() })}
+              </Caption>
+              <Caption>
+                {t('daily.weekExpenses', { amount: w.totalExpenses.toLocaleString() })}
+              </Caption>
               {w.latestAverageWeight ? (
-                <Caption>{t('daily.weekWeight', { weight: formatWeight(w.latestAverageWeight) })}</Caption>
+                <Caption>
+                  {t('daily.weekWeight', { weight: formatWeight(w.latestAverageWeight) })}
+                </Caption>
               ) : null}
             </View>
             <TextButton
@@ -75,7 +95,9 @@ export function CompletedWeeksSection({
               icon={expanded ? 'chevron-up' : 'chevron-down'}
               onPress={() => setOpen(expanded ? null : w.weekNumber)}
             />
-            {expanded ? <View style={{ rowGap: theme.spacing.sm }}>{renderWeekRecords(w.weekNumber)}</View> : null}
+            {expanded ? (
+              <View style={{ rowGap: theme.spacing.sm }}>{renderWeekRecords(w.weekNumber)}</View>
+            ) : null}
           </Card>
         );
       })}

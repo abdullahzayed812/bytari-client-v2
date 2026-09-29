@@ -29,7 +29,12 @@ export default function SheepTreatmentsScreen() {
 
   const activeBatches = useSheepBatches(orgId, { status: 'ACTIVE', pageSize: 1 });
   const batch = activeBatches.batches[0];
-  const events = useSheepHealthEvents(orgId, batch?.id, { pageSize: 100 }, { enabled: Boolean(batch) });
+  const events = useSheepHealthEvents(
+    orgId,
+    batch?.id,
+    { pageSize: 100 },
+    { enabled: Boolean(batch) },
+  );
   const create = useCreateSheepHealthEvent(orgId, batch?.id ?? '');
   const [formOpen, setFormOpen] = useState(false);
   const [kind, setKind] = useState<LivestockHealthEventKind>('TREATMENT');
@@ -39,15 +44,30 @@ export default function SheepTreatmentsScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('health.title')} showBack />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge, rowGap: theme.spacing.md }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          paddingBottom: theme.spacing.huge,
+          rowGap: theme.spacing.md,
+        }}
+      >
         {!batch ? (
-          <EmptyState icon="medkit-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="medkit-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : events.isLoading ? (
           <Loading label={t('common.loading')} />
         ) : events.isError ? (
           <ErrorState error={events.error} onRetry={() => void events.refetch()} />
         ) : events.events.length === 0 ? (
-          <EmptyState icon="medkit-outline" title={t('health.empty')} message={t('health.emptyHint')} />
+          <EmptyState
+            icon="medkit-outline"
+            title={t('health.empty')}
+            message={t('health.emptyHint')}
+          />
         ) : (
           events.events.map((e) => (
             <Card
@@ -66,9 +86,25 @@ export default function SheepTreatmentsScreen() {
                 })
               }
             >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-                  <Icon name={e.kind === 'VACCINATION' ? 'shield-checkmark-outline' : 'medkit-outline'} size="iconSm" color="primary" />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    columnGap: theme.spacing.sm,
+                  }}
+                >
+                  <Icon
+                    name={e.kind === 'VACCINATION' ? 'shield-checkmark-outline' : 'medkit-outline'}
+                    size="iconSm"
+                    color="primary"
+                  />
                   <Text variant="bodyMedium">{e.name}</Text>
                 </View>
                 <Badge label={t(`health.kind.${e.kind}`)} tone="info" size="sm" />
@@ -81,20 +117,39 @@ export default function SheepTreatmentsScreen() {
 
       {batch ? (
         <View style={{ padding: theme.screenPadding }}>
-          <Button label={t('health.addButton')} variant="primary" fullWidth leftIcon="add" onPress={() => setFormOpen(true)} />
+          <Button
+            label={t('health.addButton')}
+            variant="primary"
+            fullWidth
+            leftIcon="add"
+            onPress={() => setFormOpen(true)}
+          />
         </View>
       ) : null}
 
-      <Modal visible={formOpen} onClose={() => setFormOpen(false)} title={t('health.addButton')} dismissable={!create.isPending}>
+      <Modal
+        visible={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={t('health.addButton')}
+        dismissable={!create.isPending}
+      >
         <View style={{ rowGap: theme.spacing.md }}>
           <Select<LivestockHealthEventKind>
             label={t('health.kindLabel')}
             value={kind}
-            options={LIVESTOCK_HEALTH_EVENT_KINDS.map((k) => ({ value: k, label: t(`health.kind.${k}`) }))}
+            options={LIVESTOCK_HEALTH_EVENT_KINDS.map((k) => ({
+              value: k,
+              label: t(`health.kind.${k}`),
+            }))}
             onChange={(v) => v && setKind(v)}
           />
           <Input label={t('health.nameLabel')} value={name} onChangeText={setName} />
-          <Input label={t('health.dateLabel')} placeholder="YYYY-MM-DD" value={eventDate} onChangeText={setEventDate} />
+          <Input
+            label={t('health.dateLabel')}
+            placeholder="YYYY-MM-DD"
+            value={eventDate}
+            onChangeText={setEventDate}
+          />
           <Button
             label={t('common.save')}
             variant="primary"
@@ -111,7 +166,8 @@ export default function SheepTreatmentsScreen() {
                     setName('');
                     setEventDate('');
                   },
-                  onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                  onError: (error) =>
+                    toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                 },
               )
             }

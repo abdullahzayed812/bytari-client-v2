@@ -15,9 +15,11 @@ beforeEach(() => {
   resetRouterMock();
   setSearchParams({});
   list.mockReset();
-  categories.mockReset().mockResolvedValue([
-    { id: 'cat-poultry', slug: 'mag-poultry', name: 'دواجن', description: null },
-  ]);
+  categories
+    .mockReset()
+    .mockResolvedValue([
+      { id: 'cat-poultry', slug: 'mag-poultry', name: 'دواجن', description: null },
+    ]);
 });
 afterAll(() => jest.restoreAllMocks());
 

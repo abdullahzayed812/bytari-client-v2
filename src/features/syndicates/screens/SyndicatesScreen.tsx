@@ -56,8 +56,14 @@ export default function SyndicatesScreen() {
         data={q.syndicates}
         keyExtractor={(s) => s.id}
         renderItem={({ item }) => (
-          <Card variant="outlined" padding="md" onPress={() => router.push(Routes.syndicateMain(item.id))}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+          <Card
+            variant="outlined"
+            padding="md"
+            onPress={() => router.push(Routes.syndicateMain(item.id))}
+          >
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
+            >
               <View
                 style={{
                   width: 52,
@@ -70,7 +76,11 @@ export default function SyndicatesScreen() {
                 }}
               >
                 {item.logoUrl ? (
-                  <Image source={{ uri: item.logoUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                  <Image
+                    source={{ uri: item.logoUrl }}
+                    style={{ width: '100%', height: '100%' }}
+                    contentFit="cover"
+                  />
                 ) : (
                   <Icon name="shield-checkmark-outline" size="iconLg" color="primary" />
                 )}

@@ -35,7 +35,9 @@ function session(overrides: Partial<SessionSnapshot>): SessionSnapshot {
 
 beforeEach(() => {
   resetRouterMock();
-  getDashboardSummary.mockReset().mockResolvedValue({ cards: [], recentActivity: [], pendingTasks: [] });
+  getDashboardSummary
+    .mockReset()
+    .mockResolvedValue({ cards: [], recentActivity: [], pendingTasks: [] });
 });
 afterAll(() => {
   useAuthStore.setState({ session: null });

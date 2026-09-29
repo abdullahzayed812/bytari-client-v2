@@ -48,7 +48,13 @@ export function FarmRecordFooter({
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
           {onEdit ? (
             <View style={{ flex: 1 }}>
-              <Button label={t('records.edit')} variant="outline" leftIcon="create-outline" fullWidth onPress={onEdit} />
+              <Button
+                label={t('records.edit')}
+                variant="outline"
+                leftIcon="create-outline"
+                fullWidth
+                onPress={onEdit}
+              />
             </View>
           ) : null}
           {onDelete ? (

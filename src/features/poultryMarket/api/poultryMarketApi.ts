@@ -54,7 +54,10 @@ export const poultryMarketApi = {
         url: '/admin/traders',
         params: { status, page, pageSize },
       });
-      return { items: envelope.data, meta: readMeta(envelope.meta, page, pageSize, envelope.data.length) };
+      return {
+        items: envelope.data,
+        meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+      };
     },
     adminGet(userId: string): Promise<TraderApplicationSummary> {
       return apiClient.get<TraderApplicationSummary>(`/admin/traders/${userId}`);
@@ -66,7 +69,10 @@ export const poultryMarketApi = {
       return apiClient.post<TraderProfile>(`/admin/traders/${userId}/reject`, { reason });
     },
     suspend(userId: string, reason?: string): Promise<TraderProfile> {
-      return apiClient.post<TraderProfile>(`/admin/traders/${userId}/suspend`, reason ? { reason } : {});
+      return apiClient.post<TraderProfile>(
+        `/admin/traders/${userId}/suspend`,
+        reason ? { reason } : {},
+      );
     },
     reactivate(userId: string): Promise<TraderProfile> {
       return apiClient.post<TraderProfile>(`/admin/traders/${userId}/reactivate`);
@@ -119,7 +125,10 @@ export const poultryMarketApi = {
         url: '/poultry-offers/mine',
         params: { page, pageSize },
       });
-      return { items: envelope.data, meta: readMeta(envelope.meta, page, pageSize, envelope.data.length) };
+      return {
+        items: envelope.data,
+        meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+      };
     },
     get(offerId: string): Promise<PoultryOffer> {
       return apiClient.get<PoultryOffer>(`/poultry-offers/${offerId}`);
@@ -189,7 +198,10 @@ export const poultryMarketApi = {
         url: '/egg-offers/mine',
         params: { page, pageSize },
       });
-      return { items: envelope.data, meta: readMeta(envelope.meta, page, pageSize, envelope.data.length) };
+      return {
+        items: envelope.data,
+        meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+      };
     },
     get(offerId: string): Promise<EggOffer> {
       return apiClient.get<EggOffer>(`/egg-offers/${offerId}`);
@@ -240,7 +252,10 @@ export const poultryMarketApi = {
         .then((e) => e.data);
     },
     savePoultry(date: string, entries: PoultryRateEntryInput[]): Promise<{ success: boolean }> {
-      return apiClient.post<{ success: boolean }>('/poultry-market/exchange-rates/poultry', { date, entries });
+      return apiClient.post<{ success: boolean }>('/poultry-market/exchange-rates/poultry', {
+        date,
+        entries,
+      });
     },
     getEgg(date: string): Promise<EggRateEntry[]> {
       return apiClient
@@ -252,7 +267,10 @@ export const poultryMarketApi = {
         .then((e) => e.data);
     },
     saveEgg(date: string, entries: EggRateEntryInput[]): Promise<{ success: boolean }> {
-      return apiClient.post<{ success: boolean }>('/poultry-market/exchange-rates/egg', { date, entries });
+      return apiClient.post<{ success: boolean }>('/poultry-market/exchange-rates/egg', {
+        date,
+        entries,
+      });
     },
   },
 

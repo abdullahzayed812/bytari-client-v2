@@ -202,7 +202,10 @@ export default function AdminSupervisorsScreen() {
             autoCorrect={false}
           />
           <Caption>{t('supervisors.sectionsHint')}</Caption>
-          <ScrollView style={{ maxHeight: 360 }} contentContainerStyle={{ rowGap: theme.spacing.sm }}>
+          <ScrollView
+            style={{ maxHeight: 360 }}
+            contentContainerStyle={{ rowGap: theme.spacing.sm }}
+          >
             {allDomains.map((d) => (
               <Checkbox
                 key={d}

@@ -72,7 +72,9 @@ export function ArticleCard({ article, onPress, width }: ArticleCardProps) {
         )}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={article.isBookmarked ? t('card.unbookmarkA11y') : t('card.bookmarkA11y')}
+          accessibilityLabel={
+            article.isBookmarked ? t('card.unbookmarkA11y') : t('card.bookmarkA11y')
+          }
           onPress={(e) => {
             e.stopPropagation();
             toggleBookmark.mutate(!article.isBookmarked, {

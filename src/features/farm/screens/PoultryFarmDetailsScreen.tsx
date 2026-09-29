@@ -426,7 +426,15 @@ function EmptyBatch({ canManage, orgId }: { canManage: boolean; orgId: string })
 }
 
 /** One finished week's daily records, fetched when its card is expanded. */
-function PoultryWeekRecords({ orgId, flockId, week }: { orgId: string; flockId: string; week: number }) {
+function PoultryWeekRecords({
+  orgId,
+  flockId,
+  week,
+}: {
+  orgId: string;
+  flockId: string;
+  week: number;
+}) {
   const { t } = useTranslation('poultry');
   const q = useDailyRecords(orgId, flockId, { pageSize: 7, week });
   if (q.isLoading) return <Loading label={t('common.loading')} />;

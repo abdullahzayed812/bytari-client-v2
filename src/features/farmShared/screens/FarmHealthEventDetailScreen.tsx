@@ -79,7 +79,9 @@ export default function FarmHealthEventDetailScreen({ scope }: { scope: FarmReco
       ) : (
         <Section spacing="lg">
           <Card variant="outlined" padding="lg" style={{ rowGap: theme.spacing.lg }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
+            >
               <Icon
                 name={ev.kind === 'VACCINATION' ? 'shield-checkmark-outline' : 'medkit-outline'}
                 size="iconLg"
@@ -196,7 +198,10 @@ function HealthEditModal({
   const [notes, setNotes] = useState(ev.notes ?? '');
   return (
     <Modal visible onClose={onClose} title={t('records.editHealth')}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Input label={t('records.name')} value={name} onChangeText={setName} />
         <Input label={t('records.medication')} value={medication} onChangeText={setMedication} />
         <Input label={t('records.dose')} value={dose} onChangeText={setDose} />

@@ -70,28 +70,45 @@ export default function SyndicateMembersScreen() {
                 })
               }
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
-                <Avatar uri={item.avatarUrl} name={`${item.firstName} ${item.lastName}`} size="avatarMd" />
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
+              >
+                <Avatar
+                  uri={item.avatarUrl}
+                  name={`${item.firstName} ${item.lastName}`}
+                  size="avatarMd"
+                />
                 <View style={{ flex: 1, rowGap: 2 }}>
                   <Text variant="bodyStrong" numberOfLines={1}>
                     {item.firstName} {item.lastName}
                   </Text>
-                  {item.governorate ? <Caption numberOfLines={1}>{item.governorate}</Caption> : null}
+                  {item.governorate ? (
+                    <Caption numberOfLines={1}>{item.governorate}</Caption>
+                  ) : null}
                   <Caption color="textMuted">
                     {t('members.registeredOn', { date: formatDate(item.registeredAt) })}
                   </Caption>
                 </View>
-                {item.isVeterinarian ? <Icon name="medkit-outline" size="iconSm" color="primary" /> : null}
+                {item.isVeterinarian ? (
+                  <Icon name="medkit-outline" size="iconSm" color="primary" />
+                ) : null}
                 <Icon name="chevron-back" directional size="iconSm" color="textMuted" />
               </View>
             </Card>
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
           ListEmptyComponent={
-            <EmptyState icon="people-outline" title={t('members.empty')} message={t('members.emptyHint')} />
+            <EmptyState
+              icon="people-outline"
+              title={t('members.empty')}
+              message={t('members.emptyHint')}
+            />
           }
           ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+          }}
         />
       )}
     </SafeAreaScreen>

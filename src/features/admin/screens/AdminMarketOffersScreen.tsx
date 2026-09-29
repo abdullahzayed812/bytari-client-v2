@@ -42,7 +42,11 @@ export default function AdminMarketOffersScreen() {
   const [rejecting, setRejecting] = useState<string | null>(null);
 
   const isEgg = kind === 'egg';
-  const poultryQuery = useAdminPoultryOffers({ page: 1, pageSize: 20, moderationStatus: moderation });
+  const poultryQuery = useAdminPoultryOffers({
+    page: 1,
+    pageSize: 20,
+    moderationStatus: moderation,
+  });
   const eggQuery = useAdminEggOffers({ page: 1, pageSize: 20, moderationStatus: moderation });
   const deletePoultry = useAdminDeletePoultryOffer();
   const deleteEgg = useAdminDeleteEggOffer();

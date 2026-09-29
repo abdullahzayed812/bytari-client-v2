@@ -58,7 +58,10 @@ export default function SyndicateMembersBroadcastScreen() {
       { ...values, clientRequestId: requestId.current },
       {
         onSuccess: (r) => {
-          toast.show({ message: t('broadcast.sent', { count: r.recipientCount }), tone: 'success' });
+          toast.show({
+            message: t('broadcast.sent', { count: r.recipientCount }),
+            tone: 'success',
+          });
           router.back();
         },
         onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),

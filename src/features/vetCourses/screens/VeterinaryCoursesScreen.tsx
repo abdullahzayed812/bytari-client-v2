@@ -25,7 +25,10 @@ export default function VeterinaryCoursesScreen() {
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
   const [type, setType] = useState<VetCourseType | undefined>();
-  const filter: CourseBrowseFilter = useMemo(() => ({ search: search || undefined, type }), [search, type]);
+  const filter: CourseBrowseFilter = useMemo(
+    () => ({ search: search || undefined, type }),
+    [search, type],
+  );
   const q = useVetCourses(filter);
 
   return (
@@ -86,9 +89,15 @@ export default function VeterinaryCoursesScreen() {
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
           ListEmptyComponent={
-            <EmptyState icon="school-outline" title={t('courses.empty')} message={t('courses.emptyHint')} />
+            <EmptyState
+              icon="school-outline"
+              title={t('courses.empty')}
+              message={t('courses.emptyHint')}
+            />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('courses.loadingMore')} /> : null}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('courses.loadingMore')} /> : null
+          }
           contentContainerStyle={{
             padding: theme.screenPadding,
             paddingBottom: theme.spacing.huge,

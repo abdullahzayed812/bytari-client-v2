@@ -49,7 +49,9 @@ export default function ExpenseDetailScreen() {
         <Section spacing="lg">
           <Card variant="outlined" padding="lg">
             <View style={{ rowGap: theme.spacing.lg }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
+              >
                 <View
                   style={{
                     width: 52,

@@ -205,7 +205,12 @@ function EditForm({ syndicate }: { syndicate: PublicSyndicate }) {
           )}
         />
         <FormField control={control} name="address" label={t('admin.address')} />
-        <FormField control={control} name="phone" label={t('admin.phone')} keyboardType="phone-pad" />
+        <FormField
+          control={control}
+          name="phone"
+          label={t('admin.phone')}
+          keyboardType="phone-pad"
+        />
         <FormField
           control={control}
           name="email"
@@ -213,7 +218,12 @@ function EditForm({ syndicate }: { syndicate: PublicSyndicate }) {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <FormField control={control} name="website" label={t('admin.website')} autoCapitalize="none" />
+        <FormField
+          control={control}
+          name="website"
+          label={t('admin.website')}
+          autoCapitalize="none"
+        />
         <FormField control={control} name="headOfficerName" label={t('admin.headOfficerName')} />
         <FormField control={control} name="headOfficerTitle" label={t('admin.headOfficerTitle')} />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>

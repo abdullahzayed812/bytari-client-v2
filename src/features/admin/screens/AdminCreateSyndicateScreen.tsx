@@ -143,7 +143,10 @@ export default function AdminCreateSyndicateScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('admin.createTitle')} showBack />
-      <ScrollView contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
         <SegmentedControl<Tab>
           value={tab}
           onChange={onChangeTab}
@@ -173,7 +176,12 @@ export default function AdminCreateSyndicateScreen() {
           />
         </View>
 
-        <FormField control={control} name="name" label={t('admin.name')} placeholder={t('admin.namePlaceholder')} />
+        <FormField
+          control={control}
+          name="name"
+          label={t('admin.name')}
+          placeholder={t('admin.namePlaceholder')}
+        />
         <FormField
           control={control}
           name="description"
@@ -196,14 +204,40 @@ export default function AdminCreateSyndicateScreen() {
           )}
         />
         <FormField control={control} name="address" label={t('admin.address')} />
-        <FormField control={control} name="phone" label={t('admin.phone')} keyboardType="phone-pad" />
-        <FormField control={control} name="email" label={t('admin.email')} keyboardType="email-address" autoCapitalize="none" />
-        <FormField control={control} name="website" label={t('admin.website')} autoCapitalize="none" />
+        <FormField
+          control={control}
+          name="phone"
+          label={t('admin.phone')}
+          keyboardType="phone-pad"
+        />
+        <FormField
+          control={control}
+          name="email"
+          label={t('admin.email')}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <FormField
+          control={control}
+          name="website"
+          label={t('admin.website')}
+          autoCapitalize="none"
+        />
         <FormField control={control} name="headOfficerName" label={t('admin.headOfficerName')} />
         <FormField control={control} name="headOfficerTitle" label={t('admin.headOfficerTitle')} />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-          <FormField control={control} name="termStartYear" label={t('admin.termStartYear')} keyboardType="number-pad" />
-          <FormField control={control} name="termEndYear" label={t('admin.termEndYear')} keyboardType="number-pad" />
+          <FormField
+            control={control}
+            name="termStartYear"
+            label={t('admin.termStartYear')}
+            keyboardType="number-pad"
+          />
+          <FormField
+            control={control}
+            name="termEndYear"
+            label={t('admin.termEndYear')}
+            keyboardType="number-pad"
+          />
         </View>
 
         {create.isError ? <Alert tone="danger" message={apiErrorMessage(create.error)} /> : null}

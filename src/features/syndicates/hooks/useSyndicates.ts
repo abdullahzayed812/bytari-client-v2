@@ -52,11 +52,18 @@ function useInfinite<T>(
   fetcher: (page: number) => Promise<Paginated<T>>,
   enabled = true,
 ) {
-  return useInfiniteQuery<Paginated<T>, unknown, InfiniteData<Paginated<T>>, readonly unknown[], number>({
+  return useInfiniteQuery<
+    Paginated<T>,
+    unknown,
+    InfiniteData<Paginated<T>>,
+    readonly unknown[],
+    number
+  >({
     queryKey: key,
     initialPageParam: 1,
     queryFn: ({ pageParam }) => fetcher(pageParam),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled,
     staleTime: 10_000,
   });
@@ -64,7 +71,10 @@ function useInfinite<T>(
 
 // ================= syndicate profile =================
 
-export function useMainSyndicates(filter: SyndicateBrowseFilter = {}, opts: { enabled?: boolean } = {}) {
+export function useMainSyndicates(
+  filter: SyndicateBrowseFilter = {},
+  opts: { enabled?: boolean } = {},
+) {
   const q = useInfinite<PublicSyndicate>(
     syndicateKeys.mainList(filter),
     (page) => syndicatesApi.listMain({ ...filter, page, pageSize: PAGE }),
@@ -91,10 +101,14 @@ export function useMySyndicateAccess(organizationId: string | undefined) {
   });
 }
 
-export function useSyndicateBranches(organizationId: string | undefined, filter: SyndicateBrowseFilter = {}) {
+export function useSyndicateBranches(
+  organizationId: string | undefined,
+  filter: SyndicateBrowseFilter = {},
+) {
   const q = useInfinite<PublicSyndicate>(
     syndicateKeys.branchList(organizationId ?? '_', filter),
-    (page) => syndicatesApi.listBranches(organizationId as string, { ...filter, page, pageSize: PAGE }),
+    (page) =>
+      syndicatesApi.listBranches(organizationId as string, { ...filter, page, pageSize: PAGE }),
     Boolean(organizationId),
   );
   const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
@@ -149,13 +163,18 @@ export function useCreateSyndicateAnnouncement(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<SyndicateAnnouncement, ApiError, CreateAnnouncementInput>({
     mutationFn: (input) => syndicatesApi.createAnnouncement(organizationId, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.announcementList(organizationId) }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: syndicateKeys.announcementList(organizationId) }),
   });
 }
 
 export function useUpdateSyndicateAnnouncement(organizationId: string) {
   const qc = useQueryClient();
-  return useMutation<SyndicateAnnouncement, ApiError, { id: string; input: UpdateAnnouncementInput }>({
+  return useMutation<
+    SyndicateAnnouncement,
+    ApiError,
+    { id: string; input: UpdateAnnouncementInput }
+  >({
     mutationFn: ({ id, input }) => syndicatesApi.updateAnnouncement(organizationId, id, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.announcements() }),
   });
@@ -165,7 +184,8 @@ export function useDeleteSyndicateAnnouncement(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<unknown, ApiError, string>({
     mutationFn: (id) => syndicatesApi.deleteAnnouncement(organizationId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.announcementList(organizationId) }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: syndicateKeys.announcementList(organizationId) }),
   });
 }
 
@@ -183,10 +203,14 @@ export function useCreateSyndicateSubmission(organizationId: string) {
   });
 }
 
-export function useSyndicateSubmissions(organizationId: string | undefined, filter: SubmissionListFilter = {}) {
+export function useSyndicateSubmissions(
+  organizationId: string | undefined,
+  filter: SubmissionListFilter = {},
+) {
   const q = useInfinite<SyndicateSubmission>(
     syndicateKeys.submissionList(organizationId ?? '_', filter),
-    (page) => syndicatesApi.listSubmissions(organizationId as string, { ...filter, page, pageSize: PAGE }),
+    (page) =>
+      syndicatesApi.listSubmissions(organizationId as string, { ...filter, page, pageSize: PAGE }),
     Boolean(organizationId),
   );
   const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
@@ -204,7 +228,8 @@ export function useSyndicateSubmission(organizationId: string | undefined, id: s
 export function useRespondToSyndicateSubmission(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<SyndicateSubmission, ApiError, { id: string; responseText: string }>({
-    mutationFn: ({ id, responseText }) => syndicatesApi.respondToSubmission(organizationId, id, responseText),
+    mutationFn: ({ id, responseText }) =>
+      syndicatesApi.respondToSubmission(organizationId, id, responseText),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: syndicateKeys.submissions() });
       // Counters (unread / pending) live on the syndicate DTO.
@@ -225,7 +250,10 @@ export function useCloseSyndicateSubmission(organizationId: string) {
   });
 }
 
-export function useMySyndicateSubmissions(filter: MySubmissionListFilter = {}, opts: { enabled?: boolean } = {}) {
+export function useMySyndicateSubmissions(
+  filter: MySubmissionListFilter = {},
+  opts: { enabled?: boolean } = {},
+) {
   const q = useInfinite<SyndicateSubmission>(
     syndicateKeys.mySubmissions(filter),
     (page) => syndicatesApi.listMySubmissions({ ...filter, page, pageSize: PAGE }),
@@ -300,7 +328,11 @@ export function useOpenSyndicateMemberConversation(organizationId: string) {
 }
 
 export function useMessageSyndicateMembers(organizationId: string) {
-  return useMutation<{ broadcastId: string; recipientCount: number }, ApiError, MessageSyndicateMembersInput>({
+  return useMutation<
+    { broadcastId: string; recipientCount: number },
+    ApiError,
+    MessageSyndicateMembersInput
+  >({
     mutationFn: (input) => syndicatesApi.messageAllMembers(organizationId, input),
   });
 }

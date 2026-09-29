@@ -147,7 +147,8 @@ export function useAdminPoultryOffers(filter: ListPoultryOffersFilter) {
       pageSize: filter.pageSize,
     }),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => poultryMarketApi.poultryOffers.adminList({ ...filter, page: pageParam }),
+    queryFn: ({ pageParam }) =>
+      poultryMarketApi.poultryOffers.adminList({ ...filter, page: pageParam }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
   });

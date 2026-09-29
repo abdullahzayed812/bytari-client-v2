@@ -263,8 +263,7 @@ export interface AssignSupervisorInput {
 
 /** The EXACT set of sections for one supervisor (`PUT /admin/supervisors/domains`). */
 export type SetSupervisorDomainsInput =
-  | { email: string; domains: SupervisorDomain[] }
-  | { userId: string; domains: SupervisorDomain[] };
+  { email: string; domains: SupervisorDomain[] } | { userId: string; domains: SupervisorDomain[] };
 
 // --- audit log --------------------------------------------------
 

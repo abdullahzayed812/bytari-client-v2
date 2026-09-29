@@ -58,7 +58,9 @@ export const syndicatesApi = {
   },
 
   // --- syndicate profile -------------------------------------------
-  listMain(filter: SyndicateBrowseFilter & { page: number; pageSize: number }): Promise<Paginated<PublicSyndicate>> {
+  listMain(
+    filter: SyndicateBrowseFilter & { page: number; pageSize: number },
+  ): Promise<Paginated<PublicSyndicate>> {
     return page<PublicSyndicate>('/syndicates', {
       page: filter.page,
       pageSize: filter.pageSize,
@@ -81,7 +83,10 @@ export const syndicatesApi = {
       search: filter.search || undefined,
     });
   },
-  updateProfile(organizationId: string, input: UpdateSyndicateProfileInput): Promise<PublicSyndicate> {
+  updateProfile(
+    organizationId: string,
+    input: UpdateSyndicateProfileInput,
+  ): Promise<PublicSyndicate> {
     return apiClient.patch<PublicSyndicate>(`/syndicates/${organizationId}/profile`, input);
   },
 
@@ -95,22 +100,34 @@ export const syndicatesApi = {
   getAnnouncement(id: string): Promise<SyndicateAnnouncement> {
     return apiClient.get<SyndicateAnnouncement>(`/syndicates/announcements/${id}`);
   },
-  createAnnouncement(organizationId: string, input: CreateAnnouncementInput): Promise<SyndicateAnnouncement> {
-    return apiClient.post<SyndicateAnnouncement>(`/syndicates/${organizationId}/announcements`, input);
+  createAnnouncement(
+    organizationId: string,
+    input: CreateAnnouncementInput,
+  ): Promise<SyndicateAnnouncement> {
+    return apiClient.post<SyndicateAnnouncement>(
+      `/syndicates/${organizationId}/announcements`,
+      input,
+    );
   },
   updateAnnouncement(
     organizationId: string,
     id: string,
     input: UpdateAnnouncementInput,
   ): Promise<SyndicateAnnouncement> {
-    return apiClient.patch<SyndicateAnnouncement>(`/syndicates/${organizationId}/announcements/${id}`, input);
+    return apiClient.patch<SyndicateAnnouncement>(
+      `/syndicates/${organizationId}/announcements/${id}`,
+      input,
+    );
   },
   deleteAnnouncement(organizationId: string, id: string): Promise<unknown> {
     return apiClient.delete(`/syndicates/${organizationId}/announcements/${id}`);
   },
 
   // --- submissions (requests + inquiries) ------------------------
-  createSubmission(organizationId: string, input: CreateSubmissionInput): Promise<SyndicateSubmission> {
+  createSubmission(
+    organizationId: string,
+    input: CreateSubmissionInput,
+  ): Promise<SyndicateSubmission> {
     return apiClient.post<SyndicateSubmission>(`/syndicates/${organizationId}/submissions`, input);
   },
   listSubmissions(
@@ -127,13 +144,22 @@ export const syndicatesApi = {
   getSubmission(organizationId: string, id: string): Promise<SyndicateSubmission> {
     return apiClient.get<SyndicateSubmission>(`/syndicates/${organizationId}/submissions/${id}`);
   },
-  respondToSubmission(organizationId: string, id: string, responseText: string): Promise<SyndicateSubmission> {
-    return apiClient.post<SyndicateSubmission>(`/syndicates/${organizationId}/submissions/${id}/respond`, {
-      responseText,
-    });
+  respondToSubmission(
+    organizationId: string,
+    id: string,
+    responseText: string,
+  ): Promise<SyndicateSubmission> {
+    return apiClient.post<SyndicateSubmission>(
+      `/syndicates/${organizationId}/submissions/${id}/respond`,
+      {
+        responseText,
+      },
+    );
   },
   closeSubmission(organizationId: string, id: string): Promise<SyndicateSubmission> {
-    return apiClient.post<SyndicateSubmission>(`/syndicates/${organizationId}/submissions/${id}/close`);
+    return apiClient.post<SyndicateSubmission>(
+      `/syndicates/${organizationId}/submissions/${id}/close`,
+    );
   },
   listMySubmissions(
     params: { page: number; pageSize: number } & MySubmissionListFilter,

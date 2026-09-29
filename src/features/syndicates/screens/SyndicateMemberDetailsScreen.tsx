@@ -92,7 +92,11 @@ export default function SyndicateMemberDetailsScreen() {
           paddingBottom: theme.spacing.huge,
         }}
       >
-        <Card variant="elevated" padding="lg" style={{ alignItems: 'center', rowGap: theme.spacing.sm }}>
+        <Card
+          variant="elevated"
+          padding="lg"
+          style={{ alignItems: 'center', rowGap: theme.spacing.sm }}
+        >
           <Avatar uri={member.avatarUrl} name={name} size="avatarXl" />
           <Text variant="title" style={{ textAlign: 'center' }}>
             {name}

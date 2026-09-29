@@ -50,7 +50,9 @@ export function PriceSummary({ subtotalAmount, deliveryFee, totalAmount }: Price
       </View>
       <Divider />
       {row(t('summary.total'), t('common.price', { value: formatAmount(totalAmount) }), true)}
-      {feeIncluded ? null : <Caption color="textMuted">{t('summary.totalExcludesDelivery')}</Caption>}
+      {feeIncluded ? null : (
+        <Caption color="textMuted">{t('summary.totalExcludesDelivery')}</Caption>
+      )}
     </View>
   );
 }

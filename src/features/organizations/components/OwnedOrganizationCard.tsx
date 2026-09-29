@@ -48,8 +48,7 @@ export function OwnedOrganizationCard({
   // FARM photos live on `imageUrl` (farm_details.image_key); clinics/offices
   // have a logo and/or registration gallery photos.
   const photo = org.logoUrl ?? org.imageUrl ?? org.galleryUrls?.[0] ?? null;
-  const place =
-    org.address ?? ([org.location, org.governorate].filter(Boolean).join('، ') || null);
+  const place = org.address ?? ([org.location, org.governorate].filter(Boolean).join('، ') || null);
   const roleKey = ['OWNER', 'VETERINARIAN', 'SUPERVISOR', 'STAFF'].includes(String(org.myRole))
     ? (org.myRole as 'OWNER' | 'VETERINARIAN' | 'SUPERVISOR' | 'STAFF')
     : null;
@@ -88,14 +87,26 @@ export function OwnedOrganizationCard({
           </View>
         )}
         {isOwner ? (
-          <View style={{ position: 'absolute', top: theme.spacing.sm, insetInlineStart: theme.spacing.sm }}>
+          <View
+            style={{
+              position: 'absolute',
+              top: theme.spacing.sm,
+              insetInlineStart: theme.spacing.sm,
+            }}
+          >
             <Badge label={t('card.owner')} tone="success" size="sm" />
           </View>
         ) : null}
       </View>
 
       <View style={{ padding: theme.spacing.lg, rowGap: theme.spacing.sm }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}
+        >
           <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
             {org.name}
           </Text>
@@ -127,7 +138,9 @@ export function OwnedOrganizationCard({
         ) : null}
 
         {org.subscriptionStatus ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+          >
             <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
               <Icon name="calendar-outline" size="iconXs" color="textMuted" />
               <Caption>

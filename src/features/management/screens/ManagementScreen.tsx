@@ -49,10 +49,7 @@ export default function ManagementScreen() {
 
   const cardLabel = (id: AdminDashboardCardId) => t(`dashboard.cards.${id}.title`);
 
-  const visibleCards = useMemo(
-    () => DASHBOARD_CARD_DEFS.filter((card) => card.show(caps)),
-    [caps],
-  );
+  const visibleCards = useMemo(() => DASHBOARD_CARD_DEFS.filter((card) => card.show(caps)), [caps]);
 
   const serverCount = (id: AdminDashboardCardId): number =>
     summary.data?.cards.find((c) => c.id === id)?.count ?? 0;
@@ -86,7 +83,9 @@ export default function ManagementScreen() {
 
   const canViewAuditLog = caps.isAdmin || caps.can('audit.read');
   const name = fullName(user?.firstName, user?.lastName) || user?.email || '';
-  const roleLabel = caps.isAdmin ? t('dashboard.header.roleAdmin') : t('dashboard.header.roleSupervisor');
+  const roleLabel = caps.isAdmin
+    ? t('dashboard.header.roleAdmin')
+    : t('dashboard.header.roleSupervisor');
 
   if (visibleCards.length === 0) {
     return (
@@ -197,7 +196,11 @@ export default function ManagementScreen() {
     return (
       <SafeAreaScreen>
         <View style={{ flex: 1, flexDirection: 'row' }}>
-          <AdminDashboardSidebar cards={visibleCards} cardLabel={cardLabel} onCardPress={openCard} />
+          <AdminDashboardSidebar
+            cards={visibleCards}
+            cardLabel={cardLabel}
+            onCardPress={openCard}
+          />
           <View style={{ flex: 1 }}>{mainContent}</View>
         </View>
       </SafeAreaScreen>

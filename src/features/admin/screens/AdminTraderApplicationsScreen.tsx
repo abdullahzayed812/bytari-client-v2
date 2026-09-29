@@ -206,7 +206,11 @@ export default function AdminTraderApplicationsScreen() {
                   label={t('traders.detail.edit')}
                   variant="outline"
                   onPress={() => {
-                    setEdit({ displayName: a.displayName, governorate: a.governorate, phone: a.phone });
+                    setEdit({
+                      displayName: a.displayName,
+                      governorate: a.governorate,
+                      phone: a.phone,
+                    });
                     setEditing(a);
                   }}
                 />
@@ -270,7 +274,11 @@ export default function AdminTraderApplicationsScreen() {
         onCancel={() => setRemoving(null)}
       />
 
-      <Modal visible={editing != null} onClose={() => setEditing(null)} title={t('traders.detail.edit')}>
+      <Modal
+        visible={editing != null}
+        onClose={() => setEditing(null)}
+        title={t('traders.detail.edit')}
+      >
         <View style={{ rowGap: theme.spacing.md }}>
           <Input
             label={t('traders.detail.displayName')}

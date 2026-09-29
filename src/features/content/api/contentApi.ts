@@ -167,7 +167,10 @@ export const contentApi = {
     return res.isBookmarked;
   },
 
-  async setLike(contentId: string, liked: boolean): Promise<{ isLiked: boolean; likeCount: number }> {
+  async setLike(
+    contentId: string,
+    liked: boolean,
+  ): Promise<{ isLiked: boolean; likeCount: number }> {
     return liked
       ? apiClient.post(`/content/${contentId}/like`)
       : apiClient.delete(`/content/${contentId}/like`);
@@ -175,7 +178,11 @@ export const contentApi = {
 
   // --- engagement: comments --------------------------------------
 
-  async listComments(contentId: string, page: number, pageSize: number): Promise<Paginated<ContentComment>> {
+  async listComments(
+    contentId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Paginated<ContentComment>> {
     const envelope = await apiClient.requestEnvelope<unknown[]>({
       method: 'GET',
       url: `/content/${contentId}/comments`,

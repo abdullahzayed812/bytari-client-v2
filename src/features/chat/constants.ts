@@ -14,7 +14,10 @@ export function conversationIcon(type: Conversation['type']): IconName {
 /** `true` when the caller is on the organization side and the title is a person's name. */
 export function titleIsCounterpart(side: ConversationSide): boolean {
   return (
-    side === 'CLINIC' || side === 'FARM_OWNER' || side === 'VETERINARY_OFFICE' || side === 'SYNDICATE'
+    side === 'CLINIC' ||
+    side === 'FARM_OWNER' ||
+    side === 'VETERINARY_OFFICE' ||
+    side === 'SYNDICATE'
   );
 }
 
