@@ -25,6 +25,8 @@ export const CONVERSATION_TYPES = [
   'CHAT_ROOM',
   /** Syndicate admin ↔ one registered member (opened from the syndicate's member screen). */
   'SYNDICATE_MEMBER',
+  /** Adoption / Mating / Lost listing — the interested user ↔ the listing owner. */
+  'ANIMAL_PUBLICATION',
 ] as const;
 export type ConversationType = (typeof CONVERSATION_TYPES)[number];
 
@@ -38,13 +40,18 @@ export const CONVERSATION_SIDES = [
   'ROOM_MEMBER',
   'SYNDICATE',
   'SYNDICATE_MEMBER',
+  'LISTING_OWNER',
 ] as const;
 export type ConversationSide = (typeof CONVERSATION_SIDES)[number];
 
 export const CONVERSATION_STATUSES = ['OPEN', 'COMPLETED', 'CLOSED'] as const;
 export type ConversationStatus = (typeof CONVERSATION_STATUSES)[number];
 
-export type ConversationSubjectType = 'VET_SERVICE_OFFER' | 'VET_SERVICE_LISTING_REQUEST';
+export type ConversationSubjectType =
+  | 'VET_SERVICE_OFFER'
+  | 'VET_SERVICE_LISTING_REQUEST'
+  | 'VET_JOB_APPLICATION'
+  | 'ANIMAL_PUBLICATION';
 
 export const MESSAGE_TYPES = ['TEXT', 'SYSTEM'] as const;
 export type MessageType = (typeof MESSAGE_TYPES)[number];

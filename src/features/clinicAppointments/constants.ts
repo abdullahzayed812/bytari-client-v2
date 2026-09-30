@@ -1,4 +1,5 @@
 import type { BadgeTone, IconName } from '@/components/content';
+import { formatDate } from '@/utils';
 
 import type { AppointmentHistoryKind, AppointmentStatus, VisitType } from './types';
 
@@ -39,14 +40,9 @@ function intlLocale(locale: string): string {
   return locale === 'ar' ? 'ar-EG' : 'en-GB';
 }
 
-export function formatAppointmentDate(iso: string, locale = 'ar'): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat(intlLocale(locale), {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).format(d);
+/** Appointment date → the app-wide `YYYY-M-D` display date. */
+export function formatAppointmentDate(iso: string, _locale = 'ar'): string {
+  return formatDate(iso);
 }
 
 export function formatAppointmentTime(iso: string, locale = 'ar'): string {

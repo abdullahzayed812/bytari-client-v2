@@ -53,7 +53,9 @@ export function MessageComposer({
   const disabled = Boolean(disabledReason);
   const uploading = upload.status === 'uploading';
   const imageKey = upload.status === 'success' ? (upload.result?.storageKey ?? null) : null;
-  const canSend = !disabled && !sending && !uploading && value.trim().length > 0;
+  // Text, an attached image, or both — an image-only message is allowed.
+  const canSend =
+    !disabled && !sending && !uploading && (value.trim().length > 0 || imageKey !== null);
 
   const clearImage = (): void => {
     upload.reset();

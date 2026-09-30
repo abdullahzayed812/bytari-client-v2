@@ -26,7 +26,9 @@ export const DASHBOARD_TINTS: readonly DashboardTint[] = DASHBOARD_TINTS_TUPLE;
 
 /** Safe cyclic lookup — plain array indexing trips `noUncheckedIndexedAccess`. */
 export function dashboardTint(index: number): DashboardTint {
-  const i = ((index % DASHBOARD_TINTS_TUPLE.length) + DASHBOARD_TINTS_TUPLE.length) % DASHBOARD_TINTS_TUPLE.length;
+  const i =
+    ((index % DASHBOARD_TINTS_TUPLE.length) + DASHBOARD_TINTS_TUPLE.length) %
+    DASHBOARD_TINTS_TUPLE.length;
   // Always in bounds — `i` is a non-negative modulo of a fixed-length tuple.
   return DASHBOARD_TINTS_TUPLE[i] as DashboardTint;
 }
@@ -41,6 +43,8 @@ export interface AdminDashboardCardProps {
   /** Active/approved/live items in this section — the card's main stat. */
   activeCount: number;
   unit: string;
+  /** Optional secondary pill (e.g. "طلبات تجديد: 3") — hidden when absent. */
+  secondaryLabel?: string;
   onPress: () => void;
   loading?: boolean;
 }
@@ -65,6 +69,7 @@ export function AdminDashboardCard({
   count,
   activeCount,
   unit,
+  secondaryLabel,
   onPress,
   loading,
 }: AdminDashboardCardProps) {
@@ -73,9 +78,7 @@ export function AdminDashboardCard({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={
-        count > 0 ? `${title} (${formatBadgeCount(count)})` : title
-      }
+      accessibilityLabel={count > 0 ? `${title} (${formatBadgeCount(count)})` : title}
       onPress={onPress}
       style={({ pressed }) => [
         {
@@ -90,7 +93,9 @@ export function AdminDashboardCard({
         pressed && { opacity: 0.85 },
       ]}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}
+      >
         <View style={{ flex: 1, rowGap: 2 }}>
           <Text variant="bodyMedium" weight="bold" numberOfLines={1}>
             {title}
@@ -140,12 +145,30 @@ export function AdminDashboardCard({
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}
+      >
         <View>
           <Text variant="title" weight="bold">
             {loading ? '—' : activeCount}
           </Text>
           <Caption>{unit}</Caption>
+          {!loading && secondaryLabel ? (
+            <View
+              style={{
+                marginTop: 4,
+                alignSelf: 'flex-start',
+                borderRadius: theme.radius.pill,
+                paddingHorizontal: theme.spacing.sm,
+                paddingVertical: 2,
+                backgroundColor: theme.colors.surface,
+              }}
+            >
+              <Caption color="warning" weight="bold">
+                {secondaryLabel}
+              </Caption>
+            </View>
+          ) : null}
         </View>
         <View
           style={{

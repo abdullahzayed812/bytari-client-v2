@@ -349,6 +349,24 @@ export interface AdminFarmRenewalRequest {
   updatedAt: string;
 }
 
+/** `GET /admin/organizations/:id` — admin-only extras on top of the organization + details. */
+export interface AdminOrganizationOwner {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  country: string | null;
+  governorate: string | null;
+  avatarUrl: string | null;
+}
+
+export interface AdminOrganizationFile extends OrganizationWithDetails {
+  owner?: AdminOrganizationOwner | null;
+  /** The open renewal request (FARM / CLINIC / VETERINARY_OFFICE), `null` when none. */
+  pendingRenewalRequest?: AdminFarmRenewalRequest | null;
+}
+
 /** A pending renewal request from the cross-organization admin queue, with the organization's name attached. */
 export interface AdminPendingRenewalRequest extends AdminFarmRenewalRequest {
   organizationName: string;
@@ -382,8 +400,25 @@ export interface AdminAnimal {
   /** Current owner's display name, resolved server-side. */
   ownerName: string | null;
   galleryUrls: string[];
+  dateOfBirth?: string | null;
+  color?: string | null;
+  distinguishingFeatures?: string | null;
+  ageEstimate?: string | null;
+  notes?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** `PATCH /admin/animals/:id` — the pet-profile field allow-list (server `updateAnimalBodySchema`). */
+export interface AdminUpdateAnimalInput {
+  name?: string;
+  species?: string;
+  sex?: string;
+  breed?: string | null;
+  color?: string | null;
+  dateOfBirth?: string | null;
+  distinguishingFeatures?: string | null;
+  notes?: string | null;
 }
 
 export interface AdminAnimalsFilter {
@@ -417,7 +452,9 @@ export type AdminChatConversationType =
   | 'PET_OWNER_CLINIC'
   | 'PET_OWNER_VETERINARY_OFFICE'
   | 'PET_OWNER_VETERINARIAN'
-  | 'FARM_OWNER_MEMBER';
+  | 'FARM_OWNER_MEMBER'
+  | 'SYNDICATE_MEMBER'
+  | 'ANIMAL_PUBLICATION';
 
 export interface AdminChatConversation {
   id: string;
@@ -475,6 +512,8 @@ export interface AdminDashboardCardCount {
   count: number;
   /** How many items in this section are currently active/approved/live. */
   activeCount: number;
+  /** Open (PENDING) subscription renewal requests — backend total; `clinics`/`offices` only. */
+  pendingRenewals?: number;
 }
 
 export interface AdminActivityItem {

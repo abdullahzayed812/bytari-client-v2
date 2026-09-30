@@ -14,15 +14,37 @@ export function initialsOf(name?: string | null): string {
     .join('');
 }
 
-/** `2026-08-28T…` → localised date. `locale` should be `ar` or `en`. */
-export function formatDate(iso: string, locale: string = 'ar'): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(date);
+const DATE_ONLY_RE = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+
+/**
+ * THE app-wide display date: `YYYY-M-D` — year first, no leading zero on the
+ * month or day, Western digits, in every locale (e.g. `2026-4-9`,
+ * `2026-12-3`). Display-only: API / storage values stay ISO.
+ *
+ * A date-only value (`2026-04-09`) is formatted from its own parts, so it can
+ * never shift a day through the device's timezone; a timestamp is shown in the
+ * device's local calendar date. `_locale` is accepted for call-site
+ * compatibility — the format is the same in every language.
+ */
+export function formatDate(iso: string | Date | null | undefined, _locale?: string): string {
+  if (iso == null || iso === '') return '';
+  if (typeof iso === 'string') {
+    const m = DATE_ONLY_RE.exec(iso.trim());
+    if (m) return `${Number(m[1])}-${Number(m[2])}-${Number(m[3])}`;
+  }
+  const date = iso instanceof Date ? iso : new Date(iso);
+  if (Number.isNaN(date.getTime())) return typeof iso === 'string' ? iso : '';
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+/** {@link formatDate} + the local time of day, e.g. `2026-4-9 14:05`. */
+export function formatDateTime(iso: string | Date | null | undefined): string {
+  if (iso == null || iso === '') return '';
+  const date = iso instanceof Date ? iso : new Date(iso);
+  if (Number.isNaN(date.getTime())) return typeof iso === 'string' ? iso : '';
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  return `${formatDate(date)} ${hh}:${mm}`;
 }
 
 /** `2026-08-28T10:24:00Z` → localised time-of-day, e.g. "10:24 ص". */

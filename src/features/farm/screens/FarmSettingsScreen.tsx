@@ -7,7 +7,13 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Icon, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { FormField, Input, Select, TileOptionGroup } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -20,8 +26,10 @@ import {
   useAddOrganizationMember,
   useOrganization,
   useOrganizationMembers,
+  useRemoveOrganizationMember,
   useUpdateOrganization,
   type MemberIdentifierFormValues,
+  type OrganizationMember,
 } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
@@ -509,6 +517,7 @@ function FarmStaffTab({ orgId, canManage }: { orgId: string; canManage: boolean 
   const toast = useToast();
   const members = useOrganizationMembers(orgId, { roleKey: 'STAFF', status: 'ACTIVE' });
   const add = useAddOrganizationMember(orgId);
+  const [removing, setRemoving] = useState<OrganizationMember | null>(null);
 
   const schema = useMemo(() => buildMemberIdentifierSchema(to), [to]);
   const { control, handleSubmit, reset } = useForm<MemberIdentifierFormValues>({
@@ -587,9 +596,16 @@ function FarmStaffTab({ orgId, canManage }: { orgId: string; canManage: boolean 
         ) : members.members.length === 0 ? (
           <Caption>{t('settings.staffEmpty')}</Caption>
         ) : (
-          members.members.map((m) => <FarmStaffRow key={m.id} member={m} />)
+          members.members.map((m) => (
+            <FarmStaffRow
+              key={m.id}
+              member={m}
+              onRemove={canManage ? () => setRemoving(m) : undefined}
+            />
+          ))
         )}
       </View>
+      <RemoveFarmMemberDialog orgId={orgId} member={removing} onClose={() => setRemoving(null)} />
     </View>
   );
 }
@@ -608,10 +624,18 @@ function FarmVetsTab({
   const theme = useTheme();
   const { t } = useTranslation('poultry');
   const vets = useOrganizationMembers(orgId, { roleKey: 'VETERINARIAN', status: 'ACTIVE' });
+  const [removing, setRemoving] = useState<OrganizationMember | null>(null);
 
   return (
     <View style={{ rowGap: theme.spacing.xl }}>
-      {canManage ? <FarmJoinCodeCard organizationId={orgId} organizationName={orgName} /> : null}
+      {canManage ? (
+        <View style={{ rowGap: theme.spacing.sm }}>
+          {/* Farm veterinarians are attached via the join code / QR only (server rule
+              FARM_VETERINARIAN_REQUIRES_JOIN_CODE) — this card IS the "add vet" action. */}
+          <Caption>{t('settings.vetsAddHint')}</Caption>
+          <FarmJoinCodeCard organizationId={orgId} organizationName={orgName} />
+        </View>
+      ) : null}
 
       <View style={{ rowGap: theme.spacing.sm }}>
         <Label>{`${t('settings.vetsLinkedTitle')} (${vets.total})`}</Label>
@@ -620,9 +644,59 @@ function FarmVetsTab({
         ) : vets.members.length === 0 ? (
           <Caption>{t('settings.vetsEmpty')}</Caption>
         ) : (
-          vets.members.map((m) => <FarmStaffRow key={m.id} member={m} />)
+          vets.members.map((m) => (
+            <FarmStaffRow
+              key={m.id}
+              member={m}
+              onRemove={canManage ? () => setRemoving(m) : undefined}
+            />
+          ))
         )}
       </View>
+      <RemoveFarmMemberDialog orgId={orgId} member={removing} onClose={() => setRemoving(null)} />
     </View>
+  );
+}
+
+/** Confirm + `DELETE /organizations/:id/members/:memberId` (`member.remove`, server-enforced). */
+function RemoveFarmMemberDialog({
+  orgId,
+  member,
+  onClose,
+}: {
+  orgId: string;
+  member: OrganizationMember | null;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation('poultry');
+  const toast = useToast();
+  const remove = useRemoveOrganizationMember(orgId);
+  const name = member
+    ? `${member.user.firstName} ${member.user.lastName}`.trim() || member.user.email
+    : '';
+  return (
+    <ConfirmationDialog
+      visible={member !== null}
+      title={t('settings.memberRemoveTitle')}
+      message={t('settings.memberRemoveBody', { name })}
+      confirmLabel={t('settings.memberRemove')}
+      cancelLabel={t('common.cancel')}
+      destructive
+      loading={remove.isPending}
+      onConfirm={() => {
+        if (!member) return;
+        remove.mutate(
+          { memberId: member.id },
+          {
+            onSuccess: () => {
+              toast.show({ tone: 'success', message: t('settings.memberRemoved') });
+              onClose();
+            },
+            onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+          },
+        );
+      }}
+      onCancel={onClose}
+    />
   );
 }

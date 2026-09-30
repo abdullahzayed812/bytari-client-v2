@@ -15,6 +15,8 @@ export interface FarmRecordFooterProps {
   createdBy?: FarmRecordCreator | null;
   /** Shown only for a role that may manage farm operations (server re-checks). */
   canManage: boolean;
+  /** Delete is narrower than manage (farm STAFF may add/edit, not delete). Defaults to `canManage`. */
+  canDelete?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   deleting?: boolean;
@@ -27,10 +29,12 @@ export interface FarmRecordFooterProps {
 export function FarmRecordFooter({
   createdBy,
   canManage,
+  canDelete = canManage,
   onEdit,
-  onDelete,
+  onDelete: onDeleteProp,
   deleting,
 }: FarmRecordFooterProps) {
+  const onDelete = canDelete ? onDeleteProp : undefined;
   const theme = useTheme();
   const { t } = useTranslation('farm');
   const [confirm, setConfirm] = useState(false);

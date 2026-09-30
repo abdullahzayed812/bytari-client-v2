@@ -1,7 +1,14 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
-import type { Paginated, VetJobModerationStatus, VetJobOffer, VetJobSeekerProfile } from '../types';
+import type {
+  Paginated,
+  VetJobApplication,
+  VetJobApplicationStatus,
+  VetJobModerationStatus,
+  VetJobOffer,
+  VetJobSeekerProfile,
+} from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
   const m = (meta ?? {}) as Partial<ApiPageMeta>;
@@ -63,6 +70,20 @@ export const adminVetJobsApi = {
   },
   rejectSeeker(id: string, reason: string): Promise<VetJobSeekerProfile> {
     return apiClient.post<VetJobSeekerProfile>(`/admin/vet-job-seekers/${id}/reject`, { reason });
+  },
+
+  /** `GET /admin/vet-job-applications?jobOfferId=` — one offer's applicants (read-only, `vet_job.read`). */
+  async listApplications(
+    page: number,
+    pageSize: number,
+    filter: { jobOfferId?: string; status?: VetJobApplicationStatus } = {},
+  ): Promise<Paginated<VetJobApplication>> {
+    const env = await apiClient.requestEnvelope<VetJobApplication[]>({
+      method: 'GET',
+      url: '/admin/vet-job-applications',
+      params: { page, pageSize, jobOfferId: filter.jobOfferId, status: filter.status },
+    });
+    return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },
 };
 

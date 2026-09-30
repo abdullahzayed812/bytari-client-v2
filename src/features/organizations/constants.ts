@@ -184,11 +184,20 @@ export interface OrgCapabilities {
    */
   canViewFarmPoultry: boolean;
   /**
-   * Phase 7 — may create / edit / delete poultry flocks
-   * (`farm.poultry.{create,update,delete}`, seeded to OWNER-override /
-   * VETERINARIAN / SUPERVISOR — **not** the plain STAFF role, which is read-only).
+   * Day-to-day farm operations — add / edit daily records, treatments &
+   * vaccinations, expenses, appointments, cases. OWNER / VETERINARIAN /
+   * SUPERVISOR and farm STAFF (employees). Server re-checks every write.
    */
   canManageFarmPoultry: boolean;
+  /** Delete an operational record — not farm STAFF (create/update only). */
+  canDeleteFarmRecords: boolean;
+  /** Edit a batch's fields (`farm.*.update`) — OWNER / VETERINARIAN / SUPERVISOR. */
+  canEditFarmBatch: boolean;
+  /** Create / delete a batch — OWNER / ADMIN only (`farm.*.create|delete`). */
+  canCreateFarmBatch: boolean;
+  canDeleteFarmBatch: boolean;
+  /** Sell / close / reopen a batch — OWNER / ADMIN only (`farm.batch.sell`). */
+  canSellFarmBatch: boolean;
   /** Estimated profit + expected sale price — OWNER / ADMIN only (backend redacts for others). */
   canViewFarmFinancials: boolean;
   /**
@@ -256,7 +265,12 @@ export function orgCapabilities(
     canViewOrganizationMedical: privileged || isVet || isSupervisor,
     canManageOrganizationMedical: privileged || isVet || isSupervisor,
     canViewFarmPoultry: privileged || isVet || isSupervisor || isStaff,
-    canManageFarmPoultry: privileged || isVet || isSupervisor,
+    canManageFarmPoultry: privileged || isVet || isSupervisor || isStaff,
+    canDeleteFarmRecords: privileged || isVet || isSupervisor,
+    canEditFarmBatch: privileged || isVet || isSupervisor,
+    canCreateFarmBatch: privileged,
+    canDeleteFarmBatch: privileged,
+    canSellFarmBatch: privileged,
     canViewFarmFinancials: privileged,
     canViewFarmJoinCode: privileged,
     canViewStoreProducts: privileged || isSupervisor || isStaff,

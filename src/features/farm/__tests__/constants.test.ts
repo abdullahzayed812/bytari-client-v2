@@ -16,11 +16,27 @@ describe('farm feature — org-type rule + capability gates', () => {
     expect(birdTypeIcon('OSTRICH')).toBe('help-circle-outline');
   });
 
-  it('orgCapabilities: STAFF can view poultry but not manage it (seed: read-only)', () => {
+  it('orgCapabilities: STAFF run operations but never create / delete / sell a batch or see financials', () => {
     const staff = orgCapabilities('STAFF', false);
     expect(staff.canViewFarmPoultry).toBe(true);
-    expect(staff.canManageFarmPoultry).toBe(false);
+    expect(staff.canManageFarmPoultry).toBe(true);
+    expect(staff.canDeleteFarmRecords).toBe(false);
+    expect(staff.canEditFarmBatch).toBe(false);
+    expect(staff.canCreateFarmBatch).toBe(false);
+    expect(staff.canSellFarmBatch).toBe(false);
+    expect(staff.canViewFarmFinancials).toBe(false);
     expect(staff.canViewFarmJoinCode).toBe(false);
+
+    const vet = orgCapabilities('VETERINARIAN', false);
+    expect(vet.canEditFarmBatch).toBe(true);
+    expect(vet.canCreateFarmBatch).toBe(false);
+    expect(vet.canSellFarmBatch).toBe(false);
+    expect(vet.canViewFarmFinancials).toBe(false);
+
+    const owner = orgCapabilities('OWNER', false);
+    expect(owner.canCreateFarmBatch && owner.canSellFarmBatch && owner.canViewFarmFinancials).toBe(
+      true,
+    );
   });
 
   it('orgCapabilities: VETERINARIAN can view + manage poultry; only OWNER/ADMIN sees the join code', () => {

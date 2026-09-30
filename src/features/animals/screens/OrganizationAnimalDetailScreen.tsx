@@ -22,6 +22,7 @@ import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
+import { formatDate as formatDisplayDate } from '@/utils';
 
 import { ANIMAL_STATUS_TONE, CLINIC_ACCESS_STATUS_TONE, animalSpeciesIcon } from '../constants';
 import { useOrganizationAnimal, useRevokeOrganizationAnimalAccess } from '../hooks';
@@ -318,6 +319,5 @@ function MedicalNavRow({
 }
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toISOString().slice(0, 10);
+  return formatDisplayDate(iso);
 }

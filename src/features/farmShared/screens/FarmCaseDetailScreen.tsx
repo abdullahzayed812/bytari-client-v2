@@ -55,7 +55,8 @@ export default function FarmCaseDetailScreen({ scope }: { scope: FarmRecordScope
   const batchId = params.flockId ?? params.batchId ?? '';
   const { isAdmin } = useCapabilities();
   const org = useOrganization(orgId);
-  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const canManage = farmCaps.canManageFarmPoultry;
 
   const q = useFarmCaseRecord(scope, orgId, batchId, params.itemId);
   const update = useUpdateFarmCase(scope, orgId, batchId);
@@ -160,6 +161,7 @@ export default function FarmCaseDetailScreen({ scope }: { scope: FarmRecordScope
             <FarmRecordFooter
               createdBy={item.createdBy}
               canManage={canManage}
+              canDelete={farmCaps.canDeleteFarmRecords}
               onEdit={() => setEditing(true)}
               deleting={remove.isPending}
               onDelete={() =>

@@ -1,4 +1,5 @@
 import type { BadgeTone, IconName } from '@/components/content';
+import { formatDate } from '@/utils';
 
 import type {
   EngagementStatus,
@@ -77,16 +78,10 @@ export const SERVICE_TYPE_ICON: Record<VetServiceType, IconName> = {
   OTHER: 'ellipsis-horizontal-outline',
 };
 
-/** ISO datetime / date → localised `ar-EG` string (Arabic-Indic digits). */
-export function formatVetServiceDate(iso: string | null, locale = 'ar'): string {
+/** ISO datetime / date → the app-wide `YYYY-M-D` display date (`—` when absent). */
+export function formatVetServiceDate(iso: string | null, _locale = 'ar'): string {
   if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).format(d);
+  return formatDate(iso);
 }
 
 /** `"150000"` → `"١٥٠٬٠٠٠ د.ع"` (or `—`). */

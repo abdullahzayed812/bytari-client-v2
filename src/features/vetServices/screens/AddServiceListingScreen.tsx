@@ -61,6 +61,7 @@ export default function AddServiceListingScreen() {
     'فحص سريري كامل\nقياس الحرارة والوزن\nتقرير مبدئي وخطة علاج',
   );
   const [imageKeys, setImageKeys] = useState<string[]>([]);
+  const [imagesBusy, setImagesBusy] = useState(false);
   const [showArrival, setShowArrival] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -68,7 +69,11 @@ export default function AddServiceListingScreen() {
   if (!caps.isApprovedVeterinarian) {
     return (
       <OrgFormLayout title={t('listings.addCta')}>
-        <EmptyState icon="lock-closed-outline" title={t('addListing.vetOnly')} message={t('addListing.vetOnlyHint')} />
+        <EmptyState
+          icon="lock-closed-outline"
+          title={t('addListing.vetOnly')}
+          message={t('addListing.vetOnlyHint')}
+        />
       </OrgFormLayout>
     );
   }
@@ -78,7 +83,15 @@ export default function AddServiceListingScreen() {
 
   const onSubmit = () => {
     setSubmitted(true);
-    if (!title.trim() || !description.trim() || !serviceType || !animalType || !governorate || !accepted) return;
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !serviceType ||
+      !animalType ||
+      !governorate ||
+      !accepted
+    )
+      return;
     if (create.isPending) return;
 
     const input: CreateServiceListingInput = {
@@ -134,7 +147,11 @@ export default function AddServiceListingScreen() {
         multiline
         numberOfLines={4}
         maxLength={2000}
-        error={missing(description.trim() ? description : null) ? t('validation.required') : serverFields.description}
+        error={
+          missing(description.trim() ? description : null)
+            ? t('validation.required')
+            : serverFields.description
+        }
       />
       <Select<VetServiceType>
         label={t('fields.serviceType')}
@@ -160,8 +177,18 @@ export default function AddServiceListingScreen() {
         error={missing(governorate) ? t('validation.required') : serverFields.governorate}
         options={IRAQ_GOVERNORATES.map((v) => ({ value: v, label: v }))}
       />
-      <Input label={t('fields.district')} value={district} onChangeText={setDistrict} maxLength={120} />
-      <Input label={t('fields.specialty')} value={specialty} onChangeText={setSpecialty} maxLength={120} />
+      <Input
+        label={t('fields.district')}
+        value={district}
+        onChangeText={setDistrict}
+        maxLength={120}
+      />
+      <Input
+        label={t('fields.specialty')}
+        value={specialty}
+        onChangeText={setSpecialty}
+        maxLength={120}
+      />
 
       <Input
         label={t('fields.price')}
@@ -175,7 +202,12 @@ export default function AddServiceListingScreen() {
         <Label>{t('fields.priceType')}</Label>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
           {VET_SERVICE_PRICE_TYPES.map((v) => (
-            <Chip key={v} label={t(`priceType.${v}`)} selected={priceType === v} onPress={() => setPriceType(v)} />
+            <Chip
+              key={v}
+              label={t(`priceType.${v}`)}
+              selected={priceType === v}
+              onPress={() => setPriceType(v)}
+            />
           ))}
         </View>
       </View>
@@ -193,16 +225,30 @@ export default function AddServiceListingScreen() {
         </View>
       </View>
 
-      <Input label={t('fields.availability')} value={availability} onChangeText={setAvailability} maxLength={200} />
+      <Input
+        label={t('fields.availability')}
+        value={availability}
+        onChangeText={setAvailability}
+        maxLength={200}
+      />
       <Input
         label={t('fields.executionDuration')}
         value={executionDuration}
         onChangeText={setExecutionDuration}
         maxLength={120}
       />
-      <Switch label={t('fields.showArrivalTime')} value={showArrival} onValueChange={setShowArrival} />
+      <Switch
+        label={t('fields.showArrivalTime')}
+        value={showArrival}
+        onValueChange={setShowArrival}
+      />
       {showArrival ? (
-        <Input label={t('fields.arrivalTime')} value={arrivalTime} onChangeText={setArrivalTime} maxLength={120} />
+        <Input
+          label={t('fields.arrivalTime')}
+          value={arrivalTime}
+          onChangeText={setArrivalTime}
+          maxLength={120}
+        />
       ) : null}
 
       <Input
@@ -231,20 +277,25 @@ export default function AddServiceListingScreen() {
       <MultiImagePicker
         provider={imageProvider}
         onChange={setImageKeys}
+        onBusyChange={setImagesBusy}
         max={6}
         label={t('fields.images')}
         hint={t('fields.imagesHint')}
       />
 
       <TermsAcceptField termsKey="PUBLISH_LISTING" accepted={accepted} onChange={setAccepted} />
-      {submitted && !accepted ? <Text variant="caption" color="danger">{t('validation.terms')}</Text> : null}
+      {submitted && !accepted ? (
+        <Text variant="caption" color="danger">
+          {t('validation.terms')}
+        </Text>
+      ) : null}
 
       <Button
         label={t('addListing.submit')}
         fullWidth
         leftIcon="cloud-upload-outline"
         loading={create.isPending}
-        disabled={!accepted || create.isPending}
+        disabled={!accepted || create.isPending || imagesBusy}
         onPress={onSubmit}
       />
       <Text variant="caption" color="textMuted">

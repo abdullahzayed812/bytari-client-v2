@@ -29,6 +29,19 @@ export type HealthStatus = (typeof HEALTH_STATUSES)[number];
 export const VACCINATION_STATUSES = ['COMPLETE', 'PARTIAL', 'NONE'] as const;
 export type VaccinationStatus = (typeof VACCINATION_STATUSES)[number];
 
+/**
+ * A listing's OUTCOME — separate from the moderation `status`. `null` = still
+ * available. FOUND (LOST only), ADOPTED (ADOPTION only), CLOSED (any kind).
+ * Mirrors server `RESOLUTIONS_BY_KIND`.
+ */
+export const PUBLICATION_RESOLUTIONS = ['FOUND', 'ADOPTED', 'CLOSED'] as const;
+export type PublicationResolution = (typeof PUBLICATION_RESOLUTIONS)[number];
+export const RESOLUTIONS_BY_KIND: Record<PublicationKind, readonly PublicationResolution[]> = {
+  LOST: ['FOUND', 'CLOSED'],
+  ADOPTION: ['ADOPTED', 'CLOSED'],
+  MATING: ['CLOSED'],
+};
+
 export const PUBLICATION_INTERACTION_TYPES = ['REQUEST', 'SIGHTING'] as const;
 export type PublicationInteractionType = (typeof PUBLICATION_INTERACTION_TYPES)[number];
 
@@ -97,6 +110,9 @@ export interface AnimalPublication extends PublicationListingFields {
   reviewedByUserId: string | null;
   reviewedAt: string | null;
   rejectionReason: string | null;
+  /** Outcome — `null` while available. */
+  resolution?: PublicationResolution | null;
+  resolvedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   /**
@@ -119,6 +135,9 @@ export interface PublicPublication extends PublicationListingFields {
   kind: PublicationKind;
   note: string | null;
   publishedAt: string;
+  /** Outcome — `null` while available (FOUND / ADOPTED / CLOSED otherwise). */
+  resolution?: PublicationResolution | null;
+  resolvedAt?: string | null;
   animal: PublicationAnimal;
 }
 
@@ -185,7 +204,25 @@ export interface PublicationInteraction {
   type: PublicationInteractionType;
   requesterUserId: string;
   message: string | null;
+  /** The in-app conversation with the listing owner (`ANIMAL_PUBLICATION`). */
+  conversationId?: string | null;
   createdAt: string;
+}
+
+/** Owner view — `GET /animal-publications/:id/interactions`. */
+export interface OwnerPublicationInteraction extends PublicationInteraction {
+  requester: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
+}
+
+/** Requester view — `GET /animal-publications/interactions/mine`. */
+export interface MyPublicationInteraction extends PublicationInteraction {
+  publication: {
+    id: string;
+    kind: PublicationKind;
+    status: PublicationStatus;
+    resolution: PublicationResolution | null;
+    animalName: string;
+  };
 }
 
 export interface CreateInteractionInput {

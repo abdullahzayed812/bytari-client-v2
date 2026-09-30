@@ -8,6 +8,7 @@ import { Icon } from '@/components/content';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 export interface DateFieldProps {
   label?: string;
@@ -68,14 +69,19 @@ export function DateField({
         }}
       >
         <Text variant="body" color={value ? 'textPrimary' : 'textMuted'}>
-          {value ?? placeholder}
+          {value ? formatDate(value) : placeholder}
         </Text>
         <Icon name="calendar-outline" size="iconSm" color="primary" />
       </Pressable>
       {error ? <Caption color="danger">{error}</Caption> : null}
 
       {open && Platform.OS === 'android' ? (
-        <DateTimePicker value={current} mode="date" minimumDate={minimumDate} onChange={handleAndroidChange} />
+        <DateTimePicker
+          value={current}
+          mode="date"
+          minimumDate={minimumDate}
+          onChange={handleAndroidChange}
+        />
       ) : null}
 
       {Platform.OS !== 'android' ? (

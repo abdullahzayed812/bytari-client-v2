@@ -75,7 +75,7 @@ export default function PoultryFlockDetailScreen() {
   }
 
   const flock = q.data;
-  const canManage = caps.canManageFarmPoultry;
+  const canManage = caps.canEditFarmBatch;
   const busy = update.isPending || del.isPending;
 
   const toggleStatus = () => {
@@ -129,7 +129,7 @@ export default function PoultryFlockDetailScreen() {
               <Divider spacing="sm" />
               <Field label={t('poultry.fieldBirdCount')} value={String(flock.birdCount)} />
               <Divider spacing="sm" />
-              <Field label={t('poultry.fieldArrivalDate')} value={flock.arrivalDate} />
+              <Field label={t('poultry.fieldArrivalDate')} value={formatDate(flock.arrivalDate)} />
               <Divider spacing="sm" />
               <Field label={t('poultry.fieldStatus')} value={t(`flockStatus.${flock.status}`)} />
             </Card>
@@ -165,23 +165,29 @@ export default function PoultryFlockDetailScreen() {
                 disabled={busy}
                 onPress={() => router.push(Routes.organizationPoultryFlockEdit(orgId, flock.id))}
               />
-              <View style={{ marginTop: theme.spacing.md }}>
-                <Button
-                  label={flock.status === 'ACTIVE' ? t('poultry.closeCta') : t('poultry.reopenCta')}
-                  variant="ghost"
-                  disabled={busy}
-                  onPress={toggleStatus}
-                />
-              </View>
-              <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
-                <TextButton
-                  label={t('poultry.deleteCta')}
-                  tone="danger"
-                  icon="trash-outline"
-                  disabled={busy}
-                  onPress={() => setConfirmDelete(true)}
-                />
-              </View>
+              {caps.canSellFarmBatch ? (
+                <View style={{ marginTop: theme.spacing.md }}>
+                  <Button
+                    label={
+                      flock.status === 'ACTIVE' ? t('poultry.closeCta') : t('poultry.reopenCta')
+                    }
+                    variant="ghost"
+                    disabled={busy}
+                    onPress={toggleStatus}
+                  />
+                </View>
+              ) : null}
+              {caps.canDeleteFarmBatch ? (
+                <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
+                  <TextButton
+                    label={t('poultry.deleteCta')}
+                    tone="danger"
+                    icon="trash-outline"
+                    disabled={busy}
+                    onPress={() => setConfirmDelete(true)}
+                  />
+                </View>
+              ) : null}
             </>
           ) : null}
 

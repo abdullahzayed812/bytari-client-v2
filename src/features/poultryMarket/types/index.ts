@@ -29,6 +29,7 @@ export interface TraderProfile {
   phone: string;
   whatsapp: string | null;
   bio: string | null;
+  termsAcceptedAt?: string;
   status: TraderStatus;
   decidedBy: string | null;
   decidedAt: string | null;
@@ -92,8 +93,21 @@ export interface PoultryOffer {
   /** New ads are PENDING until a moderator approves them; only APPROVED are public. */
   moderationStatus?: MarketModerationStatus;
   rejectionReason?: string | null;
+  /** Admin ad list only — who is selling. */
+  seller?: MarketOfferSeller | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Admin ad review — the seller behind an offer (`GET /admin/*-offers`). */
+export interface MarketOfferSeller {
+  userId: string;
+  displayName: string | null;
+  traderType: string | null;
+  traderStatus: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 export interface CreatePoultryOfferInput {
@@ -154,6 +168,8 @@ export interface EggOffer {
   /** New ads are PENDING until a moderator approves them; only APPROVED are public. */
   moderationStatus?: MarketModerationStatus;
   rejectionReason?: string | null;
+  /** Admin ad list only — who is selling. */
+  seller?: MarketOfferSeller | null;
   createdAt: string;
   updatedAt: string;
 }

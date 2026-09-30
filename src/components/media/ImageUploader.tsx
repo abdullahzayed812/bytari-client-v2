@@ -48,6 +48,8 @@ export interface ImageUploaderProps {
    * Without it, remove only clears the local selection via `onChange(null)`.
    */
   onRemove?: () => void;
+  /** `true` while the image uploads — forms block submit on it (no key yet). */
+  onBusyChange?: (busy: boolean) => void;
 }
 
 /**
@@ -66,6 +68,7 @@ export function ImageUploader({
   edit,
   replaceable,
   onRemove,
+  onBusyChange,
 }: ImageUploaderProps) {
   const { t } = useTranslation('common');
   const theme = useTheme();
@@ -81,6 +84,7 @@ export function ImageUploader({
     if (up.status === 'error') {
       toast.show({ message: apiErrorMessage(up.error), tone: 'danger' });
     }
+    onBusyChange?.(up.status === 'uploading');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [up.status]);
 
@@ -135,6 +139,12 @@ export function ImageUploader({
 
       {previewUri ? (
         <View style={{ alignItems: 'center', rowGap: theme.spacing.xs }}>
+          {/*
+           * A replaceable preview gets explicit "change" / "remove" buttons
+           * instead of an × nested inside the tap-to-replace Pressable: on web
+           * the nested × click bubbled up to the outer Pressable and opened
+           * the replace sheet instead of removing the image.
+           */}
           <Pressable
             accessibilityRole={canReplace ? 'button' : undefined}
             accessibilityLabel={canReplace ? t('media.changeImage') : undefined}
@@ -149,7 +159,7 @@ export function ImageUploader({
               progress={up.progress}
               error={up.status === 'error'}
               onRetry={retry}
-              onRemove={disabled ? undefined : remove}
+              onRemove={disabled || replaceable ? undefined : remove}
             />
           </Pressable>
           {canReplace ? (
@@ -157,6 +167,14 @@ export function ImageUploader({
               label={t('media.changeImage')}
               icon="swap-horizontal-outline"
               onPress={() => setSheet(true)}
+            />
+          ) : null}
+          {replaceable && onRemove && !disabled && !uploading ? (
+            <TextButton
+              label={t('media.removeImage')}
+              icon="trash-outline"
+              tone="danger"
+              onPress={remove}
             />
           ) : null}
         </View>

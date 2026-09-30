@@ -1,15 +1,20 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
+import { Avatar, Card } from '@/components/content';
+import { ConfirmationDialog, Loading, Skeleton, useToast } from '@/components/feedback';
+import { Caption, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import {
   useAdminApproveVetJobOffer,
   useAdminRejectVetJobOffer,
+  useAdminVetJobOfferApplications,
   useAdminVetJobOffers,
 } from '@/features/vetJobs';
-import type { VetJobModerationStatus, VetJobOffer } from '@/features/vetJobs';
+import type { VetJobApplication, VetJobModerationStatus, VetJobOffer } from '@/features/vetJobs';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -21,6 +26,7 @@ import {
   FilterChips,
   ReasonPromptDialog,
 } from '../components';
+import { useMessageUserMutation } from '../hooks';
 
 const STATUSES: VetJobModerationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
 const STATUS_TONE = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'danger' } as const;
@@ -62,6 +68,7 @@ export default function AdminVetJobOffersScreen() {
   const [approving, setApproving] = useState<VetJobOffer | null>(null);
   const [rejecting, setRejecting] = useState<VetJobOffer | null>(null);
   const [detail, setDetail] = useState<VetJobOffer | null>(null);
+  const [applicantsOf, setApplicantsOf] = useState<VetJobOffer | null>(null);
 
   const dt = (key: DetailKey) => t(`vetJobOffers.details.${key}`);
   const detailFields = (o: VetJobOffer) => [
@@ -80,10 +87,13 @@ export default function AdminVetJobOffersScreen() {
     { label: dt('description'), value: o.description },
     { label: dt('contactPhone'), value: o.contactPhone },
     { label: dt('contactEmail'), value: o.contactEmail },
-    { label: dt('applicationDeadline'), value: o.applicationDeadline },
+    {
+      label: dt('applicationDeadline'),
+      value: o.applicationDeadline ? formatDate(o.applicationDeadline) : null,
+    },
     { label: dt('rejectionReason'), value: o.rejectionReason },
     { label: dt('submittedAt'), value: formatDate(o.createdAt) },
-    { label: dt('reviewedAt'), value: null },
+    { label: dt('reviewedAt'), value: o.reviewedAt ? formatDate(o.reviewedAt) : null },
   ];
 
   const onApprove = () => {
@@ -199,8 +209,22 @@ export default function AdminVetJobOffersScreen() {
         title={detail ? detail.title : t('vetJobOffers.details.title')}
         fields={detail ? detailFields(detail) : []}
       >
+        {detail && detail.status !== 'PENDING' ? (
+          <Button
+            label={`${t('vetJobOffers.applicants.open')} (${detail.applicationCount ?? 0})`}
+            variant="outline"
+            leftIcon="people-outline"
+            onPress={() => {
+              const o = detail;
+              setDetail(null);
+              setApplicantsOf(o);
+            }}
+          />
+        ) : null}
         {detail?.status === 'PENDING' ? (
-          <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+          <View
+            style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}
+          >
             <Button
               label={t('vetJobOffers.approve')}
               variant="primary"
@@ -222,6 +246,152 @@ export default function AdminVetJobOffersScreen() {
           </View>
         ) : null}
       </AdminDetailModal>
+
+      <ApplicantsModal offer={applicantsOf} onClose={() => setApplicantsOf(null)} />
     </>
+  );
+}
+
+/**
+ * One offer's applicants (`GET /admin/vet-job-applications?jobOfferId=`,
+ * `vet_job.read`, read-only). "Message applicant" reuses the existing Admin →
+ * user messaging (a SUPPORT thread owned by the applicant).
+ */
+function ApplicantsModal({ offer, onClose }: { offer: VetJobOffer | null; onClose: () => void }) {
+  const { t } = useTranslation('admin');
+  const { t: tv } = useTranslation('vetJobs');
+  const q = useAdminVetJobOfferApplications(offer?.id);
+  const [messaging, setMessaging] = useState<VetJobApplication | null>(null);
+
+  return (
+    <>
+      <AdminDetailModal
+        visible={offer != null}
+        onClose={onClose}
+        title={offer ? `${t('vetJobOffers.applicants.title')} · ${offer.title}` : ''}
+        fields={[]}
+      >
+        <Text variant="bodyStrong">{t('vetJobOffers.applicants.count', { count: q.total })}</Text>
+        {q.isLoading ? (
+          <Loading />
+        ) : q.applications.length === 0 ? (
+          <Caption color="textMuted">{t('vetJobOffers.applicants.empty')}</Caption>
+        ) : (
+          q.applications.map((a) => (
+            <Card key={a.id} variant="outlined" padding="sm">
+              <View style={{ flexDirection: 'row', columnGap: 10, alignItems: 'flex-start' }}>
+                <Avatar uri={a.photoUrl} name={a.fullName} size="avatarSm" />
+                <View style={{ rowGap: 2, flex: 1 }}>
+                  <Text variant="bodyStrong">{a.fullName}</Text>
+                  <Caption color="textSecondary">
+                    {[a.phone, a.email, a.specialty].filter(Boolean).join(' · ')}
+                  </Caption>
+                  {a.experienceYears != null ? (
+                    <Caption color="textSecondary">
+                      {t('vetJobOffers.applicants.experience', { count: a.experienceYears })}
+                    </Caption>
+                  ) : null}
+                  {a.qualifications ? (
+                    <Caption color="textMuted">{a.qualifications}</Caption>
+                  ) : null}
+                  {a.coverNote ? <Caption color="textMuted">{a.coverNote}</Caption> : null}
+                  <Caption color="textMuted">
+                    {`${t('vetJobOffers.applicants.appliedAt')}: ${formatDate(a.createdAt)} · ${tv(
+                      `applicationStatus.${a.status}`,
+                    )}`}
+                  </Caption>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                    {a.cvUrl ? (
+                      <Button
+                        label={t('vetJobOffers.applicants.cv')}
+                        size="sm"
+                        variant="ghost"
+                        leftIcon="document-text-outline"
+                        onPress={() => void Linking.openURL(a.cvUrl as string)}
+                      />
+                    ) : null}
+                    <Button
+                      label={t('vetJobOffers.applicants.contact')}
+                      size="sm"
+                      variant="outline"
+                      leftIcon="chatbubble-ellipses-outline"
+                      onPress={() => setMessaging(a)}
+                    />
+                    <Button
+                      label={t('vetJobOffers.applicants.viewUser')}
+                      size="sm"
+                      variant="ghost"
+                      leftIcon="person-outline"
+                      onPress={() => {
+                        onClose();
+                        router.push(Routes.adminUser(a.applicant.id));
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            </Card>
+          ))
+        )}
+        {q.hasNextPage ? (
+          <Button
+            label={t('vetJobOffers.applicants.loadMore')}
+            variant="ghost"
+            loading={q.isFetchingNextPage}
+            onPress={() => void q.fetchNextPage()}
+          />
+        ) : null}
+      </AdminDetailModal>
+
+      {messaging ? (
+        <MessageApplicantDialog
+          applicant={messaging}
+          onDone={() => {
+            setMessaging(null);
+            onClose();
+          }}
+          onCancel={() => setMessaging(null)}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function MessageApplicantDialog({
+  applicant,
+  onDone,
+  onCancel,
+}: {
+  applicant: VetJobApplication;
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const { t } = useTranslation('admin');
+  const toast = useToast();
+  const send = useMessageUserMutation(applicant.applicant.id);
+  return (
+    <ReasonPromptDialog
+      visible
+      title={t('users.detail.messageTitle')}
+      message={t('users.detail.messageBody')}
+      label={t('users.detail.messageLabel')}
+      placeholder={t('users.detail.messagePlaceholder')}
+      confirmLabel={t('users.detail.messageSend')}
+      cancelLabel={t('common.cancel')}
+      required
+      loading={send.isPending}
+      onConfirm={(body) =>
+        send.mutate(body, {
+          onSuccess: (thread) => {
+            toast.show({ message: t('users.toast.messageSent'), tone: 'success' });
+            onDone();
+            // Continue in the existing support-messages thread.
+            router.push(Routes.supportThread('support-messages', thread.id));
+          },
+          onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+        })
+      }
+      onCancel={onCancel}
+    />
   );
 }

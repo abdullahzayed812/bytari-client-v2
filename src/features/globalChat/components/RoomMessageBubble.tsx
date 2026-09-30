@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
-import { Caption, Text } from '@/components/typography';
+import { Caption, LinkifiedText, Text } from '@/components/typography';
 import { MessageAttachmentView } from '@/features/chat/components/MessageAttachmentView';
 import type { ChatMessage } from '@/features/chat/types';
 import { useTheme } from '@/theme';
@@ -74,13 +74,13 @@ export function RoomMessageBubble({
               <MessageAttachmentView message={message} attachment={message.attachment} />
             </View>
           ) : null}
-          {deleted || message.body ? (
-            <Text
-              variant="body"
-              style={deleted ? { color: theme.colors.textMuted, fontStyle: 'italic' } : undefined}
-            >
-              {deleted ? t('thread.messageDeleted') : message.body}
+          {deleted ? (
+            <Text variant="body" style={{ color: theme.colors.textMuted, fontStyle: 'italic' }}>
+              {t('thread.messageDeleted')}
             </Text>
+          ) : message.body ? (
+            // Web links in room messages are tappable (http/https only).
+            <LinkifiedText variant="body">{message.body}</LinkifiedText>
           ) : null}
         </View>
         {!mine && !deleted && onOpenMenu ? (

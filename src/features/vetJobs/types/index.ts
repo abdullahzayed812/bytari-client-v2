@@ -11,7 +11,13 @@
  * PET_OWNER_VETERINARIAN thread — no separate Jobs chat system).
  */
 
-export const VET_JOB_EMPLOYMENT_TYPES = ['FULL_TIME', 'PART_TIME', 'SHIFT', 'EVENING', 'OTHER'] as const;
+export const VET_JOB_EMPLOYMENT_TYPES = [
+  'FULL_TIME',
+  'PART_TIME',
+  'SHIFT',
+  'EVENING',
+  'OTHER',
+] as const;
 export type VetJobEmploymentType = (typeof VET_JOB_EMPLOYMENT_TYPES)[number];
 
 export const VET_JOB_MODERATION_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
@@ -51,6 +57,7 @@ export interface VetJobOffer {
   applicationDeadline: string | null;
   status: VetJobModerationStatus;
   rejectionReason: string | null;
+  reviewedAt?: string | null;
   closedAt: string | null;
   applicationCount?: number;
   createdAt: string;
@@ -76,6 +83,8 @@ export interface PublicVetJobOffer {
   contactEmail: string | null;
   applicationDeadline: string | null;
   publishedAt: string;
+  /** Caller-relative (detail endpoint): own offer? / own application status. */
+  viewer?: { isPoster: boolean; applicationStatus: VetJobApplicationStatus | null };
 }
 
 export interface CreateVetJobOfferInput {

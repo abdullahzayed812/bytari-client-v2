@@ -31,6 +31,7 @@ export {
   useFarmAppointments,
   useCreateFarmAppointment,
   useFarmAppointment,
+  useFarmMemberChat,
 } from './hooks';
 export {
   FarmStatusCard,

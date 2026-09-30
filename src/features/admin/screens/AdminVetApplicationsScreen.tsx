@@ -9,6 +9,7 @@ import { Caption, Label } from '@/components/typography';
 import { RecordCardSkeleton } from '@/features/medical/components';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import { AdminListScreen, AdminRow, ReasonPromptDialog } from '../components';
 import { useAdminVetApplications, useVetDecisionMutation } from '../hooks';
@@ -134,11 +135,7 @@ export default function AdminVetApplicationsScreen() {
             ]
               .filter(Boolean)
               .join(' · ')}
-            meta={
-              a.note
-                ? a.note
-                : `${t('vets.submittedAt')}: ${new Date(a.createdAt).toLocaleDateString()}`
-            }
+            meta={a.note ? a.note : `${t('vets.submittedAt')}: ${formatDate(a.createdAt)}`}
             badge={a.subType ? { label: t(`vets.subType.${a.subType}`), tone: 'info' } : undefined}
             actions={
               <>

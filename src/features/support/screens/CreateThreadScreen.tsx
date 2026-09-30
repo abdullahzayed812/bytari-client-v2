@@ -102,6 +102,7 @@ export default function CreateThreadScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const [imageKeys, setImageKeys] = useState<string[]>([]);
+  const [imagesBusy, setImagesBusy] = useState(false);
 
   const supportsAttachments = kind !== 'SUPPORT';
 
@@ -240,6 +241,7 @@ export default function CreateThreadScreen() {
         <MultiImagePicker
           provider={attachmentProvider}
           onChange={setImageKeys}
+          onBusyChange={setImagesBusy}
           max={MAX_THREAD_IMAGES}
           label={t('form.attachmentsLabel')}
           hint={t('form.attachmentsHint', { count: imageKeys.length, max: MAX_THREAD_IMAGES })}
@@ -251,7 +253,7 @@ export default function CreateThreadScreen() {
           label={t('form.submit')}
           fullWidth
           loading={create.isPending}
-          disabled={create.isPending || blockedByVetGate}
+          disabled={create.isPending || blockedByVetGate || imagesBusy}
           onPress={handleSubmit(onSubmit)}
           accessibilityLabel={t('form.submit')}
         />

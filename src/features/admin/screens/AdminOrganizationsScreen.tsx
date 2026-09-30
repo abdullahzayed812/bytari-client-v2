@@ -8,8 +8,8 @@ import { Card } from '@/components/content';
 import { Skeleton, useToast } from '@/components/feedback';
 import { ImageViewer } from '@/components/media';
 import { Caption, Text } from '@/components/typography';
-import { Routes } from '@/constants/routes';
 import { Permission } from '@/constants/permissions';
+import { Routes } from '@/constants/routes';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -64,15 +64,19 @@ export default function AdminOrganizationsScreen() {
   const [scope, setScope] = useState<Scope>('all');
   const caps = useCapabilities();
 
-  // The renewals tab only makes sense for VETERINARY_OFFICE today (Clinic
-  // Dashboard/renewal review is a separate, not-yet-built screen) — and it
-  // must never mix in CLINIC/FARM requests, per the "المكاتب" spec.
-  const showRenewalsTab = type === 'VETERINARY_OFFICE';
+  // Renewal requests exist for both subscription-capable types. The queue is
+  // server-scoped to `type`, so CLINIC and VETERINARY_OFFICE (and FARM)
+  // requests are never mixed in one list.
+  const showRenewalsTab = type === 'VETERINARY_OFFICE' || type === 'CLINIC';
   const isRenewalsScope = showRenewalsTab && scope === 'renewals';
 
-  const q = useAdminOrganizations({ pending: scope === 'pending', type, enabled: !isRenewalsScope });
+  const q = useAdminOrganizations({
+    pending: scope === 'pending',
+    type,
+    enabled: !isRenewalsScope,
+  });
   const renewalsQ = useAdminPendingRenewals({
-    organizationType: 'VETERINARY_OFFICE',
+    organizationType: type,
     enabled: isRenewalsScope,
   });
 
@@ -141,11 +145,26 @@ export default function AdminOrganizationsScreen() {
                   <Text variant="bodyMedium">{r.organizationName}</Text>
                   <Caption>{formatDate(r.createdAt)}</Caption>
                 </View>
+                {r.previousSubscriptionEndDate ? (
+                  <Caption>
+                    {t('orgs.renewals.previousEnd', {
+                      date: formatDate(r.previousSubscriptionEndDate),
+                    })}
+                  </Caption>
+                ) : null}
                 {r.note ? (
                   <Text variant="caption">
                     {t('farms.detail.renewalNote')}: {r.note}
                   </Text>
                 ) : null}
+                <Button
+                  label={t('orgs.renewals.openFile')}
+                  variant="outline"
+                  size="sm"
+                  leftIcon="document-text-outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.adminOrganization(r.organizationId))}
+                />
                 <View
                   style={{
                     flexDirection: 'row',

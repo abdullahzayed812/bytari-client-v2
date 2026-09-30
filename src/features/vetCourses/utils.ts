@@ -1,8 +1,10 @@
 import type { TFunction } from 'i18next';
 
-/** ISO `YYYY-MM-DD` → `YYYY/MM/DD`, matching the reference screenshots. */
+import { formatDate } from '@/utils';
+
+/** ISO `YYYY-MM-DD` → the app-wide `YYYY-M-D` display date. */
 export function formatCourseDate(date: string): string {
-  return date.replaceAll('-', '/');
+  return formatDate(date);
 }
 
 /** A single date, or `start - end` when the course spans more than one day. */
@@ -13,7 +15,11 @@ export function formatCourseDateRange(startDate: string, endDate: string): strin
 }
 
 /** "يوم واحد" for a single day, otherwise "{{count}} أيام" — inclusive day count. */
-export function formatCourseDuration(startDate: string, endDate: string, t: TFunction<'vetCourses'>): string {
+export function formatCourseDuration(
+  startDate: string,
+  endDate: string,
+  t: TFunction<'vetCourses'>,
+): string {
   const start = new Date(`${startDate}T00:00:00Z`).getTime();
   const end = new Date(`${endDate}T00:00:00Z`).getTime();
   const days = Math.max(1, Math.round((end - start) / (24 * 60 * 60 * 1000)) + 1);

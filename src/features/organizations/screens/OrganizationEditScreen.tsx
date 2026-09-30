@@ -1,10 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { TextButton } from '@/components/actions';
-import { ErrorState, Loading, useToast } from '@/components/feedback';
+import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ImagePreview, ImageUploader } from '@/components/media';
 import { Caption, Label } from '@/components/typography';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
@@ -105,6 +105,10 @@ export default function OrganizationEditScreen() {
   const [logoKey, setLogoKey] = useState(0);
   const [galleryUploadKey, setGalleryUploadKey] = useState(0);
   const [licenseUploadKey, setLicenseUploadKey] = useState(0);
+  // Storage key awaiting delete confirmation. A `ConfirmationDialog`, not
+  // `Alert.alert` — a multi-button Alert is a silent no-op on web, which made
+  // license photos impossible to delete there.
+  const [confirmRemoveLicenseKey, setConfirmRemoveLicenseKey] = useState<string | null>(null);
 
   if (q.isLoading) {
     return (
@@ -278,22 +282,7 @@ export default function OrganizationEditScreen() {
                   url={url}
                   storageKey={key}
                   removing={removeLicenseDocument.isPending}
-                  onRemove={() =>
-                    Alert.alert(t('form.licenseRemoveTitle'), t('form.licenseRemoveBody'), [
-                      { text: t('form.cancel'), style: 'cancel' },
-                      {
-                        text: t('form.licenseRemoveCta'),
-                        style: 'destructive',
-                        onPress: () =>
-                          removeLicenseDocument.mutate(key, {
-                            onSuccess: () =>
-                              toast.show({ tone: 'success', message: t('form.licenseRemoved') }),
-                            onError: (error) =>
-                              toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
-                          }),
-                      },
-                    ])
-                  }
+                  onRemove={() => setConfirmRemoveLicenseKey(key)}
                 />
               ) : (
                 <ImagePreview key={url} uri={url} size={88} />
@@ -328,6 +317,28 @@ export default function OrganizationEditScreen() {
         formError={formError}
         serverFields={serverFields}
         onSubmit={onSubmit}
+      />
+
+      <ConfirmationDialog
+        visible={confirmRemoveLicenseKey !== null}
+        title={t('form.licenseRemoveTitle')}
+        message={t('form.licenseRemoveBody')}
+        confirmLabel={t('form.licenseRemoveCta')}
+        cancelLabel={t('form.cancel')}
+        destructive
+        loading={removeLicenseDocument.isPending}
+        onConfirm={() => {
+          const key = confirmRemoveLicenseKey;
+          if (!key) return;
+          removeLicenseDocument.mutate(key, {
+            onSuccess: () => {
+              setConfirmRemoveLicenseKey(null);
+              toast.show({ tone: 'success', message: t('form.licenseRemoved') });
+            },
+            onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+          });
+        }}
+        onCancel={() => setConfirmRemoveLicenseKey(null)}
       />
     </OrgFormLayout>
   );

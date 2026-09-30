@@ -66,6 +66,9 @@ export default function ManagementScreen() {
       0,
     );
 
+  const pendingRenewalsFor = (id: AdminDashboardCardId): number =>
+    summary.data?.cards.find((c) => c.id === id)?.pendingRenewals ?? 0;
+
   const openCard = (card: (typeof DASHBOARD_CARD_DEFS)[number]) => {
     for (const id of idsOf(card.id)) if (serverCount(id) > 0) markSeen.mutate(id);
     router.push(card.route);
@@ -152,6 +155,11 @@ export default function ManagementScreen() {
               count={countFor(card.id)}
               activeCount={activeCountFor(card.id)}
               unit={t(`dashboard.cards.${card.id}.unit`)}
+              secondaryLabel={
+                pendingRenewalsFor(card.id) > 0
+                  ? t('dashboard.renewalsPending', { count: pendingRenewalsFor(card.id) })
+                  : undefined
+              }
               loading={summary.isLoading}
               onPress={() => openCard(card)}
             />
@@ -171,18 +179,21 @@ export default function ManagementScreen() {
             alignItems: 'flex-start',
           }}
         >
-          <View style={{ flex: 1, width: '100%', rowGap: theme.spacing.sm }}>
-            <Row justify="space-between">
-              <Label>{t('dashboard.sections.recentActivity')}</Label>
-              {canViewAuditLog ? (
-                <TextButton
-                  label={t('dashboard.viewAll')}
-                  onPress={() => router.push(Routes.adminAuditLogs)}
-                />
-              ) : null}
-            </Row>
-            <AdminActivityFeed items={summary.data.recentActivity} />
-          </View>
+          {/* Recent activity is Admin-only (the server also returns none to supervisors). */}
+          {caps.isAdmin ? (
+            <View style={{ flex: 1, width: '100%', rowGap: theme.spacing.sm }}>
+              <Row justify="space-between">
+                <Label>{t('dashboard.sections.recentActivity')}</Label>
+                {canViewAuditLog ? (
+                  <TextButton
+                    label={t('dashboard.viewAll')}
+                    onPress={() => router.push(Routes.adminAuditLogs)}
+                  />
+                ) : null}
+              </Row>
+              <AdminActivityFeed items={summary.data.recentActivity} />
+            </View>
+          ) : null}
           <View style={{ flex: 1, width: '100%', rowGap: theme.spacing.sm }}>
             <Label>{t('dashboard.sections.pendingTasks')}</Label>
             <AdminPendingTasksList items={summary.data.pendingTasks} />

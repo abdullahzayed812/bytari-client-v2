@@ -7,6 +7,8 @@ import type {
   CreatePublicationInput,
   PublicationInteraction,
   PublicationKind,
+  PublicationResolution,
+  PublicPublication,
 } from '../types';
 
 /**
@@ -63,9 +65,46 @@ export function useDeletePublication(): UseMutationResult<
 export function useCreatePublicationInteraction(
   publicationId: string,
 ): UseMutationResult<PublicationInteraction, unknown, CreateInteractionInput> {
+  const qc = useQueryClient();
   return useMutation({
     mutationKey: ['publications', 'interactions', 'create', publicationId],
     mutationFn: (input: CreateInteractionInput) =>
       publicationsApi.createInteraction(publicationId, input),
+    onSuccess: () => {
+      void qc.invalidateQueries({
+        queryKey: [...publicationKeys.all, 'interactions', 'mine'],
+      });
+    },
+  });
+}
+
+/** Owner: set / clear a listing's outcome (FOUND / ADOPTED / CLOSED). */
+export function useSetPublicationResolution(
+  publicationId: string,
+): UseMutationResult<PublicPublication, unknown, PublicationResolution | null> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['publications', 'resolution', publicationId],
+    mutationFn: (resolution: PublicationResolution | null) =>
+      publicationsApi.setResolution(publicationId, resolution),
+    onSuccess: () => {
+      // Owner view, "my listings" and the public lists all reflect the outcome.
+      void qc.invalidateQueries({ queryKey: publicationKeys.all });
+    },
+  });
+}
+
+/** Owner: open the chat with one requester → `{ conversationId }`. */
+export function useOpenInteractionConversation(
+  publicationId: string,
+): UseMutationResult<{ conversationId: string }, unknown, string> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['publications', 'interactions', 'conversation', publicationId],
+    mutationFn: (interactionId: string) =>
+      publicationsApi.openInteractionConversation(publicationId, interactionId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: publicationKeys.interactions(publicationId) });
+    },
   });
 }

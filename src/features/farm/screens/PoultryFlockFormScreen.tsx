@@ -44,9 +44,13 @@ export default function PoultryFlockFormScreen() {
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const busy = create.isPending || update.isPending;
 
-  if (isEdit && existing.isLoading) {
+  // The price field (and whether it is required) depends on the caller's
+  // farm role — never render the form before that is known, or an owner
+  // could submit a batch while the price field was still hidden and the
+  // batch would be saved without the price its estimated profit needs.
+  if (orgDetail.isLoading || (isEdit && existing.isLoading)) {
     return (
-      <OrgFormLayout title={t('poultry.editTitle')}>
+      <OrgFormLayout title={isEdit ? t('poultry.editTitle') : t('poultry.addTitle')}>
         <Loading fill />
       </OrgFormLayout>
     );

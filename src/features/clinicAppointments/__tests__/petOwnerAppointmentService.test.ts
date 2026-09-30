@@ -62,12 +62,12 @@ describe('petOwnerAppointmentService — 1:1 with /clinic-appointments*', () => 
   });
 });
 
-describe('appointment date/time formatting (Arabic-Indic, matches the reference)', () => {
+describe('appointment date/time formatting', () => {
   const iso = '2026-09-08T14:05:00.000Z';
-  it('formats date as y/m/d and time as h:mm am/pm', () => {
-    // ar-EG → Arabic-Indic digits; exact glyphs depend on the ICU build, so
-    // assert structure rather than the literal string.
-    expect(formatAppointmentDate(iso, 'en')).toMatch(/^0?8\/0?9\/2026$/);
+  it('formats the date as the app-wide YYYY-M-D and the time as h:mm am/pm', () => {
+    // YYYY-M-D in every locale (no leading zeros); local calendar date of the timestamp.
+    expect(formatAppointmentDate(iso, 'en')).toMatch(/^2026-9-(8|9)$/);
+    expect(formatAppointmentDate(iso, 'ar')).toMatch(/^2026-9-(8|9)$/);
     expect(formatAppointmentTime(iso, 'en')).toMatch(/\d{1,2}:\d{2}\s?(am|pm|AM|PM)/);
     expect(formatAppointmentDateTime(iso, 'en')).toContain('،');
   });

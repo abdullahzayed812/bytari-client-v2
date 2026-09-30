@@ -155,10 +155,7 @@ export default function AdminFarmDetailScreen() {
             <Card variant="outlined" padding="md">
               <View style={{ rowGap: theme.spacing.sm }}>
                 <Row label={t('farms.detail.ownerLabel')} value={org.ownerUserId} />
-                <Row
-                  label={t('orgs.detail.createdLabel')}
-                  value={new Date(org.createdAt).toLocaleDateString()}
-                />
+                <Row label={t('orgs.detail.createdLabel')} value={formatDate(org.createdAt)} />
                 {org.decisionReason ? (
                   <Row label={t('orgs.detail.decisionLabel')} value={org.decisionReason} />
                 ) : null}
@@ -440,4 +437,3 @@ function Row({ label, value }: { label: string; value: string }) {
     </View>
   );
 }
-

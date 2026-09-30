@@ -23,13 +23,22 @@ export interface FileUploaderProps {
   accept?: string[];
   label?: string;
   disabled?: boolean;
+  /** `true` while the file uploads — forms block submit on it (no key yet). */
+  onBusyChange?: (busy: boolean) => void;
 }
 
 /**
  * Reusable single-file attachment field: pick a document → secure presigned
  * upload → preview row, with progress / retry / remove.
  */
-export function FileUploader({ provider, onChange, accept, label, disabled }: FileUploaderProps) {
+export function FileUploader({
+  provider,
+  onChange,
+  accept,
+  label,
+  disabled,
+  onBusyChange,
+}: FileUploaderProps) {
   const { t } = useTranslation('common');
   const theme = useTheme();
   const toast = useToast();
@@ -40,6 +49,7 @@ export function FileUploader({ provider, onChange, accept, label, disabled }: Fi
     if (up.status === 'error') {
       toast.show({ message: apiErrorMessage(up.error), tone: 'danger' });
     }
+    onBusyChange?.(up.status === 'uploading');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [up.status]);
 

@@ -48,7 +48,8 @@ export default function FarmHealthEventDetailScreen({ scope }: { scope: FarmReco
   const batchId = params.flockId ?? params.batchId ?? '';
   const { isAdmin } = useCapabilities();
   const org = useOrganization(orgId);
-  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const canManage = farmCaps.canManageFarmPoultry;
 
   const q = useFarmHealthEventRecord(scope, orgId, batchId, params.itemId);
   const update = useUpdateFarmHealthEvent(scope, orgId, batchId);
@@ -136,6 +137,7 @@ export default function FarmHealthEventDetailScreen({ scope }: { scope: FarmReco
             <FarmRecordFooter
               createdBy={ev.createdBy}
               canManage={canManage}
+              canDelete={farmCaps.canDeleteFarmRecords}
               onEdit={() => setEditing(true)}
               deleting={remove.isPending}
               onDelete={() =>

@@ -54,6 +54,7 @@ export default {
       keepRest: 'استخدام بقية الصور كما هي',
     },
     changeImage: 'تغيير الصورة',
+    removeImage: 'حذف الصورة',
     addFile: 'إرفاق ملف',
     camera: 'التقاط صورة',
     library: 'اختيار من المعرض',

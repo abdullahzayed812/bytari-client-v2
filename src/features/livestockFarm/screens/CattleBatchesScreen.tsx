@@ -26,7 +26,7 @@ export default function CattleBatchesScreen() {
 
   const detail = useOrganization(orgId);
   const caps = orgCapabilities(detail.data?.myRole, isAdmin);
-  const canAdd = caps.canManageFarmPoultry;
+  const canAdd = caps.canCreateFarmBatch;
 
   const q = useCattleBatches(orgId);
   const goToDetail = (b: CattleBatch) => router.push(Routes.cattleBatchDetail(orgId, b.id));
@@ -37,7 +37,16 @@ export default function CattleBatchesScreen() {
       <AppHeader
         title={t('batchList.title')}
         showBack
-        right={canAdd ? <IconButton icon="add" variant="soft" accessibilityLabel={t('batchList.addCta')} onPress={goToCreate} /> : undefined}
+        right={
+          canAdd ? (
+            <IconButton
+              icon="add"
+              variant="soft"
+              accessibilityLabel={t('batchList.addCta')}
+              onPress={goToCreate}
+            />
+          ) : undefined
+        }
       />
 
       {q.isLoading ? (
@@ -60,17 +69,44 @@ export default function CattleBatchesScreen() {
               onPress={() => goToDetail(item)}
             />
           )}
-          ListHeaderComponent={q.total > 0 ? <Caption style={{ paddingBottom: theme.spacing.sm }}>{t('batchList.count', { count: q.total })}</Caption> : null}
-          ListEmptyComponent={
-            <EmptyState icon="paw-outline" title={t('batchList.empty')} message={canAdd ? t('batchList.emptyHintManage') : t('batchList.emptyHint')} actionLabel={canAdd ? t('batchList.addCta') : undefined} onAction={canAdd ? goToCreate : undefined} />
+          ListHeaderComponent={
+            q.total > 0 ? (
+              <Caption style={{ paddingBottom: theme.spacing.sm }}>
+                {t('batchList.count', { count: q.total })}
+              </Caption>
+            ) : null
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null}
-          contentContainerStyle={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.md, paddingBottom: theme.spacing.huge, rowGap: theme.spacing.md, flexGrow: 1 }}
+          ListEmptyComponent={
+            <EmptyState
+              icon="paw-outline"
+              title={t('batchList.empty')}
+              message={canAdd ? t('batchList.emptyHintManage') : t('batchList.emptyHint')}
+              actionLabel={canAdd ? t('batchList.addCta') : undefined}
+              onAction={canAdd ? goToCreate : undefined}
+            />
+          }
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null
+          }
+          contentContainerStyle={{
+            paddingHorizontal: theme.screenPadding,
+            paddingTop: theme.spacing.md,
+            paddingBottom: theme.spacing.huge,
+            rowGap: theme.spacing.md,
+            flexGrow: 1,
+          }}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
           }}
-          refreshControl={<RefreshControl refreshing={q.isRefetching && !q.isFetchingNextPage} onRefresh={() => void q.refetch()} tintColor={theme.colors.primary} colors={[theme.colors.primary]} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={q.isRefetching && !q.isFetchingNextPage}
+              onRefresh={() => void q.refetch()}
+              tintColor={theme.colors.primary}
+              colors={[theme.colors.primary]}
+            />
+          }
         />
       )}
     </SafeAreaScreen>

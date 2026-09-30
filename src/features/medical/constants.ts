@@ -1,3 +1,5 @@
+import { formatDate } from '@/utils';
+
 import type { MedicalRecord, Vaccination } from './types';
 
 /**
@@ -15,10 +17,11 @@ export function recordedByThisClinic(
 }
 
 /**
- * Safe display of a backend date-only string (`YYYY-MM-DD`). Never parsed
- * through `Date` (§24 — no accidental timezone shift). Returns the raw string,
- * or a dash for an empty value.
+ * Safe display of a backend date-only string (`YYYY-MM-DD`) as the app-wide
+ * `YYYY-M-D` display date. `formatDate` reads a date-only value from its own
+ * parts — never through `Date` (§24 — no accidental timezone shift). A dash
+ * for an empty value.
  */
 export function displayDateOnly(value: string | null | undefined): string {
-  return value && value.trim() ? value.trim() : '—';
+  return value && value.trim() ? formatDate(value.trim()) : '—';
 }

@@ -20,3 +20,4 @@ export {
   RenewalRejectDialog,
   type RenewalDecisionDialogProps,
 } from './RenewalDecisionDialogs';
+export { AdminAnimalEditSheet } from './AdminAnimalEditSheet';

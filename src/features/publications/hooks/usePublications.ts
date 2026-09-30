@@ -8,6 +8,8 @@ import { publicationKeys, publicationsApi } from '../api';
 import type {
   AnimalPublication,
   MyPublication,
+  MyPublicationInteraction,
+  OwnerPublicationInteraction,
   Paginated,
   PublicPublication,
   PublicationKind,
@@ -158,4 +160,42 @@ export function useAnimalPublication(
     retry: (count, error) =>
       !(error instanceof ApiError && (error.status === 404 || error.status === 403)) && count < 2,
   });
+}
+
+/** Owner: the requests / sighting reports on one of the caller's listings. */
+export function usePublicationInteractions(
+  publicationId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<OwnerPublicationInteraction[], ApiError>({
+    queryKey: publicationKeys.interactions(publicationId ?? '_'),
+    queryFn: () => publicationsApi.listInteractions(publicationId as string),
+    enabled: Boolean(publicationId) && (options.enabled ?? true),
+    staleTime: 10_000,
+  });
+}
+
+/** Requester: "طلباتي" — my requests / reports with each listing's outcome. */
+export function useMyPublicationInteractions(
+  params: { kind?: PublicationKind; enabled?: boolean } = {},
+) {
+  const pageSize = AppConfig.defaultPageSize;
+  const query = useInfiniteQuery<
+    Paginated<MyPublicationInteraction>,
+    unknown,
+    InfiniteData<Paginated<MyPublicationInteraction>>,
+    ReturnType<typeof publicationKeys.myInteractions>,
+    number
+  >({
+    queryKey: publicationKeys.myInteractions(params.kind),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      publicationsApi.listMyInteractions(pageParam, pageSize, { kind: params.kind }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled: params.enabled ?? true,
+    staleTime: 10_000,
+  });
+  const interactions = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  return { ...query, interactions, total: query.data?.pages[0]?.meta.total ?? 0 };
 }

@@ -23,6 +23,7 @@ import {
   FarmSectionCard,
   FarmStaffRow,
   FarmStatusCard,
+  useFarmMemberChat,
 } from '@/features/farmShared';
 import { CompletedWeeksSection } from '@/features/farmShared/components/CompletedWeeksSection';
 import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
@@ -58,6 +59,7 @@ export default function SheepFarmDetailsScreen() {
 
   const detail = useOrganization(orgId);
   const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const chatHandlerFor = useFarmMemberChat(orgId, detail.data?.ownerUserId, detail.data?.myRole);
   const canManage = caps.canManageFarmPoultry;
   const [addStaffOpen, setAddStaffOpen] = useState(false);
   const isApproved = detail.data?.status === 'ACTIVE';
@@ -219,7 +221,7 @@ export default function SheepFarmDetailsScreen() {
             {activeBatches.isLoading ? (
               <Loading label={t('common.loading')} />
             ) : !batch ? (
-              <EmptyBatch canManage={canManage} orgId={orgId} />
+              <EmptyBatch canManage={caps.canCreateFarmBatch} orgId={orgId} />
             ) : summary.isLoading || !summary.data ? (
               <Loading label={t('common.loading')} />
             ) : (
@@ -227,6 +229,7 @@ export default function SheepFarmDetailsScreen() {
                 <LivestockBatchSummaryCard
                   summary={summary.data}
                   canManage={canManage}
+                  canSell={caps.canSellFarmBatch}
                   selling={sellBatch.isPending}
                   onAddDaily={() => router.push(Routes.sheepFarmSection(orgId, 'daily'))}
                   onWeeklyReport={() => router.push(Routes.sheepFarmSection(orgId, 'weekly'))}
@@ -349,7 +352,7 @@ export default function SheepFarmDetailsScreen() {
               <Caption>{t('details.staffEmpty')}</Caption>
             ) : (
               members.members.map((m) => (
-                <FarmStaffRow key={m.id} member={m} onChat={() => router.push(Routes.chat)} />
+                <FarmStaffRow key={m.id} member={m} onChat={chatHandlerFor(m)} />
               ))
             )}
           </View>

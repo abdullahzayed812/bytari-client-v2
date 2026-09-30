@@ -53,7 +53,8 @@ export default function DailyRecordsScreen() {
   const orgId = organizationId ?? '';
   const { isAdmin } = useCapabilities();
   const org = useOrganization(orgId);
-  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const canManage = farmCaps.canManageFarmPoultry;
 
   const activeFlocks = usePoultryFlocks(orgId, { status: 'ACTIVE', pageSize: 1 });
   const flock = activeFlocks.flocks[0];
@@ -115,7 +116,7 @@ export default function DailyRecordsScreen() {
                 record={r}
                 dayIndex={day}
                 onEdit={canManage ? () => setEditing(r) : undefined}
-                onDelete={canManage ? () => setDeleting(r) : undefined}
+                onDelete={farmCaps.canDeleteFarmRecords ? () => setDeleting(r) : undefined}
               />
             )}
           />

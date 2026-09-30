@@ -11,6 +11,7 @@ import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import { useVetJobOffer } from '../hooks';
 import { formatSalary } from '../utils';
@@ -65,6 +66,8 @@ export default function VetJobOfferDetailsScreen() {
 
   const q = useVetJobOffer(offerId);
   const offer = q.data;
+  // Caller-relative state — only on the public detail DTO.
+  const viewer = offer && 'viewer' in offer ? offer.viewer : undefined;
 
   return (
     <SafeAreaScreen>
@@ -139,7 +142,7 @@ export default function VetJobOfferDetailsScreen() {
                   <InfoRow
                     icon="calendar-outline"
                     label={t('offer.lastApplyDate')}
-                    value={offer.applicationDeadline}
+                    value={formatDate(offer.applicationDeadline)}
                   />
                 ) : null}
               </View>
@@ -184,7 +187,9 @@ export default function VetJobOfferDetailsScreen() {
             </View>
           </ScrollView>
 
-          {caps.isApprovedVeterinarian ? (
+          {/* Apply only where the server accepts it: an approved veterinarian, not
+              the poster, and not already applied (`viewer` is caller-relative). */}
+          {caps.isApprovedVeterinarian && !viewer?.isPoster ? (
             <View
               style={{
                 padding: theme.screenPadding,
@@ -193,11 +198,22 @@ export default function VetJobOfferDetailsScreen() {
                 backgroundColor: theme.colors.background,
               }}
             >
-              <Button
-                label={t('offer.apply')}
-                fullWidth
-                onPress={() => router.push(Routes.vetJobOfferApply(offer.id))}
-              />
+              {viewer?.applicationStatus ? (
+                <Button
+                  label={`${t('offer.alreadyApplied')} · ${t(
+                    `applicationStatus.${viewer.applicationStatus}` as const,
+                  )}`}
+                  variant="outline"
+                  fullWidth
+                  onPress={() => router.push(Routes.vetJobMy)}
+                />
+              ) : (
+                <Button
+                  label={t('offer.apply')}
+                  fullWidth
+                  onPress={() => router.push(Routes.vetJobOfferApply(offer.id))}
+                />
+              )}
             </View>
           ) : null}
         </>

@@ -11,7 +11,13 @@ import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
 import { adminVetJobsApi, vetJobKeys } from '../api';
-import type { Paginated, VetJobModerationStatus, VetJobOffer, VetJobSeekerProfile } from '../types';
+import type {
+  Paginated,
+  VetJobApplication,
+  VetJobModerationStatus,
+  VetJobOffer,
+  VetJobSeekerProfile,
+} from '../types';
 
 const PAGE = AppConfig.defaultPageSize;
 
@@ -27,7 +33,8 @@ export function useAdminVetJobOffers(filter: { status?: VetJobModerationStatus }
     queryKey: vetJobKeys.adminOfferList(filter.status),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetJobsApi.listOffers(pageParam, PAGE, filter),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,
   });
   const offers = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
@@ -46,11 +53,34 @@ export function useAdminVetJobSeekers(filter: { status?: VetJobModerationStatus 
     queryKey: vetJobKeys.adminSeekerList(filter.status),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetJobsApi.listSeekers(pageParam, PAGE, filter),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,
   });
   const seekers = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
   return { ...query, seekers, total: query.data?.pages[0]?.meta.total ?? 0 };
+}
+
+/** `GET /admin/vet-job-applications?jobOfferId=` — one offer's applicants ("المتقدمون"). */
+export function useAdminVetJobOfferApplications(offerId: string | undefined) {
+  const query = useInfiniteQuery<
+    Paginated<VetJobApplication>,
+    unknown,
+    InfiniteData<Paginated<VetJobApplication>>,
+    ReturnType<typeof vetJobKeys.adminOfferApplications>,
+    number
+  >({
+    queryKey: vetJobKeys.adminOfferApplications(offerId ?? ''),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      adminVetJobsApi.listApplications(pageParam, PAGE, { jobOfferId: offerId }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled: Boolean(offerId),
+    staleTime: 10_000,
+  });
+  const applications = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  return { ...query, applications, total: query.data?.pages[0]?.meta.total ?? 0 };
 }
 
 function useModerate<T>(
@@ -75,5 +105,8 @@ export function useAdminApproveVetJobSeeker() {
   return useModerate((id) => adminVetJobsApi.approveSeeker(id), 'seeker-approve');
 }
 export function useAdminRejectVetJobSeeker() {
-  return useModerate((id, reason) => adminVetJobsApi.rejectSeeker(id, reason ?? ''), 'seeker-reject');
+  return useModerate(
+    (id, reason) => adminVetJobsApi.rejectSeeker(id, reason ?? ''),
+    'seeker-reject',
+  );
 }

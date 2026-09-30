@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { Skeleton } from '@/components/feedback';
 import { useTheme } from '@/theme';
+import { formatDateTime } from '@/utils';
 
 import { AdminListScreen, AdminRow } from '../components';
 import { useAdminAuditLog } from '../hooks';
@@ -35,7 +36,7 @@ export default function AdminAuditLogScreen() {
           subtitle={`${t(`audit.entityTypes.${e.entityType}`, { defaultValue: e.entityType })}${
             e.entityId ? ` · ${e.entityId.slice(0, 8)}` : ''
           }`}
-          meta={`${new Date(e.createdAt).toLocaleString()} · ${
+          meta={`${formatDateTime(e.createdAt)} · ${
             e.actorUserId ? e.actorUserId.slice(0, 8) : t('audit.systemActor')
           }`}
         />

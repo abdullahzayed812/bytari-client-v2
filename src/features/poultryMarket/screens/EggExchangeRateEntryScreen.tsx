@@ -13,6 +13,7 @@ import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
+import { MarketGovernorateList } from '../components';
 import { useEggRates, useSaveEggRates } from '../hooks';
 import type { EggRateEntryInput } from '../types';
 
@@ -77,18 +78,20 @@ export default function EggExchangeRateEntryScreen() {
         <Caption>{t('exchangeRates.entryHintEgg')}</Caption>
       </Section>
 
-      {IRAQ_GOVERNORATES.map((governorate) => (
-        <Section key={governorate} spacing="lg">
-          <Caption>{governorate}</Caption>
-          <Input
-            placeholder={t('exchangeRates.entryEggLabel')}
-            keyboardType="decimal-pad"
-            value={price[governorate] ?? ''}
-            onChangeText={(v) => setPrice((prev) => ({ ...prev, [governorate]: v }))}
-            containerStyle={{ marginTop: theme.spacing.xs }}
-          />
-        </Section>
-      ))}
+      <MarketGovernorateList
+        renderGovernorate={(governorate) => (
+          <Section key={governorate} spacing="lg">
+            <Caption>{governorate}</Caption>
+            <Input
+              placeholder={t('exchangeRates.entryEggLabel')}
+              keyboardType="decimal-pad"
+              value={price[governorate] ?? ''}
+              onChangeText={(v) => setPrice((prev) => ({ ...prev, [governorate]: v }))}
+              containerStyle={{ marginTop: theme.spacing.xs }}
+            />
+          </Section>
+        )}
+      />
 
       <Section spacing="xl">
         <Button

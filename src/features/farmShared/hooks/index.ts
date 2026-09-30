@@ -11,3 +11,4 @@ export {
   useCreateFarmAppointment,
   useFarmAppointment,
 } from './useFarmOps';
+export { useFarmMemberChat } from './useFarmMemberChat';

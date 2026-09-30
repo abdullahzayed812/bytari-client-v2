@@ -17,16 +17,22 @@ import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import { AnimalCard, PublicationCardSkeleton } from '../components';
 import { PUBLICATION_KIND_META, publicationKindFromSlug, publicationKindSlug } from '../constants';
-import { useDeletePublication, useMyPublications, usePublicPublications } from '../hooks';
-import type { MyPublication, PublicPublication } from '../types';
+import {
+  useDeletePublication,
+  useMyPublicationInteractions,
+  useMyPublications,
+  usePublicPublications,
+} from '../hooks';
+import type { MyPublication, MyPublicationInteraction, PublicPublication } from '../types';
 
 const GRID_GAP = 12;
 const COLUMNS = 2;
 
-type Scope = 'all' | 'mine';
+type Scope = 'all' | 'mine' | 'requests';
 
 /**
  * Route `/publications/[kind]` — the animal community for one kind
@@ -51,6 +57,10 @@ export default function PublicationsBrowseScreen() {
 
   const allQ = usePublicPublications(kind, { enabled: scope === 'all' });
   const mineQ = useMyPublications(kind, { enabled: scope === 'mine' });
+  const requestsQ = useMyPublicationInteractions({
+    kind: kind ?? undefined,
+    enabled: scope === 'requests' && Boolean(kind),
+  });
   const q = scope === 'all' ? allQ : mineQ;
   const del = useDeletePublication();
 
@@ -92,8 +102,63 @@ export default function PublicationsBrowseScreen() {
         selected={scope === 'mine'}
         onPress={() => setScope('mine')}
       />
+      <Chip
+        label={t('browse.scope.requests')}
+        selected={scope === 'requests'}
+        onPress={() => setScope('requests')}
+      />
     </View>
   );
+
+  // "طلباتي" — my requests / sighting reports and each listing's outcome.
+  const renderRequest = ({ item }: { item: MyPublicationInteraction }) => {
+    const outcome =
+      item.publication.status !== 'APPROVED'
+        ? t('requests.pendingReview')
+        : t(`resolution.status.${item.publication.resolution ?? 'AVAILABLE'}`);
+    return (
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: theme.colors.border,
+          borderRadius: theme.radius.lg,
+          padding: theme.spacing.md,
+          rowGap: 4,
+        }}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text variant="bodyStrong">{item.publication.animalName}</Text>
+          <Text variant="label" color={item.publication.resolution ? 'textSecondary' : 'success'}>
+            {outcome}
+          </Text>
+        </View>
+        <Caption>
+          {`${t(`requests.type.${item.type}`)} · ${t('requests.sentAt', {
+            date: formatDate(item.createdAt),
+          })}`}
+        </Caption>
+        <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm, marginTop: 4 }}>
+          <Chip
+            label={t('requests.openListing')}
+            onPress={() =>
+              router.push(
+                Routes.publicationDetail(
+                  publicationKindSlug(item.publication.kind),
+                  item.publicationId,
+                ),
+              )
+            }
+          />
+          {item.conversationId ? (
+            <Chip
+              label={t('requests.chat')}
+              onPress={() => router.push(Routes.chatThread(item.conversationId as string))}
+            />
+          ) : null}
+        </View>
+      </View>
+    );
+  };
 
   const renderItem = ({ item }: { item: PublicPublication | MyPublication }) => {
     if (scope === 'mine') {
@@ -157,7 +222,40 @@ export default function PublicationsBrowseScreen() {
         </Pressable>
       </View>
 
-      {q.isLoading ? (
+      {scope === 'requests' ? (
+        <FlatList
+          data={requestsQ.interactions}
+          keyExtractor={(i) => i.id}
+          renderItem={renderRequest}
+          ListHeaderComponent={scopeRow}
+          ListEmptyComponent={
+            requestsQ.isLoading ? (
+              <Loading />
+            ) : requestsQ.isError ? (
+              <ErrorState error={requestsQ.error} onRetry={() => void requestsQ.refetch()} />
+            ) : (
+              <EmptyState
+                icon="chatbubbles-outline"
+                title={t('requests.mineEmpty')}
+                message={t('requests.mineEmptyHint')}
+              />
+            )
+          }
+          contentContainerStyle={{
+            paddingTop: theme.spacing.md,
+            paddingBottom: theme.spacing.huge,
+            rowGap: GRID_GAP,
+            paddingHorizontal: theme.screenPadding,
+            flexGrow: 1,
+          }}
+          onEndReachedThreshold={0.4}
+          onEndReached={() => {
+            if (requestsQ.hasNextPage && !requestsQ.isFetchingNextPage) {
+              void requestsQ.fetchNextPage();
+            }
+          }}
+        />
+      ) : q.isLoading ? (
         <View>
           {scopeRow}
           <View

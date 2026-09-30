@@ -15,6 +15,7 @@ import {
 } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import { ImageCarousel } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -22,6 +23,7 @@ import { useTheme } from '@/theme';
 import type { ColorTokens } from '@/theme';
 import { formatDate } from '@/utils';
 
+import { PublicationOwnerPanel } from '../components';
 import { KIND_INTERACTION, PUBLICATION_KIND_META, publicationKindFromSlug } from '../constants';
 import {
   useAnimalPublication,
@@ -275,6 +277,7 @@ export default function PublicationDetailScreen() {
             <Text variant="bodyMedium">{pub.note}</Text>
           </Card>
         </Section>
+        <PublicationOwnerPanel publication={pub} />
         <Section spacing="xl">
           <Button
             label={t('mine.delete')}
@@ -329,11 +332,16 @@ export default function PublicationDetailScreen() {
     interact.mutate(
       { type: interactionType },
       {
-        onSuccess: () =>
+        onSuccess: (interaction) => {
           toast.show({
             message: t(`detail.interactionSuccess.${interactionType}`),
             tone: 'success',
-          }),
+          });
+          // Continue with the listing owner in the in-app conversation.
+          if (interaction.conversationId) {
+            router.push(Routes.chatThread(interaction.conversationId));
+          }
+        },
         onError: (error) => toast.show({ message: apiErrorMessage(error), tone: 'danger' }),
       },
     );
@@ -454,16 +462,30 @@ export default function PublicationDetailScreen() {
           </Card>
         </Section>
 
+        {pub.resolution ? (
+          <Section spacing="lg">
+            <Card variant="outlined" padding="md">
+              <Text variant="bodyMedium" color="textSecondary">
+                {t('resolution.unavailableBanner', {
+                  status: t(`resolution.status.${pub.resolution}`),
+                })}
+              </Text>
+            </Card>
+          </Section>
+        ) : null}
+
         <Section spacing="huge">
           <Row gap="md">
-            <AccentButton
-              label={t(`detail.action.${kind}`)}
-              icon={interactionType === 'SIGHTING' ? 'alert-circle-outline' : meta.icon}
-              accentToken={meta.accent}
-              filled={kind !== 'LOST'}
-              loading={interact.isPending}
-              onPress={onInteract}
-            />
+            {pub.resolution ? null : (
+              <AccentButton
+                label={t(`detail.action.${kind}`)}
+                icon={interactionType === 'SIGHTING' ? 'alert-circle-outline' : meta.icon}
+                accentToken={meta.accent}
+                filled={kind !== 'LOST'}
+                loading={interact.isPending}
+                onPress={onInteract}
+              />
+            )}
             <AccentButton
               label={t('detail.contactOwner')}
               icon="call"

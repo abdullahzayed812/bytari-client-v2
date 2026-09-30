@@ -5,11 +5,19 @@ import { View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Badge, Card, Divider } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, SkeletonText, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  SkeletonText,
+  useToast,
+} from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -23,20 +31,34 @@ export default function CattleBatchDetailScreen() {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
   const toast = useToast();
-  const { organizationId, batchId } = useLocalSearchParams<{ organizationId: string; batchId: string }>();
+  const { organizationId, batchId } = useLocalSearchParams<{
+    organizationId: string;
+    batchId: string;
+  }>();
   const orgId = organizationId ?? '';
 
   const q = useCattleBatch(orgId, batchId);
   const update = useUpdateCattleBatch(orgId);
   const del = useDeleteCattleBatch(orgId);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Edit = farm vets/supervisors/owner; close (sell) and delete = owner/admin
+  // only — the server enforces `farm.batch.sell` / `farm.*.delete` too.
+  const { isAdmin } = useCapabilities();
+  const org = useOrganization(orgId);
+  const caps = orgCapabilities(org.data?.myRole, isAdmin);
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
         <AppHeader title={t('batchDetail.title')} showBack />
-        <EmptyState icon="help-circle-outline" title={t('batchDetail.notFoundTitle')} actionLabel={t('batchDetail.backToList')} onAction={() => router.replace(Routes.cattleBatches(orgId))} />
+        <EmptyState
+          icon="help-circle-outline"
+          title={t('batchDetail.notFoundTitle')}
+          actionLabel={t('batchDetail.backToList')}
+          onAction={() => router.replace(Routes.cattleBatches(orgId))}
+        />
       </ScrollScreen>
     );
   }
@@ -58,7 +80,11 @@ export default function CattleBatchDetailScreen() {
     update.mutate(
       { batchId: batch.id, body: { status: next } },
       {
-        onSuccess: () => toast.show({ tone: 'success', message: next === 'CLOSED' ? t('batchDetail.closed') : t('batchDetail.reopened') }),
+        onSuccess: () =>
+          toast.show({
+            tone: 'success',
+            message: next === 'CLOSED' ? t('batchDetail.closed') : t('batchDetail.reopened'),
+          }),
         onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
       },
     );
@@ -79,7 +105,11 @@ export default function CattleBatchDetailScreen() {
               <Heading level={2} numberOfLines={2} style={{ flex: 1 }}>
                 {batch.name}
               </Heading>
-              <Badge label={t(`batch.status${batch.status === 'ACTIVE' ? 'Active' : 'Closed'}`)} tone={BATCH_STATUS_TONE[batch.status]} size="md" />
+              <Badge
+                label={t(`batch.status${batch.status === 'ACTIVE' ? 'Active' : 'Closed'}`)}
+                tone={BATCH_STATUS_TONE[batch.status]}
+                size="md"
+              />
             </Row>
           </Section>
 
@@ -96,7 +126,10 @@ export default function CattleBatchDetailScreen() {
               <Divider spacing="sm" />
               <Field label={t('batchForm.fieldCowCount')} value={String(batch.cowCount ?? 0)} />
               <Divider spacing="sm" />
-              <Field label={t('batchForm.fieldArrivalDate')} value={batch.arrivalDate} />
+              <Field
+                label={t('batchForm.fieldArrivalDate')}
+                value={formatDate(batch.arrivalDate)}
+              />
             </Card>
           </Section>
 
@@ -115,19 +148,47 @@ export default function CattleBatchDetailScreen() {
               {batch.closedAt ? (
                 <>
                   <Divider spacing="sm" />
-                  <Field label={t('batchDetail.fieldClosedAt')} value={formatDate(batch.closedAt)} />
+                  <Field
+                    label={t('batchDetail.fieldClosedAt')}
+                    value={formatDate(batch.closedAt)}
+                  />
                 </>
               ) : null}
             </Card>
           </Section>
 
-          <Button label={t('batchDetail.editCta')} variant="outline" leftIcon="create-outline" disabled={busy} onPress={() => router.push(Routes.cattleBatchEdit(orgId, batch.id))} />
-          <View style={{ marginTop: theme.spacing.md }}>
-            <Button label={batch.status === 'ACTIVE' ? t('batchDetail.closeCta') : t('batchDetail.reopenCta')} variant="ghost" disabled={busy} onPress={toggleStatus} />
-          </View>
-          <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
-            <TextButton label={t('batchDetail.deleteCta')} tone="danger" icon="trash-outline" disabled={busy} onPress={() => setConfirmDelete(true)} />
-          </View>
+          {caps.canEditFarmBatch ? (
+            <Button
+              label={t('batchDetail.editCta')}
+              variant="outline"
+              leftIcon="create-outline"
+              disabled={busy}
+              onPress={() => router.push(Routes.cattleBatchEdit(orgId, batch.id))}
+            />
+          ) : null}
+          {caps.canSellFarmBatch ? (
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Button
+                label={
+                  batch.status === 'ACTIVE' ? t('batchDetail.closeCta') : t('batchDetail.reopenCta')
+                }
+                variant="ghost"
+                disabled={busy}
+                onPress={toggleStatus}
+              />
+            </View>
+          ) : null}
+          {caps.canDeleteFarmBatch ? (
+            <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
+              <TextButton
+                label={t('batchDetail.deleteCta')}
+                tone="danger"
+                icon="trash-outline"
+                disabled={busy}
+                onPress={() => setConfirmDelete(true)}
+              />
+            </View>
+          ) : null}
 
           <ConfirmationDialog
             visible={confirmDelete}
@@ -146,7 +207,8 @@ export default function CattleBatchDetailScreen() {
                     toast.show({ tone: 'success', message: t('batchDetail.deleteSuccess') });
                     router.replace(Routes.cattleBatches(orgId));
                   },
-                  onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                  onError: (error) =>
+                    toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                 },
               );
             }}

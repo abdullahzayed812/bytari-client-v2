@@ -35,4 +35,6 @@ export const vetJobKeys = {
     [...vetJobKeys.offers(), 'admin', { status: status ?? null }] as const,
   adminSeekerList: (status?: VetJobModerationStatus) =>
     [...vetJobKeys.seekers(), 'admin', { status: status ?? null }] as const,
+  adminOfferApplications: (offerId: string) =>
+    [...vetJobKeys.applications(), 'admin', offerId] as const,
 };

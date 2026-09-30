@@ -13,8 +13,8 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate, formatWeekday } from '@/utils';
 
-import { APPOINTMENT_CATEGORY_TONE } from '../constants';
 import { FarmRecordFooter } from '../components/FarmRecordFooter';
+import { APPOINTMENT_CATEGORY_TONE } from '../constants';
 import { useFarmAppointment } from '../hooks';
 import { useDeleteFarmAppointment, useUpdateFarmAppointmentStatus } from '../records';
 
@@ -34,7 +34,8 @@ export default function AppointmentDetailScreen() {
   const { t: tf } = useTranslation('farm');
   const { isAdmin } = useCapabilities();
   const org = useOrganization(organizationId ?? '');
-  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const canManage = farmCaps.canManageFarmPoultry;
   const remove = useDeleteFarmAppointment(organizationId ?? '');
   const setStatus = useUpdateFarmAppointmentStatus(organizationId ?? '');
 
@@ -100,6 +101,7 @@ export default function AppointmentDetailScreen() {
               <FarmRecordFooter
                 createdBy={q.data.createdBy}
                 canManage={canManage}
+                canDelete={farmCaps.canDeleteFarmRecords}
                 deleting={remove.isPending}
                 onDelete={() =>
                   remove.mutate(q.data!.id, {

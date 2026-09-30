@@ -26,7 +26,7 @@ export default function PoultryFlocksScreen() {
 
   const detail = useOrganization(orgId);
   const caps = orgCapabilities(detail.data?.myRole, isAdmin);
-  const canAdd = caps.canManageFarmPoultry;
+  const canAdd = caps.canCreateFarmBatch;
 
   const q = usePoultryFlocks(orgId);
 

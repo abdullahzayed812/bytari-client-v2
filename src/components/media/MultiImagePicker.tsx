@@ -29,6 +29,11 @@ interface GalleryItem {
 export interface MultiImagePickerProps {
   provider: PresignProvider;
   onChange: (storageKeys: string[]) => void;
+  /**
+   * `true` while any photo is still uploading. Forms must block submit on it —
+   * otherwise a submit mid-upload saves the record without that photo.
+   */
+  onBusyChange?: (busy: boolean) => void;
   max?: number;
   disabled?: boolean;
   label?: string;
@@ -49,6 +54,7 @@ export interface MultiImagePickerProps {
 export function MultiImagePicker({
   provider,
   onChange,
+  onBusyChange,
   max = 8,
   disabled,
   label,
@@ -61,10 +67,18 @@ export function MultiImagePicker({
   const [items, setItems] = useState<GalleryItem[]>([]);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const onBusyChangeRef = useRef(onBusyChange);
+  onBusyChangeRef.current = onBusyChange;
+  const [picking, setPicking] = useState(false);
 
   useEffect(() => {
     onChangeRef.current(items.filter((i) => i.storageKey).map((i) => i.storageKey as string));
   }, [items]);
+
+  const busy = picking || items.some((i) => i.status === 'uploading');
+  useEffect(() => {
+    onBusyChangeRef.current?.(busy);
+  }, [busy]);
 
   const uploadItem = async (id: string, file: LocalFile) => {
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, status: 'uploading' } : it)));
@@ -83,6 +97,8 @@ export function MultiImagePicker({
     if (items.length >= max) return;
     try {
       const files = await pickImages({ max: max - items.length });
+      // Busy until every picked photo has been uploaded (they upload one by one).
+      setPicking(files.length > 0);
       for (const file of files) {
         const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         setItems((prev) => [...prev, { id, file, storageKey: null, status: 'uploading' }]);
@@ -95,6 +111,8 @@ export function MultiImagePicker({
       } else {
         toast.show({ message: apiErrorMessage(error), tone: 'danger' });
       }
+    } finally {
+      setPicking(false);
     }
   };
 

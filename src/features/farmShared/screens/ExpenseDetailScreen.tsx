@@ -13,8 +13,8 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { EXPENSE_CATEGORY_ICON } from '../constants';
 import { FarmRecordFooter } from '../components/FarmRecordFooter';
+import { EXPENSE_CATEGORY_ICON } from '../constants';
 import { useFarmExpense } from '../hooks';
 import { useDeleteFarmExpense } from '../records';
 
@@ -32,7 +32,8 @@ export default function ExpenseDetailScreen() {
   const { t: tf } = useTranslation('farm');
   const { isAdmin } = useCapabilities();
   const org = useOrganization(organizationId ?? '');
-  const canManage = orgCapabilities(org.data?.myRole, isAdmin).canManageFarmPoultry;
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const canManage = farmCaps.canManageFarmPoultry;
   const remove = useDeleteFarmExpense(organizationId ?? '');
 
   return (
@@ -87,6 +88,7 @@ export default function ExpenseDetailScreen() {
               <FarmRecordFooter
                 createdBy={q.data.createdBy}
                 canManage={canManage}
+                canDelete={farmCaps.canDeleteFarmRecords}
                 deleting={remove.isPending}
                 onDelete={() =>
                   remove.mutate(q.data!.id, {

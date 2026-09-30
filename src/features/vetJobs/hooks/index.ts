@@ -28,4 +28,5 @@ export {
   useAdminRejectVetJobOffer,
   useAdminApproveVetJobSeeker,
   useAdminRejectVetJobSeeker,
+  useAdminVetJobOfferApplications,
 } from './useAdminVetJobs';

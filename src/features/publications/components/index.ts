@@ -8,3 +8,4 @@ export {
   type PublicationListingFieldsFormProps,
 } from './PublicationListingFieldsForm';
 export { AnimalProfileFields, type AnimalProfileFieldsProps } from './AnimalProfileFields';
+export { PublicationOwnerPanel } from './PublicationOwnerPanel';

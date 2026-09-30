@@ -155,24 +155,45 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
 
   it('blocks submit until name / count / arrival date are valid', async () => {
     renderWithProviders(<PoultryFlockFormScreen />);
-    fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
+    // the form renders once the caller's farm role (price field) is known
+    fireEvent.press(await screen.findByRole('button', { name: 'حفظ القطيع' }));
     await waitFor(() => expect(screen.getByText('اسم القطيع مطلوب.')).toBeOnTheScreen());
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('creates a flock with a numeric birdCount and the route organization id', async () => {
+  it('creates a flock with a numeric birdCount, the owner-entered sale price and the route organization id', async () => {
     create.mockResolvedValueOnce(flock());
     renderWithProviders(<PoultryFlockFormScreen />);
-    fireEvent.changeText(screen.getByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'قطيع الشمال');
+    fireEvent.changeText(
+      await screen.findByPlaceholderText('مثال: قطيع الحظيرة الشمالية'),
+      'قطيع الشمال',
+    );
     fireEvent.changeText(screen.getByPlaceholderText('0'), '500');
+    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '2500');
     fireEvent.changeText(screen.getByPlaceholderText('YYYY-MM-DD'), '2026-01-02');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
     await waitFor(() =>
       expect(create).toHaveBeenCalledWith(
         'o1',
-        expect.objectContaining({ name: 'قطيع الشمال', birdCount: 500, arrivalDate: '2026-01-02' }),
+        expect.objectContaining({
+          name: 'قطيع الشمال',
+          birdCount: 500,
+          arrivalDate: '2026-01-02',
+          targetPricePerKg: 2500,
+        }),
       ),
     );
+  });
+
+  it('an owner cannot create a batch without its sale price (the estimated-profit input)', async () => {
+    renderWithProviders(<PoultryFlockFormScreen />);
+    fireEvent.changeText(await screen.findByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'x');
+    fireEvent.changeText(screen.getByPlaceholderText('0'), '10');
+    fireEvent.changeText(screen.getByPlaceholderText('YYYY-MM-DD'), '2026-01-02');
+    fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
+    await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeOnTheScreen());
+    await new Promise((r) => setTimeout(r, 50));
+    expect(create).not.toHaveBeenCalled();
   });
 
   it('edit mode prefills the flock and PATCHes it', async () => {
@@ -217,8 +238,9 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
       new ApiError({ code: 'POULTRY_FLOCK_NOT_ACTIVE' as never, message: 'raw', status: 409 }),
     );
     renderWithProviders(<PoultryFlockFormScreen />);
-    fireEvent.changeText(screen.getByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'x');
+    fireEvent.changeText(await screen.findByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'x');
     fireEvent.changeText(screen.getByPlaceholderText('0'), '1');
+    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '100');
     fireEvent.changeText(screen.getByPlaceholderText('YYYY-MM-DD'), '2026-01-02');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
     await waitFor(() =>

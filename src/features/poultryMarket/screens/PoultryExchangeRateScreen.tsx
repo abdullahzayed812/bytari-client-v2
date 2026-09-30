@@ -10,6 +10,7 @@ import { Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
 import { useCapabilities } from '@/hooks';
+import { formatDate } from '@/utils';
 
 import { ExchangeRateLegend, ExchangeRateTable } from '../components';
 import { usePoultryRates } from '../hooks';
@@ -48,7 +49,7 @@ export default function PoultryExchangeRateScreen() {
 
       <Section spacing="md">
         <Text variant="label" color="textMuted">
-          {t('exchangeRates.dateLabel', { date })}
+          {t('exchangeRates.dateLabel', { date: formatDate(date) })}
         </Text>
       </Section>
 

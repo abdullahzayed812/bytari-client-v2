@@ -6,6 +6,7 @@ import { TextButton } from '@/components/actions';
 import { Badge, Card, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import type { DailyRecordWeekSummary } from '../weeks';
 
@@ -65,7 +66,10 @@ export function CompletedWeeksSection({
             </View>
             {w.firstDate && w.lastDate ? (
               <Caption color="textMuted">
-                {t('daily.weekRange', { from: w.firstDate, to: w.lastDate })}
+                {t('daily.weekRange', {
+                  from: formatDate(w.firstDate),
+                  to: formatDate(w.lastDate),
+                })}
               </Caption>
             ) : null}
             <View

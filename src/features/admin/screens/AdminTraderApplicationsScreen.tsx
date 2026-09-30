@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -6,11 +7,19 @@ import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { Modal } from '@/components/overlays';
+import { Routes } from '@/constants/routes';
 import type { TraderApplicationSummary, TraderStatus } from '@/features/poultryMarket';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
-import { AdminListScreen, AdminRow, FilterChips, ReasonPromptDialog } from '../components';
+import {
+  AdminDetailModal,
+  AdminListScreen,
+  AdminRow,
+  FilterChips,
+  ReasonPromptDialog,
+} from '../components';
 import { useAdminTraderApplications, useTraderDecisionMutation } from '../hooks';
 
 type Scope = 'all' | 'pending' | 'approved' | 'rejected' | 'suspended';
@@ -38,6 +47,7 @@ export default function AdminTraderApplicationsScreen() {
   const decide = useTraderDecisionMutation();
 
   const [approving, setApproving] = useState<TraderApplicationSummary | null>(null);
+  const [detail, setDetail] = useState<TraderApplicationSummary | null>(null);
   const [rejecting, setRejecting] = useState<TraderApplicationSummary | null>(null);
   const [suspending, setSuspending] = useState<TraderApplicationSummary | null>(null);
   const [removing, setRemoving] = useState<TraderApplicationSummary | null>(null);
@@ -172,6 +182,7 @@ export default function AdminTraderApplicationsScreen() {
             subtitle={`${a.displayName} — ${t(`traders.type.${a.traderType}`)}`}
             meta={[a.governorate, a.district, a.phone].filter(Boolean).join(' - ')}
             badge={{ label: t(`traders.status.${a.status}`), tone: statusTone(a.status) }}
+            onPress={() => setDetail(a)}
             actions={
               <>
                 {a.status === 'PENDING' ? (
@@ -305,6 +316,59 @@ export default function AdminTraderApplicationsScreen() {
           />
         </View>
       </Modal>
+
+      <AdminDetailModal
+        visible={detail != null}
+        onClose={() => setDetail(null)}
+        title={detail ? detail.displayName : t('traders.detail.title')}
+        fields={
+          detail
+            ? [
+                {
+                  label: t('traders.detail.applicantLabel'),
+                  value: `${detail.user.firstName} ${detail.user.lastName}`.trim(),
+                },
+                { label: t('traders.detail.emailLabel'), value: detail.user.email },
+                {
+                  label: t('traders.detail.traderTypeLabel'),
+                  value: t(`traders.type.${detail.traderType}`),
+                },
+                {
+                  label: t('traders.detail.statusLabel'),
+                  value: t(`traders.status.${detail.status}`),
+                },
+                { label: t('traders.detail.governorateLabel'), value: detail.governorate },
+                { label: t('traders.detail.districtLabel'), value: detail.district },
+                { label: t('traders.detail.phoneLabel'), value: detail.phone },
+                { label: t('traders.detail.whatsappLabel'), value: detail.whatsapp },
+                { label: t('traders.detail.bioLabel'), value: detail.bio },
+                {
+                  label: t('traders.detail.termsAcceptedLabel'),
+                  value: detail.termsAcceptedAt ? formatDate(detail.termsAcceptedAt) : null,
+                },
+                { label: t('traders.detail.submittedLabel'), value: formatDate(detail.createdAt) },
+                {
+                  label: t('traders.detail.decidedAtLabel'),
+                  value: detail.decidedAt ? formatDate(detail.decidedAt) : null,
+                },
+                { label: t('traders.detail.decisionReasonLabel'), value: detail.decisionReason },
+              ]
+            : []
+        }
+      >
+        {detail ? (
+          <Button
+            label={t('traders.detail.viewUser')}
+            variant="outline"
+            leftIcon="person-outline"
+            onPress={() => {
+              const userId = detail.user.id;
+              setDetail(null);
+              router.push(Routes.adminUser(userId));
+            }}
+          />
+        ) : null}
+      </AdminDetailModal>
 
       <ConfirmationDialog
         visible={reactivating != null}

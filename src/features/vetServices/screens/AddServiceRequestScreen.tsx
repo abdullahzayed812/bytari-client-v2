@@ -51,11 +51,14 @@ export default function AddServiceRequestScreen() {
   const [detailedAddress, setDetailedAddress] = useState('حي الكرادة، قرب ساحة الفردوس');
   const [needsFieldVisit, setNeedsFieldVisit] = useState(false);
   const [hasPreferredDate, setHasPreferredDate] = useState(false);
-  const [preferredDate, setPreferredDate] = useState<Date>(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  const [preferredDate, setPreferredDate] = useState<Date>(
+    new Date(Date.now() + 24 * 60 * 60 * 1000),
+  );
   const [budgetAmount, setBudgetAmount] = useState('20000');
   const [urgency, setUrgency] = useState<VetServiceUrgency>('NORMAL');
   const [extraNotes, setExtraNotes] = useState('يفضّل زيارة منزلية في المساء.');
   const [imageKeys, setImageKeys] = useState<string[]>([]);
+  const [imagesBusy, setImagesBusy] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -64,7 +67,15 @@ export default function AddServiceRequestScreen() {
 
   const onSubmit = () => {
     setSubmitted(true);
-    if (!title.trim() || !description.trim() || !animalType || !serviceType || !governorate || !accepted) return;
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !animalType ||
+      !serviceType ||
+      !governorate ||
+      !accepted
+    )
+      return;
     if (create.isPending) return;
 
     const input: CreateServiceRequestInput = {
@@ -114,7 +125,11 @@ export default function AddServiceRequestScreen() {
         multiline
         numberOfLines={4}
         maxLength={2000}
-        error={missing(description.trim() ? description : null) ? t('validation.required') : serverFields.description}
+        error={
+          missing(description.trim() ? description : null)
+            ? t('validation.required')
+            : serverFields.description
+        }
       />
       <Select<VetServiceAnimalType>
         label={t('fields.animalType')}
@@ -143,7 +158,12 @@ export default function AddServiceRequestScreen() {
           />
         </View>
         <View style={{ flex: 1 }}>
-          <Input label={t('fields.animalAge')} value={animalAge} onChangeText={setAnimalAge} maxLength={60} />
+          <Input
+            label={t('fields.animalAge')}
+            value={animalAge}
+            onChangeText={setAnimalAge}
+            maxLength={60}
+          />
         </View>
       </View>
       <Select<string>
@@ -154,7 +174,12 @@ export default function AddServiceRequestScreen() {
         error={missing(governorate) ? t('validation.required') : serverFields.governorate}
         options={IRAQ_GOVERNORATES.map((v) => ({ value: v, label: v }))}
       />
-      <Input label={t('fields.district')} value={district} onChangeText={setDistrict} maxLength={120} />
+      <Input
+        label={t('fields.district')}
+        value={district}
+        onChangeText={setDistrict}
+        maxLength={120}
+      />
       <Input
         label={t('fields.detailedAddress')}
         value={detailedAddress}
@@ -164,8 +189,16 @@ export default function AddServiceRequestScreen() {
         maxLength={300}
       />
 
-      <Switch label={t('fields.needsFieldVisit')} value={needsFieldVisit} onValueChange={setNeedsFieldVisit} />
-      <Switch label={t('fields.hasPreferredDate')} value={hasPreferredDate} onValueChange={setHasPreferredDate} />
+      <Switch
+        label={t('fields.needsFieldVisit')}
+        value={needsFieldVisit}
+        onValueChange={setNeedsFieldVisit}
+      />
+      <Switch
+        label={t('fields.hasPreferredDate')}
+        value={hasPreferredDate}
+        onValueChange={setHasPreferredDate}
+      />
       {hasPreferredDate ? (
         <DateTimeField
           label={t('fields.preferredDate')}
@@ -190,7 +223,12 @@ export default function AddServiceRequestScreen() {
         <Label>{t('fields.urgency')}</Label>
         <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
           {VET_SERVICE_URGENCIES.map((v) => (
-            <Chip key={v} label={t(`urgency.${v}`)} selected={urgency === v} onPress={() => setUrgency(v)} />
+            <Chip
+              key={v}
+              label={t(`urgency.${v}`)}
+              selected={urgency === v}
+              onPress={() => setUrgency(v)}
+            />
           ))}
         </View>
       </View>
@@ -206,20 +244,25 @@ export default function AddServiceRequestScreen() {
       <MultiImagePicker
         provider={imageProvider}
         onChange={setImageKeys}
+        onBusyChange={setImagesBusy}
         max={4}
         label={t('fields.images')}
         hint={t('fields.imagesHint')}
       />
 
       <TermsAcceptField termsKey="PUBLISH_REQUEST" accepted={accepted} onChange={setAccepted} />
-      {submitted && !accepted ? <Text variant="caption" color="danger">{t('validation.terms')}</Text> : null}
+      {submitted && !accepted ? (
+        <Text variant="caption" color="danger">
+          {t('validation.terms')}
+        </Text>
+      ) : null}
 
       <Button
         label={t('addRequest.submit')}
         fullWidth
         leftIcon="cloud-upload-outline"
         loading={create.isPending}
-        disabled={!accepted || create.isPending}
+        disabled={!accepted || create.isPending || imagesBusy}
         onPress={onSubmit}
       />
       <Text variant="caption" color="textMuted">

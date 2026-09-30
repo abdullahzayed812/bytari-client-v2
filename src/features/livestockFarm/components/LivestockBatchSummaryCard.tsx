@@ -16,6 +16,7 @@ export interface LivestockBatchSummaryLike {
   ageMonths: number;
   averageWeightKg: string | null;
   estimatedProfit: number | null;
+  targetPricePerKg?: string | number | null;
   /** `false` → the caller may not see profit (the server nulled it). */
   financialsVisible?: boolean;
 }
@@ -23,6 +24,8 @@ export interface LivestockBatchSummaryLike {
 interface Props {
   summary: LivestockBatchSummaryLike;
   canManage: boolean;
+  /** Selling is owner-level (`farm.batch.sell`) — separate from day-to-day management. */
+  canSell?: boolean;
   onAddDaily: () => void;
   onWeeklyReport: () => void;
   onSell: () => void;
@@ -33,6 +36,7 @@ interface Props {
 export function LivestockBatchSummaryCard({
   summary,
   canManage,
+  canSell = false,
   onAddDaily,
   onWeeklyReport,
   onSell,
@@ -67,7 +71,19 @@ export function LivestockBatchSummaryCard({
     { icon: 'scale-outline' as const, label: t('batch.avgWeight'), value: weightText },
     ...(summary.financialsVisible === false
       ? []
-      : [{ icon: 'cash-outline' as const, label: t('batch.estimatedProfit'), value: profitText }]),
+      : [
+          {
+            icon: 'pricetag-outline' as const,
+            label: t('batch.targetPrice'),
+            value:
+              summary.targetPricePerKg != null
+                ? t('batch.targetPriceValue', {
+                    price: Number(summary.targetPricePerKg).toLocaleString(),
+                  })
+                : t('batch.noTargetPrice'),
+          },
+          { icon: 'cash-outline' as const, label: t('batch.estimatedProfit'), value: profitText },
+        ]),
   ];
 
   return (
@@ -138,7 +154,7 @@ export function LivestockBatchSummaryCard({
                 onPress={onWeeklyReport}
               />
             </View>
-            {isActive ? (
+            {isActive && canSell ? (
               <View style={{ flex: 1 }}>
                 <Button
                   label={t('batch.sellBatch')}

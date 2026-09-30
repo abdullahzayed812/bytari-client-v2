@@ -10,6 +10,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -35,6 +36,10 @@ export default function VetJobSeekerDetailsScreen() {
   const q = useVetJobSeeker(seekerId);
   const startConversation = useStartConversationWithSeeker();
   const profile = q.data;
+  // Contact opens a chat WITH the seeker — never offered on one's own profile
+  // (the server refuses a self-chat).
+  const { user } = useAuth();
+  const isOwnProfile = Boolean(profile && user && profile.user.id === user.id);
 
   const onContact = (): void => {
     if (!profile) return;
@@ -183,12 +188,14 @@ export default function VetJobSeekerDetailsScreen() {
             }}
           >
             {/* Reference screenshot 5: "حفظ" (bookmark, cosmetic) + "تواصل مع الطبيب". */}
-            <Button
-              label={t('seeker.contact')}
-              fullWidth
-              loading={startConversation.isPending}
-              onPress={onContact}
-            />
+            {isOwnProfile ? null : (
+              <Button
+                label={t('seeker.contact')}
+                fullWidth
+                loading={startConversation.isPending}
+                onPress={onContact}
+              />
+            )}
           </View>
         </>
       )}

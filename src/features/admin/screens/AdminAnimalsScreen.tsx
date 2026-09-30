@@ -12,8 +12,14 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { AdminDetailModal, AdminListScreen, AdminRow, FilterChips } from '../components';
-import { useAdminAnimals, useAdminDeleteAnimal } from '../hooks';
+import {
+  AdminAnimalEditSheet,
+  AdminDetailModal,
+  AdminListScreen,
+  AdminRow,
+  FilterChips,
+} from '../components';
+import { useAdminAnimals, useAdminDeleteAnimal, useAdminUpdateAnimal } from '../hooks';
 import type { AdminAnimal, AdminAnimalStatus } from '../types';
 
 const STATUSES: AdminAnimalStatus[] = ['ACTIVE', 'DEACTIVATED'];
@@ -38,6 +44,8 @@ export default function AdminAnimalsScreen() {
   const [pendingDelete, setPendingDelete] = useState<AdminAnimal | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<AdminAnimal | null>(null);
+  const [editing, setEditing] = useState<AdminAnimal | null>(null);
+  const update = useAdminUpdateAnimal();
 
   const onDelete = () => {
     if (!pendingDelete) return;
@@ -147,6 +155,22 @@ export default function AdminAnimalsScreen() {
                   }),
                 },
                 { label: t('adminAnimals.details.breed'), value: detail.breed },
+                { label: t('adminAnimals.details.color'), value: detail.color ?? null },
+                {
+                  label: t('adminAnimals.details.dateOfBirth'),
+                  value: detail.dateOfBirth ? formatDate(detail.dateOfBirth) : null,
+                },
+                {
+                  label: t('adminAnimals.details.ageEstimate'),
+                  value: detail.ageEstimate
+                    ? tp(`ageEstimate.${detail.ageEstimate}`, { defaultValue: detail.ageEstimate })
+                    : null,
+                },
+                {
+                  label: t('adminAnimals.details.distinguishingFeatures'),
+                  value: detail.distinguishingFeatures ?? null,
+                },
+                { label: t('adminAnimals.details.notes'), value: detail.notes ?? null },
                 {
                   label: t('adminAnimals.details.sex'),
                   value: tp(`sex.${detail.sex}`, { defaultValue: detail.sex }),
@@ -165,6 +189,18 @@ export default function AdminAnimalsScreen() {
             : []
         }
       >
+        {detail && detail.status === 'ACTIVE' ? (
+          <Button
+            label={t('adminAnimals.editAction')}
+            variant="outline"
+            leftIcon="create-outline"
+            onPress={() => {
+              const a = detail;
+              setDetail(null);
+              setEditing(a);
+            }}
+          />
+        ) : null}
         <View style={{ rowGap: 4 }}>
           <Text variant="overline" color="textMuted">
             {t('adminAnimals.details.gallery')}
@@ -180,6 +216,25 @@ export default function AdminAnimalsScreen() {
           />
         </View>
       </AdminDetailModal>
+
+      <AdminAnimalEditSheet
+        animal={editing}
+        loading={update.isPending}
+        onClose={() => setEditing(null)}
+        onSave={(patch) => {
+          if (!editing) return;
+          update.mutate(
+            { animalId: editing.id, patch },
+            {
+              onSuccess: () => {
+                toast.show({ message: t('adminAnimals.toast.updated'), tone: 'success' });
+                setEditing(null);
+              },
+              onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+            },
+          );
+        }}
+      />
 
       <ImageViewer
         visible={viewer !== null}

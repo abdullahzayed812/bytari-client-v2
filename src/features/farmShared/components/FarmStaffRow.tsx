@@ -9,6 +9,8 @@ import { useTheme } from '@/theme';
 interface Props {
   member: OrganizationMember;
   onChat?: () => void;
+  /** Owner / authorized manager only — omitted → no remove button. */
+  onRemove?: () => void;
 }
 
 const ROLE_LABEL: Record<string, string> = {
@@ -19,7 +21,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 /** A doctor / worker row in the "الأطباء والعمال" list on the Farm Details screen. */
-export function FarmStaffRow({ member, onChat }: Props) {
+export function FarmStaffRow({ member, onChat, onRemove }: Props) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
   const name = `${member.user.firstName} ${member.user.lastName}`.trim() || member.user.email;
@@ -63,6 +65,17 @@ export function FarmStaffRow({ member, onChat }: Props) {
           <Text variant="overline" color="primary">
             {t('details.staffChat')}
           </Text>
+        </Pressable>
+      ) : null}
+      {onRemove ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('settings.memberRemove')}
+          onPress={onRemove}
+          hitSlop={8}
+          style={({ pressed }) => [{ padding: theme.spacing.xs }, pressed && { opacity: 0.7 }]}
+        >
+          <Icon name="trash-outline" size="iconSm" color="danger" />
         </Pressable>
       ) : null}
     </View>

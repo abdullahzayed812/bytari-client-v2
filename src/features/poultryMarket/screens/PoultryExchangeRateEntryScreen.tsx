@@ -14,6 +14,7 @@ import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
+import { MarketGovernorateList } from '../components';
 import { usePoultryRates, useSavePoultryRates } from '../hooks';
 import type { PoultryRateEntryInput } from '../types';
 
@@ -83,29 +84,37 @@ export default function PoultryExchangeRateEntryScreen() {
         <Caption>{t('exchangeRates.entryHintPoultry')}</Caption>
       </Section>
 
-      {IRAQ_GOVERNORATES.map((governorate) => (
-        <Section key={governorate} spacing="lg">
-          <Caption>{governorate}</Caption>
-          <View style={{ flexDirection: 'row', columnGap: theme.spacing.md, marginTop: theme.spacing.xs }}>
-            <View style={{ flex: 1 }}>
-              <Input
-                placeholder={t('exchangeRates.entryMeatLabel')}
-                keyboardType="decimal-pad"
-                value={meat[governorate] ?? ''}
-                onChangeText={(v) => setMeat((prev) => ({ ...prev, [governorate]: v }))}
-              />
+      <MarketGovernorateList
+        renderGovernorate={(governorate) => (
+          <Section key={governorate} spacing="lg">
+            <Caption>{governorate}</Caption>
+            <View
+              style={{
+                flexDirection: 'row',
+                columnGap: theme.spacing.md,
+                marginTop: theme.spacing.xs,
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Input
+                  placeholder={t('exchangeRates.entryMeatLabel')}
+                  keyboardType="decimal-pad"
+                  value={meat[governorate] ?? ''}
+                  onChangeText={(v) => setMeat((prev) => ({ ...prev, [governorate]: v }))}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Input
+                  placeholder={t('exchangeRates.entryLayerLabel')}
+                  keyboardType="decimal-pad"
+                  value={layer[governorate] ?? ''}
+                  onChangeText={(v) => setLayer((prev) => ({ ...prev, [governorate]: v }))}
+                />
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <Input
-                placeholder={t('exchangeRates.entryLayerLabel')}
-                keyboardType="decimal-pad"
-                value={layer[governorate] ?? ''}
-                onChangeText={(v) => setLayer((prev) => ({ ...prev, [governorate]: v }))}
-              />
-            </View>
-          </View>
-        </Section>
-      ))}
+          </Section>
+        )}
+      />
 
       <Section spacing="xl">
         <Button

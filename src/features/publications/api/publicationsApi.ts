@@ -6,9 +6,12 @@ import type {
   CreateInteractionInput,
   CreatePublicationInput,
   MyPublication,
+  MyPublicationInteraction,
+  OwnerPublicationInteraction,
   Paginated,
   PublicationInteraction,
   PublicationKind,
+  PublicationResolution,
   PublicationStatus,
   PublicPublication,
 } from '../types';
@@ -83,6 +86,52 @@ export const publicationsApi = {
       `/animal-publications/${publicationId}/interactions`,
       input,
     );
+  },
+
+  // --- outcome + contact (owner / requester) ---
+
+  /** Owner: mark FOUND / ADOPTED / CLOSED, or reopen with `null`. */
+  setResolution(
+    publicationId: string,
+    resolution: PublicationResolution | null,
+  ): Promise<PublicPublication> {
+    return apiClient.post<PublicPublication>(`/animal-publications/${publicationId}/resolution`, {
+      resolution,
+    });
+  },
+
+  /** Owner: the requests / sighting reports on one listing. */
+  listInteractions(publicationId: string): Promise<OwnerPublicationInteraction[]> {
+    return apiClient.get<OwnerPublicationInteraction[]>(
+      `/animal-publications/${publicationId}/interactions`,
+    );
+  },
+
+  /** Owner: open (or reopen) the chat with one requester. */
+  openInteractionConversation(
+    publicationId: string,
+    interactionId: string,
+  ): Promise<{ conversationId: string }> {
+    return apiClient.post<{ conversationId: string }>(
+      `/animal-publications/${publicationId}/interactions/${interactionId}/conversation`,
+    );
+  },
+
+  /** Requester: my requests / reports with each listing's current outcome. */
+  async listMyInteractions(
+    page: number,
+    pageSize: number,
+    filter: { kind?: PublicationKind } = {},
+  ): Promise<Paginated<MyPublicationInteraction>> {
+    const envelope = await apiClient.requestEnvelope<MyPublicationInteraction[]>({
+      method: 'GET',
+      url: '/animal-publications/interactions/mine',
+      params: { page, pageSize, kind: filter.kind },
+    });
+    return {
+      items: envelope.data,
+      meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+    };
   },
 
   // --- owner-facing (per animal, every status) ---

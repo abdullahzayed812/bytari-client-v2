@@ -5,9 +5,10 @@ import { Button } from '@/components/actions';
 import { Badge, Card, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
-import { formatSalary } from '../utils';
 import type { PublicVetJobOffer } from '../types';
+import { formatSalary } from '../utils';
 
 function Row({ icon, children }: { icon: Parameters<typeof Icon>[0]['name']; children: string }) {
   return (
@@ -64,10 +65,14 @@ export function JobOfferCard({
           <Caption numberOfLines={1}>{offer.organizationName}</Caption>
           <Row icon="location-outline">{location}</Row>
           {offer.experienceYearsRequired != null ? (
-            <Row icon="briefcase-outline">{t('offers.experienceYears', { count: offer.experienceYearsRequired })}</Row>
+            <Row icon="briefcase-outline">
+              {t('offers.experienceYears', { count: offer.experienceYearsRequired })}
+            </Row>
           ) : null}
           {offer.applicationDeadline ? (
-            <Row icon="calendar-outline">{t('offers.lastApplyDate', { date: offer.applicationDeadline })}</Row>
+            <Row icon="calendar-outline">
+              {t('offers.lastApplyDate', { date: formatDate(offer.applicationDeadline) })}
+            </Row>
           ) : null}
         </View>
       </View>

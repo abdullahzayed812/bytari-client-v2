@@ -163,8 +163,13 @@ export interface Paginated<T> {
 export interface AiSettings {
   consultationAiEnabled: boolean;
   inquiryAiEnabled: boolean;
+  /** Admin's fixed instruction sent to the AI (server-side only); `null` = none. */
+  consultationAiInstruction?: string | null;
+  inquiryAiInstruction?: string | null;
 }
 export interface UpdateAiSettingsInput {
   consultationAiEnabled?: boolean;
   inquiryAiEnabled?: boolean;
+  consultationAiInstruction?: string | null;
+  inquiryAiInstruction?: string | null;
 }

@@ -16,7 +16,11 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useFarmProfile, useFarmSubscriptionRenewals } from '@/features/farmShared';
+import {
+  useFarmProfile,
+  useFarmSubscriptionRenewals,
+  useFarmMemberChat,
+} from '@/features/farmShared';
 import { CompletedWeeksSection } from '@/features/farmShared/components/CompletedWeeksSection';
 import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
@@ -55,6 +59,7 @@ export default function PoultryFarmDetailsScreen() {
 
   const detail = useOrganization(orgId);
   const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const chatHandlerFor = useFarmMemberChat(orgId, detail.data?.ownerUserId, detail.data?.myRole);
   const canManage = caps.canManageFarmPoultry;
   const [addStaffOpen, setAddStaffOpen] = useState(false);
   // Approval (Organization.status) and subscription validity are separate
@@ -222,7 +227,7 @@ export default function PoultryFarmDetailsScreen() {
             {activeFlocks.isLoading ? (
               <Loading label={t('common.loading')} />
             ) : !flock ? (
-              <EmptyBatch canManage={canManage} orgId={orgId} />
+              <EmptyBatch canManage={caps.canCreateFarmBatch} orgId={orgId} />
             ) : summary.isLoading || !summary.data ? (
               <Loading label={t('common.loading')} />
             ) : (
@@ -230,6 +235,7 @@ export default function PoultryFarmDetailsScreen() {
                 <BatchSummaryCard
                   summary={summary.data}
                   canManage={canManage}
+                  canSell={caps.canSellFarmBatch}
                   selling={sellFlock.isPending}
                   onAddDaily={() => router.push(Routes.poultryFarmSection(orgId, 'daily'))}
                   onWeeklyReport={() => router.push(Routes.poultryFarmSection(orgId, 'weekly'))}
@@ -354,7 +360,7 @@ export default function PoultryFarmDetailsScreen() {
               <Caption>{t('details.staffEmpty')}</Caption>
             ) : (
               members.members.map((m) => (
-                <FarmStaffRow key={m.id} member={m} onChat={() => router.push(Routes.chat)} />
+                <FarmStaffRow key={m.id} member={m} onChat={chatHandlerFor(m)} />
               ))
             )}
           </View>

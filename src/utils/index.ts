@@ -2,6 +2,7 @@ export {
   fullName,
   initialsOf,
   formatDate,
+  formatDateTime,
   formatTime,
   formatWeekday,
   truncate,

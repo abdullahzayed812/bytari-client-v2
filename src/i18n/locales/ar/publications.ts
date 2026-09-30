@@ -77,9 +77,42 @@ export default {
     scope: {
       all: 'الكل',
       mine: 'منشوراتي',
+      requests: 'طلباتي',
     },
     mineEmpty: 'لا توجد منشورات لك',
     mineEmptyHint: 'ستظهر هنا الإعلانات التي أنشأتها بجميع حالاتها.',
+  },
+  resolution: {
+    sectionTitle: 'حالة الإعلان',
+    status: {
+      AVAILABLE: 'متاح',
+      FOUND: 'تم العثور عليه',
+      ADOPTED: 'تم التبني',
+      CLOSED: 'مغلق',
+    },
+    action: {
+      FOUND: 'تم العثور عليه',
+      ADOPTED: 'تم التبني',
+      CLOSED: 'إغلاق الإعلان',
+    },
+    reopen: 'إعادة فتح الإعلان',
+    confirmTitle: 'تحديث حالة الإعلان',
+    confirmBody:
+      'سيختفي الإعلان من القوائم العامة ولن يستقبل طلبات جديدة. يمكنك إعادة فتحه لاحقاً.',
+    updated: 'تم تحديث حالة الإعلان',
+    onlyApproved: 'يمكنك تحديث حالة الإعلان بعد الموافقة عليه ونشره.',
+    unavailableBanner: 'هذا الإعلان لم يعد متاحاً — {{status}}',
+  },
+  requests: {
+    title: 'الطلبات والبلاغات',
+    empty: 'لا توجد طلبات أو بلاغات بعد.',
+    type: { REQUEST: 'طلب', SIGHTING: 'بلاغ مشاهدة' },
+    chat: 'محادثة',
+    mineEmpty: 'لم ترسل أي طلب بعد',
+    mineEmptyHint: 'ستظهر هنا طلبات التبني والتزاوج وبلاغات المشاهدة التي أرسلتها وحالتها.',
+    sentAt: 'أُرسل في {{date}}',
+    openListing: 'عرض الإعلان',
+    pendingReview: 'قيد المراجعة',
   },
   mine: {
     delete: 'حذف الإعلان',

@@ -21,7 +21,8 @@ import type {
   AuditLogEntry,
   Organization,
   OrganizationType,
-  OrganizationWithDetails,
+  AdminOrganizationFile,
+  AdminUpdateAnimalInput,
   OrgListFilter,
   OrgStatusAction,
   Paginated,
@@ -159,8 +160,8 @@ export const adminApi = {
     return listPaged<Organization>('/admin/organizations/pending', page, pageSize, {});
   },
 
-  getOrganization(organizationId: string): Promise<OrganizationWithDetails> {
-    return apiClient.get<OrganizationWithDetails>(`/admin/organizations/${organizationId}`);
+  getOrganization(organizationId: string): Promise<AdminOrganizationFile> {
+    return apiClient.get<AdminOrganizationFile>(`/admin/organizations/${organizationId}`);
   },
 
   listOrganizationMembers(organizationId: string): Promise<AdminOrgMember[]> {
@@ -301,6 +302,10 @@ export const adminApi = {
       search: f.search,
       ownerUserId: f.ownerUserId,
     });
+  },
+
+  updateAnimal(animalId: string, input: AdminUpdateAnimalInput): Promise<AdminAnimal> {
+    return apiClient.patch<AdminAnimal>(`/admin/animals/${animalId}`, input);
   },
 
   deleteAnimal(animalId: string): Promise<{ id: string; status: string }> {

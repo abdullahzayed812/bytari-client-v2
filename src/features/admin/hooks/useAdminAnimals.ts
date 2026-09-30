@@ -10,7 +10,7 @@ import { useMemo } from 'react';
 import { AppConfig } from '@/constants/config';
 
 import { adminApi, adminKeys } from '../api';
-import type { AdminAnimal, AdminAnimalStatus, Paginated } from '../types';
+import type { AdminAnimal, AdminAnimalStatus, AdminUpdateAnimalInput, Paginated } from '../types';
 
 export interface AdminAnimalsParams {
   status?: AdminAnimalStatus;
@@ -65,6 +65,22 @@ export function useAdminDeleteAnimal(): UseMutationResult<
   return useMutation({
     mutationKey: ['admin', 'animals', 'delete'],
     mutationFn: ({ animalId }) => adminApi.deleteAnimal(animalId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.animals.all });
+    },
+  });
+}
+
+/** `PATCH /admin/animals/:id` — edit a pet profile (`animal.update`). Never touches listings. */
+export function useAdminUpdateAnimal(): UseMutationResult<
+  AdminAnimal,
+  unknown,
+  { animalId: string; patch: AdminUpdateAnimalInput }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['admin', 'animals', 'update'],
+    mutationFn: ({ animalId, patch }) => adminApi.updateAnimal(animalId, patch),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminKeys.animals.all });
     },

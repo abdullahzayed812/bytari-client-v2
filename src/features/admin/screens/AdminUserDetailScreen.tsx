@@ -16,6 +16,7 @@ import { Routes } from '@/constants/routes';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import { ReasonPromptDialog } from '../components';
 import {
@@ -244,7 +245,7 @@ export default function AdminUserDetailScreen() {
                 />
                 <InfoRow
                   label={t('users.detail.joinedLabel')}
-                  value={new Date(q.data.createdAt).toLocaleDateString()}
+                  value={formatDate(q.data.createdAt)}
                 />
               </View>
             </Card>
@@ -265,7 +266,7 @@ export default function AdminUserDetailScreen() {
                   />
                   <InfoRow
                     label={t('users.detail.vetAppliedAtLabel')}
-                    value={new Date(q.data.veterinarianApplication.createdAt).toLocaleDateString()}
+                    value={formatDate(q.data.veterinarianApplication.createdAt)}
                   />
                   {q.data.veterinarianApplication.decisionReason ? (
                     <InfoRow

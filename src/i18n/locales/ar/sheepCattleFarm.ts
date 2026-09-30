@@ -92,6 +92,9 @@ export default {
   },
   batch: {
     title: 'الدفعة رقم {{number}}',
+    targetPrice: 'سعر البيع للكيلو',
+    targetPriceValue: '{{price}} د.ع/كغ',
+    noTargetPrice: 'لم يُحدَّد',
     titleNoNumber: 'الدفعة الحالية',
     statusActive: 'نشط',
     statusClosed: 'مغلق',

@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
+import { Button } from '@/components/actions';
 import { Card } from '@/components/content';
 import { ErrorState, SkeletonText, useToast } from '@/components/feedback';
-import { Switch } from '@/components/forms';
+import { Input, Switch } from '@/components/forms';
 import { Caption, Label } from '@/components/typography';
 import { useTheme } from '@/theme';
 
@@ -78,7 +80,68 @@ export function AiSettingsCard({ only }: AiSettingsCardProps = {}) {
         <Caption color={isOn ? 'success' : 'textMuted'}>
           {isOn ? t('ai.stateOn') : t('ai.stateOff')}
         </Caption>
+        <Caption>{t('ai.singleResponse')}</Caption>
+        {only !== 'inquiryAiEnabled' ? (
+          <InstructionEditor
+            field="consultationAiInstruction"
+            value={q.data.consultationAiInstruction ?? null}
+          />
+        ) : null}
+        {only !== 'consultationAiEnabled' ? (
+          <InstructionEditor
+            field="inquiryAiInstruction"
+            value={q.data.inquiryAiInstruction ?? null}
+          />
+        ) : null}
       </View>
     </Card>
+  );
+}
+
+/** The Admin's fixed AI instruction for one kind (`PATCH /admin/ai-settings`). */
+function InstructionEditor({
+  field,
+  value,
+}: {
+  field: 'consultationAiInstruction' | 'inquiryAiInstruction';
+  value: string | null;
+}) {
+  const { t } = useTranslation('support');
+  const toast = useToast();
+  const update = useUpdateAiSettings();
+  const [draft, setDraft] = useState(value ?? '');
+  useEffect(() => setDraft(value ?? ''), [value]);
+  const dirty = draft.trim() !== (value ?? '').trim();
+
+  return (
+    <View style={{ rowGap: 6 }}>
+      <Input
+        label={t('ai.instructionLabel')}
+        placeholder={t('ai.instructionPlaceholder')}
+        hint={t('ai.instructionHint')}
+        value={draft}
+        onChangeText={setDraft}
+        multiline
+        numberOfLines={4}
+        maxLength={4000}
+      />
+      <Button
+        label={t('ai.instructionSave')}
+        size="sm"
+        variant="outline"
+        disabled={!dirty || update.isPending}
+        loading={update.isPending}
+        onPress={() =>
+          update.mutate(
+            { [field]: draft.trim() === '' ? null : draft.trim() },
+            {
+              onSuccess: () => toast.show({ tone: 'success', message: t('ai.instructionSaved') }),
+              onError: (error) =>
+                toast.show({ tone: 'danger', message: supportErrorMessage(error, t) }),
+            },
+          )
+        }
+      />
+    </View>
   );
 }

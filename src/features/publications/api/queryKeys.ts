@@ -25,6 +25,12 @@ export const publicationKeys = {
   mineList: (kind: PublicationKind, filter: { status?: string } = {}) =>
     [...publicationKeys.mine(), 'list', { kind, ...filter }] as const,
 
+  /** Requests on one listing (owner) / my own requests (requester). */
+  interactions: (publicationId: string) =>
+    [...publicationKeys.all, 'interactions', publicationId] as const,
+  myInteractions: (kind?: PublicationKind) =>
+    [...publicationKeys.all, 'interactions', 'mine', { kind: kind ?? null }] as const,
+
   /** Admin moderation queue. */
   admin: () => [...publicationKeys.all, 'admin'] as const,
   adminList: (filter: { kind?: string; status?: string } = {}) =>

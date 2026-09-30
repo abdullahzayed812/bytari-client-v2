@@ -34,20 +34,25 @@ export default function SubmitOfferScreen() {
   // sending; every field stays editable and terms must still be accepted.
   const [proposedAmount, setProposedAmount] = useState('20000');
   const [hasExecDate, setHasExecDate] = useState(false);
-  const [executionDate, setExecutionDate] = useState<Date>(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  const [executionDate, setExecutionDate] = useState<Date>(
+    new Date(Date.now() + 24 * 60 * 60 * 1000),
+  );
   const [expectedDuration, setExpectedDuration] = useState('٣٠–٤٥ دقيقة');
   const [includesFieldVisit, setIncludesFieldVisit] = useState(false);
-  const [details, setDetails] = useState(
-    'أقوم بزيارة منزلية مع فحص شامل وتقرير مبدئي وخطة علاج.',
-  );
+  const [details, setDetails] = useState('أقوم بزيارة منزلية مع فحص شامل وتقرير مبدئي وخطة علاج.');
   const [imageKeys, setImageKeys] = useState<string[]>([]);
+  const [imagesBusy, setImagesBusy] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   if (!caps.isApprovedVeterinarian) {
     return (
       <OrgFormLayout title={t('submitOffer.title')}>
-        <EmptyState icon="lock-closed-outline" title={t('submitOffer.vetOnly')} message={t('submitOffer.vetOnlyHint')} />
+        <EmptyState
+          icon="lock-closed-outline"
+          title={t('submitOffer.vetOnly')}
+          message={t('submitOffer.vetOnlyHint')}
+        />
       </OrgFormLayout>
     );
   }
@@ -79,7 +84,9 @@ export default function SubmitOfferScreen() {
   return (
     <OrgFormLayout title={t('submitOffer.title')}>
       {requestQ.data ? (
-        <Text color="textSecondary">{t('submitOffer.forRequest', { title: requestQ.data.title })}</Text>
+        <Text color="textSecondary">
+          {t('submitOffer.forRequest', { title: requestQ.data.title })}
+        </Text>
       ) : null}
 
       <Input
@@ -90,7 +97,11 @@ export default function SubmitOfferScreen() {
         hint={t('fields.priceHint')}
         error={serverFields.proposedAmount}
       />
-      <Switch label={t('fields.hasExecutionDate')} value={hasExecDate} onValueChange={setHasExecDate} />
+      <Switch
+        label={t('fields.hasExecutionDate')}
+        value={hasExecDate}
+        onValueChange={setHasExecDate}
+      />
       {hasExecDate ? (
         <DateTimeField
           label={t('fields.executionDate')}
@@ -125,20 +136,25 @@ export default function SubmitOfferScreen() {
       <MultiImagePicker
         provider={imageProvider}
         onChange={setImageKeys}
+        onBusyChange={setImagesBusy}
         max={4}
         label={t('fields.images')}
         hint={t('fields.imagesHint')}
       />
 
       <TermsAcceptField termsKey="SUBMIT_OFFER" accepted={accepted} onChange={setAccepted} />
-      {submitted && !accepted ? <Text variant="caption" color="danger">{t('validation.terms')}</Text> : null}
+      {submitted && !accepted ? (
+        <Text variant="caption" color="danger">
+          {t('validation.terms')}
+        </Text>
+      ) : null}
 
       <Button
         label={t('submitOffer.submit')}
         fullWidth
         leftIcon="paper-plane-outline"
         loading={create.isPending}
-        disabled={!accepted || create.isPending}
+        disabled={!accepted || create.isPending || imagesBusy}
         onPress={onSubmit}
       />
     </OrgFormLayout>

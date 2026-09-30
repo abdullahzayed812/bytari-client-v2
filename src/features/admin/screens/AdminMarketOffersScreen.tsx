@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -7,6 +7,7 @@ import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Label } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import {
   useAdminDeleteEggOffer,
   useAdminDeletePoultryOffer,
@@ -18,8 +19,15 @@ import {
 import type { EggOffer, MarketModerationStatus, PoultryOffer } from '@/features/poultryMarket';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
-import { AdminListScreen, AdminRow, FilterChips, ReasonPromptDialog } from '../components';
+import {
+  AdminDetailModal,
+  AdminListScreen,
+  AdminRow,
+  FilterChips,
+  ReasonPromptDialog,
+} from '../components';
 
 type Offer = PoultryOffer | EggOffer;
 type Kind = 'poultry' | 'egg';
@@ -32,9 +40,11 @@ type Kind = 'poultry' | 'egg';
 export default function AdminMarketOffersScreen() {
   const params = useLocalSearchParams<{ kind: Kind }>();
   const { t } = useTranslation('admin');
+  const { t: tm } = useTranslation('poultryMarket');
   const theme = useTheme();
   const toast = useToast();
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [detail, setDetail] = useState<Offer | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [kind, setKind] = useState<Kind>(params.kind === 'egg' ? 'egg' : 'poultry');
 
@@ -97,6 +107,65 @@ export default function AdminMarketOffersScreen() {
     );
   };
 
+  /** Every stored field of the ad — the reviewer sees the full record before deciding. */
+  const offerDetailFields = (o: Offer) => {
+    const seller = o.seller
+      ? [o.seller.displayName, `${o.seller.firstName} ${o.seller.lastName}`.trim()]
+          .filter(Boolean)
+          .join(' — ')
+      : null;
+    const productFields =
+      'birdType' in o
+        ? [
+            {
+              label: tm('poultryMarket.fieldBirdType'),
+              value: tm(`poultryMarket.birdType.${o.birdType}`),
+            },
+            { label: tm('poultryMarket.strainLabel'), value: o.breed },
+            { label: tm('poultryMarket.quantityLabel'), value: String(o.quantity) },
+            {
+              label: tm('poultryMarket.pricingMethodLabel'),
+              value: tm(`poultryMarket.pricingMethod.${o.pricingMethod}`),
+            },
+            {
+              label: t('marketOffers.detail.totalPrice'),
+              value: `${o.price} ${tm('poultryMarket.currency')}`,
+            },
+            {
+              label: tm('poultryMarket.ageLabel'),
+              value: o.ageWeeks != null ? `${o.ageWeeks} ${tm('poultryMarket.unitWeek')}` : null,
+            },
+            { label: tm('poultryMarket.weightLabel'), value: o.weightKg },
+          ]
+        : [
+            { label: tm('eggMarket.fieldEggType'), value: tm(`eggMarket.eggType.${o.eggType}`) },
+            { label: tm('eggMarket.sellUnitLabel'), value: tm(`eggMarket.sellUnit.${o.sellUnit}`) },
+            { label: tm('eggMarket.fieldQuantity'), value: String(o.quantity) },
+            {
+              label: t('marketOffers.detail.totalPrice'),
+              value: `${o.pricePerUnit} ${tm('poultryMarket.currency')}`,
+            },
+          ];
+    return [
+      { label: t('marketOffers.detail.seller'), value: seller },
+      { label: t('marketOffers.detail.sellerAccount'), value: o.seller?.email ?? null },
+      ...productFields,
+      { label: tm('poultryMarket.governorateLabel'), value: o.governorate },
+      { label: tm('poultryMarket.districtLabel'), value: o.district },
+      { label: tm('poultryMarket.phoneLabel'), value: o.phone },
+      { label: t('marketOffers.detail.whatsapp'), value: o.whatsapp },
+      { label: tm('poultryMarket.notesLabel'), value: o.notes },
+      { label: t('marketOffers.detail.status'), value: t(`marketOffers.status.${o.status}`) },
+      {
+        label: t('marketOffers.detail.moderation'),
+        value: t(`marketOffers.moderation.${o.moderationStatus ?? 'APPROVED'}`),
+      },
+      { label: t('marketOffers.detail.rejectionReason'), value: o.rejectionReason ?? null },
+      { label: t('marketOffers.detail.createdAt'), value: formatDate(o.createdAt) },
+      { label: t('marketOffers.detail.updatedAt'), value: formatDate(o.updatedAt) },
+    ];
+  };
+
   return (
     <>
       <AdminListScreen<Offer>
@@ -138,8 +207,20 @@ export default function AdminMarketOffersScreen() {
         }
         renderItem={(o) => (
           <AdminRow
-            title={[o.governorate, o.district].filter(Boolean).join(' - ')}
-            subtitle={o.phone}
+            title={
+              'birdType' in o
+                ? `${tm(`poultryMarket.birdType.${o.birdType}`)} · ${o.quantity}`
+                : `${tm(`eggMarket.eggType.${o.eggType}`)} · ${o.quantity}`
+            }
+            subtitle={[
+              o.seller?.displayName ??
+                (o.seller ? `${o.seller.firstName} ${o.seller.lastName}`.trim() : null),
+              [o.governorate, o.district].filter(Boolean).join(' - '),
+            ]
+              .filter(Boolean)
+              .join(' — ')}
+            meta={`${'price' in o ? o.price : o.pricePerUnit} ${tm('poultryMarket.currency')} · ${formatDate(o.createdAt)}`}
+            onPress={() => setDetail(o)}
             image={{
               uri: o.imageUrls[0] ?? null,
               fallbackIcon: isEgg ? 'egg-outline' : 'nutrition-outline',
@@ -227,6 +308,33 @@ export default function AdminMarketOffersScreen() {
         onConfirm={onReject}
         onCancel={() => setRejecting(null)}
       />
+
+      <AdminDetailModal
+        visible={detail != null}
+        onClose={() => setDetail(null)}
+        title={t('marketOffers.detail.title')}
+        fields={detail ? offerDetailFields(detail) : []}
+      >
+        {detail && detail.imageUrls.length > 0 ? (
+          <ImageThumbnailRow
+            images={detail.imageUrls}
+            size={88}
+            onPress={(index) => setViewer({ images: detail.imageUrls, index })}
+          />
+        ) : null}
+        {detail?.seller ? (
+          <Button
+            label={t('marketOffers.detail.viewSeller')}
+            variant="outline"
+            leftIcon="person-outline"
+            onPress={() => {
+              const userId = detail.traderUserId;
+              setDetail(null);
+              router.push(Routes.adminUser(userId));
+            }}
+          />
+        ) : null}
+      </AdminDetailModal>
 
       <ImageViewer
         visible={viewer !== null}

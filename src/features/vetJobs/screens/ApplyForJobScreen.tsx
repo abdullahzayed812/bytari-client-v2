@@ -15,6 +15,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { apiErrorMessage } from '@/lib/apiError';
+import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { useApplyToVetJobOffer, useVetJobAttachmentProvider } from '../hooks';
@@ -30,8 +31,18 @@ interface FormValues {
   coverNote: string;
 }
 
-/** Pre-filled so a test submission needs no typing — every field stays editable. */
 const EMPTY: FormValues = {
+  fullName: '',
+  specialty: '',
+  qualifications: '',
+  experienceYears: '',
+  phone: '',
+  email: '',
+  coverNote: '',
+};
+
+/** Dev builds only (`devDataEnabled`) — pre-filled so a test submission needs no typing. */
+const DEV_DEFAULTS: FormValues = {
   fullName: 'د. أحمد علي',
   specialty: 'طب وجراحة الحيوانات الصغيرة',
   qualifications: 'بكالوريوس طب بيطري',
@@ -40,6 +51,9 @@ const EMPTY: FormValues = {
   email: 'applicant@example.com',
   coverNote: 'أرغب بالانضمام لفريقكم وأمتلك خبرة مناسبة لهذه الوظيفة.',
 };
+
+/** The server's vet-jobs attachment allow-list (`VET_JOB_ALLOWED_*_MIME`). */
+const CV_TYPES = ['application/pdf'];
 
 /** Route `/(app)/vet-jobs/offers/[offerId]/apply` — "التقديم على الوظيفة". */
 export default function ApplyForJobScreen() {
@@ -51,6 +65,8 @@ export default function ApplyForJobScreen() {
   const attachmentProvider = useVetJobAttachmentProvider();
   const [cvStorageKey, setCvStorageKey] = useState<string | null>(null);
   const [photoStorageKey, setPhotoStorageKey] = useState<string | null>(null);
+  const [cvUploading, setCvUploading] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   const schema = useMemo(
     () =>
@@ -58,7 +74,14 @@ export default function ApplyForJobScreen() {
         fullName: z.string().trim().min(2, t('form.errors.fullName')),
         specialty: z.string().trim(),
         qualifications: z.string().trim(),
-        experienceYears: z.string().trim(),
+        // Server: an integer 0–60 (`createApplicationBodySchema`).
+        experienceYears: z
+          .string()
+          .trim()
+          .refine(
+            (v) => v === '' || (/^\d{1,2}$/.test(v) && Number(v) <= 60),
+            t('form.errors.experienceYears'),
+          ),
         phone: z.string().trim().min(5, t('form.errors.phone')),
         email: z.string().trim().email(t('form.errors.email')).or(z.literal('')),
         coverNote: z.string().trim(),
@@ -68,11 +91,13 @@ export default function ApplyForJobScreen() {
 
   const { control, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: EMPTY,
+    defaultValues: devDataEnabled ? DEV_DEFAULTS : EMPTY,
     mode: 'onTouched',
   });
 
   const onSubmit = (values: FormValues): void => {
+    // A CV / photo still uploading has no storage key yet — never submit without it.
+    if (cvUploading || photoUploading || apply.isPending) return;
     const input: CreateVetJobApplicationInput = {
       fullName: values.fullName,
       phone: values.phone,
@@ -162,7 +187,9 @@ export default function ApplyForJobScreen() {
             <Label>{t('form.cv')}</Label>
             <FileUploader
               provider={attachmentProvider}
+              accept={CV_TYPES}
               onChange={(r) => setCvStorageKey(r?.storageKey ?? null)}
+              onBusyChange={setCvUploading}
             />
             <Caption>{t('form.cvHint')}</Caption>
           </View>
@@ -175,6 +202,7 @@ export default function ApplyForJobScreen() {
               shape="square"
               size={120}
               onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
+              onBusyChange={setPhotoUploading}
             />
             <Caption>{t('form.photoHint')}</Caption>
           </View>
@@ -191,7 +219,7 @@ export default function ApplyForJobScreen() {
           label={apply.isPending ? t('form.submitting') : t('form.submit')}
           fullWidth
           loading={apply.isPending}
-          disabled={apply.isPending}
+          disabled={apply.isPending || cvUploading || photoUploading}
           onPress={handleSubmit(onSubmit)}
         />
       </View>

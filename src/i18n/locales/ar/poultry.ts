@@ -108,6 +108,9 @@ export default {
   },
   batch: {
     title: 'الدفعة رقم {{number}}',
+    targetPrice: 'سعر البيع للكيلو',
+    targetPriceValue: '{{price}} د.ع/كغ',
+    noTargetPrice: 'لم يُحدَّد',
     titleNoNumber: 'الدفعة الحالية',
     statusActive: 'نشط',
     statusClosed: 'مغلق',
@@ -325,6 +328,12 @@ export default {
     staffEmpty: 'لا يوجد موظفون حتى الآن',
     vetsLinkedTitle: 'الأطباء المرتبطون',
     vetsEmpty: 'لا يوجد أطباء مرتبطون حتى الآن',
+    vetsAddHint: 'يُضاف الطبيب البيطري إلى الحقل عبر رمز الحقل أو رمز QR أعلاه.',
+    memberRemove: 'إزالة',
+    memberRemoveTitle: 'إزالة من الحقل',
+    memberRemoveBody:
+      'هل تريد إزالة {{name}} من الحقل؟ لن يتمكن بعد ذلك من الوصول إلى بيانات الحقل.',
+    memberRemoved: 'تمت الإزالة من الحقل',
   },
   common: {
     loading: 'جارٍ التحميل…',

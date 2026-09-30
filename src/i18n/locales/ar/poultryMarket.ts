@@ -154,6 +154,7 @@ export default {
     notFound: 'العرض غير موجود',
   },
   exchangeRates: {
+    regionKurdistan: 'إقليم كوردستان',
     poultryTitle: 'بورصة الدواجن',
     eggTitle: 'بورصة البيض',
     legendUp: 'ارتفاع',

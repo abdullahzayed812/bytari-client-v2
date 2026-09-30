@@ -8,6 +8,7 @@ export function conversationIcon(type: Conversation['type']): IconName {
   if (type === 'PET_OWNER_VETERINARY_OFFICE') return 'business-outline';
   if (type === 'CHAT_ROOM') return 'people-outline';
   if (type === 'SYNDICATE_MEMBER') return 'ribbon-outline';
+  if (type === 'ANIMAL_PUBLICATION') return 'paw-outline';
   return 'medkit-outline';
 }
 
