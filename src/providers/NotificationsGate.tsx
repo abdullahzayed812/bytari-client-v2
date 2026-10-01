@@ -1,10 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
+import { AppState } from 'react-native';
 
-import { Routes } from '@/constants/routes';
 import { onBeforeLogout } from '@/features/auth/store/authStore';
+import { chatKeys } from '@/features/chat/api';
 import { useChatListRealtime } from '@/features/chat/hooks';
-import { notificationHref } from '@/features/notifications/constants';
+import { notificationKeys } from '@/features/notifications/api';
+import { notificationDestination } from '@/features/notifications/constants';
 import {
   useMarkNotificationRead,
   useNotificationRealtime,
@@ -29,6 +32,10 @@ const log = createLogger('notifications-gate');
  *    on `notification.created` / `notification.read`; `useChatListRealtime()`
  *    refreshes the conversation list on `chat.conversation.created`.
  *  - OS badge (§28): mirrors the unread count onto the app icon.
+ *  - Foreground resync: realtime is down while the app is backgrounded, so on
+ *    returning to the foreground the unread notification count and the
+ *    conversation lists (whose per-conversation unread drives the message
+ *    badges) are refetched from the server — counters never stay stale.
  *  - Token rotation: FCM may issue a new token at any time; it is
  *    re-registered (the backend upserts by token, so this is idempotent).
  *  - Push taps (§30): foreground/background taps and a cold-start launch
@@ -43,6 +50,18 @@ export function NotificationsGate() {
 
   useNotificationRealtime();
   useChatListRealtime();
+
+  const qc = useQueryClient();
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next !== 'active') return;
+      void qc.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.lists() });
+      void qc.invalidateQueries({ queryKey: chatKeys.lists() });
+    });
+    return () => sub.remove();
+  }, [isAuthenticated, qc]);
 
   useEffect(() => {
     void notificationService.ensureAndroidChannel();
@@ -101,15 +120,20 @@ export function NotificationsGate() {
   // --- push taps → deep link ---
   useEffect(() => {
     const go = (n: ReceivedNotification): void => {
-      const href = notificationHref({
-        type: (n.data.type as AppNotification['type']) ?? 'ADMIN_ANNOUNCEMENT',
-        entityType: (n.data.entityType as string | null) ?? null,
-        entityId: (n.data.entityId as string | null) ?? null,
-        data: n.data,
-      });
-      const notificationId = n.data.notificationId;
-      if (typeof notificationId === 'string' && notificationId) markRead(notificationId);
-      router.push((href ?? Routes.notifications) as never);
+      const notificationId =
+        typeof n.data.notificationId === 'string' && n.data.notificationId
+          ? n.data.notificationId
+          : null;
+      if (notificationId) markRead(notificationId);
+      router.push(
+        notificationDestination({
+          id: notificationId,
+          type: (n.data.type as AppNotification['type']) ?? 'ADMIN_ANNOUNCEMENT',
+          entityType: (n.data.entityType as string | null) ?? null,
+          entityId: (n.data.entityId as string | null) ?? null,
+          data: n.data,
+        }) as never,
+      );
     };
 
     const sub = notificationService.onNotificationTap((n) => {

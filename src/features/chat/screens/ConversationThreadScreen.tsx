@@ -113,7 +113,8 @@ export default function ConversationThreadScreen() {
     send.mutate(
       { body, attachment },
       {
-        onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
+        onSuccess: () =>
+          setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 50),
         onError: (error) => setSendError(apiErrorMessage(error)),
       },
     );
@@ -152,7 +153,10 @@ export default function ConversationThreadScreen() {
         ) : (
           <FlatList
             ref={listRef}
-            data={msgQ.messages}
+            // Newest-first + `inverted`: the newest message sits at the bottom and
+            // older pages (onEndReached) load at the top without scroll jumps.
+            inverted={msgQ.newestFirst.length > 0}
+            data={msgQ.newestFirst}
             keyExtractor={(m) => m.id}
             renderItem={({ item }) => (
               <MessageBubble
@@ -167,7 +171,6 @@ export default function ConversationThreadScreen() {
             ListFooterComponent={
               msgQ.isFetchingNextPage ? <Loading label={t('list.loadingMore')} /> : null
             }
-            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             contentContainerStyle={{
               padding: theme.screenPadding,
               rowGap: theme.spacing.md,

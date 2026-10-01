@@ -106,14 +106,21 @@ export interface AdminUpdateUserInput {
   specialization?: string | null;
 }
 
+/** `GET /admin/users?accountType=` audiences. */
+export type AdminAccountType = 'PET_OWNER' | 'VETERINARIAN';
+
 export interface UserListFilter {
   page: number;
   pageSize: number;
   status?: UserStatus;
   veterinarianStatus?: VeterinarianStatus;
   search?: string;
-  /** Admin dashboard "أصحاب الحيوانات" / "الأطباء البيطريون" cards. */
-  role?: 'PET_OWNER' | 'VETERINARIAN';
+  /**
+   * Admin dashboard "أصحاب الحيوانات" / "الأطباء البيطريون" cards — disjoint
+   * audiences filtered server-side (a raw role filter can't split them: every
+   * registrant, vets included, holds PET_OWNER).
+   */
+  accountType?: AdminAccountType;
 }
 
 export type UserStatusAction = 'suspend' | 'activate' | 'deactivate';
@@ -169,6 +176,16 @@ export interface PendingVetApplication {
     /** Absent on responses from an older backend. */
     phone?: string | null;
     specialization?: string | null;
+    // The applicant's full stored profile (server `PublicUser`); optional for
+    // responses from an older backend that only sent the fields above.
+    gender?: 'MALE' | 'FEMALE' | null;
+    country?: string | null;
+    governorate?: string | null;
+    avatarUrl?: string | null;
+    status?: UserStatus;
+    veterinarianStatus?: VeterinarianStatus;
+    registrationType?: 'PET_OWNER' | 'VETERINARIAN';
+    createdAt?: string;
   };
   /** Restricted — see {@link VetApplicationDocument}. Empty for legacy rows. */
   documents: VetApplicationDocument[];

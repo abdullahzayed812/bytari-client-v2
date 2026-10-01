@@ -13,6 +13,7 @@ import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { countryDisplayName } from '@/features/registration';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -48,7 +49,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 export default function AdminUserDetailScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
-  const { t } = useTranslation('admin');
+  const { t, i18n } = useTranslation('admin');
   const theme = useTheme();
   const toast = useToast();
   const { session } = useAuth();
@@ -206,7 +207,10 @@ export default function AdminUserDetailScreen() {
               <View style={{ rowGap: theme.spacing.sm }}>
                 <InfoRow label={t('users.detail.emailLabel')} value={q.data.email} />
                 <InfoRow label={t('users.detail.phoneLabel')} value={dash(q.data.phone)} />
-                <InfoRow label={t('users.detail.countryLabel')} value={dash(q.data.country)} />
+                <InfoRow
+                  label={t('users.detail.countryLabel')}
+                  value={dash(countryDisplayName(q.data.country, i18n.language))}
+                />
                 <InfoRow
                   label={t('users.detail.governorateLabel')}
                   value={dash(q.data.governorate)}

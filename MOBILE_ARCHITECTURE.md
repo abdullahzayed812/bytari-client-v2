@@ -3057,10 +3057,27 @@ Full mobile suite after Phase 15: **99 suites / 554 tests** green (was
 - **`CHAT_MESSAGE_RECEIVED` deep link** — ~~resolved to `null`~~ **now routes to
   `Routes.chatThread(conversationId)`** (Final Completion phase, §156+).
 
-**FUTURE PHASE**
+**BUILT (correction phase 2026-10-01)**
 
-- **A notification-details screen** — intentionally omitted (§39): the card
-  navigates straight to the entity; a details screen adds a dead-end tap.
+- **Notification details** — `/(app)/notifications/[notificationId]`
+  (`NotificationDetailScreen`, `GET /notifications/:id`, owner-scoped). One
+  routing rule, `notificationDestination()`, is shared by the inbox card and
+  push taps: messages (`ADMIN_ANNOUNCEMENT`, `ORGANIZATION_BROADCAST`, any admin
+  broadcast — `data.source = 'ADMIN'`) and types without a destination open the
+  details screen (with a "related content" button when `notificationHref`
+  resolves); everything else deep-links to its entity as before.
+- **"From:" line** — every card shows the server-resolved `source` (ADMIN →
+  "إدارة بيطري", ORGANIZATION / USER → its name, SYSTEM → "بيطري").
+- **Read state / counters** — opening marks read via `POST
+/notifications/:id/read` and refetches the lists + `unread-count` (never a
+  local decrement). `NotificationsGate` also refetches the unread count and
+  the chat lists when the app returns to the foreground (realtime is down in
+  the background).
+- **Chat read marker** — `GET /conversations/:id/messages` pages are
+  newest-first; `useMessages` now returns `messages` chronologically
+  (`messages[length-1]` = newest, what gets marked read) plus `newestFirst` for
+  the `inverted` thread lists. Previously the OLDEST loaded message was marked
+  read, so message badges never cleared.
 
 **ENVIRONMENT LIMITATION**
 

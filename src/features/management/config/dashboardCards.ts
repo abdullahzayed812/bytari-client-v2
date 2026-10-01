@@ -164,14 +164,14 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     id: 'petOwners',
     icon: 'people-outline',
     tint: dashboardTint(1),
-    route: { pathname: Routes.adminUsers, params: { role: 'PET_OWNER' } },
+    route: { pathname: Routes.adminUsers, params: { accountType: 'PET_OWNER' } },
     show: (c) => c.isAdmin || c.can('user.read'),
   },
   {
     id: 'veterinarians',
     icon: 'person-outline',
     tint: dashboardTint(4),
-    route: { pathname: Routes.adminUsers, params: { role: 'VETERINARIAN' } },
+    route: { pathname: Routes.adminUsers, params: { accountType: 'VETERINARIAN' } },
     show: (c) => c.isAdmin || c.can('user.read'),
   },
   {

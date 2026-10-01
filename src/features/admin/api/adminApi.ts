@@ -89,7 +89,7 @@ export const adminApi = {
       status: f.status,
       veterinarianStatus: f.veterinarianStatus,
       search: f.search,
-      role: f.role,
+      accountType: f.accountType,
     });
   },
 

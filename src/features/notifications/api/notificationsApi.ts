@@ -7,6 +7,7 @@ import type {
   NotificationListFilter,
   NotificationPreferences,
   Paginated,
+  NotificationSource,
   RegisteredDevice,
 } from '../types';
 
@@ -18,6 +19,24 @@ function readMeta(meta: unknown, page: number, pageSize: number, count: number):
     total: m.total ?? count,
     totalPages: m.totalPages ?? 1,
   };
+}
+
+function toSource(raw: unknown): NotificationSource {
+  const s = (raw ?? {}) as Record<string, unknown>;
+  const name = typeof s.name === 'string' ? s.name : '';
+  if (s.kind === 'ADMIN') return { kind: 'ADMIN' };
+  if (s.kind === 'ORGANIZATION' && name && typeof s.organizationId === 'string') {
+    return {
+      kind: 'ORGANIZATION',
+      organizationId: s.organizationId,
+      organizationType: String(s.organizationType ?? ''),
+      name,
+    };
+  }
+  if (s.kind === 'USER' && name && typeof s.userId === 'string') {
+    return { kind: 'USER', userId: s.userId, name };
+  }
+  return { kind: 'SYSTEM' };
 }
 
 /** Backend `NotificationDTO` → the app model. Unknown types are kept but flagged. */
@@ -36,6 +55,7 @@ function toNotification(raw: unknown): AppNotification {
     read: Boolean(r.read),
     readAt: (r.readAt as string | null) ?? null,
     createdAt: String(r.createdAt ?? ''),
+    source: toSource(r.source),
   };
 }
 
@@ -46,6 +66,7 @@ function toNotification(raw: unknown): AppNotification {
  *
  *   GET   /notifications?page&pageSize&read&type
  *   GET   /notifications/unread-count
+ *   GET   /notifications/:id                (own rows only — another id is 404)
  *   POST  /notifications/:id/read           (idempotent)
  *   POST  /notifications/read-all
  *   GET   /notifications/preferences
@@ -73,6 +94,10 @@ export const notificationsApi = {
   async unreadCount(): Promise<number> {
     const res = await apiClient.get<{ count: number }>('/notifications/unread-count');
     return Number(res?.count ?? 0);
+  },
+
+  async get(notificationId: string): Promise<AppNotification> {
+    return toNotification(await apiClient.get<unknown>(`/notifications/${notificationId}`));
   },
 
   async markRead(notificationId: string): Promise<AppNotification> {

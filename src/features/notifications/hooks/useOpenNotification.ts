@@ -1,20 +1,20 @@
 import { router } from 'expo-router';
 import { useCallback } from 'react';
 
-import { Routes } from '@/constants/routes';
-
-import { notificationHref } from '../constants';
+import { notificationDestination } from '../constants';
 import type { AppNotification } from '../types';
 
 import { useMarkNotificationRead } from './useNotificationMutations';
 
 /**
- * The single "open this notification" action used by the inbox card and by a
- * push tap. It marks the row read (fire-and-forget — the backend is idempotent)
- * and navigates to the entity when a destination exists in this build; if none
- * does it stays on / opens the inbox. The destination screen re-authorises its
- * own data fetch, so an unauthorised deep link just lands on that screen's
- * error state (§27).
+ * The single "open this notification" action used by the inbox card. It marks
+ * the row read on the server (`POST /notifications/:id/read`, which then
+ * refetches the lists + the unread badge — the counter is never decremented
+ * locally) and navigates per `notificationDestination`: the related entity,
+ * or the notification's details screen for a message (admin / organization
+ * broadcast) or a type without a destination. The destination screen
+ * re-authorises its own data fetch, so an unauthorised deep link just lands
+ * on that screen's error state (§27).
  */
 export function useOpenNotification(): (n: AppNotification) => void {
   const markRead = useMarkNotificationRead();
@@ -22,9 +22,7 @@ export function useOpenNotification(): (n: AppNotification) => void {
   return useCallback(
     (n: AppNotification) => {
       if (!n.read) markRead.mutate(n.id);
-      const href = notificationHref(n);
-      if (href) router.push(href as never);
-      else router.push(Routes.notifications);
+      router.push(notificationDestination(n) as never);
     },
     [markRead],
   );

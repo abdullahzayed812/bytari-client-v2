@@ -22,6 +22,21 @@ export default {
     a11yUnread: 'إشعار غير مقروء: {{title}}',
     a11yRead: 'إشعار: {{title}}',
   },
+  source: {
+    from: 'من: {{name}}',
+    ADMIN: 'إدارة بيطري',
+    SYSTEM: 'بيطري',
+  },
+  detail: {
+    title: 'تفاصيل الإشعار',
+    senderLabel: 'المرسل',
+    titleLabel: 'العنوان',
+    messageLabel: 'الرسالة',
+    dateLabel: 'التاريخ',
+    openRelated: 'عرض المحتوى المرتبط',
+    notFoundTitle: 'الإشعار غير متاح',
+    notFoundBody: 'ربما حُذف هذا الإشعار أو أنه لا يخصك.',
+  },
   bell: {
     a11y: 'الإشعارات',
     a11yWithCount: 'الإشعارات، {{count}} غير مقروءة',

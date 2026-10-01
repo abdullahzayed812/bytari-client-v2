@@ -114,7 +114,7 @@ describe('useConversation', () => {
 });
 
 describe('useMessages', () => {
-  it('flattens oldest→newest', async () => {
+  it('puts the server’s newest-first pages into chronological order (oldest→newest)', async () => {
     const m = (id: string): ChatMessage => ({
       id,
       conversationId: 'c1',
@@ -124,11 +124,13 @@ describe('useMessages', () => {
       deletedAt: null,
       createdAt: '',
     });
-    jest.spyOn(chatApi, 'listMessages').mockResolvedValueOnce(page([m('m1'), m('m2')]));
+    // Server contract: page 1 = newest, each page `created_at DESC`.
+    jest.spyOn(chatApi, 'listMessages').mockResolvedValueOnce(page([m('m2'), m('m1')]));
     const { result } = renderHookWithQuery(() => useMessages('c1'), {
       client: makeTestQueryClient(),
     });
     await waitFor(() => expect(result.current.messages.map((x) => x.id)).toEqual(['m1', 'm2']));
+    expect(result.current.newestFirst.map((x) => x.id)).toEqual(['m2', 'm1']);
   });
 });
 

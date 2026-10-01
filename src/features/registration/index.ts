@@ -33,5 +33,5 @@ export {
   type VeterinarianFormValues,
   type RegistrationTFn,
 } from './validation/schemas';
-export { COUNTRIES } from './data/countries';
+export { COUNTRIES, countryDisplayName } from './data/countries';
 export type { DocumentRef, CountryOption, RegistrationOutcome } from './types';

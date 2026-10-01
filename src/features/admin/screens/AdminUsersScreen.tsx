@@ -12,7 +12,7 @@ import { useTheme } from '@/theme';
 
 import { AdminListScreen, AdminRow, FilterChips } from '../components';
 import { useAdminUsers } from '../hooks';
-import type { AdminUser, UserStatus } from '../types';
+import type { AdminAccountType, AdminUser, UserStatus } from '../types';
 
 function statusTone(status: UserStatus): 'success' | 'info' | 'warning' | 'danger' {
   if (status === 'ACTIVE') return 'success';
@@ -21,34 +21,37 @@ function statusTone(status: UserStatus): 'success' | 'info' | 'warning' | 'dange
   return 'danger';
 }
 
-const FILTERABLE_ROLES = new Set(['PET_OWNER', 'VETERINARIAN']);
+const ACCOUNT_TYPES = new Set<string>(['PET_OWNER', 'VETERINARIAN']);
 
 /**
- * `/admin/users?role=PET_OWNER|VETERINARIAN` — optionally scoped to one role
- * (the admin dashboard's "أصحاب الحيوانات" / "الأطباء البيطريون" cards);
- * omitted shows every user, same as before this param existed.
+ * `/admin/users?accountType=PET_OWNER|VETERINARIAN` — optionally scoped to one
+ * audience (the admin dashboard's "أصحاب الحيوانات" / "الأطباء البيطريون"
+ * cards). The split is enforced by the server (`GET /admin/users?accountType=`),
+ * never filtered here; omitted shows every user.
  */
 export default function AdminUsersScreen() {
   const { t } = useTranslation('admin');
   const theme = useTheme();
-  const { role: roleParam } = useLocalSearchParams<{ role?: string }>();
-  const role =
-    roleParam && FILTERABLE_ROLES.has(roleParam)
-      ? (roleParam as 'PET_OWNER' | 'VETERINARIAN')
+  const { accountType: accountTypeParam } = useLocalSearchParams<{ accountType?: string }>();
+  const accountType =
+    accountTypeParam && ACCOUNT_TYPES.has(accountTypeParam)
+      ? (accountTypeParam as AdminAccountType)
       : undefined;
   const [rawSearch, setRawSearch] = useState('');
   const [status, setStatus] = useState<UserStatus | undefined>(undefined);
   const [viewerImage, setViewerImage] = useState<string | null>(null);
   const search = useDebouncedValue(rawSearch, 300);
 
-  const q = useAdminUsers({ search, status, role });
+  const q = useAdminUsers({ search, status, accountType });
 
   return (
     <>
       <AdminListScreen<AdminUser>
         title={
-          role
-            ? t(`dashboard.cards.${role === 'PET_OWNER' ? 'petOwners' : 'veterinarians'}.title`)
+          accountType
+            ? t(
+                `dashboard.cards.${accountType === 'PET_OWNER' ? 'petOwners' : 'veterinarians'}.title`,
+              )
             : t('users.title')
         }
         query={q}

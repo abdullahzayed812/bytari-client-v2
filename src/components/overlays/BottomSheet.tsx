@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/typography';
@@ -29,14 +29,21 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <Pressable
-        accessibilityLabel="Dismiss"
-        onPress={onClose}
-        style={{ flex: 1, backgroundColor: theme.colors.overlay, justifyContent: 'flex-end' }}
-      >
+      {/*
+       * Backdrop and panel are siblings (not nested Pressables) so a scrolling
+       * child (e.g. a long `Select` list) owns its touches, and the panel is
+       * capped at 90% of the screen so long content scrolls instead of
+       * overflowing off-screen.
+       */}
+      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Pressable
-          onPress={(e) => e.stopPropagation()}
+          accessibilityLabel="Dismiss"
+          onPress={onClose}
+          style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.overlay }]}
+        />
+        <View
           style={{
+            maxHeight: '90%',
             backgroundColor: theme.colors.surface,
             borderTopLeftRadius: theme.radius.xxl,
             borderTopRightRadius: theme.radius.xxl,
@@ -62,8 +69,8 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
             </Text>
           ) : null}
           {children}
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }

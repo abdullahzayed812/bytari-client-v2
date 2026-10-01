@@ -1,5 +1,5 @@
 import { renderWithProviders, screen, waitFor, fireEvent } from '@/test-utils/render';
-import { resetRouterMock, expoRouter } from '@/test-utils/routerMock';
+import { resetRouterMock, expoRouter, setSearchParams } from '@/test-utils/routerMock';
 
 import { adminApi } from '../api';
 import AdminUsersScreen from '../screens/AdminUsersScreen';
@@ -49,4 +49,14 @@ describe('AdminUsersScreen', () => {
     renderWithProviders(<AdminUsersScreen />);
     await waitFor(() => expect(screen.getByText('لا يوجد مستخدمون')).toBeTruthy());
   });
+
+  it.each(['PET_OWNER', 'VETERINARIAN'] as const)(
+    'asks the server for the %s audience only (backend filter, not client-side)',
+    async (accountType) => {
+      setSearchParams({ accountType });
+      renderWithProviders(<AdminUsersScreen />);
+      await waitFor(() => expect(listUsers).toHaveBeenCalled());
+      expect(listUsers.mock.calls[0]?.[0]).toMatchObject({ accountType });
+    },
+  );
 });

@@ -67,7 +67,17 @@ export function useConversation(
   });
 }
 
-/** A conversation's messages, oldest → newest, paginated. */
+/**
+ * A conversation's messages in CHRONOLOGICAL order (oldest → newest), so
+ * `messages[messages.length - 1]` is the newest — what the thread screens mark
+ * read and scroll to.
+ *
+ * The server pages NEWEST-first (`GET /conversations/:id/messages`, page 1 =
+ * the latest messages, each page `created_at DESC`), so the loaded pages are
+ * flattened and reversed here (`newestFirst` keeps the server order for an
+ * `inverted` list). Treating the raw order as chronological marked the OLDEST
+ * loaded message read, which left the unread counter stuck.
+ */
 export function useMessages(
   conversationId: string | undefined,
   options: { pageSize?: number; enabled?: boolean } = {},
@@ -90,10 +100,12 @@ export function useMessages(
     staleTime: 10_000,
   });
 
-  const messages = useMemo<ChatMessage[]>(
+  /** Server order, newest → oldest — what an `inverted` thread list renders. */
+  const newestFirst = useMemo<ChatMessage[]>(
     () => query.data?.pages.flatMap((p) => p.items) ?? [],
     [query.data],
   );
+  const messages = useMemo<ChatMessage[]>(() => [...newestFirst].reverse(), [newestFirst]);
   const total = query.data?.pages[0]?.meta.total ?? 0;
-  return { ...query, messages, total };
+  return { ...query, messages, newestFirst, total };
 }

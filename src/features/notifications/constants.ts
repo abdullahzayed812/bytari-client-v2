@@ -4,7 +4,12 @@ import type { IconName } from '@/components/content';
 import { DEFAULT_LANGUAGE } from '@/constants/config';
 import { Routes } from '@/constants/routes';
 
-import { isNotificationType, type AppNotification, type NotificationType } from './types';
+import {
+  isNotificationType,
+  type AppNotification,
+  type NotificationSource,
+  type NotificationType,
+} from './types';
 
 type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
@@ -449,5 +454,40 @@ function hrefByType(
     case 'ADMIN_ANNOUNCEMENT':
     default:
       return null;
+  }
+}
+
+/**
+ * Where tapping a notification goes — the ONE routing rule shared by the inbox
+ * card (`useOpenNotification`) and a push tap (`NotificationsGate`):
+ *
+ * - a message (admin / organization broadcast — the text IS the content, it is
+ *   stored nowhere else), or any notification without an in-app destination
+ *   → its details screen (when the row id is known);
+ * - otherwise → the related entity (`notificationHref`);
+ * - an id-less push without a destination → the inbox.
+ */
+export function notificationDestination(
+  n: Pick<AppNotification, 'type' | 'entityType' | 'entityId' | 'data'> & { id?: string | null },
+): string {
+  const isMessage = AUTHOR_TEXT_TYPES.has(n.type) || n.data?.source === 'ADMIN';
+  const href = notificationHref(n);
+  if (n.id && (isMessage || !href)) return Routes.notificationDetail(n.id);
+  return href ?? Routes.notifications;
+}
+
+/** Display name of a notification's sender ("From: …"). */
+export function notificationSourceName(
+  source: NotificationSource,
+  t: TFunction<'notifications'>,
+): string {
+  switch (source.kind) {
+    case 'ADMIN':
+      return t('source.ADMIN');
+    case 'ORGANIZATION':
+    case 'USER':
+      return source.name;
+    default:
+      return t('source.SYSTEM');
   }
 }

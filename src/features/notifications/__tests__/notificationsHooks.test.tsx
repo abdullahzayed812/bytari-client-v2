@@ -64,6 +64,7 @@ const notif = (over: Partial<AppNotification> = {}): AppNotification => ({
   read: false,
   readAt: null,
   createdAt: '2026-08-28',
+  source: { kind: 'SYSTEM' },
   ...over,
 });
 

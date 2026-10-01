@@ -4815,6 +4815,21 @@ export const en: TranslationResources = {
       a11yUnread: 'Unread notification: {{title}}',
       a11yRead: 'Notification: {{title}}',
     },
+    source: {
+      from: 'From: {{name}}',
+      ADMIN: 'Bytari administration',
+      SYSTEM: 'Bytari',
+    },
+    detail: {
+      title: 'Notification details',
+      senderLabel: 'From',
+      titleLabel: 'Title',
+      messageLabel: 'Message',
+      dateLabel: 'Date',
+      openRelated: 'View related content',
+      notFoundTitle: 'Notification unavailable',
+      notFoundBody: 'It may have been removed, or it is not yours.',
+    },
     bell: {
       a11y: 'Notifications',
       a11yWithCount: 'Notifications, {{count}} unread',
@@ -5981,6 +5996,15 @@ export const en: TranslationResources = {
       subType: {
         VETERINARIAN: 'Veterinarian',
         STUDENT: 'Student',
+      },
+      detail: {
+        title: 'Applicant details',
+        open: 'View details',
+        nameLabel: 'Full name',
+        applicationSection: 'Application',
+        applicationStatusLabel: 'Application status',
+        noteLabel: "Applicant's note",
+        status: { PENDING: 'Under review', APPROVED: 'Approved', REJECTED: 'Rejected' },
       },
       documents: {
         title: 'Identity & licence documents',

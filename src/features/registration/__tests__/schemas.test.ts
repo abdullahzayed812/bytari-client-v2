@@ -60,8 +60,17 @@ describe('buildPetOwnerSchema', () => {
     expect(schema.safeParse({ ...BASE, governorate: 'البصرة' }).success).toBe(true);
   });
 
-  it('accepts free-text governorate for a country without a fixed list', () => {
+  it("checks the governorate against the selected (non-Iraqi) country's own regions", () => {
     expect(schema.safeParse({ ...BASE, country: 'SA', governorate: 'الرياض' }).success).toBe(true);
+    // An Iraqi governorate is not a Saudi region.
+    expect(schema.safeParse({ ...BASE, country: 'SA', governorate: 'بغداد' }).success).toBe(false);
+    expect(schema.safeParse({ ...BASE, country: 'EG', governorate: 'الجيزة' }).success).toBe(true);
+  });
+
+  it('accepts free-text governorate for a country without a fixed list', () => {
+    expect(schema.safeParse({ ...BASE, country: 'XX', governorate: 'Somewhere' }).success).toBe(
+      true,
+    );
   });
 });
 

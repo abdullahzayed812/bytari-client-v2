@@ -15,6 +15,7 @@ const base: AppNotification = {
   read: false,
   readAt: null,
   createdAt: '2026-08-28T09:00:00.000Z',
+  source: { kind: 'SYSTEM' },
 };
 
 describe('NotificationCard', () => {

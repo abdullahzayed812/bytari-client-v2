@@ -735,6 +735,15 @@ export default {
       VETERINARIAN: 'طبيب بيطري',
       STUDENT: 'طالب',
     },
+    detail: {
+      title: 'بيانات مقدّم الطلب',
+      open: 'عرض التفاصيل',
+      nameLabel: 'الاسم الكامل',
+      applicationSection: 'الطلب',
+      applicationStatusLabel: 'حالة الطلب',
+      noteLabel: 'ملاحظات مقدّم الطلب',
+      status: { PENDING: 'قيد المراجعة', APPROVED: 'معتمد', REJECTED: 'مرفوض' },
+    },
     documents: {
       title: 'وثائق الهوية والترخيص',
       none: 'لم يرفق مقدّم الطلب أي وثائق',

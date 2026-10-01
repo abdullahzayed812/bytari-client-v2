@@ -14,6 +14,7 @@ import { ApiError } from '@/services/api';
 
 import { adminApi, adminKeys } from '../api';
 import type {
+  AdminAccountType,
   AdminUpdateUserInput,
   AdminUser,
   AdminUserDetail,
@@ -28,7 +29,7 @@ export interface AdminUsersParams {
   search?: string;
   status?: UserStatus;
   veterinarianStatus?: VeterinarianStatus;
-  role?: 'PET_OWNER' | 'VETERINARIAN';
+  accountType?: AdminAccountType;
   pageSize?: number;
   enabled?: boolean;
 }
@@ -39,7 +40,7 @@ export function useAdminUsers(params: AdminUsersParams = {}) {
     search: params.search || undefined,
     status: params.status,
     veterinarianStatus: params.veterinarianStatus,
-    role: params.role,
+    accountType: params.accountType,
   };
 
   const query = useInfiniteQuery<

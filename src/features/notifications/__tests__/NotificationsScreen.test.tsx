@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/features/auth/store';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
@@ -51,6 +52,7 @@ const notif = (over: Partial<AppNotification> = {}): AppNotification => ({
   read: false,
   readAt: null,
   createdAt: '2026-08-28T09:00:00.000Z',
+  source: { kind: 'SYSTEM' },
   ...over,
 });
 
@@ -84,6 +86,58 @@ describe('NotificationsScreen', () => {
     await waitFor(() => expect(markRead).toHaveBeenCalledWith('n9'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/support/consultations/c1');
     expect(list).toHaveBeenCalled();
+  });
+
+  it('shows who each notification is from (admin / syndicate by name)', async () => {
+    jest.spyOn(notificationsApi, 'list').mockResolvedValue(
+      page([
+        notif({ id: 'a1', type: 'ADMIN_ANNOUNCEMENT', title: 'صيانة', source: { kind: 'ADMIN' } }),
+        notif({
+          id: 's1',
+          type: 'SYNDICATE_ANNOUNCEMENT_PUBLISHED',
+          title: 'اجتماع',
+          source: {
+            kind: 'ORGANIZATION',
+            organizationId: 'org-1',
+            organizationType: 'SYNDICATE',
+            name: 'نقابة البصرة',
+          },
+        }),
+      ]),
+    );
+    renderWithProviders(<NotificationsScreen />);
+    expect(await screen.findByText('من: إدارة بيطري')).toBeOnTheScreen();
+    expect(screen.getByText('من: نقابة البصرة')).toBeOnTheScreen();
+  });
+
+  it('opening an admin message marks it read on the server, refreshes the badge, and opens its details', async () => {
+    jest.spyOn(notificationsApi, 'list').mockResolvedValue(
+      page([
+        notif({
+          id: 'n5',
+          type: 'ADMIN_ANNOUNCEMENT',
+          title: 'صيانة مجدولة',
+          entityType: null,
+          entityId: null,
+          source: { kind: 'ADMIN' },
+        }),
+      ]),
+    );
+    const markRead = jest
+      .spyOn(notificationsApi, 'markRead')
+      .mockResolvedValue(notif({ id: 'n5', read: true }));
+
+    renderWithProviders(<NotificationsScreen />);
+    const card = await screen.findByRole('button', { name: /صيانة مجدولة/ });
+    const invalidate = jest.spyOn(QueryClient.prototype, 'invalidateQueries');
+    fireEvent.press(card);
+
+    await waitFor(() => expect(markRead).toHaveBeenCalledWith('n5'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/notifications/n5');
+    // The badge is re-read from the server after the mark-read succeeds — never decremented locally.
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ['notifications', 'unread-count'] }),
+    );
   });
 
   it('shows the Arabic empty state when there is nothing', async () => {

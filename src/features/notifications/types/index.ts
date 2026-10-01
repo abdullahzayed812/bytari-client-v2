@@ -7,9 +7,9 @@
  * delivery channels whose failure never removes a row.
  *
  * NOT modelled here (documented in MOBILE_ARCHITECTURE.md, never mocked):
- * per-type notification preferences (backend has only `pushEnabled`) and a
- * dedicated Notification-details screen (the card navigates straight to the
- * entity).
+ * per-type notification preferences (backend has only `pushEnabled`).
+ * Message-like notifications (admin / organization broadcasts) and any type
+ * without a destination open the details screen (`notificationDestination`).
  */
 
 /**
@@ -116,6 +116,17 @@ export function isNotificationType(v: unknown): v is NotificationType {
   return typeof v === 'string' && (NOTIFICATION_TYPES as readonly string[]).includes(v);
 }
 
+/**
+ * Who a notification is from (backend `NotificationSource`, resolved on read):
+ * the administration, an organization (e.g. a syndicate, by name), another user
+ * (display name only), or the platform itself.
+ */
+export type NotificationSource =
+  | { kind: 'ADMIN' }
+  | { kind: 'ORGANIZATION'; organizationId: string; organizationType: string; name: string }
+  | { kind: 'USER'; userId: string; name: string }
+  | { kind: 'SYSTEM' };
+
 /** One notification row (backend `NotificationDTO`). */
 export interface AppNotification {
   id: string;
@@ -134,6 +145,8 @@ export interface AppNotification {
   read: boolean;
   readAt: string | null;
   createdAt: string;
+  /** `SYSTEM` when talking to an older backend that does not send it. */
+  source: NotificationSource;
 }
 
 export interface NotificationListFilter {

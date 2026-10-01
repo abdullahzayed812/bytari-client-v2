@@ -7,7 +7,7 @@ import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { localizedNotificationText, notificationMeta } from '../constants';
+import { localizedNotificationText, notificationMeta, notificationSourceName } from '../constants';
 import type { AppNotification } from '../types';
 
 function broadcastImageUrl(n: AppNotification): string | null {
@@ -33,6 +33,7 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
   const unread = !n.read;
   const imageUrl = broadcastImageUrl(n);
   const { title, body } = localizedNotificationText(n, t, i18n.language);
+  const from = t('source.from', { name: notificationSourceName(n.source, t) });
 
   return (
     <Pressable
@@ -98,6 +99,9 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
             {title}
           </Text>
         </View>
+        <Caption color="primary" numberOfLines={1}>
+          {from}
+        </Caption>
         {body ? (
           <Text variant="body" color="textSecondary" numberOfLines={3}>
             {body}

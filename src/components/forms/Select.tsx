@@ -1,10 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { FlatList, Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/content/Icon';
 import { BottomSheet } from '@/components/overlays/BottomSheet';
 import { Caption, Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
+
+import { SearchInput } from './SearchInput';
+
+/** Lists longer than this get a search field in the sheet (e.g. countries). */
+const SEARCHABLE_THRESHOLD = 8;
+
+function normalize(text: string): string {
+  return text.trim().toLocaleLowerCase();
+}
 
 export interface SelectOption<T extends string> {
   label: string;
@@ -21,6 +31,8 @@ export interface SelectProps<T extends string> {
   error?: string;
   disabled?: boolean;
   required?: boolean;
+  /** Force the in-sheet search on/off; defaults to on for long lists. */
+  searchable?: boolean;
 }
 
 /**
@@ -36,10 +48,24 @@ export function Select<T extends string>({
   error,
   disabled,
   required,
+  searchable,
 }: SelectProps<T>) {
   const theme = useTheme();
+  const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const selected = useMemo(() => options.find((o) => o.value === value), [options, value]);
+  const showSearch = searchable ?? options.length > SEARCHABLE_THRESHOLD;
+  const visibleOptions = useMemo(() => {
+    const q = normalize(query);
+    if (!showSearch || !q) return options;
+    return options.filter((o) => normalize(o.label).includes(q) || normalize(o.value).includes(q));
+  }, [options, query, showSearch]);
+
+  const close = () => {
+    setOpen(false);
+    setQuery('');
+  };
 
   return (
     <View style={{ rowGap: theme.spacing.xs }}>
@@ -75,18 +101,34 @@ export function Select<T extends string>({
       </Pressable>
       {error ? <Caption color="danger">{error}</Caption> : null}
 
-      <BottomSheet visible={open} onClose={() => setOpen(false)} title={label}>
-        <View style={{ rowGap: theme.spacing.xs }}>
-          {options.map((option) => {
+      <BottomSheet visible={open} onClose={close} title={label}>
+        {showSearch ? (
+          <SearchInput
+            value={query}
+            onChangeText={setQuery}
+            onClear={() => setQuery('')}
+            placeholder={t('actions.search')}
+            accessibilityLabel={t('actions.search')}
+          />
+        ) : null}
+        {/* flexShrink lets the list take the sheet's remaining (capped) height and scroll. */}
+        <FlatList
+          data={visibleOptions}
+          keyExtractor={(option) => option.value}
+          style={{ flexShrink: 1 }}
+          contentContainerStyle={{ rowGap: theme.spacing.xs }}
+          keyboardShouldPersistTaps="handled"
+          initialNumToRender={40}
+          ListEmptyComponent={<Caption>{t('states.empty')}</Caption>}
+          renderItem={({ item: option }) => {
             const active = option.value === value;
             return (
               <Pressable
-                key={option.value}
                 accessibilityRole="menuitem"
                 accessibilityState={{ selected: active }}
                 onPress={() => {
                   onChange(option.value);
-                  setOpen(false);
+                  close();
                 }}
                 style={{
                   flexDirection: 'row',
@@ -105,8 +147,8 @@ export function Select<T extends string>({
                 {active ? <Icon name="checkmark" size="iconSm" color="primary" /> : null}
               </Pressable>
             );
-          })}
-        </View>
+          }}
+        />
       </BottomSheet>
     </View>
   );

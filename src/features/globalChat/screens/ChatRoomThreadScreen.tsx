@@ -34,6 +34,7 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 
+import { globalChatKeys } from '../api';
 import { RoomMessageBubble } from '../components';
 import {
   useChatRoom,
@@ -61,7 +62,10 @@ export default function ChatRoomThreadScreen() {
   useConversationRealtime(conversationId);
   const { nameByUserId } = useChatRoomMembers(orgId);
   const send = useSendMessage(conversationId);
-  const markRead = useMarkConversationRead(conversationId);
+  // The room list's unread badge derives from the same read marker.
+  const markRead = useMarkConversationRead(conversationId, {
+    alsoInvalidate: [globalChatKeys.lists()],
+  });
   const del = useDeleteMessage(conversationId);
   const modDel = useDeleteRoomMessage(orgId, conversationId);
   const pin = usePinRoomMessage(orgId);
@@ -137,7 +141,8 @@ export default function ChatRoomThreadScreen() {
     send.mutate(
       { body, attachment },
       {
-        onSuccess: () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50),
+        onSuccess: () =>
+          setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 50),
         onError: (error) => setSendError(apiErrorMessage(error)),
       },
     );
@@ -194,7 +199,10 @@ export default function ChatRoomThreadScreen() {
         ) : (
           <FlatList
             ref={listRef}
-            data={msgQ.messages}
+            // Newest-first + `inverted`: the newest message sits at the bottom and
+            // older pages (onEndReached) load at the top without scroll jumps.
+            inverted={msgQ.newestFirst.length > 0}
+            data={msgQ.newestFirst}
             keyExtractor={(m) => m.id}
             renderItem={({ item }) => (
               <RoomMessageBubble
@@ -211,7 +219,6 @@ export default function ChatRoomThreadScreen() {
             ListFooterComponent={
               msgQ.isFetchingNextPage ? <Loading label={t('thread.loadingMore')} /> : null
             }
-            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
             contentContainerStyle={{
               padding: theme.screenPadding,
               rowGap: theme.spacing.md,

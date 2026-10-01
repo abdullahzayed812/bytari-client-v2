@@ -124,6 +124,26 @@ describe('ConversationThreadScreen', () => {
     expect(await screen.findByText('المحادثة غير متاحة')).toBeOnTheScreen();
   });
 
+  it('marks the NEWEST message read (server pages are newest-first), not the oldest loaded', async () => {
+    setSearchParams({ conversationId: 'c1' });
+    jest.spyOn(chatApi, 'getConversation').mockResolvedValue(conv());
+    jest
+      .spyOn(chatApi, 'listMessages')
+      .mockResolvedValue(
+        page([
+          msg({ id: 'm3', body: 'الأحدث' }),
+          msg({ id: 'm2', body: 'الأوسط' }),
+          msg({ id: 'm1', body: 'الأقدم' }),
+        ]),
+      );
+    const markRead = jest.spyOn(chatApi, 'markRead').mockResolvedValue(undefined);
+
+    renderWithProviders(<ConversationThreadScreen />);
+    await screen.findByText('الأحدث');
+    await waitFor(() => expect(markRead).toHaveBeenCalledWith('c1', 'm3'));
+    expect(markRead).not.toHaveBeenCalledWith('c1', 'm1');
+  });
+
   it('renders messages, marks the newest counterpart message read, and sends', async () => {
     setSearchParams({ conversationId: 'c1' });
     jest.spyOn(chatApi, 'getConversation').mockResolvedValue(conv());

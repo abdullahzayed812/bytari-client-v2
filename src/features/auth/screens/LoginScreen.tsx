@@ -84,7 +84,7 @@ export default function LoginScreen() {
           <Caption>{t('login.noAccount')}</Caption>
           <TextButton
             label={t('login.goRegister')}
-            onPress={() => router.replace(Routes.authRegister)}
+            onPress={() => router.push(Routes.authAccountType)}
           />
         </Row>
       }

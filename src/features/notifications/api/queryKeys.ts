@@ -7,6 +7,7 @@ import type { NotificationListFilter } from '../types';
  *
  *   notificationKeys.list(filter)   → ['notifications', 'list', { …filter }]
  *   notificationKeys.unreadCount()  → ['notifications', 'unread-count']
+ *   notificationKeys.detail(id)     → ['notifications', 'detail', id]
  *   notificationKeys.preferences()  → ['notifications', 'preferences']
  *   notificationKeys.devices()      → ['notifications', 'devices']
  */
@@ -16,6 +17,7 @@ export const notificationKeys = {
   list: (filter: Omit<NotificationListFilter, 'page'>) =>
     [...notificationKeys.lists(), filter] as const,
   unreadCount: () => [...notificationKeys.all, 'unread-count'] as const,
+  detail: (notificationId: string) => [...notificationKeys.all, 'detail', notificationId] as const,
   preferences: () => [...notificationKeys.all, 'preferences'] as const,
   devices: () => [...notificationKeys.all, 'devices'] as const,
 };

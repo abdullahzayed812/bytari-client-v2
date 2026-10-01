@@ -31,3 +31,17 @@ export const COUNTRIES: CountryOption[] = [
   { code: 'DJ', nameAr: 'جيبوتي', nameEn: 'Djibouti' },
   { code: 'KM', nameAr: 'جزر القمر', nameEn: 'Comoros' },
 ];
+
+/**
+ * Display name for a stored ISO alpha-2 code (`users.country`) — Arabic unless
+ * the UI is English; falls back to the raw code for a country not in the list.
+ */
+export function countryDisplayName(
+  code: string | null | undefined,
+  language: string,
+): string | null {
+  if (!code) return null;
+  const country = COUNTRIES.find((c) => c.code === code.toUpperCase());
+  if (!country) return code;
+  return language === 'en' ? country.nameEn : country.nameAr;
+}

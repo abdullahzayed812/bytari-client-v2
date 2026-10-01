@@ -1,4 +1,9 @@
-import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type QueryKey,
+  type UseMutationResult,
+} from '@tanstack/react-query';
 
 import { chatApi, chatKeys } from '../api';
 import type { ChatMessage, Conversation, StartConversationInput, SendMessageInput } from '../types';
@@ -24,16 +29,25 @@ export function useSendMessage(
   });
 }
 
+/**
+ * Persists the read marker (`POST /conversations/:id/read`), then refetches
+ * every list whose unread badge derives from it. `alsoInvalidate` lets a
+ * caller add its own list (e.g. the global chat-room list) so its counter
+ * reflects the server state too.
+ */
 export function useMarkConversationRead(
   conversationId: string,
+  options: { alsoInvalidate?: readonly QueryKey[] } = {},
 ): UseMutationResult<void, unknown, string> {
   const qc = useQueryClient();
+  const { alsoInvalidate } = options;
   return useMutation({
     mutationKey: ['chat', 'read', conversationId],
     mutationFn: (messageId: string) => chatApi.markRead(conversationId, messageId),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: chatKeys.detail(conversationId) });
       void qc.invalidateQueries({ queryKey: chatKeys.lists() });
+      for (const queryKey of alsoInvalidate ?? []) void qc.invalidateQueries({ queryKey });
     },
   });
 }

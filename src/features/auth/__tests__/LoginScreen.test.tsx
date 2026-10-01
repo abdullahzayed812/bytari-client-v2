@@ -1,7 +1,8 @@
 import { initI18n } from '@/i18n';
 import { ApiError } from '@/services/api';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
-import { resetRouterMock } from '@/test-utils/routerMock';
+import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
+import { Routes } from '@/constants/routes';
 
 import LoginScreen from '../screens/LoginScreen';
 import { useAuthStore } from '../store';
@@ -59,5 +60,12 @@ describe('LoginScreen', () => {
 
     await waitFor(() => expect(login).toHaveBeenCalledTimes(1));
     expect(login.mock.calls[0]?.[0]).toEqual({ email: 'user@example.com', password: 'secret123' });
+  });
+
+  it('"Create New Account" opens the account-type chooser (not the Pet Owner form)', () => {
+    renderWithProviders(<LoginScreen />);
+    fireEvent.press(screen.getByRole('button', { name: 'إنشاء حساب جديد' }));
+    expect(routerMock.push).toHaveBeenCalledWith(Routes.authAccountType);
+    expect(routerMock.replace).not.toHaveBeenCalledWith(Routes.authRegister);
   });
 });

@@ -200,6 +200,8 @@ export const Routes = {
 
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',
+  /** One notification's details (sender, title, message, date, related link). */
+  notificationDetail: (notificationId: string) => `/(app)/notifications/${notificationId}` as const,
 
   // Clinic appointments — Pet Owner ↔ Clinic booking ("حجز موعد")
   /** The authenticated Pet Owner's appointment list. */
