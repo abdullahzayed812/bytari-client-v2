@@ -107,6 +107,9 @@ export interface UpdateSheepBatchInput extends Partial<CreateSheepBatchInput> {
 }
 
 export interface CreateSheepFarmInput {
+  /** Registration terms (SHEEP_FARM) — required, backend-enforced. */
+  termsAccepted?: boolean;
+  termsVersion?: string;
   name: string;
   location: string;
   governorate: string;
@@ -326,6 +329,9 @@ export interface UpdateCattleBatchInput extends Partial<CreateCattleBatchInput> 
 }
 
 export interface CreateCattleFarmInput {
+  /** Registration terms (CATTLE_FARM) — required, backend-enforced. */
+  termsAccepted?: boolean;
+  termsVersion?: string;
   name: string;
   location: string;
   governorate: string;

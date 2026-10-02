@@ -34,12 +34,12 @@ export type VaccinationStatus = (typeof VACCINATION_STATUSES)[number];
  * available. FOUND (LOST only), ADOPTED (ADOPTION only), CLOSED (any kind).
  * Mirrors server `RESOLUTIONS_BY_KIND`.
  */
-export const PUBLICATION_RESOLUTIONS = ['FOUND', 'ADOPTED', 'CLOSED'] as const;
+export const PUBLICATION_RESOLUTIONS = ['FOUND', 'ADOPTED', 'MATED', 'CLOSED'] as const;
 export type PublicationResolution = (typeof PUBLICATION_RESOLUTIONS)[number];
 export const RESOLUTIONS_BY_KIND: Record<PublicationKind, readonly PublicationResolution[]> = {
   LOST: ['FOUND', 'CLOSED'],
   ADOPTION: ['ADOPTED', 'CLOSED'],
-  MATING: ['CLOSED'],
+  MATING: ['MATED', 'CLOSED'],
 };
 
 export const PUBLICATION_INTERACTION_TYPES = ['REQUEST', 'SIGHTING'] as const;

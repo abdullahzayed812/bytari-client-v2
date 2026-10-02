@@ -19,7 +19,7 @@ import {
   VeterinarianStatusBadge,
 } from '@/features/auth';
 import { useAppMode, useAuth, useCapabilities, useInterfaceSwitch } from '@/hooks';
-import { setLanguage as applyI18nLanguage } from '@/i18n';
+import { LANGUAGE_OPTIONS, setLanguage as applyI18nLanguage } from '@/i18n';
 import { usePreferencesStore, type AppLanguage } from '@/store';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
@@ -152,16 +152,14 @@ export default function AccountScreen() {
           <View style={{ rowGap: theme.spacing.sm }}>
             <Text variant="bodyMedium">{tn('more.language')}</Text>
             <Row gap="sm">
-              <Chip
-                label={tn('more.languageArabic')}
-                selected={language === 'ar'}
-                onPress={() => void changeLanguage('ar')}
-              />
-              <Chip
-                label={tn('more.languageEnglish')}
-                selected={language === 'en'}
-                onPress={() => void changeLanguage('en')}
-              />
+              {LANGUAGE_OPTIONS.map((o) => (
+                <Chip
+                  key={o.value}
+                  label={tn(o.labelKey)}
+                  selected={language === o.value}
+                  onPress={() => void changeLanguage(o.value)}
+                />
+              ))}
             </Row>
           </View>
           <Divider spacing="md" />

@@ -9,17 +9,20 @@ import { Button } from '@/components/actions';
 import { Alert, useToast } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
-import { Caption } from '@/components/typography';
+import { Caption, Label } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
+import { isHttpUrl, normalizeLink } from '@/utils';
 
 import { FilterChips } from '../components';
-import { useSendBroadcast } from '../hooks';
+import { useAdminBroadcastImageProvider, useSendBroadcast } from '../hooks';
 import type { BroadcastTarget } from '../types';
 
 interface FormValues {
   title: string;
   body: string;
+  linkUrl: string;
 }
 
 type TargetKind = 'ALL' | 'PET_OWNER' | 'VETERINARIAN';
@@ -34,24 +37,37 @@ export default function AdminBroadcastScreen() {
   const toast = useToast();
   const send = useSendBroadcast();
   const [target, setTarget] = useState<TargetKind>('ALL');
+  const imageProvider = useAdminBroadcastImageProvider();
+  const [imageStorageKey, setImageStorageKey] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
       z.object({
         title: z.string().trim().min(1, t('broadcast.errors.title')).max(100),
         body: z.string().trim().min(1, t('broadcast.errors.body')).max(1000),
+        linkUrl: z
+          .string()
+          .trim()
+          .max(1000)
+          .refine((v) => v.length === 0 || isHttpUrl(v), t('broadcast.errors.link')),
       }),
     [t],
   );
   const { control, handleSubmit, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', body: '' },
+    defaultValues: { title: '', body: '', linkUrl: '' },
     mode: 'onTouched',
   });
 
   const onSubmit = (values: FormValues): void => {
     send.mutate(
-      { target: toTarget(target), title: values.title.trim(), body: values.body.trim() },
+      {
+        target: toTarget(target),
+        title: values.title.trim(),
+        body: values.body.trim(),
+        imageStorageKey,
+        linkUrl: normalizeLink(values.linkUrl),
+      },
       {
         onSuccess: (result) => {
           toast.show({
@@ -106,6 +122,30 @@ export default function AdminBroadcastScreen() {
           numberOfLines={6}
           maxLength={1000}
         />
+      </Section>
+
+      <Section spacing="lg">
+        <FormField
+          control={control}
+          name="linkUrl"
+          label={t('broadcast.form.linkLabel')}
+          placeholder="https://"
+          keyboardType="url"
+          autoCapitalize="none"
+          maxLength={1000}
+        />
+      </Section>
+
+      <Section spacing="lg">
+        <Label>{t('broadcast.form.imageLabel')}</Label>
+        <ImageUploader
+          value={null}
+          provider={imageProvider}
+          shape="square"
+          size={140}
+          onChange={(r) => setImageStorageKey(r?.storageKey ?? null)}
+        />
+        <Caption>{t('broadcast.form.imageHint')}</Caption>
       </Section>
 
       {send.isError ? <Alert tone="danger" message={apiErrorMessage(send.error)} /> : null}

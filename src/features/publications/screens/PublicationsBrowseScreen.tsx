@@ -4,29 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, RefreshControl, View, useWindowDimensions } from 'react-native';
 
 import { Chip, Icon } from '@/components/content';
-import {
-  ConfirmationDialog,
-  EmptyState,
-  ErrorState,
-  Loading,
-  useToast,
-} from '@/components/feedback';
+import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { BackButton } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { AnimalCard, PublicationCardSkeleton } from '../components';
 import { PUBLICATION_KIND_META, publicationKindFromSlug, publicationKindSlug } from '../constants';
-import {
-  useDeletePublication,
-  useMyPublicationInteractions,
-  useMyPublications,
-  usePublicPublications,
-} from '../hooks';
+import { useMyPublicationInteractions, useMyPublications, usePublicPublications } from '../hooks';
 import type { MyPublication, MyPublicationInteraction, PublicPublication } from '../types';
 
 const GRID_GAP = 12;
@@ -46,14 +34,11 @@ export default function PublicationsBrowseScreen() {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const { t } = useTranslation('publications');
-  const { t: tc } = useTranslation('common');
-  const toast = useToast();
   const { kind: kindSlug } = useLocalSearchParams<{ kind: string }>();
   const kind = publicationKindFromSlug(kindSlug);
   const localRouter = useRouter();
 
   const [scope, setScope] = useState<Scope>('all');
-  const [pendingDelete, setPendingDelete] = useState<MyPublication | null>(null);
 
   const allQ = usePublicPublications(kind, { enabled: scope === 'all' });
   const mineQ = useMyPublications(kind, { enabled: scope === 'mine' });
@@ -62,7 +47,6 @@ export default function PublicationsBrowseScreen() {
     enabled: scope === 'requests' && Boolean(kind),
   });
   const q = scope === 'all' ? allQ : mineQ;
-  const del = useDeletePublication();
 
   const goToDetail = (p: PublicPublication) =>
     kind && router.push(Routes.publicationDetail(publicationKindSlug(kind), p.id));
@@ -169,7 +153,6 @@ export default function PublicationsBrowseScreen() {
           kind={kind}
           width={cardWidth}
           status={my.status}
-          onDelete={() => setPendingDelete(my)}
           onPress={() => goToOwnerDetail(my)}
         />
       );
@@ -229,7 +212,7 @@ export default function PublicationsBrowseScreen() {
           renderItem={renderRequest}
           ListHeaderComponent={scopeRow}
           ListEmptyComponent={
-            requestsQ.isLoading ? (
+            requestsQ.isPending && requestsQ.isFetching ? (
               <Loading />
             ) : requestsQ.isError ? (
               <ErrorState error={requestsQ.error} onRetry={() => void requestsQ.refetch()} />
@@ -254,8 +237,16 @@ export default function PublicationsBrowseScreen() {
               void requestsQ.fetchNextPage();
             }
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={requestsQ.isRefetching && !requestsQ.isFetchingNextPage}
+              onRefresh={() => void requestsQ.refetch()}
+              tintColor={theme.colors.primary}
+              colors={[theme.colors.primary]}
+            />
+          }
         />
-      ) : q.isLoading ? (
+      ) : q.isPending && q.isFetching ? (
         <View>
           {scopeRow}
           <View
@@ -327,34 +318,6 @@ export default function PublicationsBrowseScreen() {
           }
         />
       )}
-
-      <ConfirmationDialog
-        visible={pendingDelete !== null}
-        title={t('mine.deleteTitle')}
-        message={t('mine.deleteBody')}
-        confirmLabel={t('mine.deleteConfirm')}
-        cancelLabel={tc('actions.cancel')}
-        destructive
-        loading={del.isPending}
-        onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
-          const target = pendingDelete;
-          if (!target) return;
-          del.mutate(
-            { publicationId: target.id, kind: target.kind, animalId: target.animalId },
-            {
-              onSuccess: () => {
-                toast.show({ tone: 'success', message: t('mine.deleteSuccess') });
-                setPendingDelete(null);
-              },
-              onError: (error) => {
-                toast.show({ tone: 'danger', message: apiErrorMessage(error) });
-                setPendingDelete(null);
-              },
-            },
-          );
-        }}
-      />
     </SafeAreaScreen>
   );
 }

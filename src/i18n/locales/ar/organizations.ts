@@ -205,6 +205,8 @@ export default {
     licenseRemoved: 'تم حذف صورة الترخيص.',
     licenseRemoveTitle: 'حذف صورة الترخيص',
     licenseRemoveBody: 'هل تريد حذف صورة الترخيص هذه؟ يمكنك رفع صورة جديدة بعد ذلك.',
+    licenseLockedHint:
+      'لا يمكن تعديل رقم الترخيص وصور الترخيص بعد الموافقة. للتعديل تواصل مع الإدارة.',
     licenseRemoveCta: 'حذف',
     cancel: 'إلغاء',
     errors: {
@@ -224,6 +226,19 @@ export default {
     officeHint: 'مكتب بيطري يعرض منتجات وخدمات',
     linkFarmTitle: 'ربط بحقل دواجن/أغنام/أبقار',
     linkFarmHint: 'أدخل كود الحقل لتنضم إليه كطبيب مسؤول',
+  },
+  terms: {
+    acceptLabel: 'قرأت وأوافق على {{title}}',
+    fallbackTitle: 'الشروط والأحكام',
+    readCta: 'قراءة الشروط والأحكام',
+    acceptAndClose: 'أوافق على الشروط والأحكام',
+    close: 'إغلاق',
+    loadError: 'تعذّر تحميل الشروط والأحكام. حاول مرة أخرى.',
+    required: 'يجب قراءة الشروط والأحكام والموافقة عليها قبل إرسال الطلب.',
+    adminTitle: 'الموافقة على الشروط والأحكام',
+    adminAccepted: 'وافق مقدم الطلب على {{title}} بتاريخ {{date}}',
+    adminOutdated: '(نسخة سابقة من الشروط)',
+    adminNone: 'لا يوجد سجل موافقة على الشروط (طلب سابق لاعتماد الشروط).',
   },
   registration: {
     clinic: {

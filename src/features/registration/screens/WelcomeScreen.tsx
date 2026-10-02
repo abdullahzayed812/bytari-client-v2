@@ -9,7 +9,7 @@ import { Icon } from '@/components/content';
 import { useToast } from '@/components/feedback';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { setLanguage as applyI18nLanguage } from '@/i18n';
+import { LANGUAGE_OPTIONS, languageLabelKey, setLanguage as applyI18nLanguage } from '@/i18n';
 import { usePreferencesStore, type AppLanguage } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -31,7 +31,10 @@ export default function WelcomeScreen() {
 
   const language = usePreferencesStore((s) => s.language);
   const setLanguagePref = usePreferencesStore((s) => s.setLanguage);
-  const nextLanguage: AppLanguage = language === 'ar' ? 'en' : 'ar';
+  // Cycles through every supported language (العربية → English → کوردی).
+  const index = LANGUAGE_OPTIONS.findIndex((o) => o.value === language);
+  const nextLanguage: AppLanguage =
+    LANGUAGE_OPTIONS[(index + 1) % LANGUAGE_OPTIONS.length]?.value ?? 'ar';
 
   const toggleLanguage = async () => {
     setLanguagePref(nextLanguage);
@@ -54,9 +57,7 @@ export default function WelcomeScreen() {
         <View style={{ alignItems: 'flex-start' }}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={
-              language === 'ar' ? tNav('more.languageEnglish') : tNav('more.languageArabic')
-            }
+            accessibilityLabel={tNav(languageLabelKey(nextLanguage))}
             onPress={() => void toggleLanguage()}
             hitSlop={8}
             style={({ pressed }) => [
@@ -65,7 +66,7 @@ export default function WelcomeScreen() {
             ]}
           >
             <Text variant="label" color="primary">
-              {language === 'ar' ? tNav('more.languageArabic') : tNav('more.languageEnglish')}
+              {tNav(languageLabelKey(language))}
             </Text>
             <Icon name="globe-outline" size="iconSm" color="primary" />
           </Pressable>

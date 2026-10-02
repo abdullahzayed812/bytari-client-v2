@@ -21,6 +21,7 @@ import { useOrganizations } from '@/features/organizations/hooks';
 import { fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
+import { farmOpsApi } from '../api';
 import { FarmQrScannerModal } from '../components/FarmQrScannerModal';
 import { useJoinFarmByCode } from '../hooks';
 import {
@@ -68,7 +69,13 @@ export default function JoinFarmScreen() {
       {
         onSuccess: (membership) => {
           toast.show({ tone: 'success', message: t('join.success') });
-          router.replace(Routes.organizationDetail(membership.organizationId));
+          // Straight into the species-correct farm dashboard (active batch,
+          // daily data, weekly report) — the same one the farm's staff use.
+          const orgId = membership.organizationId;
+          farmOpsApi
+            .getFarmProfile(orgId)
+            .then((p) => router.replace(Routes.farmDashboard(orgId, p.farmSpecies)))
+            .catch(() => router.replace(Routes.farmDashboard(orgId)));
         },
         onError: (error) => {
           setServerFields(fieldErrors(error));
@@ -152,7 +159,7 @@ export default function JoinFarmScreen() {
               <OrganizationCard
                 key={farm.id}
                 organization={farm}
-                onPress={() => router.push(Routes.organizationDetail(farm.id))}
+                onPress={() => router.push(Routes.farmDashboard(farm.id, farm.farmSpecies))}
               />
             ))}
           </View>

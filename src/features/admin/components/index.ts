@@ -6,6 +6,7 @@ export {
 } from './AdminDetailModal';
 export { FilterChips, type FilterOption } from './FilterChips';
 export { ReasonPromptDialog } from './ReasonPromptDialog';
+export { MessageUserDialog } from './MessageUserDialog';
 export {
   AdminPublicationEditSheet,
   type AdminPublicationEditSheetProps,

@@ -85,7 +85,9 @@ export default function ChatRoomThreadScreen() {
     const newest = msgQ.messages[msgQ.messages.length - 1];
     if (
       newest &&
-      newest.senderUserId !== user?.id &&
+      // A counterpart message — or the first load even when the newest is our
+      // own (earlier counterpart messages may still be unread underneath it).
+      (newest.senderUserId !== user?.id || lastMarkedRef.current === null) &&
       newest.id !== lastMarkedRef.current &&
       !markRead.isPending
     ) {

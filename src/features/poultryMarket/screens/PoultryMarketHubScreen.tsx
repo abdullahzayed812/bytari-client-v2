@@ -3,15 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { EmptyState } from '@/components/feedback';
+import { Alert, EmptyState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
+import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { MarketNavCard } from '@/features/farm';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { formatDate } from '@/utils';
 
 import { BenefitsCard } from '../components';
-import { useTraderStatus } from '../hooks';
+import { useRequestTraderRenewal, useTraderStatus, useTraderStatusQuery } from '../hooks';
 
 /**
  * Route `/(app)/poultry/market-hub` — the market / bourse / statistics entries
@@ -23,7 +26,59 @@ export default function PoultryMarketHubScreen() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tp } = useTranslation('poultry');
+  const toast = useToast();
   const trader = useTraderStatus();
+  // The live profile carries the activation period (the session snapshot does not).
+  const me = useTraderStatusQuery({ enabled: trader.isApproved });
+  const renewal = useRequestTraderRenewal();
+  const profile = me.data?.profile ?? null;
+  const subscriptionStatus = profile?.subscriptionStatus ?? 'ACTIVE';
+
+  if (trader.isApproved && me.isPending && me.isFetching) {
+    return (
+      <ScrollScreen>
+        <AppHeader title={tp('landing.marketTitle')} showBack />
+        <Loading fill />
+      </ScrollScreen>
+    );
+  }
+
+  // Approved, but the activation period has ended: market access is blocked
+  // (the backend refuses trader actions with TRADER_SUBSCRIPTION_EXPIRED).
+  if (trader.isApproved && subscriptionStatus !== 'ACTIVE') {
+    const requested = Boolean(profile?.renewalRequestedAt);
+    return (
+      <ScrollScreen>
+        <AppHeader title={tp('landing.marketTitle')} showBack />
+        <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
+          <EmptyState
+            icon="hourglass-outline"
+            title={t('gate.expiredTitle')}
+            message={
+              profile?.subscriptionEndDate
+                ? t('gate.expiredBody', { date: formatDate(profile.subscriptionEndDate) })
+                : t('gate.notStartedBody')
+            }
+          />
+          {requested ? (
+            <Alert tone="info" message={t('gate.renewalPending')} />
+          ) : (
+            <Button
+              label={t('gate.renewalCta')}
+              fullWidth
+              loading={renewal.isPending}
+              onPress={() =>
+                renewal.mutate(undefined, {
+                  onSuccess: () => toast.show({ tone: 'success', message: t('gate.renewalSent') }),
+                  onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                })
+              }
+            />
+          )}
+        </Section>
+      </ScrollScreen>
+    );
+  }
 
   if (!trader.isApproved) {
     return (
@@ -65,6 +120,13 @@ export default function PoultryMarketHubScreen() {
   return (
     <ScrollScreen>
       <AppHeader title={tp('landing.marketTitle')} showBack />
+      {profile?.subscriptionEndDate ? (
+        <Section spacing="lg">
+          <Caption>
+            {t('gate.activeUntil', { date: formatDate(profile.subscriptionEndDate) })}
+          </Caption>
+        </Section>
+      ) : null}
       <Section spacing="xl">
         <View style={{ rowGap: theme.spacing.md }}>
           <MarketNavCard

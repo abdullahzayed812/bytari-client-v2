@@ -34,6 +34,13 @@ export interface TraderProfile {
   decidedBy: string | null;
   decidedAt: string | null;
   decisionReason: string | null;
+  /** Activation period (YYYY-MM-DD) — market access ends after `subscriptionEndDate`. */
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
+  /** Server-derived from the dates; absent on older payloads → treat as ACTIVE. */
+  subscriptionStatus?: 'ACTIVE' | 'EXPIRED' | 'NOT_STARTED';
+  /** The trader asked for a renewal that the admin has not handled yet. */
+  renewalRequestedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

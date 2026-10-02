@@ -73,12 +73,13 @@ describe('OrganizationDetailsScreen (§26)', () => {
     expect(screen.getByText('المشرفون')).toBeOnTheScreen();
   });
 
-  it('a STAFF member sees no management entries', async () => {
+  it('a STAFF member only sees the (read-only) members entry — no management', async () => {
     get.mockResolvedValue({ ...base, myRole: 'STAFF' });
     renderWithProviders(<OrganizationDetailsScreen />);
     await waitFor(() => expect(screen.getByText('عيادة الرحمة')).toBeOnTheScreen());
-    expect(screen.getByText('ليست لديك صلاحيات إدارية في هذه المؤسسة.')).toBeOnTheScreen();
+    expect(screen.getByLabelText('الأعضاء')).toBeOnTheScreen();
     expect(screen.queryByText('المشرفون')).toBeNull();
+    expect(screen.queryByText('تعديل بيانات المؤسسة')).toBeNull();
   });
 
   it('a 403 renders a plain "not available" state, never an authorization detail', async () => {

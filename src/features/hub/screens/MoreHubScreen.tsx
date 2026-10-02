@@ -10,7 +10,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useCapabilities } from '@/hooks';
-import { setLanguage as applyI18nLanguage } from '@/i18n';
+import { LANGUAGE_OPTIONS, setLanguage as applyI18nLanguage } from '@/i18n';
 import { usePreferencesStore, type AppLanguage } from '@/store';
 import { useTheme } from '@/theme';
 
@@ -75,16 +75,14 @@ export default function MoreHubScreen() {
           <View style={{ rowGap: theme.spacing.sm }}>
             <Text variant="bodyMedium">{t('more.language')}</Text>
             <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
-              <Chip
-                label={t('more.languageArabic')}
-                selected={language === 'ar'}
-                onPress={() => void changeLanguage('ar')}
-              />
-              <Chip
-                label={t('more.languageEnglish')}
-                selected={language === 'en'}
-                onPress={() => void changeLanguage('en')}
-              />
+              {LANGUAGE_OPTIONS.map((o) => (
+                <Chip
+                  key={o.value}
+                  label={t(o.labelKey)}
+                  selected={language === o.value}
+                  onPress={() => void changeLanguage(o.value)}
+                />
+              ))}
             </View>
           </View>
 

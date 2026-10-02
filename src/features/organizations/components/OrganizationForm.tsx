@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -10,8 +10,9 @@ import { FormField, Select } from '@/components/forms';
 import { Caption } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { ORG_TYPE_ORDER } from '../constants';
+import { ORG_TYPE_ORDER, termsKeyForOrganization } from '../constants';
 import { COUNTRIES_AR } from '../data/countries';
+import { useOrganizationTerms } from '../hooks/useOrganizationTerms';
 import {
   LICENSABLE_ORG_TYPES,
   PROFILE_FIELDS_ORG_TYPES,
@@ -26,6 +27,7 @@ import {
 } from '../validation/schemas';
 
 import { RegistrationSectionHeader } from './RegistrationSectionHeader';
+import { RegistrationTermsField } from './RegistrationTermsField';
 
 const COUNTRY_OPTIONS = COUNTRIES_AR.map((c) => ({ label: c, value: c }));
 
@@ -37,7 +39,11 @@ interface CreateProps {
   submitting: boolean;
   formError?: string | null;
   serverFields?: Record<string, string>;
-  onSubmit: (values: CreateOrganizationFormValues) => void;
+  /** `terms` is set when the chosen type has registration terms (accepted + version). */
+  onSubmit: (
+    values: CreateOrganizationFormValues,
+    terms?: { termsAccepted: true; termsVersion?: string },
+  ) => void;
 }
 
 interface EditProps {
@@ -49,6 +55,8 @@ interface EditProps {
   formError?: string | null;
   serverFields?: Record<string, string>;
   onSubmit: (values: EditOrganizationFormValues) => void;
+  /** The license number is read-only (approved organization, non-admin). */
+  licenseLocked?: boolean;
 }
 
 export type OrganizationFormProps = CreateProps | EditProps;
@@ -88,6 +96,24 @@ function CreateForm({
 
   const selectedType = watch('type');
   const needsApproval = VET_APPROVAL_REQUIRED_TYPES.includes(selectedType as OrganizationType);
+  // Registration terms for the chosen type (clinic / office / farm) — required.
+  const termsKey = termsKeyForOrganization(selectedType);
+  const terms = useOrganizationTerms(termsKey);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
+  useEffect(() => {
+    setTermsAccepted(false);
+  }, [termsKey]);
+
+  const submit = (values: CreateOrganizationFormValues) => {
+    if (!termsKey) return onSubmit(values);
+    if (!termsAccepted || !terms.data) {
+      setTermsError(t('terms.required'));
+      return;
+    }
+    setTermsError(null);
+    onSubmit(values, { termsAccepted: true, termsVersion: terms.data.version });
+  };
 
   const options = ORG_TYPE_ORDER.map((type) => ({
     value: type,
@@ -142,13 +168,26 @@ function CreateForm({
 
       <Caption>{t('form.createDisclaimer')}</Caption>
 
+      {termsKey ? (
+        <RegistrationTermsField
+          termsKey={termsKey}
+          checked={termsAccepted}
+          onChange={(accepted) => {
+            setTermsAccepted(accepted);
+            if (accepted) setTermsError(null);
+          }}
+          error={termsError ?? undefined}
+          disabled={submitting}
+        />
+      ) : null}
+
       <View style={{ marginTop: theme.spacing.sm }}>
         <Button
           label={t('form.submitCreate')}
           fullWidth
           loading={submitting}
           disabled={submitting || (needsApproval && !vetApproved)}
-          onPress={handleSubmit(onSubmit)}
+          onPress={handleSubmit(submit)}
           accessibilityLabel={t('form.submitCreate')}
         />
       </View>
@@ -163,6 +202,7 @@ function EditForm({
   formError,
   serverFields = {},
   onSubmit,
+  licenseLocked = false,
   t,
   theme,
 }: EditProps & Ctx) {
@@ -313,6 +353,8 @@ function EditForm({
                 label={t('registration.fields.licenseNumber')}
                 leftIcon="document-text-outline"
                 serverError={serverFields.licenseNumber}
+                editable={!licenseLocked}
+                hint={licenseLocked ? t('form.licenseLockedHint') : undefined}
               />
             </>
           ) : null}

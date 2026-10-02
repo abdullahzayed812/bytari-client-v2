@@ -29,7 +29,10 @@ export default function CreateOrganizationScreen() {
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
 
-  const onSubmit = (values: CreateOrganizationFormValues) => {
+  const onSubmit = (
+    values: CreateOrganizationFormValues,
+    terms?: { termsAccepted: true; termsVersion?: string },
+  ) => {
     if (inFlight.current || create.isPending) return;
     inFlight.current = true;
     setFormError(null);
@@ -39,6 +42,7 @@ export default function CreateOrganizationScreen() {
         type: values.type,
         name: values.name.trim(),
         description: values.description?.trim() ? values.description.trim() : undefined,
+        ...(terms ?? {}),
       },
       {
         onSuccess: (org) => {

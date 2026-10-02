@@ -15,3 +15,8 @@ export { ReviewModal, type ReviewModalProps } from './ReviewModal';
 export { DiscoverFilterBar, type DiscoverFilterBarProps } from './DiscoverFilterBar';
 export { LocalImagePicker, type LocalImagePickerProps } from './LocalImagePicker';
 export { RegistrationSectionHeader } from './RegistrationSectionHeader';
+export {
+  RegistrationTermsField,
+  TermsBody,
+  type RegistrationTermsFieldProps,
+} from './RegistrationTermsField';

@@ -234,6 +234,20 @@ export default function PublicationDetailScreen() {
       </ScrollScreen>
     );
   }
+  // A query that cannot run (missing route ids) must not spin forever.
+  if (!publicationId || (isOwnerView && !petId)) {
+    return (
+      <ScrollScreen>
+        <EmptyState
+          icon="help-circle-outline"
+          title={t('detail.notFoundTitle')}
+          message={t('detail.notFoundBody')}
+          actionLabel={t('detail.back')}
+          onAction={() => router.back()}
+        />
+      </ScrollScreen>
+    );
+  }
   if (q.isLoading || !q.data) {
     return (
       <ScrollScreen padded={false}>
@@ -349,6 +363,28 @@ export default function PublicationDetailScreen() {
 
   return (
     <ScrollScreen padded={false}>
+      {pub.resolution ? (
+        // Resolved listings stay visible but LOCKED — the outcome sits on top.
+        <View
+          accessibilityRole="alert"
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: theme.spacing.sm,
+            paddingHorizontal: theme.spacing.lg,
+            paddingVertical: theme.spacing.md,
+            backgroundColor:
+              pub.resolution === 'CLOSED' ? theme.colors.textMuted : theme.colors.success,
+          }}
+        >
+          <Icon name="lock-closed" size="iconSm" color="onPrimary" />
+          <Text variant="bodyMedium" style={{ color: theme.colors.onPrimary, flex: 1 }}>
+            {t('resolution.unavailableBanner', {
+              status: t(`resolution.status.${pub.resolution}`),
+            })}
+          </Text>
+        </View>
+      ) : null}
       <View>
         <ImageCarousel images={pub.animal.galleryUrls} />
         <View
@@ -461,18 +497,6 @@ export default function PublicationDetailScreen() {
             </View>
           </Card>
         </Section>
-
-        {pub.resolution ? (
-          <Section spacing="lg">
-            <Card variant="outlined" padding="md">
-              <Text variant="bodyMedium" color="textSecondary">
-                {t('resolution.unavailableBanner', {
-                  status: t(`resolution.status.${pub.resolution}`),
-                })}
-              </Text>
-            </Card>
-          </Section>
-        ) : null}
 
         <Section spacing="huge">
           <Row gap="md">

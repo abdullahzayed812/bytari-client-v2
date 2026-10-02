@@ -27,6 +27,8 @@ export const CONVERSATION_TYPES = [
   'SYNDICATE_MEMBER',
   /** Adoption / Mating / Lost listing — the interested user ↔ the listing owner. */
   'ANIMAL_PUBLICATION',
+  /** Two members of the same farm (its veterinarian ↔ an employee) — "colleagues" chat. */
+  'FARM_MEMBER_DIRECT',
 ] as const;
 export type ConversationType = (typeof CONVERSATION_TYPES)[number];
 

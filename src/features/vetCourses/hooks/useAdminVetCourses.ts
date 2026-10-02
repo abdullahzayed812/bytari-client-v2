@@ -39,7 +39,8 @@ export function useAdminVetCourses(
     queryKey: vetCourseKeys.adminCourseList(filter.status, filter.type),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetCoursesApi.listCourses(pageParam, PAGE, filter),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,
   });
   const courses = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
@@ -57,12 +58,17 @@ export function useAdminVetCourseRegistrations(courseId: string | undefined) {
   >({
     queryKey: vetCourseKeys.adminCourseRegistrations(courseId ?? '_'),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => adminVetCoursesApi.listRegistrations(courseId as string, pageParam, PAGE),
-    getNextPageParam: (last) => (last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined),
+    queryFn: ({ pageParam }) =>
+      adminVetCoursesApi.listRegistrations(courseId as string, pageParam, PAGE),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: Boolean(courseId),
     staleTime: 10_000,
   });
-  const registrations = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  const registrations = useMemo(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
   return { ...query, registrations, total: query.data?.pages[0]?.meta.total ?? 0 };
 }
 
@@ -82,7 +88,20 @@ export function useAdminApproveVetCourse() {
   return useModerate((id) => adminVetCoursesApi.approveCourse(id), 'course-approve');
 }
 export function useAdminRejectVetCourse() {
-  return useModerate((id, reason) => adminVetCoursesApi.rejectCourse(id, reason ?? ''), 'course-reject');
+  return useModerate(
+    (id, reason) => adminVetCoursesApi.rejectCourse(id, reason ?? ''),
+    'course-reject',
+  );
+}
+/** Approve / reject one registrant (`vet_course.approve` / `vet_course.reject`). */
+export function useAdminApproveVetCourseRegistration() {
+  return useModerate((id) => adminVetCoursesApi.approveRegistration(id), 'registration-approve');
+}
+export function useAdminRejectVetCourseRegistration() {
+  return useModerate(
+    (id, reason) => adminVetCoursesApi.rejectRegistration(id, reason),
+    'registration-reject',
+  );
 }
 export function useAdminCancelVetCourse() {
   return useModerate((id) => adminVetCoursesApi.cancelCourse(id), 'course-cancel');

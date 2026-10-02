@@ -67,7 +67,7 @@ describe('JoinFarmScreen (§9 — no approval step)', () => {
     expect(join).not.toHaveBeenCalled();
   });
 
-  it('joins with an upper-cased code then navigates to the farm', async () => {
+  it('joins with an upper-cased code then opens the farm dashboard (active batch, daily data)', async () => {
     seedVet('APPROVED');
     join.mockResolvedValueOnce({ id: 'm1', organizationId: 'farm-1' } as never);
     renderWithProviders(<JoinFarmScreen />);
@@ -76,7 +76,8 @@ describe('JoinFarmScreen (§9 — no approval step)', () => {
 
     await waitFor(() => expect(join).toHaveBeenCalledWith({ joinCode: 'FARM-ABCD12' }));
     await waitFor(() =>
-      expect(routerMock.replace).toHaveBeenCalledWith('/(app)/organizations/farm-1'),
+      // farm profile lookup unavailable here → the default (poultry) dashboard
+      expect(routerMock.replace).toHaveBeenCalledWith('/(app)/poultry/farm-1'),
     );
   });
 

@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/features/auth/store';
+import { organizationsApi } from '@/features/organizations/api';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
@@ -12,6 +13,19 @@ jest.mock('@/services/media', () => ({
 }));
 
 const createFarm = jest.spyOn(farmApi, 'createFarm');
+const getTerms = jest.spyOn(organizationsApi, 'getTerms');
+
+const TERMS = {
+  termsKey: 'POULTRY_FARM' as const,
+  title: 'شروط وقوانين إضافة حقل دواجن',
+  intro: 'لإضافة حقل دواجن داخل تطبيق بيطري | Baytari، يجب الالتزام بالشروط التالية:',
+  clauses: [
+    'يجب أن يكون مقدم طلب إضافة الحقل مالكاً للحقل أو مخولاً رسمياً بإدارته، ويتحمل مسؤولية صحة المعلومات المقدمة.',
+    'يسمح لكل حقل بوجود دفعة نشطة واحدة فقط داخل النظام، ولا يمكن إضافة دفعة جديدة إلا بعد بيع أو إنهاء الدفعة الحالية وفق آلية التطبيق.',
+  ],
+  version: 'v-test',
+};
+const TERMS_CHECKBOX = `قرأت وأوافق على ${TERMS.title}`;
 
 const fill = (placeholder: string, value: string): void =>
   fireEvent.changeText(screen.getByPlaceholderText(placeholder), value);
@@ -31,6 +45,8 @@ describe('PoultryFarmCreateScreen', () => {
     resetRouterMock();
     useAuthStore.setState({ session: null });
     createFarm.mockReset();
+    getTerms.mockReset();
+    getTerms.mockResolvedValue(TERMS);
   });
   afterAll(() => jest.restoreAllMocks());
 
@@ -52,6 +68,22 @@ describe('PoultryFarmCreateScreen', () => {
     expect(createFarm).not.toHaveBeenCalled();
   });
 
+  it('shows ONLY the poultry-farm terms, exactly as served, and accepting from the reader ticks the box', async () => {
+    renderWithProviders(<PoultryFarmCreateScreen />);
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: TERMS_CHECKBOX })).toBeOnTheScreen(),
+    );
+    expect(getTerms).toHaveBeenCalledWith('POULTRY_FARM');
+    fireEvent.press(screen.getByText('قراءة الشروط والأحكام'));
+    for (const clause of TERMS.clauses) {
+      await waitFor(() => expect(screen.getByText(clause)).toBeOnTheScreen());
+    }
+    fireEvent.press(screen.getByText('أوافق على الشروط والأحكام'));
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: TERMS_CHECKBOX })).toBeChecked(),
+    );
+  });
+
   it('POSTs the mapped farm body once, then replaces to the new Farm Details', async () => {
     createFarm.mockResolvedValueOnce({
       id: 'o-new',
@@ -63,12 +95,18 @@ describe('PoultryFarmCreateScreen', () => {
 
     renderWithProviders(<PoultryFarmCreateScreen />);
     fillRequired();
-    fireEvent.press(screen.getByRole('checkbox', { name: 'أوافق على شروط وأحكام قسم الدواجن' }));
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: TERMS_CHECKBOX })).toBeEnabled(),
+    );
+    fireEvent.press(screen.getByRole('checkbox', { name: TERMS_CHECKBOX }));
     submit();
 
     await waitFor(() =>
       expect(createFarm).toHaveBeenCalledWith(
         expect.objectContaining({
+          // the acceptance + the exact terms version shown — the server re-checks both
+          termsAccepted: true,
+          termsVersion: 'v-test',
           name: 'مزرعة الاختبار',
           location: 'بغداد - الدورة',
           governorate: 'بغداد',
@@ -93,7 +131,10 @@ describe('PoultryFarmCreateScreen', () => {
 
     renderWithProviders(<PoultryFarmCreateScreen />);
     fillRequired();
-    fireEvent.press(screen.getByRole('checkbox', { name: 'أوافق على شروط وأحكام قسم الدواجن' }));
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: TERMS_CHECKBOX })).toBeEnabled(),
+    );
+    fireEvent.press(screen.getByRole('checkbox', { name: TERMS_CHECKBOX }));
     submit();
 
     await waitFor(() => expect(createFarm).toHaveBeenCalledTimes(1));

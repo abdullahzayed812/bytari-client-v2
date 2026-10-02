@@ -96,6 +96,19 @@ describe("PublicationsBrowseScreen — grid list of ALL users' APPROVED listings
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/publications/adoption/p1');
   });
 
+  it('an ADOPTED listing stays in the list, locked, with its status on top', async () => {
+    setSearchParams({ kind: 'adoption' });
+    list.mockResolvedValue({
+      items: [pub({ resolution: 'ADOPTED' })],
+      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+    renderWithProviders(<PublicationsBrowseScreen />);
+    await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
+    expect(screen.getByText('تم التبني')).toBeOnTheScreen();
+    // the "available" corner badge is replaced by the locked status strip
+    expect(screen.queryByText('متاح للتبني')).toBeNull();
+  });
+
   it('the "+ إضافة حيوان" button opens the create-animal screen for that kind', async () => {
     setSearchParams({ kind: 'adoption' });
     list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 } });
@@ -146,17 +159,16 @@ describe('PublicationsBrowseScreen — "My listings" scope', () => {
     expect(screen.getByText('قيد المراجعة')).toBeOnTheScreen();
   });
 
-  it('tapping an own card opens the owner detail; the trash button deletes it', async () => {
+  it('tapping an own card opens the owner detail; the card itself has no delete button', async () => {
     setSearchParams({ kind: 'adoption' });
     renderWithProviders(<PublicationsBrowseScreen />);
     fireEvent.press(screen.getByText('منشوراتي'));
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
+    // Deleting / managing a listing lives inside its detail screen only.
+    expect(screen.queryByLabelText('حذف الإعلان')).toBeNull();
     fireEvent.press(screen.getByRole('button', { name: /ميمي/ }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/a1/publications/p1');
-
-    fireEvent.press(screen.getByLabelText('حذف الإعلان'));
-    fireEvent.press(screen.getByText('تأكيد الحذف'));
-    await waitFor(() => expect(remove).toHaveBeenCalledWith('p1'));
+    expect(remove).not.toHaveBeenCalled();
   });
 });

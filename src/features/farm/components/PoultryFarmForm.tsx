@@ -7,9 +7,10 @@ import { Pressable, View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Card, Icon, type IconName } from '@/components/content';
 import { Alert, useToast } from '@/components/feedback';
-import { Checkbox, FormField, Select, TileOptionGroup } from '@/components/forms';
+import { FormField, Select, TileOptionGroup } from '@/components/forms';
 import { ImagePreview } from '@/components/media';
 import { Caption, Label, Text } from '@/components/typography';
+import { RegistrationTermsField } from '@/features/organizations/components/RegistrationTermsField';
 import { apiErrorMessage } from '@/lib/apiError';
 import { isPermissionError, pickImage, type LocalFile } from '@/services/media';
 import { useTheme } from '@/theme';
@@ -284,11 +285,11 @@ export function PoultryFarmForm({
         name="termsAccepted"
         render={({ field: { value, onChange }, fieldState }) => (
           <View style={{ rowGap: 4 }}>
-            <Checkbox
-              label={t('create.terms')}
-              description={t('create.termsHint')}
+            <RegistrationTermsField
+              termsKey="POULTRY_FARM"
               checked={value === true}
               onChange={(next) => onChange(next)}
+              disabled={submitting}
             />
             {fieldState.error ? (
               <Caption style={{ color: theme.colors.danger }}>{fieldState.error.message}</Caption>

@@ -326,6 +326,9 @@ export interface CreateOrganizationInput {
   name: string;
   description?: string;
   details?: CreateOrganizationDetailsInput;
+  /** Required for CLINIC / VETERINARY_OFFICE / FARM (backend-enforced). */
+  termsAccepted?: boolean;
+  termsVersion?: string;
 }
 
 export interface UpdateOrganizationInput {
@@ -388,4 +391,26 @@ export interface PageMeta {
 export interface Paginated<T> {
   items: T[];
   meta: PageMeta;
+}
+
+// --- registration Terms & Conditions (GET /organizations/terms/:termsKey) ---
+
+/** Which registration terms apply — a clinic, an office, or a poultry / sheep / cattle farm. */
+export type OrganizationTermsKey =
+  'CLINIC' | 'VETERINARY_OFFICE' | 'POULTRY_FARM' | 'SHEEP_FARM' | 'CATTLE_FARM';
+
+/** The exact supplied wording, served by the backend (single source of truth). */
+export interface OrganizationTerms {
+  termsKey: OrganizationTermsKey;
+  title: string;
+  intro: string;
+  clauses: string[];
+  /** Content hash — sent back on registration so the server knows what was accepted. */
+  version: string;
+}
+
+/** Sent with every clinic / office / farm registration. */
+export interface TermsAcceptanceInput {
+  termsAccepted: true;
+  termsVersion?: string;
 }

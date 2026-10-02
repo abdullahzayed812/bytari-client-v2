@@ -382,6 +382,17 @@ export interface AdminOrganizationFile extends OrganizationWithDetails {
   owner?: AdminOrganizationOwner | null;
   /** The open renewal request (FARM / CLINIC / VETERINARY_OFFICE), `null` when none. */
   pendingRenewalRequest?: AdminFarmRenewalRequest | null;
+  /** Registration terms the applicant accepted (clinic / office / farm). */
+  termsAcceptances?: AdminTermsAcceptance[];
+}
+
+export interface AdminTermsAcceptance {
+  termsKey: 'CLINIC' | 'VETERINARY_OFFICE' | 'POULTRY_FARM' | 'SHEEP_FARM' | 'CATTLE_FARM';
+  termsVersion: string;
+  acceptedAt: string;
+  acceptedByUserId: string | null;
+  /** `false` → accepted an earlier wording of the terms. */
+  isCurrentVersion: boolean;
 }
 
 /** A pending renewal request from the cross-organization admin queue, with the organization's name attached. */
@@ -458,6 +469,8 @@ export interface SendBroadcastInput {
   target: BroadcastTarget;
   title: string;
   body: string;
+  imageStorageKey?: string | null;
+  linkUrl?: string | null;
 }
 
 export interface SendBroadcastResult {
@@ -470,6 +483,7 @@ export type AdminChatConversationType =
   | 'PET_OWNER_VETERINARY_OFFICE'
   | 'PET_OWNER_VETERINARIAN'
   | 'FARM_OWNER_MEMBER'
+  | 'FARM_MEMBER_DIRECT'
   | 'SYNDICATE_MEMBER'
   | 'ANIMAL_PUBLICATION';
 
@@ -531,6 +545,10 @@ export interface AdminDashboardCardCount {
   activeCount: number;
   /** Open (PENDING) subscription renewal requests — backend total; `clinics`/`offices` only. */
   pendingRenewals?: number;
+  /** Course / seminar registrants awaiting review (`courses` / `seminars` cards). */
+  pendingRegistrations?: number;
+  /** Open-queue totals per hub entry (e.g. poultryMarket → traders / poultryOffers / eggOffers). */
+  sectionCounts?: Record<string, number>;
 }
 
 export interface AdminActivityItem {

@@ -371,10 +371,10 @@ export function governoratesFor(country: string | null | undefined): readonly st
 }
 
 /**
- * The four governorates of the Kurdistan Region. The poultry / egg exchange
- * (bourse) presents them as ONE exchange group ("إقليم كوردستان") with each
- * city's own prices underneath — a presentation grouping only: prices stay
- * stored per governorate, exactly as before.
+ * The four governorates of the Kurdistan Region. On the poultry / egg
+ * exchange (bourse) they are NOT priced separately: one "إقليم كوردستان"
+ * entry with ONE price covers all four (final corrections §8). The server
+ * validates the same market list (`poultryMarket/domain/market-governorates.ts`).
  */
 export const KURDISTAN_REGION_GOVERNORATES: readonly string[] = [
   'أربيل',
@@ -383,14 +383,15 @@ export const KURDISTAN_REGION_GOVERNORATES: readonly string[] = [
   'حلبجة',
 ];
 
-export type GovernorateMarketRow =
-  | { kind: 'governorate'; governorate: string }
-  | { kind: 'region'; region: 'KURDISTAN'; governorates: readonly string[] };
+/** The single exchange entry (and stored rate key) for the Kurdistan Region. */
+export const KURDISTAN_REGION_MARKET_KEY = 'إقليم كوردستان';
+
+export type GovernorateMarketRow = { kind: 'governorate'; governorate: string };
 
 /**
- * `IRAQ_GOVERNORATES` for the exchange boards: every governorate in its
- * canonical order, except the Kurdistan Region's four, which appear together
- * as one group at the position of the first of them.
+ * The exchange boards' rows: every Iraqi governorate in canonical order, with
+ * the Kurdistan Region's four replaced by ONE "إقليم كوردستان" row at the
+ * position of the first of them.
  */
 export function governoratesForMarket(): GovernorateMarketRow[] {
   const rows: GovernorateMarketRow[] = [];
@@ -398,11 +399,7 @@ export function governoratesForMarket(): GovernorateMarketRow[] {
   for (const governorate of IRAQ_GOVERNORATES) {
     if (KURDISTAN_REGION_GOVERNORATES.includes(governorate)) {
       if (!regionAdded) {
-        rows.push({
-          kind: 'region',
-          region: 'KURDISTAN',
-          governorates: KURDISTAN_REGION_GOVERNORATES,
-        });
+        rows.push({ kind: 'governorate', governorate: KURDISTAN_REGION_MARKET_KEY });
         regionAdded = true;
       }
       continue;

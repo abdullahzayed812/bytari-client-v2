@@ -26,6 +26,8 @@ import type {
   UpdateMemberInput,
   UpdateOrganizationInput,
   UpdateSupervisorInput,
+  OrganizationTerms,
+  OrganizationTermsKey,
 } from '../types';
 
 /**
@@ -78,6 +80,11 @@ export const organizationsApi = {
       items: envelope.data,
       meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
     };
+  },
+
+  /** The exact registration terms to show before registering a clinic / office / farm. */
+  getTerms(termsKey: OrganizationTermsKey): Promise<OrganizationTerms> {
+    return apiClient.get<OrganizationTerms>(`/organizations/terms/${termsKey}`);
   },
 
   get(organizationId: string): Promise<OrganizationDetail> {

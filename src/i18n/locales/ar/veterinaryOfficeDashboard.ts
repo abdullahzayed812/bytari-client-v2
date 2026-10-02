@@ -89,11 +89,13 @@ export default {
       bodyPlaceholder: 'اكتب رسالتك هنا...',
       imageLabel: 'إرفاق صورة أو إعلان (اختياري)',
       imageHint: 'يمكنك إرفاق صورة واحدة بصيغة JPG أو PNG',
+      linkLabel: 'رابط (اختياري)',
       submit: 'إرسال الرسالة',
     },
     errors: {
       title: 'عنوان الرسالة مطلوب.',
       body: 'نص الرسالة مطلوب.',
+      link: 'أدخل رابطاً صحيحاً يبدأ بـ http:// أو https://',
     },
   },
   conversations: {

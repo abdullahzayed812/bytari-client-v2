@@ -17,7 +17,7 @@ export default function VetServicesHubScreen() {
   const { t } = useTranslation('vetServices');
   const caps = useCapabilities();
 
-  type CardKey = 'listings' | 'requests' | 'my';
+  type CardKey = 'listings' | 'requests' | 'myRequests' | 'my';
   const cards: {
     key: CardKey;
     icon: IconName;
@@ -38,6 +38,15 @@ export default function VetServicesHubScreen() {
       surface: 'featureAdoptionSurface',
       accent: 'featureAdoptionAccent',
       onPress: () => router.push(Routes.vetServiceRequests),
+    },
+    // Every user (pet owners first of all): requests they sent to vets, the
+    // requests they published, and the vets who responded.
+    {
+      key: 'myRequests',
+      icon: 'file-tray-full-outline',
+      surface: 'surfaceAccent',
+      accent: 'primary',
+      onPress: () => router.push(Routes.vetServiceMyRequests),
     },
     ...(caps.isApprovedVeterinarian
       ? [

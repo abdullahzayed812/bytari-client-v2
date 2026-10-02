@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import type { SUPPORTED_LANGUAGES } from '@/constants/config';
 import type { ThemePreference } from '@/theme/ThemeProvider';
 
 import { asyncStorage, PERSIST_KEYS } from './persist';
 
-export type AppLanguage = 'ar' | 'en';
+export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 interface PreferencesState {
   themePreference: ThemePreference;

@@ -6,6 +6,7 @@ import { useToast } from '@/components/feedback';
 import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
 import { OrgFormLayout } from '@/features/organizations';
+import { useOrganizationTerms } from '@/features/organizations/hooks/useOrganizationTerms';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import type { LocalFile } from '@/services/media';
@@ -32,6 +33,7 @@ const orNull = (v: string | undefined): string | undefined => {
  */
 export default function PoultryFarmCreateScreen() {
   const { t } = useTranslation('poultry');
+  const terms = useOrganizationTerms('POULTRY_FARM');
   const toast = useToast();
   const user = useAuthStore((s) => s.user);
   const create = useCreatePoultryFarm();
@@ -56,6 +58,9 @@ export default function PoultryFarmCreateScreen() {
     setServerFields({});
 
     const input: CreatePoultryFarmInput = {
+      // The form only submits once the terms box is ticked; the server re-checks.
+      termsAccepted: true,
+      termsVersion: terms.data?.version,
       name: values.name.trim(),
       location: values.location.trim(),
       governorate: values.governorate,

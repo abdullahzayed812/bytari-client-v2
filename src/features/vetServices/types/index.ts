@@ -250,6 +250,8 @@ export interface ListingRequest {
     animalType: VetServiceAnimalType;
     veterinarianUserId: string;
     priceAmount: string | null;
+    /** The listing's vet (absent on older payloads). */
+    veterinarian?: VetServiceUserSummary;
   };
 }
 

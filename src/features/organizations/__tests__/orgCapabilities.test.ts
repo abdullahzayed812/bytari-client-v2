@@ -41,10 +41,10 @@ describe('orgCapabilities — UX-only gates derived from myRole (backend stays a
     expect(c.canEditOrganization).toBe(false);
   });
 
-  it('STAFF can only view the profile', () => {
+  it('STAFF views the profile and (read-only) the members — e.g. farm vet ↔ employees', () => {
     const c = orgCapabilities('STAFF', false);
     expect(c.canViewOrganization).toBe(true);
-    expect(c.canViewMembers).toBe(false);
+    expect(c.canViewMembers).toBe(true);
     expect(c.canViewSupervisors).toBe(false);
     expect(c.canManageMembers).toBe(false);
     expect(c.canLeave).toBe(true);

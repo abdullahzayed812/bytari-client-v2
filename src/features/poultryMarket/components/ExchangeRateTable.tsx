@@ -115,7 +115,7 @@ export function ExchangeRateTable({
         // Rows alternate shading across the whole table, the Kurdistan Region
         // group included (its header + four cities).
         let index = 0;
-        const renderRow = (governorate: string, indented: boolean) => {
+        const renderRow = (governorate: string) => {
           const poultry = poultryByGov.get(governorate);
           const egg = eggByGov.get(governorate);
           const shade = index++ % 2 === 0;
@@ -127,7 +127,7 @@ export function ExchangeRateTable({
                 alignItems: 'center',
                 paddingVertical: theme.spacing.md,
                 paddingHorizontal: theme.spacing.md,
-                paddingStart: indented ? theme.spacing.xl : theme.spacing.md,
+                paddingStart: theme.spacing.md,
                 backgroundColor: shade ? theme.colors.surface : theme.colors.surfaceMuted,
               }}
             >
@@ -154,26 +154,7 @@ export function ExchangeRateTable({
             </View>
           );
         };
-        return governoratesForMarket().map((row) =>
-          row.kind === 'governorate' ? (
-            renderRow(row.governorate, false)
-          ) : (
-            <View key="region-kurdistan">
-              <View
-                style={{
-                  paddingVertical: theme.spacing.sm,
-                  paddingHorizontal: theme.spacing.md,
-                  backgroundColor: theme.colors.surfaceAccent,
-                }}
-              >
-                <Text variant="label" weight="bold">
-                  {t('exchangeRates.regionKurdistan')}
-                </Text>
-              </View>
-              {row.governorates.map((g) => renderRow(g, true))}
-            </View>
-          ),
-        );
+        return governoratesForMarket().map((row) => renderRow(row.governorate));
       })()}
     </View>
   );

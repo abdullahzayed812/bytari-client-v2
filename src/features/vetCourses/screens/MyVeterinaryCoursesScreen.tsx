@@ -5,8 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Card, Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { Badge, Card, Icon } from '@/components/content';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SegmentedControl } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -17,11 +23,22 @@ import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { MyVetCourseStatusBadge, VetCourseStatusBadge, VetCourseTypeBadge } from '../components';
-import { useCancelVetCourse, useDeleteVetCourse, useMyVetCourseRegistrations, useMyVetCourses } from '../hooks';
+import {
+  useCancelVetCourse,
+  useDeleteVetCourse,
+  useMyVetCourseRegistrations,
+  useMyVetCourses,
+} from '../hooks';
 import type { VetCourse, VetCourseRegistration } from '../types';
 import { daysUntilStart, deriveMyCourseStatus, formatCourseDateRange } from '../utils';
 
 type Tab = 'registrations' | 'created';
+
+const REGISTRATION_STATUS_TONE = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+} as const;
 
 /** Route `/(app)/vet-courses/my` — "دوراتي" (reference screenshot 4). */
 export default function MyVeterinaryCoursesScreen() {
@@ -81,9 +98,16 @@ export default function MyVeterinaryCoursesScreen() {
             renderItem={({ item }) => <RegistrationRow registration={item} />}
             ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
             ListEmptyComponent={
-              <EmptyState icon="school-outline" title={t('myCourses.empty')} message={t('myCourses.emptyHint')} />
+              <EmptyState
+                icon="school-outline"
+                title={t('myCourses.empty')}
+                message={t('myCourses.emptyHint')}
+              />
             }
-            contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+            contentContainerStyle={{
+              padding: theme.screenPadding,
+              paddingBottom: theme.spacing.huge,
+            }}
           />
         )
       ) : created.isLoading ? (
@@ -98,7 +122,13 @@ export default function MyVeterinaryCoursesScreen() {
           keyExtractor={(c) => c.id}
           renderItem={({ item }) => (
             <Card variant="outlined" padding="md">
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.md }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'flex-start',
+                  columnGap: theme.spacing.md,
+                }}
+              >
                 <View
                   style={{
                     width: 40,
@@ -112,16 +142,37 @@ export default function MyVeterinaryCoursesScreen() {
                   <Icon name="school-outline" size="iconMd" color="primary" />
                 </View>
                 <View style={{ flex: 1, rowGap: 4 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      columnGap: theme.spacing.sm,
+                    }}
+                  >
                     <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
                       {item.title}
                     </Text>
                     <VetCourseTypeBadge type={item.type} />
                   </View>
                   <Caption numberOfLines={1}>{item.organizingBody}</Caption>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      columnGap: theme.spacing.sm,
+                    }}
+                  >
                     <VetCourseStatusBadge status={item.status} />
                     <Caption>{formatDate(item.createdAt)}</Caption>
+                    {(item.pendingRegistrationCount ?? 0) > 0 ? (
+                      <Badge
+                        label={t('myCourses.pendingRegistrants', {
+                          count: item.pendingRegistrationCount ?? 0,
+                        })}
+                        tone="danger"
+                        size="sm"
+                      />
+                    ) : null}
                   </View>
                   {item.status === 'REJECTED' && item.rejectionReason ? (
                     <Caption color="danger">{item.rejectionReason}</Caption>
@@ -136,17 +187,33 @@ export default function MyVeterinaryCoursesScreen() {
                   flexWrap: 'wrap',
                 }}
               >
-                <TextButton label={t('myCourses.view')} onPress={() => router.push(Routes.vetCourse(item.id))} />
-                <TextButton label={t('myCourses.edit')} onPress={() => router.push(Routes.vetCourseEdit(item.id))} />
+                <TextButton
+                  label={t('myCourses.view')}
+                  onPress={() => router.push(Routes.vetCourse(item.id))}
+                />
+                <TextButton
+                  label={t('myCourses.edit')}
+                  onPress={() => router.push(Routes.vetCourseEdit(item.id))}
+                />
                 {item.status === 'APPROVED' && !item.cancelledAt ? (
-                  <TextButton label={t('myCourses.cancelAd')} tone="danger" onPress={() => onCancel(item)} />
+                  <TextButton
+                    label={t('myCourses.cancelAd')}
+                    tone="danger"
+                    onPress={() => onCancel(item)}
+                  />
                 ) : null}
-                <TextButton label={t('myCourses.delete')} tone="danger" onPress={() => setDeleting(item)} />
+                <TextButton
+                  label={t('myCourses.delete')}
+                  tone="danger"
+                  onPress={() => setDeleting(item)}
+                />
               </View>
             </Card>
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
-          ListEmptyComponent={<EmptyState icon="school-outline" title={t('myCourses.emptyCreated')} />}
+          ListEmptyComponent={
+            <EmptyState icon="school-outline" title={t('myCourses.emptyCreated')} />
+          }
           ListFooterComponent={
             <View
               style={{
@@ -168,7 +235,10 @@ export default function MyVeterinaryCoursesScreen() {
               </View>
             </View>
           }
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+          }}
         />
       )}
 
@@ -209,7 +279,10 @@ function RegistrationRow({ registration }: { registration: VetCourseRegistration
           }}
         >
           {course.coverImageUrl ? (
-            <Image source={{ uri: course.coverImageUrl }} style={{ width: '100%', height: '100%' }} />
+            <Image
+              source={{ uri: course.coverImageUrl }}
+              style={{ width: '100%', height: '100%' }}
+            />
           ) : (
             <Icon name="image-outline" size="iconMd" color="textMuted" />
           )}
@@ -223,18 +296,48 @@ function RegistrationRow({ registration }: { registration: VetCourseRegistration
           </View>
           <Caption numberOfLines={1}>{course.organizingBody}</Caption>
           <Caption>{formatCourseDateRange(course.startDate, course.endDate)}</Caption>
-          <Caption>{course.locationMode === 'ONLINE' ? t('locationMode.ONLINE') : t('locationMode.IN_PERSON')}</Caption>
+          <Caption>
+            {course.locationMode === 'ONLINE'
+              ? t('locationMode.ONLINE')
+              : t('locationMode.IN_PERSON')}
+          </Caption>
+          <View style={{ flexDirection: 'row' }}>
+            <Badge
+              label={t(`myCourses.registrationStatus.${registration.status ?? 'APPROVED'}`)}
+              tone={REGISTRATION_STATUS_TONE[registration.status ?? 'APPROVED']}
+              size="sm"
+            />
+          </View>
+          {registration.status === 'REJECTED' && registration.rejectionReason ? (
+            <Caption color="danger">{registration.rejectionReason}</Caption>
+          ) : null}
         </View>
       </View>
 
       {status === 'UPCOMING' ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4, marginTop: theme.spacing.sm }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 4,
+            marginTop: theme.spacing.sm,
+          }}
+        >
           <Icon name="calendar-outline" size="iconXs" color="primary" />
-          <Caption color="primary">{t('myCourses.startsIn', { count: daysUntilStart(course.startDate) })}</Caption>
+          <Caption color="primary">
+            {t('myCourses.startsIn', { count: daysUntilStart(course.startDate) })}
+          </Caption>
         </View>
       ) : null}
       {status === 'CANCELLED' ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4, marginTop: theme.spacing.sm }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 4,
+            marginTop: theme.spacing.sm,
+          }}
+        >
           <Icon name="close-circle-outline" size="iconXs" color="danger" />
           <Caption color="danger">{t('myCourses.cancelledNotice')}</Caption>
         </View>
@@ -259,7 +362,9 @@ function RegistrationRow({ registration }: { registration: VetCourseRegistration
             variant="outline"
             size="sm"
             leftIcon="document-text-outline"
-            onPress={() => toast.show({ message: t('myCourses.certificateUnavailable'), tone: 'info' })}
+            onPress={() =>
+              toast.show({ message: t('myCourses.certificateUnavailable'), tone: 'info' })
+            }
           />
         ) : null}
       </View>

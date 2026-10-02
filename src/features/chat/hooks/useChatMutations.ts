@@ -47,6 +47,8 @@ export function useMarkConversationRead(
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: chatKeys.detail(conversationId) });
       void qc.invalidateQueries({ queryKey: chatKeys.lists() });
+      // The server also marked this conversation's message alerts read.
+      void qc.invalidateQueries({ queryKey: ['notifications'] });
       for (const queryKey of alsoInvalidate ?? []) void qc.invalidateQueries({ queryKey });
     },
   });

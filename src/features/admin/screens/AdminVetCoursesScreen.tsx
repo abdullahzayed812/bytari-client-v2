@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
-import { Avatar, Card } from '@/components/content';
+import { Avatar, Badge, Card } from '@/components/content';
 import { ConfirmationDialog, Loading, Skeleton, useToast } from '@/components/feedback';
 import { SegmentedControl } from '@/components/forms';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
@@ -12,12 +12,19 @@ import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import {
   useAdminApproveVetCourse,
+  useAdminApproveVetCourseRegistration,
   useAdminCancelVetCourse,
+  useAdminRejectVetCourseRegistration,
   useAdminRejectVetCourse,
   useAdminVetCourseRegistrations,
   useAdminVetCourses,
 } from '@/features/vetCourses';
-import type { VetCourse, VetCourseModerationStatus, VetCourseType } from '@/features/vetCourses';
+import type {
+  VetCourse,
+  VetCourseModerationStatus,
+  VetCourseRegistration,
+  VetCourseType,
+} from '@/features/vetCourses';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -27,11 +34,13 @@ import {
   AdminListScreen,
   AdminRow,
   FilterChips,
+  MessageUserDialog,
   ReasonPromptDialog,
 } from '../components';
 
 const STATUSES: VetCourseModerationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
 const STATUS_TONE = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'danger' } as const;
+const REGISTRATION_TONE = STATUS_TONE;
 
 type DetailKey =
   | 'creator'
@@ -229,8 +238,24 @@ export default function AdminVetCoursesScreen() {
             }}
             onPress={() => setDetail(c)}
             badge={{ label: t(`vetCourses.status.${c.status}`), tone: STATUS_TONE[c.status] }}
+            counter={c.pendingRegistrationCount ?? 0}
+            counterLabel={t('vetCourses.registrations.pendingCount', {
+              count: c.pendingRegistrationCount ?? 0,
+            })}
             actions={
               <>
+                {c.status === 'APPROVED' ? (
+                  <Button
+                    label={
+                      (c.pendingRegistrationCount ?? 0) > 0
+                        ? `${t('vetCourses.registrations.open')} (${c.pendingRegistrationCount})`
+                        : t('vetCourses.registrations.open')
+                    }
+                    variant="outline"
+                    leftIcon="people-outline"
+                    onPress={() => setRegistrantsOf(c)}
+                  />
+                ) : null}
                 <Button
                   label={t('vetCourses.edit')}
                   variant="outline"
@@ -396,63 +421,170 @@ export default function AdminVetCoursesScreen() {
 }
 
 /**
- * Read-only registrant list for one course/seminar
- * (`GET /admin/vet-courses/:id/registrations`, `vet_course.read`), with the
- * capacity / registered / available summary on top.
+ * Registrants of one course/seminar (`GET /admin/vet-courses/:id/registrations`,
+ * `vet_course.read`) — PENDING first. Each registrant can be approved /
+ * rejected (`vet_course.approve` / `vet_course.reject`), opened (admin user
+ * profile) or messaged (Admin → user support thread), like job applicants.
  */
 function RegistrantsModal({ course, onClose }: { course: VetCourse | null; onClose: () => void }) {
   const { t } = useTranslation('admin');
+  const toast = useToast();
   const q = useAdminVetCourseRegistrations(course?.id);
-  const registered = q.data ? q.total : (course?.registrationCount ?? 0);
+  const approve = useAdminApproveVetCourseRegistration();
+  const reject = useAdminRejectVetCourseRegistration();
+  const [messaging, setMessaging] = useState<VetCourseRegistration | null>(null);
+  const [rejecting, setRejecting] = useState<VetCourseRegistration | null>(null);
+  const registered = course?.registrationCount ?? q.total;
   const capacity = course?.capacity;
 
+  const onApprove = (r: VetCourseRegistration) =>
+    approve.mutate(
+      { id: r.id },
+      {
+        onSuccess: () =>
+          toast.show({ message: t('vetCourses.registrations.toastApproved'), tone: 'success' }),
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  const onReject = (reason: string) => {
+    if (!rejecting) return;
+    reject.mutate(
+      { id: rejecting.id, reason: reason || undefined },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('vetCourses.registrations.toastRejected'), tone: 'success' });
+          setRejecting(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
+
   return (
-    <AdminDetailModal
-      visible={course != null}
-      onClose={onClose}
-      title={course ? `${t('vetCourses.registrations.title')} · ${course.title}` : ''}
-      fields={[]}
-    >
-      <Text variant="bodyStrong">
-        {capacity != null
-          ? t('vetCourses.registrations.summary', {
-              registered,
-              remaining: Math.max(0, capacity - registered),
-              capacity,
-            })
-          : t('vetCourses.seatsMetaUnlimited', { registered })}
-      </Text>
-      {q.isLoading ? (
-        <Loading />
-      ) : q.registrations.length === 0 ? (
-        <Caption color="textMuted">{t('vetCourses.registrations.empty')}</Caption>
-      ) : (
-        q.registrations.map((r) => (
-          <Card key={r.id} variant="outlined" padding="sm">
-            <View style={{ flexDirection: 'row', columnGap: 10, alignItems: 'flex-start' }}>
-              <Avatar uri={r.registrant.avatarUrl ?? null} name={r.fullName} size="avatarSm" />
-              <View style={{ rowGap: 2, flex: 1 }}>
-                <Text variant="bodyStrong">{r.fullName}</Text>
-                <Caption color="textSecondary">
-                  {[r.phone, r.email, r.governorate, r.specialty].filter(Boolean).join(' · ')}
-                </Caption>
-                {r.notes ? <Caption color="textMuted">{r.notes}</Caption> : null}
-                <Caption color="textMuted">
-                  {`${t('vetCourses.registrations.registeredAt')}: ${formatDate(r.createdAt)}`}
-                </Caption>
-              </View>
-            </View>
-          </Card>
-        ))
-      )}
-      {q.hasNextPage ? (
-        <Button
-          label={t('vetCourses.registrations.loadMore')}
-          variant="ghost"
-          loading={q.isFetchingNextPage}
-          onPress={() => void q.fetchNextPage()}
+    <>
+      <AdminDetailModal
+        visible={course != null && messaging == null && rejecting == null}
+        onClose={onClose}
+        title={course ? `${t('vetCourses.registrations.title')} · ${course.title}` : ''}
+        fields={[]}
+      >
+        <Text variant="bodyStrong">
+          {capacity != null
+            ? t('vetCourses.registrations.summary', {
+                registered,
+                remaining: Math.max(0, capacity - registered),
+                capacity,
+              })
+            : t('vetCourses.seatsMetaUnlimited', { registered })}
+        </Text>
+        {q.isLoading ? (
+          <Loading />
+        ) : q.registrations.length === 0 ? (
+          <Caption color="textMuted">{t('vetCourses.registrations.empty')}</Caption>
+        ) : (
+          q.registrations.map((r) => {
+            const status = r.status ?? 'APPROVED';
+            return (
+              <Card key={r.id} variant="outlined" padding="sm">
+                <View style={{ flexDirection: 'row', columnGap: 10, alignItems: 'flex-start' }}>
+                  <Avatar uri={r.registrant.avatarUrl ?? null} name={r.fullName} size="avatarSm" />
+                  <View style={{ rowGap: 2, flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 6 }}>
+                      <Text variant="bodyStrong" style={{ flexShrink: 1 }}>
+                        {r.fullName}
+                      </Text>
+                      <Badge
+                        label={t(`vetCourses.registrations.status.${status}`)}
+                        tone={REGISTRATION_TONE[status]}
+                        size="sm"
+                      />
+                    </View>
+                    <Caption color="textSecondary">
+                      {[r.phone, r.email, r.governorate, r.specialty].filter(Boolean).join(' · ')}
+                    </Caption>
+                    {r.notes ? <Caption color="textMuted">{r.notes}</Caption> : null}
+                    {r.rejectionReason ? (
+                      <Caption color="danger">{r.rejectionReason}</Caption>
+                    ) : null}
+                    <Caption color="textMuted">
+                      {`${t('vetCourses.registrations.registeredAt')}: ${formatDate(r.createdAt)}`}
+                    </Caption>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                      {status === 'PENDING' ? (
+                        <>
+                          <Button
+                            label={t('vetCourses.registrations.approve')}
+                            size="sm"
+                            variant="primary"
+                            loading={approve.isPending && approve.variables?.id === r.id}
+                            onPress={() => onApprove(r)}
+                          />
+                          <Button
+                            label={t('vetCourses.registrations.reject')}
+                            size="sm"
+                            variant="danger"
+                            onPress={() => setRejecting(r)}
+                          />
+                        </>
+                      ) : null}
+                      <Button
+                        label={t('vetCourses.registrations.message')}
+                        size="sm"
+                        variant="outline"
+                        leftIcon="chatbubble-ellipses-outline"
+                        onPress={() => setMessaging(r)}
+                      />
+                      <Button
+                        label={t('vetCourses.registrations.viewProfile')}
+                        size="sm"
+                        variant="ghost"
+                        leftIcon="person-outline"
+                        onPress={() => {
+                          onClose();
+                          router.push(Routes.adminUser(r.registrant.id));
+                        }}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </Card>
+            );
+          })
+        )}
+        {q.hasNextPage ? (
+          <Button
+            label={t('vetCourses.registrations.loadMore')}
+            variant="ghost"
+            loading={q.isFetchingNextPage}
+            onPress={() => void q.fetchNextPage()}
+          />
+        ) : null}
+      </AdminDetailModal>
+
+      <ReasonPromptDialog
+        visible={rejecting != null}
+        title={t('vetCourses.registrations.rejectTitle')}
+        message={t('vetCourses.registrations.rejectBody')}
+        label={t('vetCourses.reasonLabel')}
+        placeholder={t('vetCourses.reasonPlaceholder')}
+        confirmLabel={t('vetCourses.registrations.reject')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={reject.isPending}
+        onConfirm={onReject}
+        onCancel={() => setRejecting(null)}
+      />
+
+      {messaging ? (
+        <MessageUserDialog
+          userId={messaging.registrant.id}
+          onDone={() => {
+            setMessaging(null);
+            onClose();
+          }}
+          onCancel={() => setMessaging(null)}
         />
       ) : null}
-    </AdminDetailModal>
+    </>
   );
 }

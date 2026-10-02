@@ -34,6 +34,7 @@ export default {
     messageLabel: 'الرسالة',
     dateLabel: 'التاريخ',
     openRelated: 'عرض المحتوى المرتبط',
+    openLink: 'فتح الرابط',
     notFoundTitle: 'الإشعار غير متاح',
     notFoundBody: 'ربما حُذف هذا الإشعار أو أنه لا يخصك.',
   },
@@ -275,6 +276,14 @@ export default {
     VET_COURSE_REGISTRATION_RECEIVED: {
       title: 'تسجيل جديد',
       body: 'سجّل مشارك جديد في دورتك أو ندوتك.',
+    },
+    VET_COURSE_REGISTRATION_APPROVED: {
+      title: 'تم قبول تسجيلك',
+      body: 'تمت الموافقة على تسجيلك في الدورة/الندوة.',
+    },
+    VET_COURSE_REGISTRATION_REJECTED: {
+      title: 'لم يتم قبول تسجيلك',
+      body: 'لم تتم الموافقة على تسجيلك في الدورة/الندوة.',
     },
     VET_COURSE_CAPACITY_REACHED: {
       title: 'اكتمل العدد',

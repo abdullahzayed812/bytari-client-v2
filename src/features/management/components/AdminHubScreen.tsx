@@ -1,7 +1,7 @@
 import { router, type Href } from 'expo-router';
 import { View } from 'react-native';
 
-import { Card, Icon, type IconName } from '@/components/content';
+import { Badge, Card, Icon, type IconName } from '@/components/content';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
@@ -11,6 +11,8 @@ export interface AdminHubEntry {
   label: string;
   icon: IconName;
   route: Href;
+  /** Red counter beside the entry (open items waiting in that sub-screen). */
+  count?: number;
 }
 
 interface Props {
@@ -48,6 +50,13 @@ export function AdminHubScreen({ title, intro, entries }: Props) {
                 <Text variant="bodyMedium" style={{ flex: 1 }}>
                   {entry.label}
                 </Text>
+                {entry.count && entry.count > 0 ? (
+                  <Badge
+                    label={entry.count > 99 ? '99+' : String(entry.count)}
+                    tone="danger"
+                    size="sm"
+                  />
+                ) : null}
                 <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
               </Row>
             </Card>

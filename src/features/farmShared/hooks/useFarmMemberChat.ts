@@ -12,9 +12,10 @@ import { apiErrorMessage } from '@/lib/apiError';
  * The "محادثة" button on a farm's doctors/workers list. Farm chat is the
  * existing `FARM_OWNER_MEMBER` conversation (`POST /organizations/:id/
  * conversations`): the OWNER opens one with any active non-owner member
- * (`targetUserId`), a member opens their own conversation with the owner (no
- * target). Member ↔ member is not a supported conversation, so no button is
- * offered there — the server enforces the same rule.
+ * (`targetUserId`, FARM_OWNER_MEMBER), a member opens their own conversation
+ * with the owner (no target), and a member names a COLLEAGUE — the farm's vet
+ * ↔ an employee — for a FARM_MEMBER_DIRECT chat. The server re-checks that
+ * both are active non-owner members of this farm.
  *
  * Returns the press handler for a member row, or `undefined` for "no button".
  */
@@ -49,7 +50,10 @@ export function useFarmMemberChat(
       if (me === ownerUserId) {
         return member.roleKey === 'OWNER' ? undefined : () => open(member.userId);
       }
-      return member.userId === ownerUserId ? () => open() : undefined;
+      // A member: the owner (FARM_OWNER_MEMBER) or a colleague — the farm's
+      // vet ↔ an employee (FARM_MEMBER_DIRECT, server-checked).
+      if (member.userId === ownerUserId) return () => open();
+      return member.roleKey === 'OWNER' ? undefined : () => open(member.userId);
     },
     [me, ownerUserId, viewerRole, open],
   );

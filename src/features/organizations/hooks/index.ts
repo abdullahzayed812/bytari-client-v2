@@ -39,3 +39,4 @@ export {
   useOrganizationSubscriptionRenewals,
   useRequestOrganizationRenewal,
 } from './useOrganizationSubscription';
+export { useOrganizationTerms } from './useOrganizationTerms';

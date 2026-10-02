@@ -117,6 +117,7 @@ export default {
     language: 'اللغة',
     languageArabic: 'العربية',
     languageEnglish: 'English',
+    languageKurdish: 'کوردی',
     languageRestart: 'أعد تشغيل التطبيق لتطبيق اتجاه الواجهة الجديد.',
     designSystem: 'نظام التصميم (للمطوّرين)',
     version: 'الإصدار',

@@ -31,7 +31,8 @@ const log = createLogger('rtl');
 export const isExpoGo =
   Constants.executionEnvironment === 'storeClient' || Constants.appOwnership === 'expo';
 
-export const RTL_LANGUAGES = new Set(['ar', 'he', 'fa', 'ur']);
+// `ku` / `ckb`: Central Kurdish (Sorani) is written right-to-left in Arabic script.
+export const RTL_LANGUAGES = new Set(['ar', 'he', 'fa', 'ur', 'ku', 'ckb']);
 
 export function isRtlLanguage(language: string): boolean {
   return RTL_LANGUAGES.has(language.split('-')[0] ?? language);

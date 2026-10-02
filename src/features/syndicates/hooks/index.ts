@@ -25,6 +25,7 @@ export {
   useRemoveSyndicateMember,
   useOpenSyndicateMemberConversation,
   useMessageSyndicateMembers,
+  useMembersBroadcastImageProvider,
   useAssignSyndicateAdmin,
   useMarkSyndicateSubmissionSeen,
 } from './useSyndicates';

@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Linking, View } from 'react-native';
 
@@ -7,13 +7,16 @@ import { Card, Icon, type IconName } from '@/components/content';
 import { ErrorState, Loading, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Heading, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
+import { useStartConversation } from '@/features/chat';
 import { ImageCarousel, usePublicOrganization } from '@/features/organizations';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { veterinaryOfficeProductTypeIcon } from '../../constants';
-import { usePublicVeterinaryOfficeProduct } from '../hooks';
 import type { VeterinaryOfficeProduct } from '../../types';
 import { formatProductPrice } from '../../utils';
+import { usePublicVeterinaryOfficeProduct } from '../hooks';
 
 interface DetailRowProps {
   label: string;
@@ -41,6 +44,7 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
 
   const q = usePublicVeterinaryOfficeProduct(officeId, productId);
   const office = usePublicOrganization(officeId, { enabled: Boolean(q.data) });
+  const startConversation = useStartConversation();
 
   if (q.isLoading) {
     return (
@@ -52,7 +56,11 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
   if (q.isError || !q.data) {
     return (
       <ScrollScreen>
-        <ErrorState error={q.error} title={t('product.notFound')} onRetry={() => void q.refetch()} />
+        <ErrorState
+          error={q.error}
+          title={t('product.notFound')}
+          onRetry={() => void q.refetch()}
+        />
       </ScrollScreen>
     );
   }
@@ -79,6 +87,18 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
   const onWhatsapp = () => {
     if (officeWhatsapp) void Linking.openURL(`https://wa.me/${officeWhatsapp.replace(/\D/g, '')}`);
   };
+  // "مراسلة" — the in-app office chat (PET_OWNER_VETERINARY_OFFICE), same as
+  // the office details screen's message action.
+  const onMessage = () => {
+    if (!officeId || startConversation.isPending) return;
+    startConversation.mutate(
+      { organizationId: officeId },
+      {
+        onSuccess: (conversation) => router.push(Routes.chatThread(conversation.id)),
+        onError: (error) => toast.show({ message: apiErrorMessage(error), tone: 'danger' }),
+      },
+    );
+  };
 
   return (
     <ScrollScreen padded={false}>
@@ -95,7 +115,11 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
               justifyContent: 'center',
             }}
           >
-            <Icon name={veterinaryOfficeProductTypeIcon(product.productType)} size="iconXl" color="primary" />
+            <Icon
+              name={veterinaryOfficeProductTypeIcon(product.productType)}
+              size="iconXl"
+              color="primary"
+            />
           </View>
         )}
         <View style={{ position: 'absolute', top: theme.spacing.md, end: theme.spacing.md }}>
@@ -166,26 +190,38 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
           </Section>
         ) : null}
 
-        {officePhone || officeWhatsapp ? (
-          <Section spacing="giant">
-            <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.md }}>
-              {t('product.contactOffice')}
-            </Text>
-            <Row gap="md">
-              {officePhone ? (
-                <Button label={t('product.call')} variant="outline" leftIcon="call" onPress={onCall} fullWidth />
-              ) : null}
-              {officeWhatsapp ? (
-                <Button
-                  label={t('product.whatsapp')}
-                  leftIcon="logo-whatsapp"
-                  onPress={onWhatsapp}
-                  fullWidth
-                />
-              ) : null}
-            </Row>
-          </Section>
-        ) : null}
+        <Section spacing="giant">
+          <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.md }}>
+            {t('product.contactOffice')}
+          </Text>
+          <Row gap="md">
+            <Button
+              label={t('product.message')}
+              variant="outline"
+              leftIcon="chatbubble-ellipses-outline"
+              loading={startConversation.isPending}
+              onPress={onMessage}
+              fullWidth
+            />
+            {officePhone ? (
+              <Button
+                label={t('product.call')}
+                variant="outline"
+                leftIcon="call"
+                onPress={onCall}
+                fullWidth
+              />
+            ) : null}
+            {officeWhatsapp ? (
+              <Button
+                label={t('product.whatsapp')}
+                leftIcon="logo-whatsapp"
+                onPress={onWhatsapp}
+                fullWidth
+              />
+            ) : null}
+          </Row>
+        </Section>
       </View>
     </ScrollScreen>
   );

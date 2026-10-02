@@ -4,7 +4,7 @@ import type { Conversation, ConversationSide } from './types';
 
 /** Icon per conversation type. */
 export function conversationIcon(type: Conversation['type']): IconName {
-  if (type === 'FARM_OWNER_MEMBER') return 'leaf-outline';
+  if (type === 'FARM_OWNER_MEMBER' || type === 'FARM_MEMBER_DIRECT') return 'leaf-outline';
   if (type === 'PET_OWNER_VETERINARY_OFFICE') return 'business-outline';
   if (type === 'CHAT_ROOM') return 'people-outline';
   if (type === 'SYNDICATE_MEMBER') return 'ribbon-outline';

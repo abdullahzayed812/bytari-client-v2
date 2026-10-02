@@ -22,6 +22,7 @@ export interface SendFollowerBroadcastInput {
   title: string;
   body: string;
   imageStorageKey?: string | null;
+  linkUrl?: string | null;
 }
 
 export interface BroadcastImageUploadUrlInput {

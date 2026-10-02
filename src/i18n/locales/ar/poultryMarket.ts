@@ -53,6 +53,14 @@ export default {
     rejectedTitle: 'تم رفض طلب التسجيل',
     reapplyCta: 'إعادة التقديم',
     suspendedTitle: 'تم إيقاف حسابك كتاجر',
+    expiredTitle: 'انتهت فترة تفعيل حسابك كتاجر',
+    expiredBody:
+      'انتهت فترة التفعيل في {{date}}. لا يمكنك استخدام سوق الدواجن والبورصة حتى يتم التجديد.',
+    notStartedBody: 'لم تبدأ فترة تفعيل حسابك بعد. تواصل مع الإدارة لتفعيلها.',
+    renewalCta: 'طلب تجديد التفعيل',
+    renewalSent: 'تم إرسال طلب التجديد إلى الإدارة',
+    renewalPending: 'طلب التجديد قيد المراجعة لدى الإدارة.',
+    activeUntil: 'حسابك كتاجر مفعّل حتى {{date}}',
   },
   filters: { all: 'جميع الأنواع', allGovernorates: 'جميع المحافظات' },
   actions: {

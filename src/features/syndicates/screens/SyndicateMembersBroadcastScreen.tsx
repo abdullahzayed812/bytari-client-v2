@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
@@ -10,17 +10,23 @@ import { Button } from '@/components/actions';
 import { Alert, useToast } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
-import { Caption } from '@/components/typography';
+import { Caption, Label } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { newRequestId } from '@/utils';
+import { isHttpUrl, newRequestId, normalizeLink } from '@/utils';
 
-import { useMessageSyndicateMembers, useSyndicate } from '../hooks';
+import {
+  useMembersBroadcastImageProvider,
+  useMessageSyndicateMembers,
+  useSyndicate,
+} from '../hooks';
 
 interface FormValues {
   title: string;
   body: string;
+  linkUrl: string;
 }
 
 /**
@@ -37,25 +43,38 @@ export default function SyndicateMembersBroadcastScreen() {
   const syndicate = useSyndicate(organizationId);
   const send = useMessageSyndicateMembers(organizationId ?? '');
   const requestId = useRef(newRequestId());
+  const imageProvider = useMembersBroadcastImageProvider(organizationId ?? '');
+  const [imageStorageKey, setImageStorageKey] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
       z.object({
         title: z.string().trim().min(1, t('broadcast.errors.title')).max(100),
         body: z.string().trim().min(1, t('broadcast.errors.body')).max(1000),
+        linkUrl: z
+          .string()
+          .trim()
+          .max(1000)
+          .refine((v) => v.length === 0 || isHttpUrl(v), t('broadcast.errors.link')),
       }),
     [t],
   );
   const { control, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', body: '' },
+    defaultValues: { title: '', body: '', linkUrl: '' },
     mode: 'onTouched',
   });
 
   const onSubmit = (values: FormValues): void => {
     if (send.isPending) return;
     send.mutate(
-      { ...values, clientRequestId: requestId.current },
+      {
+        title: values.title,
+        body: values.body,
+        clientRequestId: requestId.current,
+        imageStorageKey,
+        linkUrl: normalizeLink(values.linkUrl),
+      },
       {
         onSuccess: (r) => {
           toast.show({
@@ -90,6 +109,22 @@ export default function SyndicateMembersBroadcastScreen() {
           placeholder={t('broadcast.bodyPlaceholder')}
           multiline
           numberOfLines={6}
+        />
+        <FormField
+          control={control}
+          name="linkUrl"
+          label={t('broadcast.linkLabel')}
+          placeholder="https://"
+          keyboardType="url"
+          autoCapitalize="none"
+        />
+        <Label>{t('broadcast.imageLabel')}</Label>
+        <ImageUploader
+          value={null}
+          provider={imageProvider}
+          shape="square"
+          size={140}
+          onChange={(r) => setImageStorageKey(r?.storageKey ?? null)}
         />
         {send.isError ? <Alert tone="danger" message={apiErrorMessage(send.error)} /> : null}
       </ScrollView>

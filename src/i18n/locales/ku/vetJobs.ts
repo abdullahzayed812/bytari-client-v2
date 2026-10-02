@@ -1,0 +1,241 @@
+import type { KuNamespace } from './types';
+
+const vetJobs: KuNamespace<'vetJobs'> = {
+  filters: {
+    all: 'هەموو',
+  },
+
+  employmentType: {
+    FULL_TIME: 'دەوامی تەواو',
+    PART_TIME: 'دەوامی بەشەکی',
+    SHIFT: 'شەفت',
+    EVENING: 'ئێواران',
+    OTHER: 'هیتر',
+  },
+
+  status: {
+    PENDING: 'لە ژێر پێداچوونەوەدا',
+    APPROVED: 'بڵاوکراوە',
+    REJECTED: 'ڕەتکراوە',
+  },
+
+  applicationStatus: {
+    PENDING: 'چاوەڕوان',
+    ACCEPTED: 'قبوڵکراو',
+    REJECTED: 'ڕەتکراوە',
+  },
+
+  home: {
+    title: 'کارە ڤێتێرنەرییەکان',
+    jobOffers: 'هەلی کار',
+    jobOffersHint: 'نوێترین هەلی کار لە کلینیک و سەنتەرە ڤێتێرنەرییەکان و کۆمپانیاکان ببینە',
+    lookingForJob: 'کارخوازان',
+    lookingForJobHint:
+      'پرۆفایلی ئەو پزیشکە ڤێتێرنەرییانە ببینە کە بەدوای هەلی کاری گونجاودا دەگەڕێن',
+    myAdsAndApplications: 'ڕیکلام و داواکارییەکانم',
+    myAdsAndApplicationsHint:
+      'بەدواداچوون بۆ ئەو ڕیکلامانەی کار بکە کە بڵاوت کردوونەتەوە و داواکارییەکانت بۆ کار',
+  },
+
+  offers: {
+    title: 'هەلی کار',
+    addOffer: 'زیادکردنی ڕیکلام',
+    searchPlaceholder: 'گەڕان بۆ کار، کۆمپانیا، یان پسپۆڕی…',
+    empty: 'هیچ کارێک نییە',
+    emptyHint: 'هەلی کار کاتێک بڵاو دەکرێنەوە لێرە دەردەکەون.',
+    loadingMore: 'زیاتر بار دەکرێت…',
+    experienceYears: '{{count}} ساڵ ئەزموون',
+    lastApplyDate: 'دوایین کات: {{date}}',
+    viewDetails: 'بینینی وردەکاری',
+    negotiable: 'شیاوی گفتوگۆ',
+  },
+
+  offer: {
+    title: 'وردەکاری کار',
+    location: 'شوێن',
+    employmentType: 'دەوام',
+    salary: 'موچە',
+    experience: 'ساڵانی ئەزموون',
+    qualifications: 'بڕوانامەی زانستی داواکراو',
+    lastApplyDate: 'دوایین کاتی پێشکەشکردن',
+    description: 'وەسفی کار',
+    responsibilities: 'ئەرک و بەرپرسیارێتییەکان',
+    requirements: 'پێداویستییەکان',
+    benefits: 'ئیمتیازەکان',
+    contact: 'زانیاری پەیوەندی',
+    apply: 'پێشکەشکردن بۆ کارەکە',
+    alreadyApplied: 'بۆ ئەم کارە پێشکەشت کردووە',
+    notOpen: 'لە ئێستادا ئەم کارە بۆ پێشکەشکردن بەردەست نییە',
+    editOffer: 'دەستکاریکردنی ڕیکلام',
+    closeOffer: 'هەڵوەشاندنەوەی ڕیکلام',
+    closeConfirmTitle: 'هەڵوەشاندنەوەی ڕیکلام',
+    closeConfirmBody: 'ئەم ڕیکلامە لە بەکارهێنەران دەشاردرێتەوە. ئەم کردارە ناگەڕێندرێتەوە.',
+    deleteOffer: 'سڕینەوەی ڕیکلام',
+    deleteConfirmTitle: 'سڕینەوەی ڕیکلام',
+    deleteConfirmBody: 'ئەم ڕیکلامە بە یەکجاری دەسڕدرێتەوە.',
+    viewApplicants: 'بینینی پێشکەشکاران',
+    applicantsCount: '{{count}} پێشکەشکار',
+    notFound: 'کارەکە بەردەست نییە',
+  },
+
+  seekers: {
+    title: 'کارخوازان',
+    addProfile: 'زیادکردنی داواکاری کار',
+    searchPlaceholder: 'گەڕان بۆ پزیشک، پسپۆڕی، شوێن…',
+    empty: 'هیچ کارخوازێک نییە',
+    emptyHint: 'پرۆفایلی کارخوازان کاتێک بڵاو دەکرێنەوە لێرە دەردەکەون.',
+    loadingMore: 'زیاتر بار دەکرێت…',
+    experienceYears: '{{count}} ساڵ ئەزموون',
+  },
+
+  seeker: {
+    title: 'وردەکاری پزیشک',
+    personalInfo: 'کورتەیەکی کەسی',
+    professionalInfo: 'زانیارییە پیشەییەکان',
+    specialty: 'پسپۆڕی',
+    qualifications: 'بڕوانامەی زانستی',
+    experienceYears: 'ساڵانی ئەزموون',
+    workDuration: 'دەوامی پەسەندکراو',
+    location: 'پارێزگا',
+    skills: 'لێهاتووییەکان',
+    cv: 'ژیاننامە',
+    downloadCv: 'داگرتن',
+    contact: 'پەیوەندی بە پزیشکەوە',
+    editProfile: 'دەستکاریکردنی داواکاری',
+    deactivateProfile: 'ڕاگرتنی داواکاری',
+    deactivateConfirmTitle: 'ڕاگرتنی داواکاری',
+    deactivateConfirmBody:
+      'داواکارییەکەت لە گەڕاوان دەشاردرێتەوە. دواتر دەتوانیت دەستکاری بکەیت و دووبارە بڵاوی بکەیتەوە.',
+    notFound: 'پرۆفایلەکە بەردەست نییە',
+  },
+
+  form: {
+    step: 'هەنگاوی {{current}} لە {{total}}',
+    next: 'دواتر',
+    back: 'گەڕانەوە',
+    submit: 'ناردنی داواکاری',
+    save: 'پاشەکەوتکردنی گۆڕانکارییەکان',
+    submitting: 'دەنێردرێت…',
+    cancel: 'هەڵوەشاندنەوە',
+    optional: '(ئارەزوومەندانە)',
+    important: 'تێبینی گرنگ',
+
+    offerStep1Title: 'زانیاری لایەن',
+    offerOrganizationName: 'ناوی لایەن / کلینیک / کۆمپانیا',
+    offerOrganizationNamePlaceholder: 'ناوی لایەنەکە بنووسە',
+    offerGovernorate: 'پارێزگا',
+    offerGovernoratePlaceholder: 'جۆری لایەن هەڵبژێرە',
+    offerDistrict: 'ناوچە',
+
+    offerStep2Title: 'زانیاری موچە و ئیمتیازەکان',
+    offerSalary: 'موچە',
+    offerSalaryNegotiable: 'بە ڕێککەوتن',
+    offerSalaryAmount: 'بڕی موچە بنووسە',
+    offerBenefits: 'ئیمتیازەکانی موچە (ئارەزوومەندانە)',
+    offerBenefitsPlaceholder: 'ئیمتیازە زیادەکان بنووسە، هەر ئیمتیازێک لە دێڕێکدا',
+
+    offerStep3Title: 'وردەکاری کار',
+    offerTitle: 'ناونیشانی کار',
+    offerTitlePlaceholder: 'ناوی کارەکە بنووسە',
+    offerEmploymentType: 'جۆری دەوام',
+    offerExperienceYears: 'ساڵانی ئەزموون',
+    offerQualifications: 'بڕوانامەی زانستی',
+    offerDescription: 'وەسفی کار',
+    offerDescriptionPlaceholder: 'وەسفێکی وردی کارەکە و ئەرکە داواکراوەکانی بنووسە',
+    offerResponsibilities: 'ئەرک و بەرپرسیارێتییەکان',
+    offerResponsibilitiesPlaceholder: 'ئەرک و بەرپرسیارێتییەکان بنووسە، هەر ئەرکێک لە دێڕێکدا',
+    offerRequirements: 'پێداویستییەکانی کار',
+    offerRequirementsPlaceholder: 'پێداویستییە داواکراوەکان بنووسە، هەر یەکێک لە دێڕێکدا',
+    offerContactPhone: 'ژمارەی تەلەفۆن',
+    offerContactEmail: 'ئیمەیڵ',
+    offerApplicationDeadline: 'دوایین کاتی پێشکەشکردن',
+    offerReviewNote:
+      'ڕیکلامی کارەکە بۆ پێداچوونەوە دەنێردرێت بۆ بەڕێوەبەرایەتی، و دوای پەسەندکردن لە بەشی ڕیکلامەکانی کاردا دەردەکەوێت.',
+    offerCreated: 'ڕیکلامی کارەکە بۆ پێداچوونەوە نێردرا',
+    offerSaved: 'گۆڕانکارییەکان پاشەکەوت کران',
+
+    personalInfoTitle: 'زانیارییە کەسییەکان',
+    fullName: 'ناوی تەواو',
+    specialty: 'پسپۆڕی',
+    specialtyPlaceholder: 'پسپۆڕییەکەت هەڵبژێرە',
+    qualifications: 'بڕوانامەی زانستی',
+    qualificationsPlaceholder: 'بڕوانامە زانستییەکەت هەڵبژێرە',
+    skills: 'لێهاتووییەکان',
+    skillsPlaceholder: 'ئەو لێهاتووییانەی هەتە بنووسە',
+
+    professionalInfoTitle: 'زانیارییە پیشەییەکان',
+    headline: 'کورتەیەکی کەسی',
+    headlinePlaceholder: 'کورتەیەک دەربارەی خۆت و لێهاتوویی و شارەزاییت لە بوارەکەت بنووسە',
+    experienceYears: 'ساڵانی ئەزموون',
+    employmentTypePreference: 'جۆری کاری داواکراو',
+    governorate: 'پارێزگا',
+
+    cvStepTitle: 'ژیاننامە',
+    phone: 'ژمارەی تەلەفۆن',
+    cv: 'ژیاننامە (PDF)',
+    cvHint: 'زۆرترین قەبارە 5 مێگابایت',
+    photo: 'وێنەی کەسی (ئارەزوومەندانە)',
+    photoHint: 'JPG یان PNG، زۆرترین قەبارە 5 مێگابایت',
+    coverNote: 'زانیاری زیاتر (ئارەزوومەندانە)',
+    coverNotePlaceholder: 'هەر زانیارییەکی زیاتر کە دەتەوێت زیادی بکەیت',
+
+    seekerReviewNote:
+      'داواکاری گەڕان بەدوای کاردا بۆ پێداچوونەوە دەنێردرێت بۆ بەڕێوەبەرایەتی، و دوای پەسەندکردن لە بەشی کارخوازاندا دەردەکەوێت.',
+    seekerCreated: 'داواکارییەکەت بۆ پێداچوونەوە نێردرا',
+    seekerSaved: 'گۆڕانکارییەکان پاشەکەوت کران',
+
+    applyReviewNote:
+      'دەتوانیت لە هەر کاتێکدا پێش پەسەندکردنی کۆتایی ڕیکلامەکەت هەڵبوەشێنیتەوە یان ڕیکلام و داواکارییەکانت دەستکاری بکەیت.',
+    applySubmitted: 'داواکارییەکەت بە سەرکەوتوویی نێردرا',
+
+    errors: {
+      required: 'ئەم خانەیە پێویستە',
+      organizationName: 'تکایە ناوی لایەن بنووسە.',
+      title: 'تکایە ناونیشانی کار بنووسە.',
+      description: 'تکایە وەسفی کار بنووسە.',
+      governorate: 'تکایە پارێزگا هەڵبژێرە.',
+      phone: 'ژمارەی تەلەفۆن دروست نییە.',
+      email: 'ئیمەیڵ دروست نییە.',
+      specialty: 'تکایە پسپۆڕی هەڵبژێرە.',
+      fullName: 'تکایە ناوی تەواو بنووسە.',
+      experienceYears: 'ژمارەیەکی تەواو لە 0 تا 60 بنووسە.',
+    },
+  },
+
+  myJobs: {
+    title: 'ڕیکلام و داواکارییەکانم',
+    tabAds: 'ڕیکلامەکانم',
+    tabApplications: 'داواکارییەکانی گەڕان بەدوای کار',
+    empty: 'هیچ ڕیکلامێک نییە',
+    emptyApplications: 'هیچ داواکارییەک نییە',
+    view: 'بینین',
+    edit: 'دەستکاری',
+    delete: 'سڕینەوە',
+    closeAd: 'هەڵوەشاندنەوەی ڕیکلام',
+    deleteConfirmTitle: 'سڕینەوەی ڕیکلام',
+    deleteConfirmBody: 'ئەم ڕیکلامە بە یەکجاری دەسڕدرێتەوە.',
+    noteTitle: 'تێبینی گرنگ',
+    noteBody:
+      'دەتوانیت لە هەر کاتێکدا پێش پەسەندکردنی کۆتایی ڕیکلام یان داواکارییەکانت هەڵبوەشێنیتەوە یان دەستکاری بکەیت.',
+  },
+
+  applicants: {
+    title: 'پێشکەشکاران بۆ کارەکە',
+    empty: 'هیچ پێشکەشکارێک نییە',
+    emptyHint: 'داواکارییەکانی پێشکەشکاران بۆ ئەم کارە لێرە دەردەکەون.',
+    accept: 'قبوڵکردن',
+    reject: 'ڕەتکردنەوە',
+    acceptConfirmTitle: 'قبوڵکردنی پێشکەشکار',
+    acceptConfirmBody: 'گفتوگۆیەک لە نێوان تۆ و پێشکەشکارەکەدا دەکرێتەوە بۆ پەیوەندی ڕاستەوخۆ.',
+    rejectConfirmTitle: 'ڕەتکردنەوەی پێشکەشکار',
+    rejectConfirmBody: 'پێشکەشکارەکە لە هیچ وردەکارییەکی زیاتر ئاگادار ناکرێتەوە.',
+    contact: 'پەیوەندی',
+    endHiring: 'کۆتاییهێنانی دامەزراندن',
+    endHiringConfirmTitle: 'کۆتاییهێنانی دامەزراندن',
+    endHiringConfirmBody:
+      'گفتوگۆکە لەگەڵ پێشکەشکارەکە ڕادەگیرێت. دواتر دەتوانیت نامە پێشووەکان ببینیتەوە.',
+    toast: { accepted: 'پێشکەشکارەکە قبوڵ کرا', rejected: 'پێشکەشکارەکە ڕەت کرایەوە' },
+  },
+};
+
+export default vetJobs;

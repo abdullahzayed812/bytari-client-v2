@@ -18,4 +18,6 @@ export {
   useAdminApproveVetCourse,
   useAdminRejectVetCourse,
   useAdminCancelVetCourse,
+  useAdminApproveVetCourseRegistration,
+  useAdminRejectVetCourseRegistration,
 } from './useAdminVetCourses';

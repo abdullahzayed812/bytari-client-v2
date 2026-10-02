@@ -12,6 +12,13 @@ export interface AdminRowProps {
   meta?: string;
   badge?: { label: string; tone?: BadgeTone };
   /**
+   * Red "needs attention" counter beside the title (e.g. new applicants /
+   * registrants awaiting review). Hidden when 0 / undefined.
+   */
+  counter?: number;
+  /** Accessible description of `counter` (e.g. "3 new applicants"). */
+  counterLabel?: string;
+  /**
    * Optional leading thumbnail. `onPress` (if given) is called instead of the
    * row's own `onPress` when the thumbnail itself is tapped — e.g. to open a
    * full-screen `ImageViewer` rather than navigating to the detail screen.
@@ -36,6 +43,8 @@ export function AdminRow({
   subtitle,
   meta,
   badge,
+  counter,
+  counterLabel,
   image,
   actions,
   onPress,
@@ -67,7 +76,11 @@ export function AdminRow({
             }}
           >
             {image.uri ? (
-              <Image source={{ uri: image.uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+              <Image
+                source={{ uri: image.uri }}
+                style={{ width: '100%', height: '100%' }}
+                contentFit="cover"
+              />
             ) : (
               <Icon name={image.fallbackIcon ?? 'image-outline'} size="iconSm" color="textMuted" />
             )}
@@ -88,6 +101,11 @@ export function AdminRow({
             </Text>
           ) : null}
         </View>
+        {counter && counter > 0 ? (
+          <View accessible accessibilityLabel={counterLabel ?? String(counter)}>
+            <Badge label={counter > 99 ? '99+' : String(counter)} tone="danger" size="sm" />
+          </View>
+        ) : null}
         {badge ? <Badge label={badge.label} tone={badge.tone ?? 'neutral'} size="sm" /> : null}
         {onPress ? (
           <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />

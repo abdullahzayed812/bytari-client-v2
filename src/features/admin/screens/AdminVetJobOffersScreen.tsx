@@ -24,9 +24,9 @@ import {
   AdminListScreen,
   AdminRow,
   FilterChips,
+  MessageUserDialog,
   ReasonPromptDialog,
 } from '../components';
-import { useMessageUserMutation } from '../hooks';
 
 const STATUSES: VetJobModerationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
 const STATUS_TONE = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'danger' } as const;
@@ -157,6 +157,8 @@ export default function AdminVetJobOffersScreen() {
             meta={`${t('vetJobOffers.submittedAt')}: ${formatDate(o.createdAt)}`}
             onPress={() => setDetail(o)}
             badge={{ label: t(`vetJobOffers.status.${o.status}`), tone: STATUS_TONE[o.status] }}
+            counter={o.applicationCount ?? 0}
+            counterLabel={t('vetJobOffers.applicants.count', { count: o.applicationCount ?? 0 })}
             actions={
               o.status === 'PENDING' ? (
                 <>
@@ -344,8 +346,8 @@ function ApplicantsModal({ offer, onClose }: { offer: VetJobOffer | null; onClos
       </AdminDetailModal>
 
       {messaging ? (
-        <MessageApplicantDialog
-          applicant={messaging}
+        <MessageUserDialog
+          userId={messaging.applicant.id}
           onDone={() => {
             setMessaging(null);
             onClose();
@@ -354,44 +356,5 @@ function ApplicantsModal({ offer, onClose }: { offer: VetJobOffer | null; onClos
         />
       ) : null}
     </>
-  );
-}
-
-function MessageApplicantDialog({
-  applicant,
-  onDone,
-  onCancel,
-}: {
-  applicant: VetJobApplication;
-  onDone: () => void;
-  onCancel: () => void;
-}) {
-  const { t } = useTranslation('admin');
-  const toast = useToast();
-  const send = useMessageUserMutation(applicant.applicant.id);
-  return (
-    <ReasonPromptDialog
-      visible
-      title={t('users.detail.messageTitle')}
-      message={t('users.detail.messageBody')}
-      label={t('users.detail.messageLabel')}
-      placeholder={t('users.detail.messagePlaceholder')}
-      confirmLabel={t('users.detail.messageSend')}
-      cancelLabel={t('common.cancel')}
-      required
-      loading={send.isPending}
-      onConfirm={(body) =>
-        send.mutate(body, {
-          onSuccess: (thread) => {
-            toast.show({ message: t('users.toast.messageSent'), tone: 'success' });
-            onDone();
-            // Continue in the existing support-messages thread.
-            router.push(Routes.supportThread('support-messages', thread.id));
-          },
-          onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
-        })
-      }
-      onCancel={onCancel}
-    />
   );
 }

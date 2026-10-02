@@ -75,6 +75,8 @@ export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; 
   VET_COURSE_REJECTED: { icon: 'school-outline', tone: 'danger' },
   VET_COURSE_REGISTRATION_CONFIRMED: { icon: 'school-outline', tone: 'success' },
   VET_COURSE_REGISTRATION_RECEIVED: { icon: 'school-outline', tone: 'primary' },
+  VET_COURSE_REGISTRATION_APPROVED: { icon: 'checkmark-circle-outline', tone: 'success' },
+  VET_COURSE_REGISTRATION_REJECTED: { icon: 'close-circle-outline', tone: 'danger' },
   VET_COURSE_CAPACITY_REACHED: { icon: 'school-outline', tone: 'warning' },
   VET_COURSE_CANCELLED: { icon: 'school-outline', tone: 'danger' },
   VET_JOB_OFFER_SUBMITTED: { icon: 'briefcase-outline', tone: 'info' },
@@ -355,6 +357,10 @@ function hrefByType(
       const cid = id('entityId');
       return cid ? Routes.vetCourse(cid) : Routes.vetCourseMy;
     }
+    // entityId is the REGISTRATION — "my courses" lists it with its status.
+    case 'VET_COURSE_REGISTRATION_APPROVED':
+    case 'VET_COURSE_REGISTRATION_REJECTED':
+      return Routes.vetCourseMy;
 
     // --- jobs ---
     case 'VET_JOB_OFFER_SUBMITTED':

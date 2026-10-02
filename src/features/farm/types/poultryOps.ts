@@ -98,6 +98,9 @@ export interface UpdateFarmProfileInput {
 
 /** `POST /organizations/farms` body — the "Add Poultry Farm" form. */
 export interface CreatePoultryFarmInput {
+  /** Registration terms (POULTRY_FARM) — required, backend-enforced. */
+  termsAccepted?: boolean;
+  termsVersion?: string;
   name: string;
   location: string;
   governorate: string;

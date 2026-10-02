@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card } from '@/components/content';
@@ -14,7 +14,7 @@ import { Caption, LinkifiedText, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, isHttpUrl } from '@/utils';
 
 import { notificationKeys, notificationsApi } from '../api';
 import { localizedNotificationText, notificationHref, notificationSourceName } from '../constants';
@@ -74,6 +74,9 @@ export default function NotificationDetailScreen() {
   const text = n ? localizedNotificationText(n, t, i18n.language) : null;
   const related = n ? notificationHref(n) : null;
   const imageUrl = n && typeof n.data?.imageUrl === 'string' ? n.data.imageUrl : null;
+  // Only http(s) links are ever opened (the server validates the same rule).
+  const linkUrl =
+    n && typeof n.data?.linkUrl === 'string' && isHttpUrl(n.data.linkUrl) ? n.data.linkUrl : null;
 
   return (
     <ScrollScreen>
@@ -123,6 +126,14 @@ export default function NotificationDetailScreen() {
               </Field>
             </View>
           </Card>
+          {linkUrl ? (
+            <Button
+              label={t('detail.openLink')}
+              variant="outline"
+              leftIcon="open-outline"
+              onPress={() => void Linking.openURL(linkUrl)}
+            />
+          ) : null}
           {related ? (
             <Button
               label={t('detail.openRelated')}

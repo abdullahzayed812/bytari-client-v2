@@ -19,10 +19,10 @@ import { devDataEnabled } from '@/lib/env';
 import type { LocalFile } from '@/services/files/types';
 import { useTheme } from '@/theme';
 
-import { LocalImagePicker, RegistrationSectionHeader } from '../components';
+import { LocalImagePicker, RegistrationSectionHeader, RegistrationTermsField } from '../components';
 import { COUNTRIES_AR } from '../data/countries';
 import { devRegistrationDefaults } from '../data/devDefaults';
-import { useCreateOrganization } from '../hooks';
+import { useCreateOrganization, useOrganizationTerms } from '../hooks';
 import {
   uploadGalleryPhotos,
   uploadLicenseDocuments,
@@ -103,6 +103,11 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  // Terms & Conditions — the applicable set only; required (backend-enforced).
+  const termsKey = isClinic ? 'CLINIC' : 'VETERINARY_OFFICE';
+  const terms = useOrganizationTerms(termsKey);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
 
   const schema = useMemo(
     () => buildRegistrationSchema(t, { phoneRequired: isClinic }),
@@ -131,6 +136,11 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
 
   const onSubmit = (values: RegistrationFormValues) => {
     if (inFlight.current || create.isPending || vetGated) return;
+    if (!termsAccepted || !terms.data) {
+      setTermsError(t('terms.required'));
+      return;
+    }
+    setTermsError(null);
     if (licenseImages.length === 0) {
       setLicenseImagesError(t('registration.errors.licenseImagesRequired'));
       return;
@@ -161,6 +171,8 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
         name: values.name.trim(),
         description: values.description?.trim() ? values.description.trim() : undefined,
         details,
+        termsAccepted: true,
+        termsVersion: terms.data.version,
       },
       {
         onSuccess: async (org) => {
@@ -406,6 +418,17 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
             files={galleryImages}
             onChange={setGalleryImages}
             max={GALLERY_IMAGES_MAX}
+            disabled={submitting}
+          />
+
+          <RegistrationTermsField
+            termsKey={termsKey}
+            checked={termsAccepted}
+            onChange={(accepted) => {
+              setTermsAccepted(accepted);
+              if (accepted) setTermsError(null);
+            }}
+            error={termsError ?? undefined}
             disabled={submitting}
           />
 

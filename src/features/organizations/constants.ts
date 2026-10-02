@@ -1,6 +1,12 @@
 import type { BadgeTone, IconName } from '@/components/content';
 
-import type { MembershipStatus, OrganizationStatus, OrganizationType, OrgRoleKey } from './types';
+import type {
+  MembershipStatus,
+  OrganizationStatus,
+  OrganizationTermsKey,
+  OrganizationType,
+  OrgRoleKey,
+} from './types';
 
 /**
  * Organization type → line icon + i18n label key (`organizations:type.<KEY>`).
@@ -256,7 +262,9 @@ export function orgCapabilities(
   return {
     canViewOrganization: true,
     canEditOrganization: privileged,
-    canViewMembers: privileged || isVet || isSupervisor,
+    // Staff see the member list too (read only) — a farm's employees and its
+    // vets see each other; removing members stays `canManageMembers`.
+    canViewMembers: privileged || isVet || isSupervisor || isStaff,
     canManageMembers: privileged,
     canViewSupervisors: privileged || isSupervisor,
     canManageSupervisors: privileged,
@@ -279,4 +287,23 @@ export function orgCapabilities(
     isOwner: owner,
     canSendBroadcast: privileged || isSupervisor,
   };
+}
+
+/**
+ * Which registration Terms & Conditions an organization must accept —
+ * mirrors the server's `termsKeyFor` (CLINIC / VETERINARY_OFFICE by type, a
+ * FARM by species: SHEEP / CATTLE, else poultry). `null` = none.
+ */
+export function termsKeyForOrganization(
+  type: string | null | undefined,
+  farmSpecies?: string | null,
+): OrganizationTermsKey | null {
+  if (type === 'CLINIC') return 'CLINIC';
+  if (type === 'VETERINARY_OFFICE') return 'VETERINARY_OFFICE';
+  if (type === 'FARM') {
+    if (farmSpecies === 'SHEEP') return 'SHEEP_FARM';
+    if (farmSpecies === 'CATTLE') return 'CATTLE_FARM';
+    return 'POULTRY_FARM';
+  }
+  return null;
 }

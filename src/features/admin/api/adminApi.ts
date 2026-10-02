@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
+import type { PresignedUpload } from '@/services/media';
 
 import type {
   AdminAnimal,
@@ -329,7 +330,17 @@ export const adminApi = {
       type: 'ADMIN_ANNOUNCEMENT',
       title: input.title,
       body: input.body,
+      ...(input.imageStorageKey ? { imageStorageKey: input.imageStorageKey } : {}),
+      ...(input.linkUrl ? { linkUrl: input.linkUrl } : {}),
     });
+  },
+
+  requestBroadcastImageUploadUrl(input: {
+    filename: string;
+    mimeType: string;
+    size: number;
+  }): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>('/admin/notifications/image-upload-url', input);
   },
 
   // --- chat oversight ("الدردشات") ----------------------

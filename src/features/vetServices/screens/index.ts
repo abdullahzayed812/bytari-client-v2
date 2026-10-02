@@ -8,5 +8,6 @@ export { default as AddServiceRequestScreen } from './AddServiceRequestScreen';
 export { default as ServiceRequestDetailScreen } from './ServiceRequestDetailScreen';
 export { default as SubmitOfferScreen } from './SubmitOfferScreen';
 export { default as MyServicesScreen } from './MyServicesScreen';
+export { default as MyServiceRequestsScreen } from './MyServiceRequestsScreen';
 export { default as DealConversationScreen } from './DealConversationScreen';
 export { default as EngagementDetailScreen } from './EngagementDetailScreen';

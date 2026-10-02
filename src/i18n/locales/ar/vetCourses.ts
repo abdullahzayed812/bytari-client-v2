@@ -135,6 +135,12 @@ export default {
     startsIn: 'تبدأ بعد {{count}} يوم',
     cancelledNotice: 'تم إلغاء الدورة',
     downloadCertificate: 'تحميل الشهادة',
+    registrationStatus: {
+      PENDING: 'التسجيل بانتظار الموافقة',
+      APPROVED: 'تم قبول التسجيل',
+      REJECTED: 'لم يتم قبول التسجيل',
+    },
+    pendingRegistrants: '{{count}} تسجيل جديد',
     certificateUnavailable: 'شهادة الدورة غير متاحة حالياً',
     view: 'عرض',
     edit: 'تعديل',

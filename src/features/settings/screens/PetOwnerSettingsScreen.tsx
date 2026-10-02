@@ -16,7 +16,7 @@ import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from '@/features/notifications';
-import { setLanguage as applyI18nLanguage } from '@/i18n';
+import { LANGUAGE_OPTIONS, languageLabelKey, setLanguage as applyI18nLanguage } from '@/i18n';
 import { apiErrorMessage } from '@/lib/apiError';
 import { usePreferencesStore, type AppLanguage } from '@/store';
 import { useTheme } from '@/theme';
@@ -75,15 +75,12 @@ export default function PetOwnerSettingsScreen() {
         <Row
           icon="globe-outline"
           label={t('rows.language')}
-          sublabel={language === 'ar' ? tn('more.languageArabic') : tn('more.languageEnglish')}
+          sublabel={tn(languageLabelKey(language))}
           expanded={expanded === 'language'}
           onPress={() => toggle('language')}
         >
           <ChipRow
-            options={[
-              { value: 'ar', label: tn('more.languageArabic') },
-              { value: 'en', label: tn('more.languageEnglish') },
-            ]}
+            options={LANGUAGE_OPTIONS.map((o) => ({ value: o.value, label: tn(o.labelKey) }))}
             selected={language}
             onSelect={(v) => void changeLanguage(v as AppLanguage)}
           />

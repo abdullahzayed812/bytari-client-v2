@@ -128,6 +128,16 @@ export const Routes = {
   eggExchangeRatesEntry: '/(app)/poultry/egg-exchange-rates/entry',
   marketStatistics: '/(app)/poultry/statistics',
   poultryFarmDetail: (organizationId: string) => `/(app)/poultry/${organizationId}` as const,
+  /**
+   * The species-correct farm dashboard: SHEEP → sheep, CATTLE → cattle,
+   * anything else (POULTRY / MIXED / unknown) → the poultry dashboard.
+   */
+  farmDashboard: (organizationId: string, farmSpecies?: string | null) =>
+    farmSpecies === 'SHEEP'
+      ? (`/(app)/livestock/sheep/${organizationId}` as const)
+      : farmSpecies === 'CATTLE'
+        ? (`/(app)/livestock/cattle/${organizationId}` as const)
+        : (`/(app)/poultry/${organizationId}` as const),
   /** Farm Settings — Info / Staff / Vets tabs (owner/admin only). */
   farmSettings: (organizationId: string) => `/(app)/poultry/${organizationId}/settings` as const,
   /** Farm Details management sub-pages (screens delivered with their own screenshots). */
@@ -244,6 +254,7 @@ export const Routes = {
   vetServiceOfferNew: (requestId: string) =>
     `/(app)/vet-services/requests/${requestId}/offer` as const,
   vetServiceMy: '/(app)/vet-services/my',
+  vetServiceMyRequests: '/(app)/vet-services/my-requests',
   vetServiceDeal: (conversationId: string) =>
     `/(app)/vet-services/deals/${conversationId}` as const,
   vetServiceEngagement: (kind: 'offer' | 'listing-request', engagementId: string) =>

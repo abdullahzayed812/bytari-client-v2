@@ -7,6 +7,7 @@ import { TextButton } from '@/components/actions';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ImagePreview, ImageUploader } from '@/components/media';
 import { Caption, Label } from '@/components/typography';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -88,6 +89,7 @@ export default function OrganizationEditScreen() {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
   const toast = useToast();
+  const { isAdmin } = useCapabilities();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
   const q = useOrganization(orgId);
@@ -134,6 +136,10 @@ export default function OrganizationEditScreen() {
   const org = q.data;
   const hasProfileFields = PROFILE_FIELDS_ORG_TYPES.includes(org.type);
   const isLicensable = LICENSABLE_ORG_TYPES.includes(org.type);
+  // License number + photos were reviewed at approval: the owner may still
+  // correct them while PENDING / REJECTED; afterwards only an admin can.
+  const licenseLocked =
+    isLicensable && !isAdmin && org.status !== 'PENDING' && org.status !== 'REJECTED';
 
   const defaultValues: EditOrganizationFormValues = {
     name: org.name,
@@ -173,7 +179,8 @@ export default function OrganizationEditScreen() {
       payload.facebookUrl = clearable(values.facebookUrl);
       payload.instagramUrl = clearable(values.instagramUrl);
       payload.tiktokUrl = clearable(values.tiktokUrl);
-      if (isLicensable) payload.licenseNumber = clearable(values.licenseNumber);
+      // Locked after approval (server-enforced too) — never sent then.
+      if (isLicensable && !licenseLocked) payload.licenseNumber = clearable(values.licenseNumber);
     }
     update.mutate(payload, {
       onSuccess: () => {
@@ -268,7 +275,18 @@ export default function OrganizationEditScreen() {
         </View>
       ) : null}
 
-      {isLicensable ? (
+      {isLicensable && licenseLocked ? (
+        // Approved: the reviewed license photos are shown read-only.
+        <View style={{ rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
+          <Label>{t('form.licenseImagesLabel')}</Label>
+          <Caption>{t('form.licenseLockedHint')}</Caption>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+            {(org.details.licenseDocumentUrls ?? []).map((url) => (
+              <ImagePreview key={url} uri={url} size={88} />
+            ))}
+          </View>
+        </View>
+      ) : isLicensable ? (
         <View style={{ rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
           <Label>{t('form.licenseImagesLabel')}</Label>
           <Caption>{t('form.licenseImagesHint', { max: MAX_LICENSE_DOCUMENTS })}</Caption>
@@ -317,6 +335,7 @@ export default function OrganizationEditScreen() {
         formError={formError}
         serverFields={serverFields}
         onSubmit={onSubmit}
+        licenseLocked={licenseLocked}
       />
 
       <ConfirmationDialog

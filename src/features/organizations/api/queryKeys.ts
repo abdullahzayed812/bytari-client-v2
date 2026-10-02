@@ -15,6 +15,7 @@ import type { MemberListFilter, OrganizationType } from '../types';
  */
 export const orgKeys = {
   all: ['organizations'] as const,
+  terms: (termsKey: string) => ['organizations', 'terms', termsKey] as const,
   lists: () => [...orgKeys.all, 'list'] as const,
   list: (page: number) => [...orgKeys.lists(), { page }] as const,
   details: () => [...orgKeys.all, 'detail'] as const,

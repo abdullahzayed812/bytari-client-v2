@@ -31,7 +31,11 @@ export {
   formatVetServiceDate,
   formatPrice,
 } from './constants';
-export { VET_SERVICE_TERMS, type VetServiceTermsKey, type VetServiceTermsDoc } from './data/vetServicesTerms';
+export {
+  VET_SERVICE_TERMS,
+  type VetServiceTermsKey,
+  type VetServiceTermsDoc,
+} from './data/vetServicesTerms';
 export {
   VetServicesHubScreen,
   ServiceListingsBrowseScreen,
@@ -43,6 +47,7 @@ export {
   ServiceRequestDetailScreen,
   SubmitOfferScreen,
   MyServicesScreen,
+  MyServiceRequestsScreen,
   DealConversationScreen,
   EngagementDetailScreen,
 } from './screens';

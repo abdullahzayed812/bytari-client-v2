@@ -70,7 +70,7 @@ export default function MyVeterinaryOrganizationsScreen() {
   const goToDetail = (org: MyOrganization) => router.push(Routes.organizationDetail(org.id));
   const goToDashboard = (org: MyOrganization) => {
     if (org.type === 'VETERINARY_OFFICE') return router.push(Routes.vetOfficeDashboard(org.id));
-    if (org.type === 'FARM') return router.push(Routes.poultryFarmDetail(org.id));
+    if (org.type === 'FARM') return router.push(Routes.farmDashboard(org.id, org.farmSpecies));
     return goToDetail(org);
   };
   const openCreatePicker = () => setPickerOpen(true);

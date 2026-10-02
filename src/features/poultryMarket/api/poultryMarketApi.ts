@@ -44,6 +44,17 @@ export const poultryMarketApi = {
     me(): Promise<TraderStatusResult> {
       return apiClient.get<TraderStatusResult>('/traders/me');
     },
+    /** An approved trader whose activation period ended asks for a renewal. */
+    requestRenewal(): Promise<TraderProfile> {
+      return apiClient.post<TraderProfile>('/traders/me/renewal-request');
+    },
+    /** Admin: set / renew a trader's activation period (`trader.admin.approve`). */
+    adminSetSubscription(
+      userId: string,
+      period: { startDate: string; endDate: string },
+    ): Promise<TraderProfile> {
+      return apiClient.put<TraderProfile>(`/admin/traders/${userId}/subscription`, period);
+    },
     async adminList(
       status: TraderStatus | undefined,
       page: number,

@@ -337,6 +337,21 @@ export function useMessageSyndicateMembers(organizationId: string) {
   });
 }
 
+/** Presign provider for the optional photo of a "رسالة إلى الأعضاء" broadcast. */
+export function useMembersBroadcastImageProvider(organizationId: string): PresignProvider {
+  return useMemo<PresignProvider>(
+    () => ({
+      requestUpload: (file: LocalFile) =>
+        syndicatesApi.requestMembersBroadcastImageUploadUrl(organizationId, {
+          filename: file.name,
+          mimeType: file.mimeType,
+          size: file.size ?? 0,
+        }),
+    }),
+    [organizationId],
+  );
+}
+
 export function useAssignSyndicateAdmin(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<unknown, ApiError, string>({

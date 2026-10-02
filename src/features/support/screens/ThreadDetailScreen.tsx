@@ -1,5 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Platform, View } from 'react-native';
 
@@ -70,8 +71,19 @@ export default function ThreadDetailScreen() {
   const [confirmClose, setConfirmClose] = useState(false);
   const listRef = useRef<FlatList>(null);
 
+  // Opening the thread's messages marks its alerts read server-side — refresh
+  // the bell badge / inbox once the first page arrives.
+  const qc = useQueryClient();
+  const loaded = msgQ.isSuccess;
+  useEffect(() => {
+    if (loaded) void qc.invalidateQueries({ queryKey: ['notifications'] });
+  }, [loaded, qc, id]);
+
   const thread = threadQ.data;
   const isCreator = Boolean(thread && user && thread.createdByUserId === user.id);
+  // Close / block are management actions: never shown on the asker's own
+  // thread, even when the asker also holds a supervisor permission.
+  const showManage = !isCreator && (canRespond || canClose);
 
   const notFound =
     threadQ.error instanceof ApiError &&
@@ -154,7 +166,7 @@ export default function ThreadDetailScreen() {
               ) : null}
             </Row>
 
-            {canRespond || canClose ? (
+            {showManage ? (
               <Row gap="lg" style={{ marginTop: theme.spacing.xs }}>
                 {canClose && !closed ? (
                   <TextButton

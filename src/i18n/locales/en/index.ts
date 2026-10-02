@@ -192,6 +192,7 @@ export const en: TranslationResources = {
       language: 'Language',
       languageArabic: 'العربية',
       languageEnglish: 'English',
+      languageKurdish: 'کوردی',
       languageRestart: 'Restart the app to apply the new layout direction.',
       designSystem: 'Design System (developers)',
       version: 'Version',
@@ -1591,6 +1592,12 @@ export const en: TranslationResources = {
       startsIn: 'Starts in {{count}} days',
       cancelledNotice: 'This course was cancelled',
       downloadCertificate: 'Download certificate',
+      registrationStatus: {
+        PENDING: 'Registration awaiting approval',
+        APPROVED: 'Registration approved',
+        REJECTED: 'Registration not accepted',
+      },
+      pendingRegistrants: '{{count}} new registrations',
       certificateUnavailable: 'The course certificate is not available yet',
       view: 'View',
       edit: 'Edit',
@@ -1942,9 +1949,12 @@ export const en: TranslationResources = {
       submit: 'Send',
       submitting: 'Sending…',
       sent: 'Message sent to {{count}} members',
+      linkLabel: 'Link (optional)',
+      imageLabel: 'Attach an image (optional)',
       errors: {
         title: 'Please enter a title.',
         body: 'Please write the message.',
+        link: 'Enter a valid link starting with http:// or https://',
       },
     },
     edit: {
@@ -2487,6 +2497,8 @@ export const en: TranslationResources = {
       licenseRemoved: 'License photo deleted.',
       licenseRemoveTitle: 'Delete license photo',
       licenseRemoveBody: 'Delete this license photo? You can upload a new one afterwards.',
+      licenseLockedHint:
+        'The license number and license photos cannot be changed after approval. Contact the administration to change them.',
       licenseRemoveCta: 'Delete',
       cancel: 'Cancel',
       errors: {
@@ -2506,6 +2518,19 @@ export const en: TranslationResources = {
       officeHint: 'A veterinary office that lists products and services',
       linkFarmTitle: 'Link to a poultry/sheep/cattle farm',
       linkFarmHint: 'Enter the farm code to join it as the responsible veterinarian',
+    },
+    terms: {
+      acceptLabel: 'I have read and accept the {{title}}',
+      fallbackTitle: 'terms and conditions',
+      readCta: 'Read the terms and conditions',
+      acceptAndClose: 'I accept the terms and conditions',
+      close: 'Close',
+      loadError: 'Could not load the terms and conditions. Please try again.',
+      required: 'You must read and accept the terms and conditions before submitting.',
+      adminTitle: 'Terms and conditions acceptance',
+      adminAccepted: 'The applicant accepted “{{title}}” on {{date}}',
+      adminOutdated: '(an earlier version of the terms)',
+      adminNone: 'No terms acceptance on record (registered before terms were required).',
     },
     registration: {
       clinic: {
@@ -3253,6 +3278,14 @@ export const en: TranslationResources = {
       rejectedTitle: 'Registration rejected',
       reapplyCta: 'Re-apply',
       suspendedTitle: 'Your trader account has been suspended',
+      expiredTitle: 'Your trader activation period has ended',
+      expiredBody:
+        'The activation period ended on {{date}}. The poultry market and bourse are unavailable until it is renewed.',
+      notStartedBody: 'Your activation period has not started yet. Contact the administration.',
+      renewalCta: 'Request renewal',
+      renewalSent: 'Your renewal request was sent to the administration',
+      renewalPending: 'Your renewal request is awaiting the administration.',
+      activeUntil: 'Your trader account is active until {{date}}',
     },
     filters: { all: 'All types', allGovernorates: 'All governorates' },
     actions: {
@@ -3747,12 +3780,24 @@ export const en: TranslationResources = {
     },
     resolution: {
       sectionTitle: 'Listing status',
-      status: { AVAILABLE: 'Available', FOUND: 'Found', ADOPTED: 'Adopted', CLOSED: 'Closed' },
-      action: { FOUND: 'Mark as found', ADOPTED: 'Mark as adopted', CLOSED: 'Close listing' },
+      status: {
+        AVAILABLE: 'Available',
+        FOUND: 'Found',
+        ADOPTED: 'Adopted',
+        MATED: 'Mated',
+        CLOSED: 'Closed',
+      },
+      action: {
+        FOUND: 'Mark as found',
+        ADOPTED: 'Mark as adopted',
+        MATED: 'Mark as mated',
+        CLOSED: 'Close listing',
+      },
       reopen: 'Reopen listing',
       confirmTitle: 'Update listing status',
       confirmBody:
-        'The listing will leave the public lists and stop receiving new requests. You can reopen it later.',
+        'The listing stays visible in the list with its status, but is locked and stops receiving new requests. You can reopen it later.',
+      lockedBadge: 'Locked',
       updated: 'Listing status updated',
       onlyApproved: 'You can update the status once the listing is approved and published.',
       unavailableBanner: 'This listing is no longer available — {{status}}',
@@ -4827,6 +4872,7 @@ export const en: TranslationResources = {
       messageLabel: 'Message',
       dateLabel: 'Date',
       openRelated: 'View related content',
+      openLink: 'Open link',
       notFoundTitle: 'Notification unavailable',
       notFoundBody: 'It may have been removed, or it is not yours.',
     },
@@ -5064,6 +5110,14 @@ export const en: TranslationResources = {
         title: 'New registration',
         body: 'A new participant registered for your course or seminar.',
       },
+      VET_COURSE_REGISTRATION_APPROVED: {
+        title: 'Registration approved',
+        body: 'Your course/seminar registration was approved.',
+      },
+      VET_COURSE_REGISTRATION_REJECTED: {
+        title: 'Registration not accepted',
+        body: 'Your course/seminar registration was not approved.',
+      },
       VET_COURSE_CAPACITY_REACHED: {
         title: 'Fully booked',
         body: 'All seats in your course or seminar are taken.',
@@ -5268,6 +5322,7 @@ export const en: TranslationResources = {
       },
       viewAll: 'View all',
       renewalsPending: 'Renewal requests: {{count}}',
+      registrationsPending: 'Registrants awaiting review: {{count}}',
       nav: {
         home: 'Home',
         logout: 'Log out',
@@ -5764,12 +5819,16 @@ export const en: TranslationResources = {
         titlePlaceholder: 'Enter the message title',
         bodyLabel: 'Message body',
         bodyPlaceholder: 'Enter the message body',
+        linkLabel: 'Link (optional)',
+        imageLabel: 'Attach an image (optional)',
+        imageHint: 'You may attach one JPG or PNG image',
         submit: 'Send message',
       },
       sent: 'Message sent to {{count}} users successfully.',
       errors: {
         title: 'A message title is required.',
         body: 'A message body is required.',
+        link: 'Enter a valid link starting with http:// or https://',
       },
     },
     hubs: {
@@ -6264,6 +6323,17 @@ export const en: TranslationResources = {
         reactivated: 'Trader account reactivated',
         updated: 'Trader details saved',
         removed: 'Trader removed',
+        periodSet: 'Activation period saved',
+      },
+      period: {
+        activeUntil: 'Active until {{date}}',
+        expiredOn: 'Expired on {{date}}',
+        notStarted: 'Activation period not started',
+        renewalRequested: 'Renewal requested',
+        renew: 'Renew activation',
+        edit: 'Edit activation period',
+        dialogTitle: 'Trader activation period',
+        save: 'Save',
       },
     },
     marketOffers: {
@@ -6602,6 +6672,21 @@ export const en: TranslationResources = {
         empty: 'No registrants yet',
         registeredAt: 'Registered on',
         loadMore: 'Show more',
+        pendingCount: '{{count}} registrants awaiting review',
+        status: {
+          PENDING: 'Awaiting review',
+          APPROVED: 'Approved',
+          REJECTED: 'Rejected',
+        },
+        approve: 'Approve',
+        reject: 'Reject',
+        rejectTitle: 'Reject registrant',
+        rejectBody:
+          'The registrant is notified and their seat is released. You may add a reason (optional).',
+        message: 'Message',
+        viewProfile: 'View profile',
+        toastApproved: 'Registrant approved',
+        toastRejected: 'Registrant rejected',
       },
     },
 
@@ -6935,11 +7020,29 @@ export const en: TranslationResources = {
         body: 'Post a service request and receive offers from veterinarians.',
         cta: 'View requests',
       },
+      myRequests: {
+        title: 'My requests',
+        body: 'Requests you sent to vets, requests you published, and the vets who responded.',
+        cta: 'View my requests',
+      },
       my: {
         title: 'My Services',
         body: 'Your published services, requests received, and offers you submitted.',
         cta: 'Manage my services',
       },
+    },
+    myRequests: {
+      title: 'My requests',
+      tabSent: 'Sent to vets',
+      tabPosted: 'Published',
+      chatVet: 'Message the vet',
+      details: 'Details',
+      viewResponses: 'Vet responses ({{count}})',
+      sentEmpty: "You haven't sent a request to a vet yet",
+      sentEmptyHint: 'Browse vet services and request one, or message the vet directly.',
+      postedEmpty: "You haven't published a service request yet",
+      postedEmptyHint: 'Publish a request to receive offers from veterinarians.',
+      postCta: 'Publish a request',
     },
     listings: {
       title: 'Vet Services',
@@ -7269,6 +7372,7 @@ export const en: TranslationResources = {
       contactOffice: 'Contact the office',
       call: 'Call',
       whatsapp: 'WhatsApp',
+      message: 'Message',
     },
     manage: {
       common: {
@@ -7471,11 +7575,13 @@ export const en: TranslationResources = {
         bodyPlaceholder: 'Write your message here...',
         imageLabel: 'Attach an image or ad (optional)',
         imageHint: 'You may attach one JPG or PNG image',
+        linkLabel: 'Link (optional)',
         submit: 'Send message',
       },
       errors: {
         title: 'The message title is required.',
         body: 'The message body is required.',
+        link: 'Enter a valid link starting with http:// or https://',
       },
     },
     conversations: {

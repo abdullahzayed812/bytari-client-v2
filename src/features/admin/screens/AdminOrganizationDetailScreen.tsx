@@ -4,16 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { Badge, Card } from '@/components/content';
+import { Badge, Card, Icon } from '@/components/content';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { termsKeyForOrganization } from '@/features/organizations/constants';
+import { useOrganizationTerms } from '@/features/organizations/hooks/useOrganizationTerms';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { formatDate, fullName } from '@/utils';
+import { formatDate, formatDateTime, fullName } from '@/utils';
 
 import {
   ReasonPromptDialog,
@@ -28,7 +30,7 @@ import {
   useOrgDecisionMutation,
   useSetFarmSubscriptionMutation,
 } from '../hooks';
-import type { OrganizationStatus, OrgStatusAction } from '../types';
+import type { AdminTermsAcceptance, OrganizationStatus, OrgStatusAction } from '../types';
 
 /** Subscription management is generalized to these two org types too — see `FarmSubscriptionRenewalRepository`. */
 const SUBSCRIPTION_CAPABLE_TYPES = new Set(['VETERINARY_OFFICE', 'CLINIC']);
@@ -250,6 +252,21 @@ export default function AdminOrganizationDetailScreen() {
               </View>
             </Card>
           </Section>
+
+          {termsKeyForOrganization(org.type) ? (
+            <Section spacing="lg">
+              <Label>{tOrg('terms.adminTitle')}</Label>
+              <Card variant="outlined" padding="md">
+                {(org.termsAcceptances ?? []).length === 0 ? (
+                  <Caption>{tOrg('terms.adminNone')}</Caption>
+                ) : (
+                  (org.termsAcceptances ?? []).map((a) => (
+                    <AcceptedTermsLine key={a.termsKey} acceptance={a} />
+                  ))
+                )}
+              </Card>
+            </Section>
+          ) : null}
 
           {SUBSCRIPTION_CAPABLE_TYPES.has(org.type) ? (
             <Section spacing="lg">
@@ -622,6 +639,24 @@ function Row({ label, value }: { label: string; value: string }) {
       <Text variant="caption" style={{ flexShrink: 1, textAlign: 'right' }}>
         {value}
       </Text>
+    </View>
+  );
+}
+
+/** "The applicant accepted <terms title> on <date>" — the title from the served terms. */
+function AcceptedTermsLine({ acceptance }: { acceptance: AdminTermsAcceptance }) {
+  const { t } = useTranslation('organizations');
+  const terms = useOrganizationTerms(acceptance.termsKey);
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: 6 }}>
+      <Icon name="checkmark-circle" size="iconSm" color="success" />
+      <Caption style={{ flex: 1 }}>
+        {t('terms.adminAccepted', {
+          title: terms.data?.title ?? acceptance.termsKey,
+          date: formatDateTime(acceptance.acceptedAt),
+        })}
+        {acceptance.isCurrentVersion ? '' : ` ${t('terms.adminOutdated')}`}
+      </Caption>
     </View>
   );
 }

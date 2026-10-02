@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { Routes } from '@/constants/routes';
+import { useAdminDashboardSummary } from '@/features/admin/hooks/useAdminDashboard';
 import { useCapabilities } from '@/hooks';
 
 import { AdminHubScreen } from '../components/AdminHubScreen';
@@ -19,6 +20,10 @@ export default function AdminPoultryMarketHubScreen() {
     caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.offer.admin.read');
   const canRates = caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage');
   const canFarms = caps.isAdmin || caps.can('organization.admin.read');
+  // Open queues behind each entry (pending trader applications + renewal
+  // requests, ads awaiting moderation) — from the dashboard summary.
+  const summary = useAdminDashboardSummary();
+  const counts = summary.data?.cards.find((c) => c.id === 'poultryMarket')?.sectionCounts ?? {};
 
   const entries = [
     canTraders && {
@@ -26,18 +31,21 @@ export default function AdminPoultryMarketHubScreen() {
       label: ta('traders.title'),
       icon: 'people-outline' as const,
       route: Routes.adminTraderApplications,
+      count: counts.traders ?? 0,
     },
     canOffers && {
       key: 'poultryOffers',
       label: ta('hubs.poultryMarket.poultryOffers'),
       icon: 'nutrition-outline' as const,
       route: Routes.adminMarketOffers('poultry'),
+      count: counts.poultryOffers ?? 0,
     },
     canOffers && {
       key: 'eggOffers',
       label: ta('hubs.poultryMarket.eggOffers'),
       icon: 'egg-outline' as const,
       route: Routes.adminMarketOffers('egg'),
+      count: counts.eggOffers ?? 0,
     },
     canRates && {
       key: 'poultryRates',

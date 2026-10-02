@@ -21,8 +21,6 @@ export interface AnimalCardProps {
   onPress: () => void;
   /** "My Listings" view — show the moderation status pill. */
   status?: PublicationStatus;
-  /** "My Listings" view — show a delete affordance on the card. */
-  onDelete?: () => void;
 }
 
 /** Age label from the joined animal — falls back to the age-estimate bucket. */
@@ -40,20 +38,13 @@ function ageLabel(
 
 /**
  * The list-screen card — image, name/breed, and a 3-icon info row
- * (age / gender / location), matching the reference grid exactly. The
- * top-corner badge is the kind's single real state — "مفقود" for LOST,
- * "متاح للتبني" for ADOPTION, "متاح للتزاوج" for MATING (no
- * found/adopted/mated tracking exists on the backend, so every APPROVED
- * listing of a kind shows the same badge — no fake per-card state).
+ * (age / gender / location). The corner badge is the kind ("مفقود" /
+ * "متاح للتبني" / "متاح للتزاوج"). A RESOLVED listing (FOUND / ADOPTED /
+ * MATED / CLOSED) stays in the list but is shown LOCKED: a status strip
+ * across the top, a dimmed photo. Deleting / managing a listing happens
+ * inside its detail screen — never from the card.
  */
-export function AnimalCard({
-  publication,
-  kind,
-  width,
-  onPress,
-  status,
-  onDelete,
-}: AnimalCardProps) {
+export function AnimalCard({ publication, kind, width, onPress, status }: AnimalCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('publications');
   const { animal } = publication;
@@ -62,6 +53,7 @@ export function AnimalCard({
   const cover = animal.galleryUrls[0] ?? null;
   const location = kind === 'LOST' ? publication.lostDistrict : publication.city;
   const age = ageLabel(animal, t);
+  const resolution = publication.resolution ?? null;
   const statusColor = status
     ? theme.colors[
         PUBLICATION_STATUS_TONE[status] === 'success'
@@ -94,7 +86,7 @@ export function AnimalCard({
         {cover ? (
           <Image
             source={cover}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', opacity: resolution ? 0.55 : 1 }}
             contentFit="cover"
             accessibilityIgnoresInvertColors
           />
@@ -103,28 +95,30 @@ export function AnimalCard({
             <Icon name={publicationSpeciesIcon(animal.species)} size="iconXl" color="primary" />
           </View>
         )}
-        <View
-          style={{
-            position: 'absolute',
-            top: theme.spacing.sm,
-            left: theme.spacing.sm,
-            flexDirection: 'row',
-            alignItems: 'center',
-            columnGap: 4,
-            backgroundColor: theme.colors.surface,
-            borderRadius: theme.radius.pill,
-            paddingHorizontal: theme.spacing.sm,
-            paddingVertical: 4,
-            ...theme.shadows.xs,
-          }}
-        >
-          <Icon name={meta.icon} size="iconXs" color={meta.accent} />
-          <Text variant="overline" style={{ color: accent }}>
-            {t(`card.badge.${kind}`)}
-          </Text>
-        </View>
+        {resolution ? null : (
+          <View
+            style={{
+              position: 'absolute',
+              top: theme.spacing.sm,
+              left: theme.spacing.sm,
+              flexDirection: 'row',
+              alignItems: 'center',
+              columnGap: 4,
+              backgroundColor: theme.colors.surface,
+              borderRadius: theme.radius.pill,
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: 4,
+              ...theme.shadows.xs,
+            }}
+          >
+            <Icon name={meta.icon} size="iconXs" color={meta.accent} />
+            <Text variant="overline" style={{ color: accent }}>
+              {t(`card.badge.${kind}`)}
+            </Text>
+          </View>
+        )}
 
-        {status ? (
+        {status && !resolution ? (
           <View
             style={{
               position: 'absolute',
@@ -143,27 +137,29 @@ export function AnimalCard({
           </View>
         ) : null}
 
-        {onDelete ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('mine.delete')}
-            onPress={onDelete}
-            hitSlop={8}
+        {resolution ? (
+          <View
+            accessible
+            accessibilityLabel={t(`resolution.status.${resolution}`)}
             style={{
               position: 'absolute',
-              bottom: theme.spacing.sm,
-              right: theme.spacing.sm,
-              width: 30,
-              height: 30,
-              borderRadius: 15,
+              left: 0,
+              right: 0,
+              top: 0,
+              flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: theme.colors.surface,
-              ...theme.shadows.xs,
+              columnGap: 4,
+              paddingVertical: 6,
+              backgroundColor:
+                resolution === 'CLOSED' ? theme.colors.textMuted : theme.colors.success,
             }}
           >
-            <Icon name="trash-outline" size="iconXs" color="danger" />
-          </Pressable>
+            <Icon name="lock-closed" size="iconXs" color="onPrimary" />
+            <Text variant="label" style={{ color: theme.colors.onPrimary }}>
+              {t(`resolution.status.${resolution}`)}
+            </Text>
+          </View>
         ) : null}
       </View>
 

@@ -56,6 +56,7 @@ export default {
     contactOffice: 'تواصل مع المكتب',
     call: 'اتصال',
     whatsapp: 'تواصل واتساب',
+    message: 'مراسلة',
   },
   manage: {
     common: {

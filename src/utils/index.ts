@@ -9,3 +9,4 @@ export {
   formatBytes,
 } from './format';
 export { newRequestId } from './requestId';
+export { isHttpUrl, normalizeLink } from './linkUrl';

@@ -98,6 +98,8 @@ export interface MessageSyndicateMembersInput {
   body: string;
   /** Idempotency key — a retried send never notifies anyone twice. */
   clientRequestId: string;
+  imageStorageKey?: string | null;
+  linkUrl?: string | null;
 }
 
 export interface UpdateSyndicateProfileInput {

@@ -1,5 +1,10 @@
 export { useTraderStatus, type TraderStatusInfo } from './useTraderStatus';
-export { useTraderStatusQuery, useRegisterTrader } from './useTraderRegistration';
+export {
+  useTraderStatusQuery,
+  useRegisterTrader,
+  useRequestTraderRenewal,
+  useAdminSetTraderSubscription,
+} from './useTraderRegistration';
 export {
   usePoultryOffers,
   useMyPoultryOffers,

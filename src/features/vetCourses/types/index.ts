@@ -54,6 +54,8 @@ export interface VetCourse {
   rejectionReason: string | null;
   cancelledAt: string | null;
   registrationCount?: number;
+  /** Registrants awaiting management review (owner / admin views) — the row's counter. */
+  pendingRegistrationCount?: number;
   /** `capacity - registrationCount`; null = unlimited. */
   remainingSeats?: number | null;
   createdAt: string;
@@ -124,8 +126,15 @@ export interface CourseBrowseFilter {
 
 // --- registrations --------------------------------------------------
 
+/** Management review of one registrant. */
+export type VetCourseRegistrationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 export interface VetCourseRegistration {
   id: string;
+  /** Absent on older payloads → treat as APPROVED. */
+  status?: VetCourseRegistrationStatus;
+  reviewedAt?: string | null;
+  rejectionReason?: string | null;
   courseId: string;
   /** `avatarUrl` is server-resolved (never a storage key); absent on older payloads. */
   registrant: VetCourseUserSummary & { avatarUrl?: string | null };

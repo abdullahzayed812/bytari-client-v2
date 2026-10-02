@@ -1,8 +1,7 @@
+import type { Conversation } from '@/features/chat';
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/files/types';
-
-import type { Conversation } from '@/features/chat';
 
 import type {
   CreateAnnouncementInput,
@@ -209,6 +208,16 @@ export const syndicatesApi = {
     input: MessageSyndicateMembersInput,
   ): Promise<{ broadcastId: string; recipientCount: number }> {
     return apiClient.post(`/syndicates/${organizationId}/members/broadcast`, input);
+  },
+
+  requestMembersBroadcastImageUploadUrl(
+    organizationId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/syndicates/${organizationId}/members/broadcast/image-upload-url`,
+      input,
+    );
   },
 
   // --- syndicate admins ("مسؤول النقابة") ----------------------------

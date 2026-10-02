@@ -8,6 +8,7 @@ import { applyDirectionForLanguage } from '@/lib/rtl';
 
 import { ar, type TranslationResources } from './locales/ar';
 import { en } from './locales/en';
+import { ku } from './locales/ku';
 
 const log = createLogger('i18n');
 
@@ -56,10 +57,16 @@ export const NAMESPACES = [
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 
-const resources: Record<AppLanguage, TranslationResources> = { ar, en };
+// Kurdish is typed as a deep-partial of the Arabic resources: every key it
+// does define must match the Arabic shape, and anything not (yet) translated
+// falls back to Arabic — the closest script/reading direction for Kurdish
+// readers in Iraq — via `fallbackLng`.
+const resources = { ar, en, ku } as unknown as Record<AppLanguage, TranslationResources>;
 
 export function resolveDeviceLanguage(): AppLanguage {
-  const preferred = getLocales()[0]?.languageCode ?? DEFAULT_LANGUAGE;
+  const code = getLocales()[0]?.languageCode ?? DEFAULT_LANGUAGE;
+  // Devices report Central Kurdish as `ckb` (Sorani) — the app's `ku`.
+  const preferred = code === 'ckb' ? 'ku' : code;
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(preferred)
     ? (preferred as AppLanguage)
     : DEFAULT_LANGUAGE;
@@ -77,7 +84,7 @@ export function initI18n(language: AppLanguage): { directionChanged: boolean } {
     void i18n.use(initReactI18next).init({
       resources: resources as unknown as Resource,
       lng: language,
-      fallbackLng: DEFAULT_LANGUAGE,
+      fallbackLng: { ku: ['ar'], default: [DEFAULT_LANGUAGE] },
       defaultNS: 'common',
       ns: NAMESPACES as unknown as string[],
       interpolation: { escapeValue: false },
@@ -97,6 +104,20 @@ export function initI18n(language: AppLanguage): { directionChanged: boolean } {
 
   const { changed } = applyDirectionForLanguage(language);
   return { directionChanged: changed };
+}
+
+/** Every selectable language, in picker order, with its `nav` label key. */
+export const LANGUAGE_OPTIONS = [
+  { value: 'ar', labelKey: 'more.languageArabic' },
+  { value: 'en', labelKey: 'more.languageEnglish' },
+  { value: 'ku', labelKey: 'more.languageKurdish' },
+] as const satisfies readonly { value: AppLanguage; labelKey: string }[];
+
+/** `nav` key of one language's own name (shown in that language's script). */
+export function languageLabelKey(
+  language: AppLanguage,
+): (typeof LANGUAGE_OPTIONS)[number]['labelKey'] {
+  return LANGUAGE_OPTIONS.find((o) => o.value === language)?.labelKey ?? 'more.languageArabic';
 }
 
 /** Change language at runtime. Returns whether a native reload is required. */

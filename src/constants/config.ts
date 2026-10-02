@@ -15,5 +15,6 @@ export const AppConfig = {
   toastDurationMs: 3_500,
 } as const;
 
-export const SUPPORTED_LANGUAGES = ['ar', 'en'] as const;
+/** `ku` = Central Kurdish (Sorani, Arabic script, RTL) — falls back to Arabic for any missing string. */
+export const SUPPORTED_LANGUAGES = ['ar', 'en', 'ku'] as const;
 export const DEFAULT_LANGUAGE = 'ar' as const;

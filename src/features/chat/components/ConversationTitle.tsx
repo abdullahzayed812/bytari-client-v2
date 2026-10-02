@@ -27,7 +27,11 @@ export function ConversationTitle({ conversation, ...textProps }: ConversationTi
     return <RoomName organizationId={conversation.organizationId} {...textProps} />;
   }
   // Person ↔ person (listing contact): always the other party's name.
-  if (conversation.type === 'ANIMAL_PUBLICATION' || titleIsCounterpart(conversation.viewerSide)) {
+  if (
+    conversation.type === 'ANIMAL_PUBLICATION' ||
+    conversation.type === 'FARM_MEMBER_DIRECT' ||
+    titleIsCounterpart(conversation.viewerSide)
+  ) {
     return (
       <UserName
         userId={conversation.counterpartUserId}

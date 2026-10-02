@@ -69,6 +69,13 @@ export default function ManagementScreen() {
   const pendingRenewalsFor = (id: AdminDashboardCardId): number =>
     summary.data?.cards.find((c) => c.id === id)?.pendingRenewals ?? 0;
 
+  // Course / seminar registrants awaiting review — summed over a merged tile.
+  const pendingRegistrationsFor = (id: AdminDashboardCardId): number =>
+    idsOf(id).reduce(
+      (sum, i) => sum + (summary.data?.cards.find((c) => c.id === i)?.pendingRegistrations ?? 0),
+      0,
+    );
+
   const openCard = (card: (typeof DASHBOARD_CARD_DEFS)[number]) => {
     for (const id of idsOf(card.id)) if (serverCount(id) > 0) markSeen.mutate(id);
     router.push(card.route);
@@ -158,7 +165,11 @@ export default function ManagementScreen() {
               secondaryLabel={
                 pendingRenewalsFor(card.id) > 0
                   ? t('dashboard.renewalsPending', { count: pendingRenewalsFor(card.id) })
-                  : undefined
+                  : pendingRegistrationsFor(card.id) > 0
+                    ? t('dashboard.registrationsPending', {
+                        count: pendingRegistrationsFor(card.id),
+                      })
+                    : undefined
               }
               loading={summary.isLoading}
               onPress={() => openCard(card)}

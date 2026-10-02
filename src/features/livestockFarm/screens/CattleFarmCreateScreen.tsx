@@ -7,6 +7,7 @@ import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
 import { farmOpsApi } from '@/features/farmShared';
 import { OrgFormLayout } from '@/features/organizations';
+import { useOrganizationTerms } from '@/features/organizations/hooks/useOrganizationTerms';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { FileUploadService } from '@/services/files';
 import type { LocalFile, PresignProvider } from '@/services/files/types';
@@ -28,6 +29,7 @@ const orNull = (v: string | undefined): string | undefined => {
 /** Route `/(app)/livestock/cattle/create` — "إضافة حقل أبقار جديد". Mirrors `SheepFarmCreateScreen`. */
 export default function CattleFarmCreateScreen() {
   const { t } = useTranslation('sheepCattleFarm');
+  const terms = useOrganizationTerms('CATTLE_FARM');
   const toast = useToast();
   const user = useAuthStore((s) => s.user);
   const create = useCreateCattleFarm();
@@ -48,6 +50,9 @@ export default function CattleFarmCreateScreen() {
     setServerFields({});
 
     const input: CreateCattleFarmInput = {
+      // The form only submits once the terms box is ticked; the server re-checks.
+      termsAccepted: true,
+      termsVersion: terms.data?.version,
       name: values.name.trim(),
       location: values.location.trim(),
       governorate: values.governorate,
@@ -74,7 +79,10 @@ export default function CattleFarmCreateScreen() {
                   size: file.size ?? 0,
                 }),
               finalizeUpload: async (storageKey, file) => {
-                await farmOpsApi.registerFarmImage(organization.id, { storageKey, mimeType: file.mimeType });
+                await farmOpsApi.registerFarmImage(organization.id, {
+                  storageKey,
+                  mimeType: file.mimeType,
+                });
               },
             };
             await new FileUploadService(provider).upload(image);

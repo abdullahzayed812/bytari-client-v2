@@ -63,6 +63,15 @@ export const adminVetCoursesApi = {
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },
+  approveRegistration(id: string): Promise<VetCourseRegistration> {
+    return apiClient.post<VetCourseRegistration>(`/admin/vet-course-registrations/${id}/approve`);
+  },
+  rejectRegistration(id: string, reason?: string): Promise<VetCourseRegistration> {
+    return apiClient.post<VetCourseRegistration>(
+      `/admin/vet-course-registrations/${id}/reject`,
+      reason ? { reason } : {},
+    );
+  },
 };
 
 export type AdminVetCoursesApi = typeof adminVetCoursesApi;

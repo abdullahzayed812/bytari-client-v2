@@ -8,7 +8,11 @@ import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { Modal } from '@/components/overlays';
 import { Routes } from '@/constants/routes';
-import type { TraderApplicationSummary, TraderStatus } from '@/features/poultryMarket';
+import {
+  useAdminSetTraderSubscription,
+  type TraderApplicationSummary,
+  type TraderStatus,
+} from '@/features/poultryMarket';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -19,6 +23,7 @@ import {
   AdminRow,
   FilterChips,
   ReasonPromptDialog,
+  SubscriptionDatesDialog,
 } from '../components';
 import { useAdminTraderApplications, useTraderDecisionMutation } from '../hooks';
 
@@ -89,6 +94,39 @@ export default function AdminTraderApplicationsScreen() {
     );
   };
   const [reactivating, setReactivating] = useState<TraderApplicationSummary | null>(null);
+  const [renewing, setRenewing] = useState<TraderApplicationSummary | null>(null);
+  const setPeriod = useAdminSetTraderSubscription();
+
+  const onSetPeriod = (dates: { startDate: string; endDate: string }) => {
+    if (!renewing) return;
+    setPeriod.mutate(
+      { userId: renewing.userId, ...dates },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('traders.toast.periodSet'), tone: 'success' });
+          setRenewing(null);
+        },
+        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+      },
+    );
+  };
+
+  /** "صالح حتى …" / "منتهي" + a pending renewal request, for approved traders. */
+  const periodLine = (a: TraderApplicationSummary): string | null => {
+    if (a.status !== 'APPROVED' && a.status !== 'SUSPENDED') return null;
+    const parts: string[] = [];
+    if (a.subscriptionEndDate) {
+      parts.push(
+        a.subscriptionStatus === 'EXPIRED'
+          ? t('traders.period.expiredOn', { date: formatDate(a.subscriptionEndDate) })
+          : t('traders.period.activeUntil', { date: formatDate(a.subscriptionEndDate) }),
+      );
+    } else {
+      parts.push(t('traders.period.notStarted'));
+    }
+    if (a.renewalRequestedAt) parts.push(t('traders.period.renewalRequested'));
+    return parts.join(' · ');
+  };
 
   const onApprove = () => {
     if (!approving) return;
@@ -180,8 +218,10 @@ export default function AdminTraderApplicationsScreen() {
           <AdminRow
             title={`${a.user.firstName} ${a.user.lastName}`.trim() || a.user.email}
             subtitle={`${a.displayName} — ${t(`traders.type.${a.traderType}`)}`}
-            meta={[a.governorate, a.district, a.phone].filter(Boolean).join(' - ')}
+            meta={periodLine(a) ?? [a.governorate, a.district, a.phone].filter(Boolean).join(' - ')}
             badge={{ label: t(`traders.status.${a.status}`), tone: statusTone(a.status) }}
+            counter={a.renewalRequestedAt ? 1 : 0}
+            counterLabel={t('traders.period.renewalRequested')}
             onPress={() => setDetail(a)}
             actions={
               <>
@@ -204,6 +244,17 @@ export default function AdminTraderApplicationsScreen() {
                     label={t('traders.detail.suspend')}
                     variant="danger"
                     onPress={() => setSuspending(a)}
+                  />
+                ) : null}
+                {a.status === 'APPROVED' || a.status === 'SUSPENDED' ? (
+                  <Button
+                    label={
+                      a.subscriptionStatus === 'ACTIVE'
+                        ? t('traders.period.edit')
+                        : t('traders.period.renew')
+                    }
+                    variant={a.renewalRequestedAt ? 'primary' : 'outline'}
+                    onPress={() => setRenewing(a)}
                   />
                 ) : null}
                 {a.status === 'SUSPENDED' ? (
@@ -244,6 +295,15 @@ export default function AdminTraderApplicationsScreen() {
         loading={decide.isPending}
         onConfirm={onApprove}
         onCancel={() => setApproving(null)}
+      />
+
+      <SubscriptionDatesDialog
+        visible={renewing != null}
+        title={t('traders.period.dialogTitle')}
+        confirmLabel={t('traders.period.save')}
+        loading={setPeriod.isPending}
+        onConfirm={onSetPeriod}
+        onCancel={() => setRenewing(null)}
       />
 
       <ReasonPromptDialog

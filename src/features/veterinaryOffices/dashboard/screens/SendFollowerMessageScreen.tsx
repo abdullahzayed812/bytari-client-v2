@@ -16,13 +16,19 @@ import { Caption, Label, Text } from '@/components/typography';
 import { useOrganization } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { isHttpUrl, normalizeLink } from '@/utils';
 
 import { VeterinaryOfficeDashboardShell } from '../components';
-import { useBroadcastImageProvider, useSendFollowerBroadcast, useVeterinaryOfficeDashboard } from '../hooks';
+import {
+  useBroadcastImageProvider,
+  useSendFollowerBroadcast,
+  useVeterinaryOfficeDashboard,
+} from '../hooks';
 
 interface FormValues {
   title: string;
   body: string;
+  linkUrl: string;
 }
 
 /** Route `/vet-office-dashboard/[organizationId]/broadcast` — "إرسال رسالة للمتابعين". */
@@ -46,18 +52,28 @@ export default function SendFollowerMessageScreen() {
       z.object({
         title: z.string().trim().min(1, t('broadcast.errors.title')).max(100),
         body: z.string().trim().min(1, t('broadcast.errors.body')).max(1000),
+        linkUrl: z
+          .string()
+          .trim()
+          .max(1000)
+          .refine((v) => v.length === 0 || isHttpUrl(v), t('broadcast.errors.link')),
       }),
     [t],
   );
   const { control, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', body: '' },
+    defaultValues: { title: '', body: '', linkUrl: '' },
     mode: 'onTouched',
   });
 
   const onSubmit = (values: FormValues): void => {
     send.mutate(
-      { title: values.title.trim(), body: values.body.trim(), imageStorageKey },
+      {
+        title: values.title.trim(),
+        body: values.body.trim(),
+        imageStorageKey,
+        linkUrl: normalizeLink(values.linkUrl),
+      },
       {
         onSuccess: () => {
           toast.show({ message: t('broadcast.sent'), tone: 'success' });
@@ -73,73 +89,85 @@ export default function SendFollowerMessageScreen() {
       <ScrollScreen edges={[]}>
         <AppHeader title={t('broadcast.title')} showBack />
 
-      <Section spacing="lg">
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: theme.spacing.lg,
-            borderRadius: theme.radius.xl,
-            backgroundColor: theme.colors.primarySoft,
-          }}
-        >
-          <View style={{ alignItems: 'flex-start' }}>
-            <Text variant="heading" color="primary">
-              {summary.data?.followersCount ?? 0}
-            </Text>
-            <Caption>{t('broadcast.followersLabel')}</Caption>
+        <Section spacing="lg">
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: theme.spacing.lg,
+              borderRadius: theme.radius.xl,
+              backgroundColor: theme.colors.primarySoft,
+            }}
+          >
+            <View style={{ alignItems: 'flex-start' }}>
+              <Text variant="heading" color="primary">
+                {summary.data?.followersCount ?? 0}
+              </Text>
+              <Caption>{t('broadcast.followersLabel')}</Caption>
+            </View>
+            <Text style={{ flex: 1, marginStart: theme.spacing.lg }}>{t('broadcast.intro')}</Text>
           </View>
-          <Text style={{ flex: 1, marginStart: theme.spacing.lg }}>{t('broadcast.intro')}</Text>
-        </View>
-      </Section>
+        </Section>
 
-      <Section spacing="lg">
-        <FormField
-          control={control}
-          name="title"
-          label={t('broadcast.form.titleLabel')}
-          placeholder={t('broadcast.form.titlePlaceholder')}
-          maxLength={100}
-        />
-      </Section>
+        <Section spacing="lg">
+          <FormField
+            control={control}
+            name="title"
+            label={t('broadcast.form.titleLabel')}
+            placeholder={t('broadcast.form.titlePlaceholder')}
+            maxLength={100}
+          />
+        </Section>
 
-      <Section spacing="lg">
-        <FormField
-          control={control}
-          name="body"
-          label={t('broadcast.form.bodyLabel')}
-          placeholder={t('broadcast.form.bodyPlaceholder')}
-          multiline
-          numberOfLines={6}
-          maxLength={1000}
-        />
-      </Section>
+        <Section spacing="lg">
+          <FormField
+            control={control}
+            name="body"
+            label={t('broadcast.form.bodyLabel')}
+            placeholder={t('broadcast.form.bodyPlaceholder')}
+            multiline
+            numberOfLines={6}
+            maxLength={1000}
+          />
+        </Section>
 
-      <Section spacing="lg">
-        <Label>{t('broadcast.form.imageLabel')}</Label>
-        <ImageUploader
-          value={null}
-          provider={imageProvider}
-          shape="square"
-          size={140}
-          onChange={(r) => setImageStorageKey(r?.storageKey ?? null)}
-        />
-        <Caption>{t('broadcast.form.imageHint')}</Caption>
-      </Section>
+        <Section spacing="lg">
+          <FormField
+            control={control}
+            name="linkUrl"
+            label={t('broadcast.form.linkLabel')}
+            placeholder="https://"
+            keyboardType="url"
+            autoCapitalize="none"
+            maxLength={1000}
+          />
+        </Section>
 
-      {send.isError ? <Alert tone="danger" message={apiErrorMessage(send.error)} /> : null}
-      {canOperate ? null : <Alert tone="warning" message={t('status.actionsDisabledNotice')} />}
+        <Section spacing="lg">
+          <Label>{t('broadcast.form.imageLabel')}</Label>
+          <ImageUploader
+            value={null}
+            provider={imageProvider}
+            shape="square"
+            size={140}
+            onChange={(r) => setImageStorageKey(r?.storageKey ?? null)}
+          />
+          <Caption>{t('broadcast.form.imageHint')}</Caption>
+        </Section>
 
-      <Section spacing="giant">
-        <Button
-          label={t('broadcast.form.submit')}
-          fullWidth
-          loading={send.isPending}
-          disabled={send.isPending || !canOperate}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </Section>
+        {send.isError ? <Alert tone="danger" message={apiErrorMessage(send.error)} /> : null}
+        {canOperate ? null : <Alert tone="warning" message={t('status.actionsDisabledNotice')} />}
+
+        <Section spacing="giant">
+          <Button
+            label={t('broadcast.form.submit')}
+            fullWidth
+            loading={send.isPending}
+            disabled={send.isPending || !canOperate}
+            onPress={handleSubmit(onSubmit)}
+          />
+        </Section>
       </ScrollScreen>
     </VeterinaryOfficeDashboardShell>
   );
