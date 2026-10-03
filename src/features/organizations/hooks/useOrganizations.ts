@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 
 import { AppConfig } from '@/constants/config';
 
-import { orgKeys, organizationsApi } from '../api';
+import { orgKeys, organizationsApi, type MyOrganizationsScope } from '../api';
 import type { MyOrganization, Paginated } from '../types';
 
 /**
@@ -11,7 +11,10 @@ import type { MyOrganization, Paginated } from '../types';
  * member of (any role), newest membership first, as scoped by the backend
  * `GET /organizations`. Paginated so the list screen can append + pull-to-refresh.
  */
-export function useOrganizations(params: { pageSize?: number; enabled?: boolean } = {}) {
+export function useOrganizations(
+  params: { pageSize?: number; enabled?: boolean; scope?: MyOrganizationsScope } = {},
+) {
+  const scope = params.scope ?? 'all';
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
 
   const query = useInfiniteQuery<
@@ -21,9 +24,9 @@ export function useOrganizations(params: { pageSize?: number; enabled?: boolean 
     ReturnType<typeof orgKeys.list>,
     number
   >({
-    queryKey: orgKeys.list(0),
+    queryKey: orgKeys.list(0, scope),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => organizationsApi.listMine(pageParam, pageSize),
+    queryFn: ({ pageParam }) => organizationsApi.listMine(pageParam, pageSize, scope),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: params.enabled ?? true,

@@ -423,6 +423,10 @@ const notifications: KuNamespace<'notifications'> = {
       title: 'نامە لە دامەزراوەیەک کە بەدوای دەکەویت',
       body: 'دامەزراوەیەک کە بەدوای دەکەویت نامەیەکی نارد.',
     },
+    VETERINARY_OFFICE_PRODUCT_ADDED: {
+      title: 'بەرهەمی نوێ',
+      body: 'نووسینگەیەکی ڤێتێرنەری کە بەدوای دەکەویت بەرهەمێکی نوێی زیاد کرد.',
+    },
   },
 };
 

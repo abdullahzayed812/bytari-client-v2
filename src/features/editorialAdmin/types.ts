@@ -1,3 +1,4 @@
+import type { AnimalSection } from '@/constants/animalSections';
 /**
  * Admin authoring for the two editorial content types that already have a
  * complete backend (`server/src/modules/content` — `tip.*` / `news.*`):
@@ -26,6 +27,8 @@ export interface EditorialItem {
   publishedAt: string | null;
   createdAt: string;
   updatedAt?: string;
+  /** Section feed it appears in; `null` = general. */
+  animalSection?: AnimalSection | null;
   // tips
   readMinutes?: number | null;
   priority?: TipPriority;
@@ -57,6 +60,7 @@ export type EditorialInput = Partial<
     EditorialItem,
     | 'title'
     | 'summary'
+    | 'animalSection'
     | 'readMinutes'
     | 'priority'
     | 'bodyIntro'

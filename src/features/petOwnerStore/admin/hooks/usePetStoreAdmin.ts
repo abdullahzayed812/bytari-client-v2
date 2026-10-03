@@ -141,7 +141,18 @@ export function usePetStoreAdminCategoryMutations() {
 
 // --- orders -----------------------------------------------------
 
-export function usePetStoreAdminOrders(status?: PetStoreOrderStatus) {
+/** Orders no store manager has opened yet — the hub / orders "new" badge. */
+export function usePetStoreAdminOrdersSummary(options: { enabled?: boolean } = {}) {
+  return useQuery<{ newCount: number }, ApiError>({
+    queryKey: petStoreKeys.adminOrdersSummary(),
+    queryFn: () => petOwnerStoreAdminService.getOrdersSummary(),
+    enabled: options.enabled ?? true,
+    staleTime: 10_000,
+    refetchInterval: 60_000,
+  });
+}
+
+export function usePetStoreAdminOrders(status?: PetStoreOrderStatus, newOnly?: boolean) {
   const pageSize = AppConfig.defaultPageSize;
   const query = useInfiniteQuery<
     Paginated<PetStoreOrder>,
@@ -150,10 +161,10 @@ export function usePetStoreAdminOrders(status?: PetStoreOrderStatus) {
     readonly unknown[],
     number
   >({
-    queryKey: petStoreKeys.adminOrders(status),
+    queryKey: petStoreKeys.adminOrders(status, newOnly),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      petOwnerStoreAdminService.listOrders({ page: pageParam, pageSize, status }),
+      petOwnerStoreAdminService.listOrders({ page: pageParam, pageSize, status, newOnly }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,
@@ -164,9 +175,16 @@ export function usePetStoreAdminOrders(status?: PetStoreOrderStatus) {
 }
 
 export function usePetStoreAdminOrder(orderId: string | undefined) {
+  const qc = useQueryClient();
   return useQuery<PetStoreOrder, ApiError>({
     queryKey: petStoreKeys.adminOrder(orderId ?? 'unknown'),
-    queryFn: () => petOwnerStoreAdminService.getOrder(orderId as string),
+    queryFn: async () => {
+      const order = await petOwnerStoreAdminService.getOrder(orderId as string);
+      // Opening an order marks it seen server-side → refresh the badge + queue.
+      void qc.invalidateQueries({ queryKey: petStoreKeys.adminOrdersSummary() });
+      void qc.invalidateQueries({ queryKey: [...petStoreKeys.admin(), 'orders'] });
+      return order;
+    },
     enabled: Boolean(orderId),
   });
 }

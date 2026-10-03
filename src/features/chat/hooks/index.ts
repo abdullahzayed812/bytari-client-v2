@@ -1,4 +1,9 @@
-export { useConversations, useConversation, useMessages } from './useConversations';
+export {
+  useConversations,
+  useConversation,
+  useConversationUnreadSummary,
+  useMessages,
+} from './useConversations';
 export {
   useSendMessage,
   useMarkConversationRead,

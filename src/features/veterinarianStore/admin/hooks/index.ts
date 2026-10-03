@@ -5,6 +5,7 @@ export {
   useVetStoreAdminCategories,
   useVetStoreAdminCategoryMutations,
   useVetStoreAdminOrders,
+  useVetStoreAdminOrdersSummary,
   useVetStoreAdminOrder,
   useUpdateVetStoreOrderStatus,
 } from './useVetStoreAdmin';

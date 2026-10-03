@@ -66,6 +66,11 @@ export const syndicatesApi = {
       search: filter.search || undefined,
     });
   },
+  /** Syndicates pinned to the Veterinarian Home (ACTIVE only, pin order). */
+  listPinned(): Promise<PublicSyndicate[]> {
+    return apiClient.get<PublicSyndicate[]>('/syndicates/pinned');
+  },
+
   getOne(organizationId: string): Promise<PublicSyndicate> {
     return apiClient.get<PublicSyndicate>(`/syndicates/${organizationId}`);
   },

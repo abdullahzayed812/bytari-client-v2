@@ -148,6 +148,8 @@ export default {
       lostTitle: 'حيوانات مفقودة',
       lostSubtitle: 'ساعد في العثور على حيوانات مفقودة',
       lostBadge: 'مفقود',
+      newsTitle: 'آخر الأخبار',
+      newsSubtitle: 'أخبار الحيوانات الأليفة',
       openA11y: 'فتح {{title}}',
     },
     transferRequestsA11y: 'نقل الملكية',

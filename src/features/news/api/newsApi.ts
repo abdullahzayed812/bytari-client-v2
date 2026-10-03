@@ -19,6 +19,7 @@ export const newsApi = {
         q: filter.search,
         categoryId: filter.categoryId,
         tag: filter.tag,
+        section: filter.sections?.length ? filter.sections.join(',') : undefined,
         featured: filter.featured ? 'true' : undefined,
         bookmarked: filter.bookmarked ? 'true' : undefined,
       },

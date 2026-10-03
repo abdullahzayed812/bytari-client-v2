@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Avatar } from '@/components/content';
-import { useToast } from '@/components/feedback';
 import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversations } from '@/features/chat/hooks';
@@ -27,10 +26,8 @@ export function VeterinarianHomeHeader() {
   const theme = useTheme();
   const { t } = useTranslation('veterinarian');
   const { t: th } = useTranslation('home');
-  const { t: tc } = useTranslation('common');
   const { t: tn } = useTranslation('notifications');
   const { t: tch } = useTranslation('chat');
-  const toast = useToast();
   const { user } = useAuth();
   const interfaceSwitch = useInterfaceSwitch();
   const { data: unread = 0 } = useUnreadCount();
@@ -66,7 +63,7 @@ export function VeterinarianHomeHeader() {
         <HeaderIconButton
           icon="search-outline"
           label={th('header.searchA11y')}
-          onPress={() => toast.show({ message: tc('comingSoon'), tone: 'info' })}
+          onPress={() => router.push(Routes.search)}
         />
         <HeaderIconButton
           icon="notifications-outline"

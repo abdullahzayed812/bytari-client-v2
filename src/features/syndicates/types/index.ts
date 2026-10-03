@@ -36,6 +36,8 @@ export interface SyndicateUserSummary {
 
 export interface PublicSyndicate {
   id: string;
+  /** Pinned to the Veterinarian Home by the administration. Absent on older payloads. */
+  pinnedToHome?: boolean;
   parentOrganizationId: string | null;
   name: string;
   description: string | null;

@@ -1,3 +1,4 @@
+import type { AnimalSection } from '@/constants/animalSections';
 /**
  * Tips contract — mirrors the backend `content` module's tip DTOs exactly
  * (`server/src/modules/content/domain/tip.types.ts`). Public reads only;
@@ -21,6 +22,8 @@ export interface TipListItem {
   summary: string | null;
   readMinutes: number | null;
   priority: TipPriority;
+  /** `null` = general (not in any section feed). Absent on older payloads. */
+  animalSection?: AnimalSection | null;
   isTipOfDay: boolean;
   category: TipCategoryRef | null;
   coverImageUrl: string | null;
@@ -45,6 +48,8 @@ export interface TipListFilter {
   search?: string;
   categoryId?: string;
   priority?: TipPriority;
+  /** Animal section feed(s) — e.g. ['POULTRY'] or ['SHEEP', 'CATTLE']. */
+  sections?: AnimalSection[];
   bookmarked?: boolean;
 }
 

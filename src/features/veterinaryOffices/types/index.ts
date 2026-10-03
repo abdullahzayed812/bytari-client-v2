@@ -45,6 +45,10 @@ export interface VeterinaryOfficeProductDetailFields {
   dosage: string | null;
   shelfLife: string | null;
   manufacturer: string | null;
+  /** Brand / trade name — a catalog filter. Absent on older cached payloads. */
+  brand?: string | null;
+  /** Country of manufacture ("بلد المنشأ") — a catalog filter. */
+  countryOfOrigin?: string | null;
   highlights: string[];
 }
 
@@ -86,11 +90,12 @@ export interface VeterinaryOfficeProductDetailFieldsInput {
   dosage?: string | null;
   shelfLife?: string | null;
   manufacturer?: string | null;
+  brand?: string | null;
+  countryOfOrigin?: string | null;
   highlights?: string[];
 }
 
-export interface CreateVeterinaryOfficeProductInput
-  extends VeterinaryOfficeProductDetailFieldsInput {
+export interface CreateVeterinaryOfficeProductInput extends VeterinaryOfficeProductDetailFieldsInput {
   name: string;
   description?: string | null;
   productType: VeterinaryOfficeProductType;
@@ -99,8 +104,7 @@ export interface CreateVeterinaryOfficeProductInput
   stockQuantity?: number;
 }
 
-export interface UpdateVeterinaryOfficeProductInput
-  extends VeterinaryOfficeProductDetailFieldsInput {
+export interface UpdateVeterinaryOfficeProductInput extends VeterinaryOfficeProductDetailFieldsInput {
   name?: string;
   description?: string | null;
   productType?: VeterinaryOfficeProductType;
@@ -125,7 +129,10 @@ export interface VeterinaryOfficeProductListFilter {
   productType?: VeterinaryOfficeProductType;
   /** Owner-facing "Hidden products" screen filter. */
   hidden?: boolean;
+  /** Matches name, brand, manufacturer or sub-type. */
   search?: string;
+  brand?: string;
+  country?: string;
   sort?: VeterinaryOfficeProductSort;
   order?: SortOrder;
 }
@@ -140,4 +147,10 @@ export interface PageMeta {
 export interface Paginated<T> {
   items: T[];
   meta: PageMeta;
+}
+
+/** `GET …/office-products/facets` — distinct values for the catalog filters. */
+export interface VeterinaryOfficeProductFacets {
+  brands: string[];
+  countries: string[];
 }

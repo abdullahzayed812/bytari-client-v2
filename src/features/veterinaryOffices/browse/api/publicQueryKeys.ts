@@ -14,8 +14,12 @@ export const publicVeterinaryOfficeProductKeys = {
   all: ['public-office-products'] as const,
   forOffice: (organizationId: string) =>
     [...publicVeterinaryOfficeProductKeys.all, organizationId] as const,
-  list: (organizationId: string, filter: Omit<VeterinaryOfficeProductListFilter, 'page' | 'status'>) =>
-    [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'list', filter] as const,
+  list: (
+    organizationId: string,
+    filter: Omit<VeterinaryOfficeProductListFilter, 'page' | 'status'>,
+  ) => [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'list', filter] as const,
+  facets: (organizationId: string) =>
+    [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'facets'] as const,
   detail: (organizationId: string, productId: string) =>
     [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'detail', productId] as const,
 };

@@ -45,6 +45,9 @@ export default {
     sendMessageCta: 'إرسال رسالة للمتابعين',
     membersCta: 'الأعضاء',
     supervisorsCta: 'المشرفون',
+    unreadMessages: '{{count}} رسالة غير مقروءة',
+    lockedTitle: 'لوحة التحكم مقفلة',
+    lockedBody: 'انتهى اشتراك المكتب. لا يمكن عرض المنتجات أو إدارتها حتى يتم تجديد الاشتراك.',
   },
   products: {
     title: 'عرض كل المنتجات',

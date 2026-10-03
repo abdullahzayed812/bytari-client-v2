@@ -151,18 +151,21 @@ export default function ChatRoomThreadScreen() {
   };
 
   const closeMenu = (): void => setMenuMessageId(null);
+  // Room info / settings / rules / leave — tapping the room name opens it.
+  const openRoomInfo = (): void =>
+    router.push({
+      pathname: '/(app)/global-chat/[organizationId]',
+      params: { organizationId: room.id, info: '1' },
+    });
 
   return (
     <SafeAreaScreen>
       <AppHeader
         title={room.name}
         showBack
-        right={
-          <TextButton
-            label={t('thread.roomInfo')}
-            onPress={() => router.push(Routes.globalChatRoom(room.id))}
-          />
-        }
+        onTitlePress={openRoomInfo}
+        titleAccessibilityHint={t('thread.roomInfo')}
+        right={<TextButton label={t('thread.roomInfo')} onPress={openRoomInfo} />}
       />
 
       {room.pinnedMessage ? (

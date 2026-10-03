@@ -209,6 +209,8 @@ export default {
     closeAd: 'إلغاء الإعلان',
     deleteConfirmTitle: 'حذف الإعلان',
     deleteConfirmBody: 'سيتم حذف هذا الإعلان نهائياً.',
+    applicantsCount: '{{count}} متقدم',
+    newApplicants: '{{count}} جديد',
     noteTitle: 'ملاحظة هامة',
     noteBody: 'يمكنك إلغاء أو تعديل إعلاناتك أو طلباتك في أي وقت قبل الموافقة النهائية.',
   },

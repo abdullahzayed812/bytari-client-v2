@@ -8,15 +8,21 @@ import { fieldErrors } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import { ApiError } from '@/services/api';
 
-import { VeterinaryOfficeProductForm } from '../components';
 import { devProductDefaults } from '../../data/devDefaults';
+import type {
+  CreateVeterinaryOfficeProductInput,
+  UpdateVeterinaryOfficeProductInput,
+} from '../../types';
+import {
+  veterinaryOfficeErrorMessage,
+  type VeterinaryOfficeProductFormValues,
+} from '../../validation/schemas';
+import { VeterinaryOfficeProductForm } from '../components';
 import {
   useCreateVeterinaryOfficeProduct,
   useVeterinaryOfficeProduct,
   useUpdateVeterinaryOfficeProduct,
 } from '../hooks';
-import type { CreateVeterinaryOfficeProductInput, UpdateVeterinaryOfficeProductInput } from '../../types';
-import { veterinaryOfficeErrorMessage, type VeterinaryOfficeProductFormValues } from '../../validation/schemas';
 
 /**
  * Add / edit a product. `organizationId` comes from the route;
@@ -72,6 +78,9 @@ export default function VeterinaryOfficeProductFormScreen() {
         productType: product.productType,
         price: product.price ?? '',
         description: product.description ?? '',
+        brand: product.brand ?? '',
+        countryOfOrigin: product.countryOfOrigin ?? '',
+        manufacturer: product.manufacturer ?? '',
       }
     : devDataEnabled
       ? devProductDefaults()
@@ -90,6 +99,14 @@ export default function VeterinaryOfficeProductFormScreen() {
         ? null
         : undefined;
 
+    // optional free text: blank → omitted on create, cleared (null) on edit
+    const opt = (v: string | undefined) => (v?.trim() ? v.trim() : isEdit ? null : undefined);
+    const catalogFields = {
+      brand: opt(values.brand),
+      countryOfOrigin: opt(values.countryOfOrigin),
+      manufacturer: opt(values.manufacturer),
+    };
+
     const onError = (error: unknown) => {
       setServerFields(fieldErrors(error));
       setFormError(veterinaryOfficeErrorMessage(error, t));
@@ -104,6 +121,7 @@ export default function VeterinaryOfficeProductFormScreen() {
         productType: values.productType,
         price,
         description,
+        ...catalogFields,
       };
       update.mutate(
         { productId: product.id, body },
@@ -122,6 +140,7 @@ export default function VeterinaryOfficeProductFormScreen() {
         productType: values.productType,
         price,
         description,
+        ...catalogFields,
         stockQuantity: values.stockQuantity?.trim() ? Number(values.stockQuantity) : undefined,
       };
       create.mutate(body, {

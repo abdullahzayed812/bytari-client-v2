@@ -14,6 +14,8 @@ export const chatKeys = {
   all: ['chat'] as const,
   lists: () => [...chatKeys.all, 'list'] as const,
   list: (filter: Omit<ConversationListFilter, 'page'>) => [...chatKeys.lists(), filter] as const,
+  unreadSummary: (organizationId?: string) =>
+    [...chatKeys.lists(), 'unread-summary', organizationId ?? 'all'] as const,
   details: () => [...chatKeys.all, 'detail'] as const,
   detail: (conversationId: string) => [...chatKeys.details(), conversationId] as const,
   messages: (conversationId: string) => [...chatKeys.detail(conversationId), 'messages'] as const,

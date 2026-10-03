@@ -29,4 +29,9 @@ export {
   useAssignSyndicateAdmin,
   useMarkSyndicateSubmissionSeen,
 } from './useSyndicates';
-export { useCreateSyndicateAdmin, useDeleteSyndicate } from './useAdminSyndicates';
+export {
+  useCreateSyndicateAdmin,
+  useDeleteSyndicate,
+  usePinnedSyndicates,
+  useSetSyndicatePinned,
+} from './useAdminSyndicates';

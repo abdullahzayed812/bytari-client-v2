@@ -74,6 +74,19 @@ describe('NewsListScreen', () => {
     renderWithProviders(<NewsListScreen />);
     expect(await screen.findByText('لا توجد أخبار بعد')).toBeTruthy();
   });
+
+  it('opened from a section landing: asks only for that section and skips the global featured item', async () => {
+    setSearchParams({ section: 'SHEEP,CATTLE' });
+    featured.mockClear();
+    list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 } });
+    renderWithProviders(<NewsListScreen />);
+    await waitFor(() =>
+      expect(list).toHaveBeenCalledWith(expect.objectContaining({ sections: ['SHEEP', 'CATTLE'] })),
+    );
+    expect(await screen.findByText('الأغنام / الأبقار')).toBeTruthy();
+    expect(featured).not.toHaveBeenCalled();
+    setSearchParams({});
+  });
 });
 
 describe('NewsDetailScreen', () => {

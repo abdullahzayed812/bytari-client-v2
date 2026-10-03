@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, useWindowDimensions, View } from 'react-native';
@@ -9,6 +9,7 @@ import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Label } from '@/components/typography';
+import { parseAnimalSections } from '@/constants/animalSections';
 import { Routes } from '@/constants/routes';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
@@ -27,8 +28,15 @@ export default function TipsListScreen() {
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
 
-  const q = useTips({ search });
-  const featured = useTipOfTheDay({ enabled: search.trim().length === 0 });
+  // `?section=POULTRY` / `SHEEP,CATTLE` — opened from a section landing: that
+  // section's items only (no cross-section featured item).
+  const { section } = useLocalSearchParams<{ section?: string }>();
+  const sections = parseAnimalSections(section);
+  const { t: tc } = useTranslation('common');
+  const sectionTitle = sections?.map((s) => tc(`animalSections.${s}`)).join(' / ');
+
+  const q = useTips({ search, sections });
+  const featured = useTipOfTheDay({ enabled: search.trim().length === 0 && !sections });
   const { toggleBookmark } = useTipEngagement();
 
   const cardWidth = Math.floor((width - theme.screenPadding * 2 - GAP) / 2);
@@ -60,6 +68,7 @@ export default function TipsListScreen() {
     <SafeAreaScreen>
       <AppHeader
         title={t('list.title')}
+        subtitle={sectionTitle}
         showBack
         right={<Icon name="bulb-outline" size="iconMd" color="primary" />}
       />

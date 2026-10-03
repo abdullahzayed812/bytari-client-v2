@@ -1,3 +1,4 @@
+import type { AnimalSection } from '@/constants/animalSections';
 /**
  * News contract — آخر الأخبار. Mirrors the backend `content` module's news DTOs
  * exactly (`server/src/modules/content/domain/news.types.ts`). Public reads +
@@ -22,6 +23,8 @@ export interface NewsListItem {
   source: string | null;
   isFeatured: boolean;
   tag: NewsTag;
+  /** `null` = general (not in any section feed). Absent on older payloads. */
+  animalSection?: AnimalSection | null;
   category: NewsCategoryRef | null;
   coverImageUrl: string | null;
   bookmarkCount: number;
@@ -45,6 +48,8 @@ export interface NewsListFilter {
   search?: string;
   categoryId?: string;
   tag?: NewsTag;
+  /** Animal section feed(s) — e.g. ['POULTRY'] or ['SHEEP', 'CATTLE']. */
+  sections?: AnimalSection[];
   featured?: boolean;
   bookmarked?: boolean;
 }

@@ -80,7 +80,16 @@ describe('PetsLandingScreen', () => {
     await waitFor(() => expect(screen.getByText('حيوانات للتبني')).toBeOnTheScreen());
 
     fireEvent.press(screen.getByRole('button', { name: 'فتح أفضل النصائح' }));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/tips');
+    // the pets section's OWN tips / news feeds (not mixed with other sections)
+    expect(routerMock.push).toHaveBeenCalledWith({
+      pathname: '/(app)/tips',
+      params: { section: 'PETS' },
+    });
+    fireEvent.press(screen.getByRole('button', { name: 'فتح آخر الأخبار' }));
+    expect(routerMock.push).toHaveBeenCalledWith({
+      pathname: '/(app)/news',
+      params: { section: 'PETS' },
+    });
 
     fireEvent.press(screen.getByRole('button', { name: 'فتح حيوانات للتبني' }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/publications/adoption');

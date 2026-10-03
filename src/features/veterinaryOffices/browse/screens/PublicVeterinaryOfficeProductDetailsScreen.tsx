@@ -76,6 +76,8 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
     { label: t('product.dosage'), value: product.dosage },
     { label: t('product.shelfLife'), value: product.shelfLife },
     { label: t('product.manufacturer'), value: product.manufacturer },
+    { label: t('product.brand'), value: product.brand ?? null },
+    { label: t('product.countryOfOrigin'), value: product.countryOfOrigin ?? null },
   ].filter((r) => r.value);
 
   const officePhone = office.data?.phone ?? null;

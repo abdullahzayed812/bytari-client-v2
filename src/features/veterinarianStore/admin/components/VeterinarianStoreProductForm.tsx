@@ -78,7 +78,11 @@ export function VeterinarianStoreProductForm({
 
   const categoryOptions = [
     { value: '', label: t('admin.form.fieldCategoryPlaceholder') },
-    ...categories.map((c) => ({ value: c.id, label: c.name })),
+    // "Section › Sub-category" so a product can be filed under either level.
+    ...categories.map((c) => {
+      const parent = c.parentId ? categories.find((p) => p.id === c.parentId) : undefined;
+      return { value: c.id, label: parent ? `${parent.name} › ${c.name}` : c.name };
+    }),
   ];
 
   return (

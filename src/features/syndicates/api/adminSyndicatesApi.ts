@@ -11,6 +11,10 @@ export const adminSyndicatesApi = {
   remove(organizationId: string): Promise<unknown> {
     return apiClient.delete(`/admin/syndicates/${organizationId}`);
   },
+  /** "تثبيت في الرئيسية" — `syndicate.admin.pin` (ADMIN / SYNDICATE supervisor). */
+  setPinned(organizationId: string, pinned: boolean): Promise<PublicSyndicate> {
+    return apiClient.put<PublicSyndicate>(`/admin/syndicates/${organizationId}/pin`, { pinned });
+  },
 };
 
 export type AdminSyndicatesApi = typeof adminSyndicatesApi;

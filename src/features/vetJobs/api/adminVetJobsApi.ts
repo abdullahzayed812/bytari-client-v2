@@ -49,6 +49,10 @@ export const adminVetJobsApi = {
   rejectOffer(id: string, reason: string): Promise<VetJobOffer> {
     return apiClient.post<VetJobOffer>(`/admin/vet-job-offers/${id}/reject`, { reason });
   },
+  /** `vet_job.delete` — "حذف الوظيفة", any status. */
+  async deleteOffer(id: string): Promise<void> {
+    await apiClient.delete(`/admin/vet-job-offers/${id}`);
+  },
 
   async listSeekers(
     page: number,

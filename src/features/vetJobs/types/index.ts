@@ -60,6 +60,8 @@ export interface VetJobOffer {
   reviewedAt?: string | null;
   closedAt: string | null;
   applicationCount?: number;
+  /** Applications still awaiting the poster's decision — the "new applicants" badge. */
+  pendingApplicationCount?: number;
   createdAt: string;
   updatedAt: string;
 }

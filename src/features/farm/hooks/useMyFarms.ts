@@ -9,6 +9,10 @@ import type { FarmSpecies, MyOrganization } from '@/features/organizations/types
  * `GET /organizations` — no per-farm request. Strict match: MIXED and legacy
  * (null-species) farms are excluded.
  *
+ * Backend-scoped to `farm_section`: only farms the user OWNS or works at as
+ * STAFF — a vet added to supervise a farm finds it under "My Organizations"
+ * instead, never listed here as their own farm.
+ *
  * Wraps the paginated `useOrganizations` infinite query, so the "see all"
  * screen gets `fetchNextPage` / `hasNextPage` for free while the landings just
  * read the first slice.
@@ -17,7 +21,11 @@ export function useMyFarms(
   species: readonly FarmSpecies[],
   params: { pageSize?: number; enabled?: boolean } = {},
 ) {
-  const query = useOrganizations({ pageSize: params.pageSize ?? 50, enabled: params.enabled });
+  const query = useOrganizations({
+    pageSize: params.pageSize ?? 50,
+    enabled: params.enabled,
+    scope: 'farm_section',
+  });
   const key = species.join(',');
 
   const farms = useMemo<MyOrganization[]>(

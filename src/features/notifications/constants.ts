@@ -112,6 +112,7 @@ export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; 
   CLINIC_APPOINTMENT_COMPLETED: { icon: 'calendar-outline', tone: 'success' },
   ADMIN_ANNOUNCEMENT: { icon: 'megaphone-outline', tone: 'warning' },
   ORGANIZATION_BROADCAST: { icon: 'megaphone-outline', tone: 'primary' },
+  VETERINARY_OFFICE_PRODUCT_ADDED: { icon: 'cube-outline', tone: 'primary' },
 };
 
 const FALLBACK_META = { icon: 'notifications-outline' as IconName, tone: 'neutral' as const };
@@ -271,6 +272,11 @@ function hrefByType(
       // A syndicate's "رسالة إلى الأعضاء" opens the syndicate, not the org directory.
       if (orgId && n.data?.audience === 'SYNDICATE_MEMBERS') return Routes.syndicateMain(orgId);
       return orgId ? Routes.organizationDiscoverDetail(orgId) : null;
+    case 'VETERINARY_OFFICE_PRODUCT_ADDED': {
+      const productId = id('productId');
+      if (orgId && productId) return Routes.veterinaryOfficeProductDetail(orgId, productId);
+      return orgId ? Routes.veterinaryOfficeDetail(orgId) : null;
+    }
     case 'SYSTEM_SUPERVISOR_ASSIGNED':
       return Routes.managementHome;
 

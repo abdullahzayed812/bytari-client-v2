@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
 
-import { Card, Chip } from '@/components/content';
+import { Badge, Card, Chip } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -14,14 +14,17 @@ import { useTheme } from '@/theme';
 import { OrderStatusBadge } from '../../components';
 import { VET_STORE_ORDER_STATUSES, type VetStoreOrderStatus } from '../../types';
 import { formatAmount } from '../../utils';
-import { useVetStoreAdminOrders } from '../hooks';
+import { useVetStoreAdminOrders, useVetStoreAdminOrdersSummary } from '../hooks';
 
 /** Route `/(app)/admin/veterinarian-store/orders` — the store order queue. */
 export default function VeterinarianStoreAdminOrdersScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinarianStore');
   const [status, setStatus] = useState<VetStoreOrderStatus | undefined>();
-  const q = useVetStoreAdminOrders(status);
+  const [newOnly, setNewOnly] = useState(false);
+  const q = useVetStoreAdminOrders(status, newOnly);
+  const summary = useVetStoreAdminOrdersSummary();
+  const newCount = summary.data?.newCount ?? 0;
 
   return (
     <SafeAreaScreen>
@@ -38,15 +41,33 @@ export default function VeterinarianStoreAdminOrdersScreen() {
       >
         <Chip
           label={t('admin.orders.filterAll')}
-          selected={!status}
-          onPress={() => setStatus(undefined)}
+          selected={!status && !newOnly}
+          onPress={() => {
+            setStatus(undefined);
+            setNewOnly(false);
+          }}
+        />
+        <Chip
+          label={
+            newCount > 0
+              ? `${t('admin.orders.filterNew')} (${newCount > 99 ? '99+' : newCount})`
+              : t('admin.orders.filterNew')
+          }
+          selected={newOnly}
+          onPress={() => {
+            setStatus(undefined);
+            setNewOnly(true);
+          }}
         />
         {VET_STORE_ORDER_STATUSES.map((s) => (
           <Chip
             key={s}
             label={t(`order.status.${s}`)}
             selected={status === s}
-            onPress={() => setStatus(s)}
+            onPress={() => {
+              setNewOnly(false);
+              setStatus(s);
+            }}
           />
         ))}
       </ScrollView>
@@ -74,7 +95,18 @@ export default function VeterinarianStoreAdminOrdersScreen() {
                     alignItems: 'center',
                   }}
                 >
-                  <Text variant="bodyStrong">{item.orderNumber}</Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      columnGap: theme.spacing.xs,
+                    }}
+                  >
+                    <Text variant="bodyStrong">{item.orderNumber}</Text>
+                    {item.isNew ? (
+                      <Badge label={t('admin.orders.newBadge')} tone="danger" size="sm" />
+                    ) : null}
+                  </View>
                   <OrderStatusBadge status={item.status} />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

@@ -39,6 +39,7 @@ export const Permission = {
   ORGANIZATION_ADMIN_MANAGE: 'organization.admin.manage',
   // syndicates
   SYNDICATE_ADMIN_CREATE: 'syndicate.admin.create',
+  SYNDICATE_ADMIN_PIN: 'syndicate.admin.pin',
   SYNDICATE_ANNOUNCEMENT_MANAGE: 'syndicate.announcement.manage',
   // Global Chat rooms
   CHAT_ROOM_ADMIN_CREATE: 'chat_room.admin.create',
@@ -68,10 +69,12 @@ export const Permission = {
   VET_SERVICE_READ: 'vet_service.read',
   VET_SERVICE_APPROVE: 'vet_service.approve',
   VET_SERVICE_REJECT: 'vet_service.reject',
+  VET_SERVICE_DELETE: 'vet_service.delete',
   // Veterinarian Jobs / Careers — offer + seeker-profile moderation
   VET_JOB_READ: 'vet_job.read',
   VET_JOB_APPROVE: 'vet_job.approve',
   VET_JOB_REJECT: 'vet_job.reject',
+  VET_JOB_DELETE: 'vet_job.delete',
   // Veterinarian Courses & Seminars — course/seminar/workshop moderation
   VET_COURSE_READ: 'vet_course.read',
   VET_COURSE_APPROVE: 'vet_course.approve',

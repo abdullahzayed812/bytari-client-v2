@@ -1,12 +1,18 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button, IconButton, TextButton } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { Switch } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -27,8 +33,14 @@ export default function ChatRoomDetailsScreen() {
   const { t } = useTranslation('globalChat');
   const toast = useToast();
   const caps = useCapabilities();
-  const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
+  const { organizationId, info } = useLocalSearchParams<{
+    organizationId: string;
+    info?: string;
+  }>();
   const orgId = organizationId ?? '';
+  // `info=1` = opened from inside the chat (tap on the room name). Otherwise a
+  // member is taken straight into the chat — this page is only the join step.
+  const showInfo = info === '1';
 
   const q = useChatRoom(orgId);
   const org = useOrganization(orgId, { enabled: Boolean(q.data) });
@@ -36,8 +48,15 @@ export default function ChatRoomDetailsScreen() {
   const leave = useLeaveChatRoom(orgId);
   const mute = useSetChatRoomMuted(orgId);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const goToChat = Boolean(q.data?.isJoined) && !showInfo;
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  // Joined (now, or just after tapping "انضمام") → open the chat directly.
+  useEffect(() => {
+    if (goToChat) router.replace(Routes.globalChatRoomThread(orgId));
+  }, [goToChat, orgId]);
+
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <SafeAreaScreen>
@@ -52,7 +71,7 @@ export default function ChatRoomDetailsScreen() {
       </SafeAreaScreen>
     );
   }
-  if (q.isLoading || !q.data) {
+  if (q.isLoading || !q.data || goToChat) {
     return (
       <SafeAreaScreen>
         <AppHeader title={t('details.title')} showBack />
@@ -76,7 +95,11 @@ export default function ChatRoomDetailsScreen() {
   const isOwner = myRole === 'OWNER';
   const canModerate = caps.isAdmin || isOwner || myRole === 'SUPERVISOR';
 
-  const openThread = (): void => router.push(Routes.globalChatRoomThread(room.id));
+  // Opened from the chat → just go back to it; otherwise open it in place.
+  const openThread = (): void => {
+    if (showInfo && router.canGoBack()) router.back();
+    else router.replace(Routes.globalChatRoomThread(room.id));
+  };
 
   return (
     <SafeAreaScreen>
@@ -142,7 +165,13 @@ export default function ChatRoomDetailsScreen() {
               rowGap: 4,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <Label>{t('details.rulesTitle')}</Label>
               {canModerate ? (
                 <IconButton
@@ -176,7 +205,8 @@ export default function ChatRoomDetailsScreen() {
                 value={room.notificationsMuted}
                 onValueChange={(value) =>
                   mute.mutate(value, {
-                    onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                    onError: (error) =>
+                      toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                   })
                 }
                 disabled={mute.isPending}
@@ -253,6 +283,8 @@ export default function ChatRoomDetailsScreen() {
         onConfirm={() => {
           setConfirmLeave(false);
           leave.mutate(undefined, {
+            // the chat underneath is no longer accessible → back to the rooms list
+            onSuccess: () => router.dismissTo(Routes.globalChat),
             onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
           });
         }}

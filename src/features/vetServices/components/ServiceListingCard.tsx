@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
@@ -17,12 +17,17 @@ export function ServiceListingCard({
   onPress,
   onPrimary,
   primaryLabel,
+  onContact,
+  contactLoading,
   showStatus,
 }: {
   listing: ServiceListing;
   onPress: () => void;
   onPrimary?: () => void;
   primaryLabel?: string;
+  /** "تواصل مع الطبيب" — opens the direct deal chat; omitted on the viewer's own listing. */
+  onContact?: () => void;
+  contactLoading?: boolean;
   showStatus?: boolean;
 }) {
   const theme = useTheme();
@@ -99,6 +104,17 @@ export function ServiceListingCard({
               onPress={onPrimary}
             />
           </View>
+        ) : null}
+        {onContact ? (
+          <Button
+            label={t('actions.contactVet')}
+            variant="outline"
+            size="sm"
+            fullWidth
+            leftIcon="chatbubbles-outline"
+            loading={contactLoading}
+            onPress={onContact}
+          />
         ) : null}
       </View>
     </Card>

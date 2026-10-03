@@ -5,7 +5,13 @@ import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { ScrollScreen, Section } from '@/components/layout';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -41,7 +47,8 @@ export default function ServiceListingDetailScreen() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
@@ -71,26 +78,50 @@ export default function ServiceListingDetailScreen() {
   }
 
   const l = q.data;
-  const isOwner = l.veterinarianUserId === user?.id;
+  const isOwner = l.veterinarian.id === user?.id;
   const canEngage = !isOwner && l.status === 'APPROVED' && !l.closedAt;
 
   const info = [
-    { icon: 'medkit-outline' as const, label: t('fields.serviceType'), value: t(`serviceType.${l.serviceType}`) },
-    { icon: 'paw-outline' as const, label: t('fields.animalType'), value: t(`animalType.${l.animalType}`) },
+    {
+      icon: 'medkit-outline' as const,
+      label: t('fields.serviceType'),
+      value: t(`serviceType.${l.serviceType}`),
+    },
+    {
+      icon: 'paw-outline' as const,
+      label: t('fields.animalType'),
+      value: t(`animalType.${l.animalType}`),
+    },
     {
       icon: 'location-outline' as const,
       label: t('fields.location'),
       value: [l.governorate, l.district].filter(Boolean).join(' - '),
     },
     { icon: 'cash-outline' as const, label: t('fields.price'), value: formatPrice(l.priceAmount) },
-    { icon: 'pricetag-outline' as const, label: t('fields.priceType'), value: t(`priceType.${l.priceType}`) },
-    { icon: 'business-outline' as const, label: t('fields.locationMode'), value: t(`locationMode.${l.locationMode}`) },
-    ...(l.specialty ? [{ icon: 'ribbon-outline' as const, label: t('fields.specialty'), value: l.specialty }] : []),
+    {
+      icon: 'pricetag-outline' as const,
+      label: t('fields.priceType'),
+      value: t(`priceType.${l.priceType}`),
+    },
+    {
+      icon: 'business-outline' as const,
+      label: t('fields.locationMode'),
+      value: t(`locationMode.${l.locationMode}`),
+    },
+    ...(l.specialty
+      ? [{ icon: 'ribbon-outline' as const, label: t('fields.specialty'), value: l.specialty }]
+      : []),
     ...(l.availability
       ? [{ icon: 'time-outline' as const, label: t('fields.availability'), value: l.availability }]
       : []),
     ...(l.executionDuration
-      ? [{ icon: 'hourglass-outline' as const, label: t('fields.executionDuration'), value: l.executionDuration }]
+      ? [
+          {
+            icon: 'hourglass-outline' as const,
+            label: t('fields.executionDuration'),
+            value: l.executionDuration,
+          },
+        ]
       : []),
     ...(l.arrivalTime
       ? [{ icon: 'walk-outline' as const, label: t('fields.arrivalTime'), value: l.arrivalTime }]
@@ -111,7 +142,9 @@ export default function ServiceListingDetailScreen() {
       <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.lg }}>
         {(isManage || isOwner) && l.status !== 'APPROVED' ? (
           <Section spacing="lg">
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
+            >
               <ModerationStatusBadge status={l.status} size="md" />
               <Text variant="bodyMedium">{t(`ownerStatusLine.${l.status}`)}</Text>
             </View>
@@ -179,7 +212,11 @@ export default function ServiceListingDetailScreen() {
                   label={l.contactWhatsapp}
                   variant="ghost"
                   leftIcon="logo-whatsapp"
-                  onPress={() => void Linking.openURL(`https://wa.me/${(l.contactWhatsapp ?? '').replace(/\D/g, '')}`)}
+                  onPress={() =>
+                    void Linking.openURL(
+                      `https://wa.me/${(l.contactWhatsapp ?? '').replace(/\D/g, '')}`,
+                    )
+                  }
                 />
               ) : null}
             </Card>

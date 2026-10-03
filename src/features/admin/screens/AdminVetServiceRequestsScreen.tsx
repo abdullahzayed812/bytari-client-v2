@@ -5,12 +5,15 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
+import { Permission } from '@/constants/permissions';
 import {
   useAdminApproveVetServiceRequest,
+  useAdminDeleteVetServiceRequest,
   useAdminRejectVetServiceRequest,
   useAdminVetServiceRequests,
 } from '@/features/vetServices';
 import type { ModerationStatus, ServiceRequest } from '@/features/vetServices';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -62,9 +65,13 @@ export default function AdminVetServiceRequestsScreen() {
   const q = useAdminVetServiceRequests({ status });
   const approve = useAdminApproveVetServiceRequest();
   const reject = useAdminRejectVetServiceRequest();
+  const del = useAdminDeleteVetServiceRequest();
+  const caps = useCapabilities();
+  const canDelete = caps.can(Permission.VET_SERVICE_DELETE);
 
   const [approving, setApproving] = useState<ServiceRequest | null>(null);
   const [rejecting, setRejecting] = useState<ServiceRequest | null>(null);
+  const [deleting, setDeleting] = useState<ServiceRequest | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const [detail, setDetail] = useState<ServiceRequest | null>(null);
 
@@ -158,7 +165,10 @@ export default function AdminVetServiceRequestsScreen() {
                   : undefined,
             }}
             onPress={() => setDetail(r)}
-            badge={{ label: t(`vetServiceRequests.status.${r.status}`), tone: STATUS_TONE[r.status] }}
+            badge={{
+              label: t(`vetServiceRequests.status.${r.status}`),
+              tone: STATUS_TONE[r.status],
+            }}
             actions={
               r.status === 'PENDING' ? (
                 <>
@@ -173,6 +183,13 @@ export default function AdminVetServiceRequestsScreen() {
                     onPress={() => setRejecting(r)}
                   />
                 </>
+              ) : canDelete ? (
+                <Button
+                  label={t('vetServiceRequests.delete')}
+                  variant="danger"
+                  leftIcon="trash-outline"
+                  onPress={() => setDeleting(r)}
+                />
               ) : undefined
             }
           />
@@ -221,7 +238,9 @@ export default function AdminVetServiceRequestsScreen() {
           />
         </View>
         {detail?.status === 'PENDING' ? (
-          <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+          <View
+            style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}
+          >
             <Button
               label={t('vetServiceRequests.approve')}
               variant="primary"
@@ -242,7 +261,45 @@ export default function AdminVetServiceRequestsScreen() {
             />
           </View>
         ) : null}
+        {detail && detail.status !== 'PENDING' && canDelete ? (
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <Button
+              label={t('vetServiceRequests.delete')}
+              variant="danger"
+              leftIcon="trash-outline"
+              onPress={() => {
+                const r = detail;
+                setDetail(null);
+                setDeleting(r);
+              }}
+            />
+          </View>
+        ) : null}
       </AdminDetailModal>
+
+      <ConfirmationDialog
+        visible={deleting != null}
+        title={t('vetServiceRequests.deleteTitle')}
+        message={t('vetServiceRequests.deleteBody')}
+        confirmLabel={t('vetServiceRequests.delete')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={del.isPending}
+        onConfirm={() => {
+          if (!deleting) return;
+          del.mutate(
+            { id: deleting.id },
+            {
+              onSuccess: () => {
+                toast.show({ message: t('vetServiceRequests.toast.deleted'), tone: 'success' });
+                setDeleting(null);
+              },
+              onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+            },
+          );
+        }}
+        onCancel={() => setDeleting(null)}
+      />
 
       <ImageViewer
         visible={viewer !== null}

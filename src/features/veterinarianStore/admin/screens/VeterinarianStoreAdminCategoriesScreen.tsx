@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button, IconButton, TextButton } from '@/components/actions';
-import { Card } from '@/components/content';
+import { Card, Chip } from '@/components/content';
 import {
   Alert,
   ConfirmationDialog,
@@ -32,11 +32,19 @@ interface Draft {
   id?: string;
   slug: string;
   name: string;
+  /** `null` = a top-level section. */
+  parentId: string | null;
   showOnHome: boolean;
   sortOrder: string;
 }
 
-const EMPTY_DRAFT: Draft = { slug: '', name: '', showOnHome: false, sortOrder: '0' };
+const EMPTY_DRAFT: Draft = {
+  slug: '',
+  name: '',
+  parentId: null,
+  showOnHome: false,
+  sortOrder: '0',
+};
 
 /** Route `/(app)/admin/veterinarian-store/categories` — store category management. */
 export default function VeterinarianStoreAdminCategoriesScreen() {
@@ -62,9 +70,19 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
       id: c.id,
       slug: c.slug,
       name: c.name,
+      parentId: c.parentId ?? null,
       showOnHome: c.showOnHome,
       sortOrder: String(c.sortOrder),
     });
+
+  // Sections first, each followed by its sub-categories (indented below).
+  const all = q.data ?? [];
+  const known = new Set(all.map((c) => c.id));
+  const sections = all.filter((c) => !c.parentId || !known.has(c.parentId));
+  const childrenOf = (id: string) => all.filter((c) => c.parentId === id);
+  const ordered = sections.flatMap((s) => [s, ...childrenOf(s.id)]);
+  // a section that already has sub-categories cannot itself move under another
+  const draftHasChildren = draft?.id ? childrenOf(draft.id).length > 0 : false;
 
   const saving = create.isPending || update.isPending;
   const draftError = create.error
@@ -78,6 +96,7 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
     const body = {
       slug: draft.slug.trim(),
       name: draft.name.trim(),
+      parentId: draft.parentId,
       showOnHome: draft.showOnHome,
       sortOrder: draft.sortOrder === '' ? 0 : Number(draft.sortOrder),
     };
@@ -127,8 +146,18 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
               onAction={openCreate}
             />
           ) : (
-            (q.data ?? []).map((c) => (
-              <Card key={c.id} variant="outlined" padding="md" onPress={() => openEdit(c)}>
+            ordered.map((c) => (
+              <Card
+                key={c.id}
+                variant="outlined"
+                padding="md"
+                onPress={() => openEdit(c)}
+                style={
+                  c.parentId && known.has(c.parentId)
+                    ? { marginStart: theme.spacing.xl }
+                    : undefined
+                }
+              >
                 <View
                   style={{
                     flexDirection: 'row',
@@ -143,7 +172,16 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
                     placeholderWhenEmpty
                   />
                   <View style={{ flex: 1, rowGap: 2 }}>
-                    <Text variant="bodyStrong">{c.name}</Text>
+                    <Text variant="bodyStrong">
+                      {c.parentId && known.has(c.parentId) ? '↳ ' : ''}
+                      {c.name}
+                    </Text>
+                    {!c.parentId && childrenOf(c.id).length > 0 ? (
+                      <Caption color="primary">
+                        {t('admin.categories.sectionBadge')} ·{' '}
+                        {t('admin.categories.subCount', { count: childrenOf(c.id).length })}
+                      </Caption>
+                    ) : null}
                     <Caption>
                       {c.slug} ·{' '}
                       {t('admin.categories.productCount', { count: c.productCount ?? 0 })}
@@ -183,6 +221,30 @@ export default function VeterinarianStoreAdminCategoriesScreen() {
               autoCorrect={false}
               onChangeText={(slug) => setDraft({ ...draft, slug })}
             />
+            <View style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t('admin.categories.fieldParent')}</Label>
+              {draftHasChildren ? (
+                <Caption>{t('admin.categories.parentLockedHint')}</Caption>
+              ) : (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                  <Chip
+                    label={t('admin.categories.parentNone')}
+                    selected={draft.parentId === null}
+                    onPress={() => setDraft({ ...draft, parentId: null })}
+                  />
+                  {sections
+                    .filter((s) => s.id !== draft.id)
+                    .map((s) => (
+                      <Chip
+                        key={s.id}
+                        label={s.name}
+                        selected={draft.parentId === s.id}
+                        onPress={() => setDraft({ ...draft, parentId: s.id })}
+                      />
+                    ))}
+                </View>
+              )}
+            </View>
             <Input
               label={t('admin.categories.fieldSortOrder')}
               value={draft.sortOrder}

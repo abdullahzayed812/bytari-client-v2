@@ -49,6 +49,10 @@ const veterinaryOfficeDashboard: KuNamespace<'veterinaryOfficeDashboard'> = {
     sendMessageCta: 'ناردنی نامە بۆ شوێنکەوتووان',
     membersCta: 'ئەندامان',
     supervisorsCta: 'سەرپەرشتیاران',
+    unreadMessages: '{{count}} نامەی نەخوێندراوە',
+    lockedTitle: 'داشبۆرد داخراوە',
+    lockedBody:
+      'بەشداریکردنی نووسینگەکە بەسەرچووە. تا نوێکردنەوە بەرهەمەکان نابینرێن و بەڕێوە نابرێن.',
   },
   products: {
     title: 'بینینی هەموو بەرهەمەکان',

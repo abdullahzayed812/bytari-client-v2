@@ -7,14 +7,17 @@ import { Button } from '@/components/actions';
 import { Avatar, Card } from '@/components/content';
 import { ConfirmationDialog, Loading, Skeleton, useToast } from '@/components/feedback';
 import { Caption, Text } from '@/components/typography';
+import { Permission } from '@/constants/permissions';
 import { Routes } from '@/constants/routes';
 import {
   useAdminApproveVetJobOffer,
+  useAdminDeleteVetJobOffer,
   useAdminRejectVetJobOffer,
   useAdminVetJobOfferApplications,
   useAdminVetJobOffers,
 } from '@/features/vetJobs';
 import type { VetJobApplication, VetJobModerationStatus, VetJobOffer } from '@/features/vetJobs';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -64,6 +67,9 @@ export default function AdminVetJobOffersScreen() {
   const q = useAdminVetJobOffers({ status });
   const approve = useAdminApproveVetJobOffer();
   const reject = useAdminRejectVetJobOffer();
+  const del = useAdminDeleteVetJobOffer();
+  const canDelete = useCapabilities().can(Permission.VET_JOB_DELETE);
+  const [deleting, setDeleting] = useState<VetJobOffer | null>(null);
 
   const [approving, setApproving] = useState<VetJobOffer | null>(null);
   const [rejecting, setRejecting] = useState<VetJobOffer | null>(null);
@@ -173,6 +179,13 @@ export default function AdminVetJobOffersScreen() {
                     onPress={() => setRejecting(o)}
                   />
                 </>
+              ) : canDelete ? (
+                <Button
+                  label={t('vetJobOffers.delete')}
+                  variant="danger"
+                  leftIcon="trash-outline"
+                  onPress={() => setDeleting(o)}
+                />
               ) : undefined
             }
           />
@@ -247,7 +260,45 @@ export default function AdminVetJobOffersScreen() {
             />
           </View>
         ) : null}
+        {detail && detail.status !== 'PENDING' && canDelete ? (
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <Button
+              label={t('vetJobOffers.delete')}
+              variant="danger"
+              leftIcon="trash-outline"
+              onPress={() => {
+                const o = detail;
+                setDetail(null);
+                setDeleting(o);
+              }}
+            />
+          </View>
+        ) : null}
       </AdminDetailModal>
+
+      <ConfirmationDialog
+        visible={deleting != null}
+        title={t('vetJobOffers.deleteTitle')}
+        message={t('vetJobOffers.deleteBody')}
+        confirmLabel={t('vetJobOffers.delete')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={del.isPending}
+        onConfirm={() => {
+          if (!deleting) return;
+          del.mutate(
+            { id: deleting.id },
+            {
+              onSuccess: () => {
+                toast.show({ message: t('vetJobOffers.toast.deleted'), tone: 'success' });
+                setDeleting(null);
+              },
+              onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+            },
+          );
+        }}
+        onCancel={() => setDeleting(null)}
+      />
 
       <ApplicantsModal offer={applicantsOf} onClose={() => setApplicantsOf(null)} />
     </>

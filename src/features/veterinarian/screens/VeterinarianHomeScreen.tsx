@@ -15,6 +15,8 @@ import { VeterinarianStatusBadge, useVeterinarianStatus } from '@/features/auth'
 import { HomeSectionHeader } from '@/features/home/components';
 import { ClinicCard, useDiscoverOrganizations } from '@/features/organizations';
 import { ThreadCard, ThreadCardSkeleton, useMyThreads } from '@/features/support';
+import { SyndicateBranchCard } from '@/features/syndicates/components';
+import { usePinnedSyndicates } from '@/features/syndicates/hooks';
 import { useTheme } from '@/theme';
 import type { ColorTokens } from '@/theme/colors';
 
@@ -112,6 +114,8 @@ export default function VeterinarianHomeScreen() {
   const inquiryPreview = inquiries.threads.slice(0, PREVIEW_COUNT);
   const offices = useDiscoverOrganizations({ type: 'VETERINARY_OFFICE', pageSize: PREVIEW_COUNT });
   const officePreview = offices.organizations.slice(0, PREVIEW_COUNT);
+  // Syndicates the administration pinned to Home — bottom, below Books & Magazines.
+  const pinnedSyndicates = usePinnedSyndicates();
 
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -214,7 +218,9 @@ export default function VeterinarianHomeScreen() {
         <Section spacing="xl">
           <HomeSectionHeader
             title={t('home.previousInquiries.title')}
-            actionLabel={inquiryPreview.length > 0 ? t('home.previousInquiries.viewAll') : undefined}
+            actionLabel={
+              inquiryPreview.length > 0 ? t('home.previousInquiries.viewAll') : undefined
+            }
             onAction={() => router.push(Routes.support('inquiries'))}
           />
           {inquiries.isLoading ? (
@@ -223,10 +229,7 @@ export default function VeterinarianHomeScreen() {
               <ThreadCardSkeleton width={INQUIRY_CARD_WIDTH} />
             </Row>
           ) : inquiryPreview.length === 0 ? (
-            <EmptyState
-              icon="chatbubbles-outline"
-              title={t('home.previousInquiries.empty')}
-            />
+            <EmptyState icon="chatbubbles-outline" title={t('home.previousInquiries.empty')} />
           ) : (
             <FlatList
               data={inquiryPreview}
@@ -317,6 +320,25 @@ export default function VeterinarianHomeScreen() {
           />
         </Row>
       </Section>
+
+      {(pinnedSyndicates.data ?? []).length > 0 ? (
+        <Section spacing="giant">
+          <HomeSectionHeader
+            title={t('home.syndicates.title')}
+            actionLabel={t('home.organizations.viewAll')}
+            onAction={() => router.push(Routes.syndicates)}
+          />
+          <View style={{ rowGap: theme.spacing.md }}>
+            {(pinnedSyndicates.data ?? []).map((s) => (
+              <SyndicateBranchCard
+                key={s.id}
+                branch={s}
+                onPress={() => router.push(Routes.syndicateMain(s.id))}
+              />
+            ))}
+          </View>
+        </Section>
+      ) : null}
     </ScrollScreen>
   );
 }

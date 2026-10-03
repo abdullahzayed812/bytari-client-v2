@@ -151,6 +151,8 @@ const pets: KuNamespace<'pets'> = {
       lostTitle: 'ئاژەڵە ونبووەکان',
       lostSubtitle: 'یارمەتی بدە لە دۆزینەوەی ئاژەڵە ونبووەکان',
       lostBadge: 'ونبوو',
+      newsTitle: 'دوایین هەواڵەکان',
+      newsSubtitle: 'هەواڵی ئاژەڵە ماڵییەکان',
       openA11y: 'کردنەوەی {{title}}',
     },
     transferRequestsA11y: 'گواستنەوەی خاوەندارێتی',

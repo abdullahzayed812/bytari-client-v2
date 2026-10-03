@@ -3,11 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { veterinaryOfficeDashboardApi, veterinaryOfficeDashboardKeys } from '../api';
 
 /** The Dashboard home's stats row — followers / products / rating (+ sales, always 0). */
-export function useVeterinaryOfficeDashboard(organizationId: string) {
+export function useVeterinaryOfficeDashboard(
+  organizationId: string,
+  options: { enabled?: boolean } = {},
+) {
   return useQuery({
     queryKey: veterinaryOfficeDashboardKeys.summary(organizationId),
     queryFn: () => veterinaryOfficeDashboardApi.getSummary(organizationId),
-    enabled: Boolean(organizationId),
+    enabled: Boolean(organizationId) && (options.enabled ?? true),
     staleTime: 15_000,
   });
 }

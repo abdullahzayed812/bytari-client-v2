@@ -78,5 +78,8 @@ export default {
       title: 'الكتب البيطرية',
       subtitle: 'مراجع وكتب بيطرية موثوقة',
     },
+    syndicates: {
+      title: 'النقابات',
+    },
   },
 };

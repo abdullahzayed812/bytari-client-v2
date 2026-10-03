@@ -10,13 +10,16 @@ import { ConfirmationDialog, EmptyState, Loading, useToast } from '@/components/
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
+import { Permission } from '@/constants/permissions';
 import { Routes } from '@/constants/routes';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { AnnouncementCard } from '../components';
 import {
   useDeleteSyndicate,
+  useSetSyndicatePinned,
   useFollowSyndicate,
   useMySyndicateAccess,
   useSyndicate,
@@ -119,20 +122,24 @@ export default function SyndicateDetailsScreen() {
   const unfollow = useUnfollowSyndicate(organizationId ?? '_');
   const registration = useSyndicateRegistration(organizationId ?? '_');
   const deleteSyndicate = useDeleteSyndicate();
+  const setPinned = useSetSyndicatePinned();
+  const caps = useCapabilities();
+  const canPin = caps.can(Permission.SYNDICATE_ADMIN_PIN);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const syndicate = q.data;
   const a = access.data;
-  const canManageAnything = Boolean(
-    a &&
-    (a.canReadSubmissions ||
-      a.canReadMembers ||
-      a.canMessageMembers ||
-      a.canManageProfile ||
-      a.canManageAnnouncements ||
-      a.isOwner ||
-      a.isAdmin),
-  );
+  const canManageAnything =
+    Boolean(
+      a &&
+      (a.canReadSubmissions ||
+        a.canReadMembers ||
+        a.canMessageMembers ||
+        a.canManageProfile ||
+        a.canManageAnnouncements ||
+        a.isOwner ||
+        a.isAdmin),
+    ) || canPin;
 
   const onRegister = (): void => {
     if (syndicate?.isRegistered) {
@@ -491,6 +498,25 @@ export default function SyndicateDetailsScreen() {
                     onPress={() => router.push(Routes.syndicateAdminNew(syndicate.id))}
                   />
                 </>
+              ) : null}
+              {canPin ? (
+                <ManageTile
+                  icon={syndicate.pinnedToHome ? 'pin' : 'pin-outline'}
+                  label={syndicate.pinnedToHome ? t('manage.unpin') : t('manage.pin')}
+                  onPress={() =>
+                    setPinned.mutate(
+                      { organizationId: syndicate.id, pinned: !syndicate.pinnedToHome },
+                      {
+                        onSuccess: (s) =>
+                          toast.show({
+                            tone: 'success',
+                            message: s.pinnedToHome ? t('manage.pinned') : t('manage.unpinned'),
+                          }),
+                        onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                      },
+                    )
+                  }
+                />
               ) : null}
               {a.canDelete ? (
                 <ManageTile

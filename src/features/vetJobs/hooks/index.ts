@@ -26,6 +26,7 @@ export {
   useAdminVetJobSeekers,
   useAdminApproveVetJobOffer,
   useAdminRejectVetJobOffer,
+  useAdminDeleteVetJobOffer,
   useAdminApproveVetJobSeeker,
   useAdminRejectVetJobSeeker,
   useAdminVetJobOfferApplications,

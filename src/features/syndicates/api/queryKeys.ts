@@ -3,6 +3,7 @@ import type { MySubmissionListFilter, SubmissionListFilter, SyndicateBrowseFilte
 /** One `all` prefix invalidates the whole Syndicates feature after any mutation. */
 export const syndicateKeys = {
   all: ['syndicates'] as const,
+  pinned: () => ['syndicates', 'pinned'] as const,
 
   syndicates: () => [...syndicateKeys.all, 'syndicate'] as const,
   mainList: (f: SyndicateBrowseFilter) => [...syndicateKeys.syndicates(), 'main', f] as const,

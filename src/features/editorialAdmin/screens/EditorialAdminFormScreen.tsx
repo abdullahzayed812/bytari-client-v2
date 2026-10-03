@@ -14,6 +14,7 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
+import { ANIMAL_SECTIONS, type AnimalSection } from '@/constants/animalSections';
 import { Routes } from '@/constants/routes';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -61,6 +62,8 @@ function buildSchema(m: SchemaMessages) {
   return z.object({
     title: z.string().trim().min(1, m.titleRequired).max(300),
     summary: z.string().trim().max(4000),
+    // both kinds: which animal section's feed shows it (GENERAL = none)
+    animalSection: z.enum(['GENERAL', ...ANIMAL_SECTIONS]),
     // tips
     readMinutes: z
       .string()
@@ -89,6 +92,7 @@ function toFormValues(item: EditorialItem | undefined): FormValues {
   return {
     title: item?.title ?? '',
     summary: item?.summary ?? '',
+    animalSection: item?.animalSection ?? 'GENERAL',
     readMinutes: item?.readMinutes != null ? String(item.readMinutes) : '',
     priority: item?.priority ?? 'NORMAL',
     bodyIntro: item?.bodyIntro ?? '',
@@ -109,7 +113,11 @@ const orNull = (v: string): string | null => (v.trim() ? v.trim() : null);
 
 /** Only the keys the kind's strict server schema accepts. */
 function toInput(kind: EditorialKind, v: FormValues): EditorialInput {
-  const common = { title: v.title.trim(), summary: orNull(v.summary) };
+  const common = {
+    title: v.title.trim(),
+    summary: orNull(v.summary),
+    animalSection: v.animalSection === 'GENERAL' ? null : v.animalSection,
+  };
   if (kind === 'tips') {
     return {
       ...common,
@@ -144,6 +152,7 @@ export default function EditorialAdminFormScreen() {
   const { t } = useTranslation('admin');
   const { t: tTips } = useTranslation('tips');
   const { t: tNews } = useTranslation('news');
+  const { t: tc } = useTranslation('common');
   const toast = useToast();
   const params = useLocalSearchParams<{ kind: string; itemId?: string }>();
   const kind: EditorialKind = isEditorialKind(params.kind) ? params.kind : 'tips';
@@ -268,6 +277,22 @@ export default function EditorialAdminFormScreen() {
           multiline
           numberOfLines={3}
           serverError={serverFields.summary}
+        />
+
+        <Controller
+          control={control}
+          name="animalSection"
+          render={({ field: { value, onChange } }) => (
+            <Select<'GENERAL' | AnimalSection>
+              label={t('editorial.fields.animalSection')}
+              value={value}
+              options={(['GENERAL', ...ANIMAL_SECTIONS] as const).map((s) => ({
+                value: s,
+                label: tc(`animalSections.${s}`),
+              }))}
+              onChange={onChange}
+            />
+          )}
         />
 
         {isTips ? (

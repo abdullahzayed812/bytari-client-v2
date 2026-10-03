@@ -148,16 +148,27 @@ export const petOwnerStoreAdminService = {
     page: number;
     pageSize: number;
     status?: PetStoreOrderStatus;
+    newOnly?: boolean;
   }): Promise<Paginated<PetStoreOrder>> {
     const envelope = await apiClient.requestEnvelope<PetStoreOrder[]>({
       method: 'GET',
       url: '/admin/pet-owner-store/orders',
-      params: { page: params.page, pageSize: params.pageSize, status: params.status },
+      params: {
+        page: params.page,
+        pageSize: params.pageSize,
+        status: params.status,
+        newOnly: params.newOnly ? 'true' : undefined,
+      },
     });
     return {
       items: envelope.data,
       meta: readMeta(envelope.meta, params.page, params.pageSize, envelope.data.length),
     };
+  },
+
+  /** `GET …/orders/summary` — orders no manager has opened yet (the "new" badge). */
+  getOrdersSummary(): Promise<{ newCount: number }> {
+    return apiClient.get<{ newCount: number }>('/admin/pet-owner-store/orders/summary');
   },
 
   getOrder(orderId: string): Promise<PetStoreOrder> {

@@ -11,7 +11,10 @@ import { useTheme } from '@/theme';
 
 import { VETERINARY_OFFICE_PRODUCT_TYPE_ORDER } from '../../constants';
 import type { VeterinaryOfficeProductType } from '../../types';
-import { buildVeterinaryOfficeProductSchema, type VeterinaryOfficeProductFormValues } from '../../validation/schemas';
+import {
+  buildVeterinaryOfficeProductSchema,
+  type VeterinaryOfficeProductFormValues,
+} from '../../validation/schemas';
 
 export interface VeterinaryOfficeProductFormProps {
   mode: 'create' | 'edit';
@@ -28,6 +31,9 @@ const EMPTY: VeterinaryOfficeProductFormValues = {
   price: '',
   stockQuantity: '',
   description: '',
+  brand: '',
+  countryOfOrigin: '',
+  manufacturer: '',
 };
 
 /**
@@ -117,6 +123,28 @@ export function VeterinaryOfficeProductForm({
         serverError={serverFields.description}
       />
 
+      <FormField
+        control={control}
+        name="brand"
+        label={t('manage.form.fieldBrand')}
+        placeholder={t('manage.form.brandPlaceholder')}
+        autoCorrect={false}
+        serverError={serverFields.brand}
+      />
+      <FormField
+        control={control}
+        name="countryOfOrigin"
+        label={t('manage.form.fieldCountry')}
+        placeholder={t('manage.form.countryPlaceholder')}
+        serverError={serverFields.countryOfOrigin}
+      />
+      <FormField
+        control={control}
+        name="manufacturer"
+        label={t('manage.form.fieldManufacturer')}
+        serverError={serverFields.manufacturer}
+      />
+
       <View style={{ marginTop: theme.spacing.sm }}>
         <Button
           label={mode === 'create' ? t('manage.form.submitCreate') : t('manage.form.submitSave')}
@@ -124,7 +152,9 @@ export function VeterinaryOfficeProductForm({
           loading={submitting}
           disabled={submitting}
           onPress={handleSubmit(onSubmit)}
-          accessibilityLabel={mode === 'create' ? t('manage.form.submitCreate') : t('manage.form.submitSave')}
+          accessibilityLabel={
+            mode === 'create' ? t('manage.form.submitCreate') : t('manage.form.submitSave')
+          }
         />
       </View>
     </>

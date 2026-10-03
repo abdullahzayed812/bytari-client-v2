@@ -5,19 +5,26 @@ import { FlatList, useWindowDimensions, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Chip, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
-import { Caption } from '@/components/typography';
+import { BottomSheet } from '@/components/overlays';
+import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { PublicVeterinaryOfficeProductCard } from '../components';
-import { VETERINARY_OFFICE_PRODUCT_TYPE_ORDER, veterinaryOfficeProductTypeIcon } from '../../constants';
-import { usePublicVeterinaryOfficeProducts } from '../hooks';
+import {
+  VETERINARY_OFFICE_PRODUCT_TYPE_ORDER,
+  veterinaryOfficeProductTypeIcon,
+} from '../../constants';
 import type { VeterinaryOfficeProductType } from '../../types';
+import { PublicVeterinaryOfficeProductCard } from '../components';
+import {
+  usePublicVeterinaryOfficeProductFacets,
+  usePublicVeterinaryOfficeProducts,
+} from '../hooks';
 
 const NUM_COLUMNS = 2;
 const GRID_GAP = 12;
@@ -26,15 +33,25 @@ const GRID_GAP = 12;
 export default function PublicVeterinaryOfficeProductsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
-  const { t: tc } = useTranslation('common');
-  const toast = useToast();
   const { officeId } = useLocalSearchParams<{ officeId: string }>();
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
   const [type, setType] = useState<VeterinaryOfficeProductType | undefined>(undefined);
 
-  const q = usePublicVeterinaryOfficeProducts(officeId, { search: search || undefined, productType: type });
+  const [brand, setBrand] = useState<string | undefined>(undefined);
+  const [country, setCountry] = useState<string | undefined>(undefined);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const activeFilters = (brand ? 1 : 0) + (country ? 1 : 0);
+
+  // Backend-driven: name / brand / manufacturer text search + exact brand & country.
+  const q = usePublicVeterinaryOfficeProducts(officeId, {
+    search: search || undefined,
+    productType: type,
+    brand,
+    country,
+  });
+  const facets = usePublicVeterinaryOfficeProductFacets(officeId);
 
   const { width: windowWidth } = useWindowDimensions();
   const columnWidth =
@@ -53,10 +70,14 @@ export default function PublicVeterinaryOfficeProductsScreen() {
       >
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
           <Button
-            label={t('products.filter')}
-            variant="outline"
+            label={
+              activeFilters > 0
+                ? t('products.filterActive', { count: activeFilters })
+                : t('products.filter')
+            }
+            variant={activeFilters > 0 ? 'primary' : 'outline'}
             leftIcon="funnel-outline"
-            onPress={() => toast.show({ message: tc('comingSoon'), tone: 'info' })}
+            onPress={() => setFilterOpen(true)}
           />
           <View style={{ flex: 1 }}>
             <SearchInput
@@ -147,6 +168,56 @@ export default function PublicVeterinaryOfficeProductsScreen() {
           }}
         />
       )}
+      <BottomSheet
+        visible={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        title={t('products.filterTitle')}
+      >
+        <View style={{ rowGap: theme.spacing.md, paddingBottom: theme.spacing.lg }}>
+          {(
+            [
+              ['filterBrand', facets.data?.brands ?? [], brand, setBrand],
+              ['filterCountry', facets.data?.countries ?? [], country, setCountry],
+            ] as const
+          ).map(([labelKey, values, current, set]) => (
+            <View key={labelKey} style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t(`products.${labelKey}`)}</Label>
+              {values.length === 0 ? (
+                <Caption>{t('products.filterNone')}</Caption>
+              ) : (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                  {values.map((v) => (
+                    <Chip
+                      key={v}
+                      label={v}
+                      selected={current?.toLowerCase() === v.toLowerCase()}
+                      onPress={() =>
+                        set(current?.toLowerCase() === v.toLowerCase() ? undefined : v)
+                      }
+                    />
+                  ))}
+                </View>
+              )}
+            </View>
+          ))}
+          <Button
+            label={t('products.filterApply')}
+            fullWidth
+            onPress={() => setFilterOpen(false)}
+          />
+          {activeFilters > 0 ? (
+            <Button
+              label={t('products.filterClear')}
+              variant="ghost"
+              fullWidth
+              onPress={() => {
+                setBrand(undefined);
+                setCountry(undefined);
+              }}
+            />
+          ) : null}
+        </View>
+      </BottomSheet>
     </SafeAreaScreen>
   );
 }

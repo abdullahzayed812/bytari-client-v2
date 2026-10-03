@@ -65,8 +65,9 @@ export default function SheepCattleFarmsLandingScreen() {
 
   const farms = useMyFarms(['SHEEP', 'CATTLE']);
   const farmPreview = farms.farms.slice(0, 3);
-  const news = useNews({ pageSize: 6 });
-  const tips = useTips({ pageSize: 6 });
+  // Sheep + cattle feeds only (additional corrections §11).
+  const news = useNews({ pageSize: 6, sections: ['SHEEP', 'CATTLE'] });
+  const tips = useTips({ pageSize: 6, sections: ['SHEEP', 'CATTLE'] });
 
   const isLoading = farms.isLoading;
   const isError = farms.isError;
@@ -196,7 +197,9 @@ export default function SheepCattleFarmsLandingScreen() {
           <HomeSectionHeader
             title={t('landing.newsTitle')}
             actionLabel={t('landing.viewAll')}
-            onAction={() => router.push(Routes.news)}
+            onAction={() =>
+              router.push({ pathname: '/(app)/news', params: { section: 'SHEEP,CATTLE' } })
+            }
           />
           {news.news.length === 0 ? null : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -218,7 +221,9 @@ export default function SheepCattleFarmsLandingScreen() {
           <HomeSectionHeader
             title={t('landing.tipsTitle')}
             actionLabel={t('landing.viewAll')}
-            onAction={() => router.push(Routes.tips)}
+            onAction={() =>
+              router.push({ pathname: '/(app)/tips', params: { section: 'SHEEP,CATTLE' } })
+            }
           />
           {tips.tips.length === 0 ? null : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>

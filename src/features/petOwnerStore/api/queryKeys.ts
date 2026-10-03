@@ -26,7 +26,8 @@ export const petStoreKeys = {
   adminProducts: () => [...petStoreKeys.admin(), 'products'] as const,
   adminProduct: (productId: string) => [...petStoreKeys.adminProducts(), productId] as const,
   adminCategories: () => [...petStoreKeys.admin(), 'categories'] as const,
-  adminOrders: (status?: PetStoreOrderStatus) =>
-    [...petStoreKeys.admin(), 'orders', { status: status ?? null }] as const,
+  adminOrders: (status?: PetStoreOrderStatus, newOnly?: boolean) =>
+    [...petStoreKeys.admin(), 'orders', { status: status ?? null, newOnly: !!newOnly }] as const,
+  adminOrdersSummary: () => [...petStoreKeys.admin(), 'orders-summary'] as const,
   adminOrder: (orderId: string) => [...petStoreKeys.admin(), 'order', orderId] as const,
 };

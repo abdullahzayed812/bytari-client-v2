@@ -104,6 +104,8 @@ export const Routes = {
   // News — آخر الأخبار (general news items from the content module)
   news: '/(app)/news',
   newsDetail: (newsId: string) => `/(app)/news/${newsId}` as const,
+  /** Home header global search. */
+  search: '/(app)/search',
 
   // Poultry Farms (Home → "الدواجن والطيور")
   poultryFarms: '/(app)/poultry',

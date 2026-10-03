@@ -29,6 +29,7 @@ export default {
 
   categories: {
     all: 'الكل',
+    allInSection: 'كل {{name}}',
   },
 
   product: {
@@ -188,6 +189,11 @@ export default {
       fieldSortOrder: 'الترتيب',
       fieldImage: 'صورة التصنيف',
       imageAfterCreateHint: 'يمكنك إضافة صورة بعد إنشاء التصنيف.',
+      fieldParent: 'القسم الرئيسي',
+      parentNone: 'قسم رئيسي',
+      parentLockedHint: 'هذا القسم يحتوي على تصنيفات فرعية ولا يمكن نقله إلى قسم آخر.',
+      sectionBadge: 'قسم',
+      subCount: '{{count}} تصنيف فرعي',
       productCount: '{{count}} منتج',
       created: 'تمت إضافة التصنيف',
       saved: 'تم الحفظ',
@@ -201,6 +207,9 @@ export default {
       title: 'طلبات المتجر',
       empty: 'لا توجد طلبات',
       filterAll: 'الكل',
+      filterNew: 'الجديدة',
+      newBadge: 'جديد',
+      newCount: '{{count}} طلب جديد',
       updateStatus: 'تحديث الحالة',
       statusUpdated: 'تم تحديث حالة الطلب',
       customer: 'العميل',

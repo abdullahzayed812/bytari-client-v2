@@ -74,7 +74,9 @@ export const veterinarianStoreAdminService = {
   },
 
   deactivateProduct(productId: string): Promise<VetStoreAdminProduct> {
-    return apiClient.delete<VetStoreAdminProduct>(`/admin/veterinarian-store/products/${productId}`);
+    return apiClient.delete<VetStoreAdminProduct>(
+      `/admin/veterinarian-store/products/${productId}`,
+    );
   },
 
   requestProductImageUploadUrl(
@@ -148,16 +150,27 @@ export const veterinarianStoreAdminService = {
     page: number;
     pageSize: number;
     status?: VetStoreOrderStatus;
+    newOnly?: boolean;
   }): Promise<Paginated<VetStoreOrder>> {
     const envelope = await apiClient.requestEnvelope<VetStoreOrder[]>({
       method: 'GET',
       url: '/admin/veterinarian-store/orders',
-      params: { page: params.page, pageSize: params.pageSize, status: params.status },
+      params: {
+        page: params.page,
+        pageSize: params.pageSize,
+        status: params.status,
+        newOnly: params.newOnly ? 'true' : undefined,
+      },
     });
     return {
       items: envelope.data,
       meta: readMeta(envelope.meta, params.page, params.pageSize, envelope.data.length),
     };
+  },
+
+  /** `GET …/orders/summary` — orders no manager has opened yet (the "new" badge). */
+  getOrdersSummary(): Promise<{ newCount: number }> {
+    return apiClient.get<{ newCount: number }>('/admin/veterinarian-store/orders/summary');
   },
 
   getOrder(orderId: string): Promise<VetStoreOrder> {

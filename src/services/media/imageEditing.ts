@@ -13,8 +13,12 @@ import type { LocalFile } from '@/services/files/types';
  * documents, certificates) pass `edit: false`.
  */
 
-export type CropAspect = 'original' | '1:1' | '4:3' | '3:4' | '16:9';
-export const CROP_ASPECTS: CropAspect[] = ['original', '1:1', '4:3', '3:4', '16:9'];
+/**
+ * `free` = manual drag-crop with no ratio lock (the default); `original` keeps
+ * the image's own ratio; the rest lock the crop box to that ratio.
+ */
+export type CropAspect = 'free' | 'original' | '1:1' | '4:3' | '3:4' | '16:9';
+export const CROP_ASPECTS: CropAspect[] = ['free', 'original', '1:1', '4:3', '3:4', '16:9'];
 
 /** Longest-edge caps offered by the "size" control. `null` = keep original. */
 export type ResizeOption = number | null;
@@ -113,4 +117,99 @@ export function computeResize(
 ): { width: number } | { height: number } | null {
   if (!maxDimension || Math.max(width, height) <= maxDimension) return null;
   return width >= height ? { width: maxDimension } : { height: maxDimension };
+}
+
+// --- interactive (drag) crop ---------------------------------------------
+
+/** A crop box in source-image pixels (after rotation). */
+export interface CropRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type CropCorner = 'tl' | 'tr' | 'bl' | 'br';
+
+/** Ratio the crop box is locked to, or `null` for a free crop. */
+export function lockedRatio(aspect: CropAspect, width: number, height: number): number | null {
+  return aspect === 'free' ? null : aspectRatioOf(aspect, width, height);
+}
+
+/** Starting crop box for an aspect: the whole image when free, else the centred max box. */
+export function initialCropRect(width: number, height: number, aspect: CropAspect): CropRect {
+  const c = computeCrop(width, height, aspect, 'center');
+  return { x: c.originX, y: c.originY, width: c.width, height: c.height };
+}
+
+const clamp = (v: number, lo: number, hi: number): number => Math.min(Math.max(v, lo), hi);
+
+/** Drag the whole box by (dx, dy) source pixels, kept inside the image. */
+export function moveCropRect(
+  rect: CropRect,
+  dx: number,
+  dy: number,
+  bounds: { width: number; height: number },
+): CropRect {
+  return {
+    ...rect,
+    x: clamp(rect.x + dx, 0, bounds.width - rect.width),
+    y: clamp(rect.y + dy, 0, bounds.height - rect.height),
+  };
+}
+
+/**
+ * Drag one corner by (dx, dy) source pixels. The opposite corner stays put;
+ * the box never flips, never leaves the image, never shrinks below `minSize`,
+ * and keeps `ratio` (width / height) when one is locked.
+ */
+export function resizeCropRect(
+  rect: CropRect,
+  corner: CropCorner,
+  dx: number,
+  dy: number,
+  bounds: { width: number; height: number },
+  ratio: number | null,
+  minSize: number,
+): CropRect {
+  const left = corner === 'tl' || corner === 'bl';
+  const top = corner === 'tl' || corner === 'tr';
+  // anchor = the fixed opposite corner
+  const ax = left ? rect.x + rect.width : rect.x;
+  const ay = top ? rect.y + rect.height : rect.y;
+  const maxW = left ? ax : bounds.width - ax;
+  const maxH = top ? ay : bounds.height - ay;
+  const min = Math.min(minSize, maxW, maxH);
+
+  let w = clamp(rect.width + (left ? -dx : dx), min, maxW);
+  let h = clamp(rect.height + (top ? -dy : dy), min, maxH);
+  if (ratio) {
+    // follow whichever edge moved further, then fit back inside the bounds
+    if (w / h > ratio) h = w / ratio;
+    else w = h * ratio;
+    if (w > maxW) {
+      w = maxW;
+      h = w / ratio;
+    }
+    if (h > maxH) {
+      h = maxH;
+      w = h * ratio;
+    }
+  }
+  return { x: left ? ax - w : ax, y: top ? ay - h : ay, width: w, height: h };
+}
+
+/** Integer crop action for the manipulator — rounded and clamped to the image. */
+export function cropActionOf(
+  rect: CropRect,
+  bounds: { width: number; height: number },
+): { originX: number; originY: number; width: number; height: number } {
+  const originX = clamp(Math.round(rect.x), 0, bounds.width - 1);
+  const originY = clamp(Math.round(rect.y), 0, bounds.height - 1);
+  return {
+    originX,
+    originY,
+    width: clamp(Math.round(rect.width), 1, bounds.width - originX),
+    height: clamp(Math.round(rect.height), 1, bounds.height - originY),
+  };
 }

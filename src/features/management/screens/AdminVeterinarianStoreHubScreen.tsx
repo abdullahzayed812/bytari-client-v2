@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { Routes } from '@/constants/routes';
+import { useVetStoreAdminOrdersSummary } from '@/features/veterinarianStore/admin/hooks';
 
 import { AdminHubScreen } from '../components/AdminHubScreen';
 
@@ -8,6 +9,7 @@ import { AdminHubScreen } from '../components/AdminHubScreen';
 export default function AdminVeterinarianStoreHubScreen() {
   const { t: ta } = useTranslation('admin');
   const { t: tv } = useTranslation('veterinarianStore');
+  const summary = useVetStoreAdminOrdersSummary();
 
   return (
     <AdminHubScreen
@@ -31,6 +33,7 @@ export default function AdminVeterinarianStoreHubScreen() {
           label: tv('admin.entry.orders'),
           icon: 'receipt-outline',
           route: Routes.adminVetStoreOrders,
+          count: summary.data?.newCount ?? 0,
         },
       ]}
     />

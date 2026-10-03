@@ -18,6 +18,8 @@ const errors: KuNamespace<'errors'> = {
   emailVerificationRequired: 'سەرەتا دەبێت ئیمەیڵەکەت چالاک بکەیت.',
   veterinarianPendingApproval:
     'هەژمارەکەت وەک پزیشکی ڤێتێرنەری چاوەڕێی ڕەزامەندیی بەڕێوەبەرایەتییە.',
+  organizationSubscriptionExpired:
+    'بەشداریکردنی ئەم دامەزراوەیە بەسەرچووە. بۆ بەردەوامبوون لە بەڕێوەبردن نوێی بکەرەوە.',
   invalidVerificationCode: 'ئەو کۆدەی نووسیوتە هەڵەیە.',
   verificationCodeExpired: 'ماوەی کۆدەکە بەسەرچوو. کۆدێکی نوێ داوا بکە.',
   tooManyVerificationAttempts: 'هەوڵی زۆر درا. کۆدێکی نوێ داوا بکە و دووبارە هەوڵبدەرەوە.',

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Card, Icon } from '@/components/content';
+import { Badge, Card, Icon } from '@/components/content';
 import {
   ConfirmationDialog,
   EmptyState,
@@ -109,9 +109,35 @@ export default function MyVetJobsScreen() {
                     <Icon name="briefcase-outline" size="iconMd" color="primary" />
                   </View>
                   <View style={{ flex: 1, rowGap: 4 }}>
-                    <Text variant="bodyStrong" numberOfLines={1}>
-                      {item.title}
-                    </Text>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        columnGap: theme.spacing.xs,
+                      }}
+                    >
+                      <Text variant="bodyStrong" numberOfLines={1} style={{ flexShrink: 1 }}>
+                        {item.title}
+                      </Text>
+                      {(item.pendingApplicationCount ?? 0) > 0 ? (
+                        <View
+                          accessible
+                          accessibilityLabel={t('myJobs.newApplicants', {
+                            count: item.pendingApplicationCount ?? 0,
+                          })}
+                        >
+                          <Badge
+                            label={
+                              (item.pendingApplicationCount ?? 0) > 99
+                                ? '99+'
+                                : String(item.pendingApplicationCount ?? 0)
+                            }
+                            tone="danger"
+                            size="sm"
+                          />
+                        </View>
+                      ) : null}
+                    </View>
                     <Caption numberOfLines={1}>{item.organizationName}</Caption>
                     <View
                       style={{
@@ -122,6 +148,23 @@ export default function MyVetJobsScreen() {
                     >
                       <VetJobStatusBadge status={item.status} />
                       <Caption>{formatDate(item.createdAt)}</Caption>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        columnGap: theme.spacing.xs,
+                      }}
+                    >
+                      <Icon name="people-outline" size="iconXs" color="textMuted" />
+                      <Caption>
+                        {t('myJobs.applicantsCount', { count: item.applicationCount ?? 0 })}
+                      </Caption>
+                      {(item.pendingApplicationCount ?? 0) > 0 ? (
+                        <Caption color="danger">
+                          {`· ${t('myJobs.newApplicants', { count: item.pendingApplicationCount ?? 0 })}`}
+                        </Caption>
+                      ) : null}
                     </View>
                     {item.status === 'REJECTED' && item.rejectionReason ? (
                       <Caption color="danger">{item.rejectionReason}</Caption>

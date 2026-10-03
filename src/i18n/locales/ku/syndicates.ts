@@ -229,6 +229,10 @@ const syndicates: KuNamespace<'syndicates'> = {
     edit: 'دەستکاریکردنی سەندیکا',
     admins: 'بەرپرسانی سەندیکا',
     addAdmin: 'زیادکردنی بەرپرسی سەندیکا',
+    pin: 'جێگیرکردن لە سەرەکی',
+    unpin: 'لابردنی جێگیرکردن لە سەرەکی',
+    pinned: 'سەندیکاکە لە پەڕەی سەرەکی جێگیر کرا',
+    unpinned: 'جێگیرکردنی سەندیکاکە لابرا',
     delete: 'سڕینەوەی سەندیکا',
     deleteConfirmTitle: 'سڕینەوەی سەندیکا',
     deleteConfirmBody:

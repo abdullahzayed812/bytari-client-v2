@@ -114,6 +114,12 @@ export interface SendMessageInput {
   attachment?: OutgoingAttachment;
 }
 
+/** `GET /conversations/unread-summary` — the dashboard "messages" badge. */
+export interface ConversationUnreadSummary {
+  unreadConversations: number;
+  unreadMessages: number;
+}
+
 export interface Conversation {
   id: string;
   type: ConversationType;

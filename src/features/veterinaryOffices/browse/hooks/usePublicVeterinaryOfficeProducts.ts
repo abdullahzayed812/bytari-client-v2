@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
-import { publicVeterinaryOfficeProductKeys, publicVeterinaryOfficeProductsApi } from '../api';
 import type {
   Paginated,
   VeterinaryOfficeProduct,
@@ -12,14 +11,27 @@ import type {
   VeterinaryOfficeProductType,
   SortOrder,
 } from '../../types';
+import { publicVeterinaryOfficeProductKeys, publicVeterinaryOfficeProductsApi } from '../api';
 
 export interface UsePublicVeterinaryOfficeProductsParams {
   productType?: VeterinaryOfficeProductType;
   search?: string;
+  brand?: string;
+  country?: string;
   sort?: VeterinaryOfficeProductSort;
   order?: SortOrder;
   pageSize?: number;
   enabled?: boolean;
+}
+
+/** Brand / country filter values for one office's public catalog. */
+export function usePublicVeterinaryOfficeProductFacets(organizationId: string | undefined) {
+  return useQuery({
+    queryKey: publicVeterinaryOfficeProductKeys.facets(organizationId ?? 'unknown'),
+    queryFn: () => publicVeterinaryOfficeProductsApi.facets(organizationId as string),
+    enabled: Boolean(organizationId),
+    staleTime: 60_000,
+  });
 }
 
 /**
@@ -35,6 +47,8 @@ export function usePublicVeterinaryOfficeProducts(
   const filter = {
     productType: params.productType,
     search: params.search || undefined,
+    brand: params.brand || undefined,
+    country: params.country || undefined,
     sort: params.sort,
     order: params.order,
     pageSize,
@@ -50,7 +64,10 @@ export function usePublicVeterinaryOfficeProducts(
     queryKey: publicVeterinaryOfficeProductKeys.list(organizationId ?? 'unknown', filter),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      publicVeterinaryOfficeProductsApi.list(organizationId as string, { ...filter, page: pageParam }),
+      publicVeterinaryOfficeProductsApi.list(organizationId as string, {
+        ...filter,
+        page: pageParam,
+      }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: Boolean(organizationId) && (params.enabled ?? true),

@@ -71,11 +71,23 @@ export function useAdminApproveVetServiceListing() {
   return useModerate((id) => adminVetServicesApi.approveListing(id), 'listing-approve');
 }
 export function useAdminRejectVetServiceListing() {
-  return useModerate((id, reason) => adminVetServicesApi.rejectListing(id, reason ?? ''), 'listing-reject');
+  return useModerate(
+    (id, reason) => adminVetServicesApi.rejectListing(id, reason ?? ''),
+    'listing-reject',
+  );
 }
 export function useAdminApproveVetServiceRequest() {
   return useModerate((id) => adminVetServicesApi.approveRequest(id), 'request-approve');
 }
 export function useAdminRejectVetServiceRequest() {
-  return useModerate((id, reason) => adminVetServicesApi.rejectRequest(id, reason ?? ''), 'request-reject');
+  return useModerate(
+    (id, reason) => adminVetServicesApi.rejectRequest(id, reason ?? ''),
+    'request-reject',
+  );
+}
+export function useAdminDeleteVetServiceListing() {
+  return useModerate((id) => adminVetServicesApi.deleteListing(id), 'listing-delete');
+}
+export function useAdminDeleteVetServiceRequest() {
+  return useModerate((id) => adminVetServicesApi.deleteRequest(id), 'request-delete');
 }

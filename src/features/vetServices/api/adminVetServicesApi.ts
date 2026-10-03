@@ -42,6 +42,10 @@ export const adminVetServicesApi = {
   rejectListing(id: string, reason: string): Promise<ServiceListing> {
     return apiClient.post<ServiceListing>(`/admin/vet-service-listings/${id}/reject`, { reason });
   },
+  /** `vet_service.delete` — any status, approved included. */
+  async deleteListing(id: string): Promise<void> {
+    await apiClient.delete(`/admin/vet-service-listings/${id}`);
+  },
 
   async listRequests(
     page: number,
@@ -63,6 +67,9 @@ export const adminVetServicesApi = {
   },
   rejectRequest(id: string, reason: string): Promise<ServiceRequest> {
     return apiClient.post<ServiceRequest>(`/admin/vet-service-requests/${id}/reject`, { reason });
+  },
+  async deleteRequest(id: string): Promise<void> {
+    await apiClient.delete(`/admin/vet-service-requests/${id}`);
   },
 };
 

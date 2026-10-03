@@ -1,7 +1,12 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
-import type { Paginated, VeterinaryOfficeProduct, VeterinaryOfficeProductListFilter } from '../../types';
+import type {
+  Paginated,
+  VeterinaryOfficeProduct,
+  VeterinaryOfficeProductFacets,
+  VeterinaryOfficeProductListFilter,
+} from '../../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
   const m = (meta ?? {}) as Partial<ApiPageMeta>;
@@ -33,6 +38,8 @@ export const publicVeterinaryOfficeProductsApi = {
         pageSize: filter.pageSize,
         type: filter.productType,
         search: filter.search || undefined,
+        brand: filter.brand || undefined,
+        country: filter.country || undefined,
         sort: filter.sort,
         order: filter.order,
       },
@@ -41,6 +48,13 @@ export const publicVeterinaryOfficeProductsApi = {
       items: envelope.data,
       meta: readMeta(envelope.meta, filter.page, filter.pageSize, envelope.data.length),
     };
+  },
+
+  /** Distinct brands / countries of the office's visible products (filter chips). */
+  facets(organizationId: string): Promise<VeterinaryOfficeProductFacets> {
+    return apiClient.get<VeterinaryOfficeProductFacets>(
+      `/organizations/discover/${organizationId}/office-products/facets`,
+    );
   },
 
   get(organizationId: string, productId: string): Promise<VeterinaryOfficeProduct> {

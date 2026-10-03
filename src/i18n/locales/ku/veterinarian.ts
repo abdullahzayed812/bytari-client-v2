@@ -81,6 +81,9 @@ const veterinarian: KuNamespace<'veterinarian'> = {
       title: 'کتێبە ڤێتێرنەرییەکان',
       subtitle: 'سەرچاوە و کتێبی ڤێتێرنەری متمانەپێکراو',
     },
+    syndicates: {
+      title: 'سەندیکاکان',
+    },
   },
 };
 

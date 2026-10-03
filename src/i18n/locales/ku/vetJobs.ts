@@ -214,6 +214,8 @@ const vetJobs: KuNamespace<'vetJobs'> = {
     closeAd: 'هەڵوەشاندنەوەی ڕیکلام',
     deleteConfirmTitle: 'سڕینەوەی ڕیکلام',
     deleteConfirmBody: 'ئەم ڕیکلامە بە یەکجاری دەسڕدرێتەوە.',
+    applicantsCount: '{{count}} داواکار',
+    newApplicants: '{{count}} نوێ',
     noteTitle: 'تێبینی گرنگ',
     noteBody:
       'دەتوانیت لە هەر کاتێکدا پێش پەسەندکردنی کۆتایی ڕیکلام یان داواکارییەکانت هەڵبوەشێنیتەوە یان دەستکاری بکەیت.',

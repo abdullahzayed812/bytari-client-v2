@@ -17,7 +17,8 @@ export const orgKeys = {
   all: ['organizations'] as const,
   terms: (termsKey: string) => ['organizations', 'terms', termsKey] as const,
   lists: () => [...orgKeys.all, 'list'] as const,
-  list: (page: number) => [...orgKeys.lists(), { page }] as const,
+  list: (page: number, scope: 'all' | 'farm_section' = 'all') =>
+    [...orgKeys.lists(), { page, ...(scope === 'all' ? {} : { scope }) }] as const,
   details: () => [...orgKeys.all, 'detail'] as const,
   detail: (organizationId: string) => [...orgKeys.details(), organizationId] as const,
   members: (organizationId: string) => [...orgKeys.detail(organizationId), 'members'] as const,

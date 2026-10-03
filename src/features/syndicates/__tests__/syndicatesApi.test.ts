@@ -1,6 +1,6 @@
 import { apiClient } from '@/services/api';
 
-import { syndicatesApi } from '../api';
+import { adminSyndicatesApi, syndicatesApi } from '../api';
 
 const envelope = jest.spyOn(apiClient, 'requestEnvelope');
 const get = jest.spyOn(apiClient, 'get');
@@ -13,7 +13,10 @@ afterAll(() => jest.restoreAllMocks());
 
 describe('syndicatesApi — profile', () => {
   it('listMain → GET /syndicates with filters', async () => {
-    envelope.mockResolvedValueOnce({ data: [], meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 } });
+    envelope.mockResolvedValueOnce({
+      data: [],
+      meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
+    });
     await syndicatesApi.listMain({ page: 1, pageSize: 20, search: 'بيطري' });
     expect(envelope).toHaveBeenCalledWith({
       method: 'GET',
@@ -58,7 +61,11 @@ describe('syndicatesApi — announcements', () => {
 
   it('createAnnouncement → POST /syndicates/:organizationId/announcements', async () => {
     post.mockResolvedValueOnce({});
-    await syndicatesApi.createAnnouncement('s1', { type: 'ANNOUNCEMENT', title: 'عنوان', body: 'نص' });
+    await syndicatesApi.createAnnouncement('s1', {
+      type: 'ANNOUNCEMENT',
+      title: 'عنوان',
+      body: 'نص',
+    });
     expect(post).toHaveBeenCalledWith(
       '/syndicates/s1/announcements',
       expect.objectContaining({ title: 'عنوان' }),
@@ -85,7 +92,9 @@ describe('syndicatesApi — submissions', () => {
   it('respondToSubmission → POST .../respond', async () => {
     post.mockResolvedValueOnce({});
     await syndicatesApi.respondToSubmission('s1', 'sub1', 'الرد');
-    expect(post).toHaveBeenCalledWith('/syndicates/s1/submissions/sub1/respond', { responseText: 'الرد' });
+    expect(post).toHaveBeenCalledWith('/syndicates/s1/submissions/sub1/respond', {
+      responseText: 'الرد',
+    });
   });
 
   it('closeSubmission → POST .../close', async () => {
@@ -108,5 +117,19 @@ describe('syndicatesApi — submissions', () => {
     get.mockResolvedValueOnce({});
     await syndicatesApi.getMySubmission('sub1');
     expect(get).toHaveBeenCalledWith('/syndicates/submissions/mine/sub1');
+  });
+});
+
+describe('syndicates — pin to Veterinarian Home', () => {
+  it('listPinned → GET /syndicates/pinned', async () => {
+    get.mockResolvedValueOnce([]);
+    await syndicatesApi.listPinned();
+    expect(get).toHaveBeenCalledWith('/syndicates/pinned');
+  });
+
+  it('setPinned → PUT /admin/syndicates/:id/pin { pinned }', async () => {
+    const put = jest.spyOn(apiClient, 'put').mockResolvedValueOnce({});
+    await adminSyndicatesApi.setPinned('s1', true);
+    expect(put).toHaveBeenCalledWith('/admin/syndicates/s1/pin', { pinned: true });
   });
 });

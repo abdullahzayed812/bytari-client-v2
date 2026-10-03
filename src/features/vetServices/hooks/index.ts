@@ -33,4 +33,6 @@ export {
   useAdminRejectVetServiceListing,
   useAdminApproveVetServiceRequest,
   useAdminRejectVetServiceRequest,
+  useAdminDeleteVetServiceListing,
+  useAdminDeleteVetServiceRequest,
 } from './useAdminVetServices';

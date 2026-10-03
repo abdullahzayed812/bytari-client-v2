@@ -59,6 +59,20 @@ export function buildVeterinaryOfficeProductSchema(t: VeterinaryOfficeTFn) {
       .max(4000, t('manage.form.errors.tooLong'))
       .optional()
       .or(z.literal('')),
+    // Catalog filters (mirrors the backend limits).
+    brand: z.string().trim().max(120, t('manage.form.errors.tooLong')).optional().or(z.literal('')),
+    countryOfOrigin: z
+      .string()
+      .trim()
+      .max(80, t('manage.form.errors.tooLong'))
+      .optional()
+      .or(z.literal('')),
+    manufacturer: z
+      .string()
+      .trim()
+      .max(300, t('manage.form.errors.tooLong'))
+      .optional()
+      .or(z.literal('')),
   });
 }
 export type VeterinaryOfficeProductFormValues = z.infer<
@@ -77,7 +91,12 @@ export function buildAdjustVeterinaryOfficeStockSchema(t: VeterinaryOfficeTFn) {
       .min(1, t('manage.stock.errors.deltaRequired'))
       .regex(SIGNED_INT_RE, t('manage.stock.errors.deltaInvalid'))
       .refine((v) => Number(v) !== 0, t('manage.stock.errors.deltaZero')),
-    reason: z.string().trim().max(500, t('manage.form.errors.tooLong')).optional().or(z.literal('')),
+    reason: z
+      .string()
+      .trim()
+      .max(500, t('manage.form.errors.tooLong'))
+      .optional()
+      .or(z.literal('')),
   });
 }
 export type AdjustVeterinaryOfficeStockFormValues = z.infer<

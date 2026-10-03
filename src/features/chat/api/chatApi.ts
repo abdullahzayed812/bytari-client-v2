@@ -3,6 +3,7 @@ import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/files/types';
 
 import type {
+  ConversationUnreadSummary,
   ChatMessage,
   Conversation,
   ConversationListFilter,
@@ -96,6 +97,14 @@ export const chatApi = {
     });
     const items = (envelope.data ?? []).map(toConversation);
     return { items, meta: readMeta(envelope.meta, filter.page, filter.pageSize, items.length) };
+  },
+
+  /** `GET /conversations/unread-summary` — badge counts (optionally one organization's). */
+  getUnreadSummary(organizationId?: string): Promise<ConversationUnreadSummary> {
+    return apiClient.get<ConversationUnreadSummary>(
+      '/conversations/unread-summary',
+      organizationId ? { organizationId } : undefined,
+    );
   },
 
   async getConversation(conversationId: string): Promise<Conversation> {

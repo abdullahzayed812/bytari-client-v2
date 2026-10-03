@@ -67,14 +67,25 @@ function readMeta(
     totalPages: m.totalPages ?? 1,
   };
 }
+export type MyOrganizationsScope = 'all' | 'farm_section';
+
 type PageMetaOut = { page: number; pageSize: number; total: number; totalPages: number };
 
 export const organizationsApi = {
-  async listMine(page: number, pageSize: number): Promise<Paginated<MyOrganization>> {
+  /**
+   * `scope: 'farm_section'` — the Poultry / Sheep / Cattle sections: FARM
+   * orgs the user OWNS or works at as STAFF. A vet merely supervising a farm
+   * gets it only in the default (`all`) "My Organizations" list.
+   */
+  async listMine(
+    page: number,
+    pageSize: number,
+    scope: MyOrganizationsScope = 'all',
+  ): Promise<Paginated<MyOrganization>> {
     const envelope = await apiClient.requestEnvelope<MyOrganization[]>({
       method: 'GET',
       url: '/organizations',
-      params: { page, pageSize },
+      params: scope === 'all' ? { page, pageSize } : { page, pageSize, scope },
     });
     return {
       items: envelope.data,

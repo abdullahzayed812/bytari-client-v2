@@ -81,7 +81,8 @@ export function useVetStoreAdminProductMutations() {
     ApiError,
     { productId: string; body: UpdateVetStoreProductInput }
   >({
-    mutationFn: ({ productId, body }) => veterinarianStoreAdminService.updateProduct(productId, body),
+    mutationFn: ({ productId, body }) =>
+      veterinarianStoreAdminService.updateProduct(productId, body),
     onSuccess: (p) => invalidate(p.id),
   });
   const deactivate = useMutation<VetStoreAdminProduct, ApiError, string>({
@@ -141,7 +142,18 @@ export function useVetStoreAdminCategoryMutations() {
 
 // --- orders -----------------------------------------------------
 
-export function useVetStoreAdminOrders(status?: VetStoreOrderStatus) {
+/** Orders no store manager has opened yet — the hub / orders "new" badge. */
+export function useVetStoreAdminOrdersSummary(options: { enabled?: boolean } = {}) {
+  return useQuery<{ newCount: number }, ApiError>({
+    queryKey: vetStoreKeys.adminOrdersSummary(),
+    queryFn: () => veterinarianStoreAdminService.getOrdersSummary(),
+    enabled: options.enabled ?? true,
+    staleTime: 10_000,
+    refetchInterval: 60_000,
+  });
+}
+
+export function useVetStoreAdminOrders(status?: VetStoreOrderStatus, newOnly?: boolean) {
   const pageSize = AppConfig.defaultPageSize;
   const query = useInfiniteQuery<
     Paginated<VetStoreOrder>,
@@ -150,10 +162,10 @@ export function useVetStoreAdminOrders(status?: VetStoreOrderStatus) {
     readonly unknown[],
     number
   >({
-    queryKey: vetStoreKeys.adminOrders(status),
+    queryKey: vetStoreKeys.adminOrders(status, newOnly),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      veterinarianStoreAdminService.listOrders({ page: pageParam, pageSize, status }),
+      veterinarianStoreAdminService.listOrders({ page: pageParam, pageSize, status, newOnly }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,
@@ -164,9 +176,16 @@ export function useVetStoreAdminOrders(status?: VetStoreOrderStatus) {
 }
 
 export function useVetStoreAdminOrder(orderId: string | undefined) {
+  const qc = useQueryClient();
   return useQuery<VetStoreOrder, ApiError>({
     queryKey: vetStoreKeys.adminOrder(orderId ?? 'unknown'),
-    queryFn: () => veterinarianStoreAdminService.getOrder(orderId as string),
+    queryFn: async () => {
+      const order = await veterinarianStoreAdminService.getOrder(orderId as string);
+      // Opening an order marks it seen server-side → refresh the badge + queue.
+      void qc.invalidateQueries({ queryKey: vetStoreKeys.adminOrdersSummary() });
+      void qc.invalidateQueries({ queryKey: [...vetStoreKeys.admin(), 'orders'] });
+      return order;
+    },
     enabled: Boolean(orderId),
   });
 }

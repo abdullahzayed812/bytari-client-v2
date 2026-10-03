@@ -59,8 +59,9 @@ export default function PoultryFarmsLandingScreen() {
     pageSize: 100,
     enabled: Boolean(primaryFarm),
   });
-  const news = useNews({ pageSize: 6 });
-  const tips = useTips({ pageSize: 6 });
+  // Poultry's own feeds only (additional corrections §11).
+  const news = useNews({ pageSize: 6, sections: ['POULTRY'] });
+  const tips = useTips({ pageSize: 6, sections: ['POULTRY'] });
 
   const stats = useMemo(
     () => (primaryFarm && flocks.flocks.length > 0 ? birdStats(flocks.flocks) : null),
@@ -209,7 +210,9 @@ export default function PoultryFarmsLandingScreen() {
           <HomeSectionHeader
             title={t('landing.newsTitle')}
             actionLabel={t('landing.viewAll')}
-            onAction={() => router.push(Routes.news)}
+            onAction={() =>
+              router.push({ pathname: '/(app)/news', params: { section: 'POULTRY' } })
+            }
           />
           {news.isLoading ? (
             <PoultryCardSkeleton />
@@ -237,7 +240,9 @@ export default function PoultryFarmsLandingScreen() {
           <HomeSectionHeader
             title={t('landing.tipsTitle')}
             actionLabel={t('landing.viewAll')}
-            onAction={() => router.push(Routes.tips)}
+            onAction={() =>
+              router.push({ pathname: '/(app)/tips', params: { section: 'POULTRY' } })
+            }
           />
           {tips.isLoading ? (
             <PoultryCardSkeleton />

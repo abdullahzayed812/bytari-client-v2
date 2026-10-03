@@ -53,6 +53,23 @@ export function useConversations(params: UseConversationsParams = {}) {
   return { ...query, conversations, total, unreadTotal };
 }
 
+/**
+ * Unread badge counts — every conversation the caller can see, or one
+ * organization's (clinic / office dashboard). Org-side counts are per member.
+ */
+export function useConversationUnreadSummary(
+  organizationId?: string,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery({
+    queryKey: chatKeys.unreadSummary(organizationId),
+    queryFn: () => chatApi.getUnreadSummary(organizationId),
+    enabled: options.enabled ?? true,
+    staleTime: 15_000,
+    refetchInterval: 60_000,
+  });
+}
+
 /** One conversation. A non-participant id → 404 (no retry). */
 export function useConversation(
   conversationId: string | undefined,

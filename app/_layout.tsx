@@ -25,6 +25,12 @@ function RootNavigator() {
   const { ready } = useAppBootstrap();
 
   const onLayout = useCallback(() => {
+    // Web: tell the +html startup watchdog the app has mounted (no fallback).
+    if (typeof window !== 'undefined') {
+      (window as unknown as { __BYTARI_BOOTED__?: boolean }).__BYTARI_BOOTED__ = true;
+      if (typeof document !== 'undefined')
+        document.getElementById('bytari-boot-fallback')?.remove();
+    }
     // Dismiss the native (Android 12 circular) splash as soon as the first JS
     // frame paints. <AppSplash> below then covers the screen until `ready`, so
     // a slow bootstrap never leaves the user staring at the system splash.

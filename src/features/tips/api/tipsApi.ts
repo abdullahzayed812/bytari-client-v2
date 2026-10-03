@@ -26,6 +26,7 @@ export const tipsApi = {
         q: filter.search,
         categoryId: filter.categoryId,
         priority: filter.priority,
+        section: filter.sections?.length ? filter.sections.join(',') : undefined,
         bookmarked: filter.bookmarked ? 'true' : undefined,
       },
     });

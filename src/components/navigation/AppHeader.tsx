@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/typography';
@@ -25,6 +25,10 @@ export interface AppHeaderProps {
    * reference designs, which keep back navigation top-left in both languages.
    */
   backAlign?: 'start' | 'left';
+  /** Makes the title tappable (e.g. a chat room name → its info screen). */
+  onTitlePress?: () => void;
+  /** Screen-reader hint for {@link onTitlePress}. */
+  titleAccessibilityHint?: string;
 }
 
 /** App bar. Layout is logical, so leading/trailing swap sides correctly in RTL. */
@@ -37,6 +41,8 @@ export function AppHeader({
   left,
   transparent,
   backAlign = 'start',
+  onTitlePress,
+  titleAccessibilityHint,
 }: AppHeaderProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -64,7 +70,17 @@ export function AppHeader({
         {left ?? (showBack ? <BackButton onPress={onBack} directional={!pinLeft} /> : null)}
       </View>
 
-      <View style={{ flex: 1, alignItems: 'center' }}>
+      <Pressable
+        disabled={!onTitlePress}
+        onPress={onTitlePress}
+        accessibilityRole={onTitlePress ? 'button' : undefined}
+        accessibilityHint={onTitlePress ? titleAccessibilityHint : undefined}
+        hitSlop={8}
+        style={({ pressed }) => [
+          { flex: 1, alignItems: 'center' },
+          onTitlePress && pressed ? { opacity: 0.6 } : null,
+        ]}
+      >
         {title ? (
           <Text variant="subtitle" weight="bold" numberOfLines={1}>
             {title}
@@ -75,7 +91,7 @@ export function AppHeader({
             {subtitle}
           </Text>
         ) : null}
-      </View>
+      </Pressable>
 
       <View style={{ alignItems: 'flex-end' }}>{right}</View>
     </View>

@@ -35,6 +35,8 @@ export interface VetStoreCategory {
   id: string;
   slug: string;
   name: string;
+  /** `null` = a top-level SECTION; otherwise the section this sub-category is under. */
+  parentId?: string | null;
   imageUrl: string | null;
   showOnHome: boolean;
   sortOrder: number;
@@ -132,6 +134,8 @@ export interface VetStoreOrder {
   items: VetStoreOrderItem[];
   placedAt: string;
   updatedAt: string;
+  /** Store-manager views only: not yet opened by any manager. */
+  isNew?: boolean;
 }
 
 // --- request payloads ----------------------------------------
@@ -169,6 +173,7 @@ export type UpdateVetStoreProductInput = Partial<CreateVetStoreProductInput>;
 export interface CreateVetStoreCategoryInput {
   slug: string;
   name: string;
+  parentId?: string | null;
   showOnHome?: boolean;
   sortOrder?: number;
   status?: VetStoreProductStatus;

@@ -99,25 +99,45 @@ describe('ChatRoomDetailsScreen', () => {
     expect(await screen.findByText('الانضمام إلى الغرفة')).toBeOnTheScreen();
   });
 
-  it('shows mute/leave/open-chat for a member and opens the thread', async () => {
+  it('takes a member straight into the chat (no intermediate entry page)', async () => {
     setSearchParams({ organizationId: 'r1' });
-    jest.spyOn(globalChatApi, 'get').mockResolvedValue(detail({ isJoined: true, joinedAt: '2026-01-01T00:00:00.000Z' }));
     jest
-      .spyOn(organizationsApi, 'get')
-      .mockResolvedValue({ id: 'r1', name: 'الأغنام والماعز', type: 'CHAT_ROOM', myRole: 'STAFF' } as never);
+      .spyOn(globalChatApi, 'get')
+      .mockResolvedValue(detail({ isJoined: true, joinedAt: '2026-01-01T00:00:00.000Z' }));
+    renderWithProviders(<ChatRoomDetailsScreen />);
+    await waitFor(() =>
+      expect(routerMock.replace).toHaveBeenCalledWith('/(app)/global-chat/r1/thread'),
+    );
+    expect(screen.queryByText('فتح المحادثة')).toBeNull();
+  });
+
+  it('opened from the chat (info=1): shows mute/leave/open-chat and returns to the chat', async () => {
+    setSearchParams({ organizationId: 'r1', info: '1' });
+    jest
+      .spyOn(globalChatApi, 'get')
+      .mockResolvedValue(detail({ isJoined: true, joinedAt: '2026-01-01T00:00:00.000Z' }));
+    jest.spyOn(organizationsApi, 'get').mockResolvedValue({
+      id: 'r1',
+      name: 'الأغنام والماعز',
+      type: 'CHAT_ROOM',
+      myRole: 'STAFF',
+    } as never);
 
     renderWithProviders(<ChatRoomDetailsScreen />);
     await screen.findByText('فتح المحادثة');
     expect(screen.getByText('مغادرة الغرفة')).toBeOnTheScreen();
     fireEvent.press(screen.getByText('فتح المحادثة'));
-    await waitFor(() => expect(routerMock.push).toHaveBeenCalledWith('/(app)/global-chat/r1/thread'));
+    await waitFor(() => expect(routerMock.back).toHaveBeenCalled());
+    expect(routerMock.replace).not.toHaveBeenCalled();
   });
 
   it('hides existence behind a not-available notice on 404', async () => {
     setSearchParams({ organizationId: 'r1' });
     jest
       .spyOn(globalChatApi, 'get')
-      .mockRejectedValue(new (require('@/services/api').ApiError)({ code: 'NOT_FOUND', message: 'x', status: 404 }));
+      .mockRejectedValue(
+        new (require('@/services/api').ApiError)({ code: 'NOT_FOUND', message: 'x', status: 404 }),
+      );
     renderWithProviders(<ChatRoomDetailsScreen />);
     expect(await screen.findByText('الغرفة غير متاحة')).toBeOnTheScreen();
   });
@@ -127,7 +147,9 @@ describe('EditChatRoomRulesScreen', () => {
   it('prefills the current rules and saves an edit', async () => {
     setSearchParams({ organizationId: 'r1' });
     jest.spyOn(globalChatApi, 'get').mockResolvedValue(detail({ rules: 'القاعدة القديمة' }));
-    const updateRules = jest.spyOn(globalChatApi, 'updateRules').mockResolvedValue({ success: true });
+    const updateRules = jest
+      .spyOn(globalChatApi, 'updateRules')
+      .mockResolvedValue({ success: true });
 
     renderWithProviders(<EditChatRoomRulesScreen />);
     const input = await screen.findByDisplayValue('القاعدة القديمة');

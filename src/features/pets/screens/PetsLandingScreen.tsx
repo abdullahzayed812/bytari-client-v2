@@ -212,7 +212,9 @@ export default function PetsLandingScreen() {
                 accessibilityLabel={t('landing.cards.openA11y', {
                   title: t('landing.cards.tipsTitle'),
                 })}
-                onPress={() => router.push(Routes.tips)}
+                onPress={() =>
+                  router.push({ pathname: '/(app)/tips', params: { section: 'PETS' } })
+                }
               />
               <FeatureCard
                 title={t('landing.cards.adoptionTitle')}
@@ -249,6 +251,21 @@ export default function PetsLandingScreen() {
                   title: t('landing.cards.lostTitle'),
                 })}
                 onPress={() => router.push(Routes.publications('lost'))}
+              />
+            </Row>
+            <Row gap="md" align="stretch">
+              <FeatureCard
+                title={t('landing.cards.newsTitle')}
+                subtitle={t('landing.cards.newsSubtitle')}
+                icon="newspaper-outline"
+                surface="surfaceAccent"
+                accent="primary"
+                accessibilityLabel={t('landing.cards.openA11y', {
+                  title: t('landing.cards.newsTitle'),
+                })}
+                onPress={() =>
+                  router.push({ pathname: '/(app)/news', params: { section: 'PETS' } })
+                }
               />
             </Row>
           </View>

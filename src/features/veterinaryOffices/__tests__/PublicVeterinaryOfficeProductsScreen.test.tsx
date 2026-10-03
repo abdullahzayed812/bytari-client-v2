@@ -39,10 +39,12 @@ const page = (items: VeterinaryOfficeProduct[]) => ({
 
 describe('PublicVeterinaryOfficeProductsScreen', () => {
   const list = jest.spyOn(publicVeterinaryOfficeProductsApi, 'list');
+  const facets = jest.spyOn(publicVeterinaryOfficeProductsApi, 'facets');
 
   beforeEach(() => {
     resetRouterMock();
     list.mockReset().mockResolvedValue(page([]));
+    facets.mockReset().mockResolvedValue({ brands: ['Bayer', 'Zoetis'], countries: ['ألمانيا'] });
     setSearchParams({ officeId: 'o1' });
   });
   afterAll(() => jest.restoreAllMocks());
@@ -62,10 +64,27 @@ describe('PublicVeterinaryOfficeProductsScreen', () => {
 
   it('sends the search term to the backend (server-side, no local filtering)', async () => {
     renderWithProviders(<PublicVeterinaryOfficeProductsScreen />);
-    fireEvent.changeText(screen.getByPlaceholderText('ابحث عن منتج...'), 'أنتي');
+    fireEvent.changeText(
+      screen.getByPlaceholderText('ابحث باسم المنتج أو العلامة التجارية...'),
+      'أنتي',
+    );
     await waitFor(
       () => expect(list).toHaveBeenCalledWith('o1', expect.objectContaining({ search: 'أنتي' })),
       { timeout: 5000, interval: 60 },
+    );
+  });
+
+  it('the filter sheet narrows the backend query by brand and country (from facets)', async () => {
+    renderWithProviders(<PublicVeterinaryOfficeProductsScreen />);
+    await waitFor(() => expect(list).toHaveBeenCalled());
+    fireEvent.press(screen.getByText('تصفية'));
+    fireEvent.press(await screen.findByText('Bayer'));
+    fireEvent.press(screen.getByText('ألمانيا'));
+    await waitFor(() =>
+      expect(list).toHaveBeenCalledWith(
+        'o1',
+        expect.objectContaining({ brand: 'Bayer', country: 'ألمانيا' }),
+      ),
     );
   });
 
@@ -74,7 +93,10 @@ describe('PublicVeterinaryOfficeProductsScreen', () => {
     await waitFor(() => expect(list).toHaveBeenCalled());
     fireEvent.press(screen.getByText('مكملات'));
     await waitFor(() =>
-      expect(list).toHaveBeenCalledWith('o1', expect.objectContaining({ productType: 'SUPPLEMENT' })),
+      expect(list).toHaveBeenCalledWith(
+        'o1',
+        expect.objectContaining({ productType: 'SUPPLEMENT' }),
+      ),
     );
   });
 

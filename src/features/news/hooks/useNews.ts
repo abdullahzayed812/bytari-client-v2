@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import type { AnimalSection } from '@/constants/animalSections';
 import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
@@ -11,6 +12,7 @@ export interface UseNewsParams {
   search?: string;
   categoryId?: string;
   tag?: NewsTag;
+  sections?: AnimalSection[];
   bookmarked?: boolean;
   pageSize?: number;
   enabled?: boolean;
@@ -34,6 +36,7 @@ export function useNews(params: UseNewsParams = {}) {
       search,
       categoryId: params.categoryId,
       tag: params.tag,
+      sections: params.sections,
       bookmarked: params.bookmarked,
     }),
     initialPageParam: 1,
@@ -44,6 +47,7 @@ export function useNews(params: UseNewsParams = {}) {
         search,
         categoryId: params.categoryId,
         tag: params.tag,
+        sections: params.sections,
         bookmarked: params.bookmarked,
       }),
     getNextPageParam: (last) =>
