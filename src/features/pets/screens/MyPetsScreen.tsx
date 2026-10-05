@@ -13,11 +13,14 @@ import { Routes } from '@/constants/routes';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { PetCard, PetCardSkeleton } from '../components';
+import { MyFarmsSection, PetCard, PetCardSkeleton } from '../components';
 import { usePets } from '../hooks';
 import type { Pet } from '../types';
 
-/** "My Pets" — the owner-scoped pet list (§4). FlatList + pull-to-refresh + paging. */
+/**
+ * "My Pets" — the owner-scoped pet list (§4). FlatList + pull-to-refresh +
+ * paging, followed by the account's farms / fields (`MyFarmsSection`).
+ */
 export default function MyPetsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('pets');
@@ -90,7 +93,11 @@ export default function MyPetsScreen() {
             />
           }
           ListFooterComponent={
-            q.isFetchingNextPage ? <Loading label={t('list.loadingMore')} /> : null
+            <>
+              {q.isFetchingNextPage ? <Loading label={t('list.loadingMore')} /> : null}
+              {/* Under the pets: the farms / fields linked to this account. */}
+              <MyFarmsSection />
+            </>
           }
           contentContainerStyle={{
             paddingHorizontal: theme.screenPadding,

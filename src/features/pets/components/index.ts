@@ -7,3 +7,4 @@ export { FutureSectionRow } from './FutureSectionRow';
 export { PetForm, type PetFormProps } from './PetForm';
 export { PetFormLayout } from './PetFormLayout';
 export { PetPhotoPicker, type PetPhotoPickerProps } from './PetPhotoPicker';
+export { MyFarmsSection } from './MyFarmsSection';

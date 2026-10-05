@@ -31,9 +31,14 @@ export function OfferCard({
   return (
     <Card variant="elevated" padding="md" onPress={onPress}>
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.md, alignItems: 'flex-start' }}>
-        <Avatar name={`${offer.veterinarian.firstName} ${offer.veterinarian.lastName}`} size="avatarMd" />
+        <Avatar
+          name={`${offer.veterinarian.firstName} ${offer.veterinarian.lastName}`}
+          size="avatarMd"
+        />
         <View style={{ flex: 1, rowGap: 2 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+          >
             <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
               {t('common.doctorPrefix', {
                 name: `${offer.veterinarian.firstName} ${offer.veterinarian.lastName}`,
@@ -51,7 +56,9 @@ export function OfferCard({
               {formatPrice(offer.proposedAmount)}
             </Text>
             <Caption color="textMuted">
-              {t('offer.submittedAt', { date: formatVetServiceDate(offer.createdAt, i18n.language) })}
+              {t('offer.submittedAt', {
+                date: formatVetServiceDate(offer.createdAt, i18n.language),
+              })}
             </Caption>
           </View>
         </View>
@@ -84,7 +91,9 @@ export function ListingRequestCard({
       <View style={{ flexDirection: 'row', columnGap: theme.spacing.md, alignItems: 'flex-start' }}>
         <Avatar name={`${lr.petOwner.firstName} ${lr.petOwner.lastName}`} size="avatarMd" />
         <View style={{ flex: 1, rowGap: 2 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+          >
             <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
               {lr.listing?.title ?? lr.requestNumber}
             </Text>
@@ -122,12 +131,35 @@ function Actions({
   const theme = useTheme();
   const { t } = useTranslation('vetServices');
   return (
-    <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm, marginTop: theme.spacing.md, alignItems: 'center' }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        columnGap: theme.spacing.sm,
+        marginTop: theme.spacing.md,
+        alignItems: 'center',
+      }}
+    >
       <View style={{ flex: 1 }}>
-        <Button label={t('actions.reject')} variant="danger" size="sm" fullWidth leftIcon="close" disabled={busy} onPress={onReject} />
+        <Button
+          label={t('actions.reject')}
+          variant="danger"
+          size="sm"
+          fullWidth
+          leftIcon="close"
+          disabled={busy}
+          onPress={onReject}
+        />
       </View>
       <View style={{ flex: 1 }}>
-        <Button label={t('actions.approve')} variant="primary" size="sm" fullWidth leftIcon="checkmark" loading={busy} onPress={onAccept} />
+        <Button
+          label={t('actions.approve')}
+          variant="primary"
+          size="sm"
+          fullWidth
+          leftIcon="checkmark"
+          loading={busy}
+          onPress={onAccept}
+        />
       </View>
       {onPress ? (
         <IconButton

@@ -15,6 +15,13 @@ export const SEARCH_TYPES = [
 ] as const;
 export type SearchType = (typeof SEARCH_TYPES)[number];
 
+/**
+ * The application interface a search runs in (server `SEARCH_INTERFACES`).
+ * The backend only searches that interface's own sections and refuses the
+ * `VETERINARIAN` interface to non-veterinarians.
+ */
+export type SearchInterface = 'PET_OWNER' | 'VETERINARIAN';
+
 export interface SearchHit {
   type: SearchType;
   id: string;
@@ -32,5 +39,6 @@ export interface SearchGroup {
 
 export interface SearchResult {
   query: string;
+  interface?: SearchInterface;
   groups: SearchGroup[];
 }

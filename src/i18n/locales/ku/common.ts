@@ -64,6 +64,7 @@ const common: KuNamespace<'common'> = {
       maxPx: 'تا {{px}} پیکسڵ',
       resultSize: 'ئەندازەی ئەنجام: {{width}} × {{height}}',
       apply: 'بەکارهێنانی وێنە',
+      save: 'پاشەکەوتکردن',
       cancel: 'هەڵوەشاندنەوە',
       keepRest: 'وێنەکانی تر وەک خۆیان بەکاربهێنە',
     },

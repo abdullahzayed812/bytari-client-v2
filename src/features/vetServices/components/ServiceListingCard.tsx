@@ -2,7 +2,6 @@ import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
@@ -12,22 +11,17 @@ import type { ServiceListing } from '../types';
 
 import { ModerationStatusBadge } from './badges';
 
+/**
+ * A service in a list. Tapping opens the Service Details page — the ONLY place
+ * with the "طلب الخدمة" / "تواصل مع الطبيب" actions (none on the card itself).
+ */
 export function ServiceListingCard({
   listing,
   onPress,
-  onPrimary,
-  primaryLabel,
-  onContact,
-  contactLoading,
   showStatus,
 }: {
   listing: ServiceListing;
   onPress: () => void;
-  onPrimary?: () => void;
-  primaryLabel?: string;
-  /** "تواصل مع الطبيب" — opens the direct deal chat; omitted on the viewer's own listing. */
-  onContact?: () => void;
-  contactLoading?: boolean;
   showStatus?: boolean;
 }) {
   const theme = useTheme();
@@ -94,28 +88,6 @@ export function ServiceListingCard({
         <Text variant="bodyStrong" style={{ marginTop: 2, color: theme.colors.serviceAccent }}>
           {formatPrice(listing.priceAmount)}
         </Text>
-        {onPrimary ? (
-          <View style={{ marginTop: theme.spacing.xs }}>
-            <Button
-              label={primaryLabel ?? t('actions.viewService')}
-              variant="primary"
-              size="sm"
-              fullWidth
-              onPress={onPrimary}
-            />
-          </View>
-        ) : null}
-        {onContact ? (
-          <Button
-            label={t('actions.contactVet')}
-            variant="outline"
-            size="sm"
-            fullWidth
-            leftIcon="chatbubbles-outline"
-            loading={contactLoading}
-            onPress={onContact}
-          />
-        ) : null}
       </View>
     </Card>
   );

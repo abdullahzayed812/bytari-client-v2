@@ -62,7 +62,12 @@ const CATEGORIES: Category[] = [
   { key: 'livestock', icon: 'leaf-outline', tone: 'amber', route: Routes.sheepCattleFarms },
   { key: 'poultry', icon: 'egg-outline', tone: 'red', route: Routes.poultryFarms },
   { key: 'store', icon: 'bag-handle-outline', tone: 'peach', route: Routes.petOwnerStore },
-  { key: 'appointments', icon: 'calendar-outline', tone: 'blue', route: Routes.petOwnerAppointments },
+  {
+    key: 'appointments',
+    icon: 'calendar-outline',
+    tone: 'blue',
+    route: Routes.petOwnerAppointments,
+  },
   { key: 'services', icon: 'briefcase-outline', tone: 'green', route: Routes.vetServices },
   { key: 'settings', icon: 'settings-outline', tone: 'violet', route: Routes.settings },
   { key: 'contact', icon: 'headset-outline', tone: 'green', route: Routes.contact },

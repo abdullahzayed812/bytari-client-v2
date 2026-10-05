@@ -28,7 +28,13 @@ export default function SyndicateOfficeLicensesScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('officeLicenses.title')} showBack />
-      <ScrollView contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.lg, paddingBottom: theme.spacing.huge }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          rowGap: theme.spacing.lg,
+          paddingBottom: theme.spacing.huge,
+        }}
+      >
         <Label>{t('officeLicenses.requirements')}</Label>
 
         <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>

@@ -11,11 +11,21 @@ import { useTheme } from '@/theme';
 /** Contact number shown on the reference "الدعم القانوني" screen. */
 const LEGAL_UNIT_PHONE = '+9642001234503';
 
-function Bullet({ children, tone = 'primary' }: { children: string; tone?: 'primary' | 'warning' }) {
+function Bullet({
+  children,
+  tone = 'primary',
+}: {
+  children: string;
+  tone?: 'primary' | 'warning';
+}) {
   const theme = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.xs }}>
-      <Icon name={tone === 'warning' ? 'alert-circle' : 'checkmark-circle'} size="iconXs" color={tone} />
+      <Icon
+        name={tone === 'warning' ? 'alert-circle' : 'checkmark-circle'}
+        size="iconXs"
+        color={tone}
+      />
       <Text variant="body" style={{ flex: 1 }}>
         {children}
       </Text>
@@ -31,7 +41,13 @@ export default function SyndicateLegalSupportScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('legalSupport.title')} showBack />
-      <ScrollView contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.lg, paddingBottom: theme.spacing.huge }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          rowGap: theme.spacing.lg,
+          paddingBottom: theme.spacing.huge,
+        }}
+      >
         <Label>{t('legalSupport.serviceInfo')}</Label>
         <Text variant="body" color="textSecondary">
           {t('legalSupport.description')}

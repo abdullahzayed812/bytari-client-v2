@@ -52,11 +52,18 @@ export default function MySyndicateSubmissionsScreen() {
           ListEmptyComponent={
             <EmptyState
               icon="chatbubbles-outline"
-              title={kind === 'REQUEST' ? t('mySubmissions.emptyRequests') : t('mySubmissions.emptyInquiries')}
+              title={
+                kind === 'REQUEST'
+                  ? t('mySubmissions.emptyRequests')
+                  : t('mySubmissions.emptyInquiries')
+              }
             />
           }
           ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge }}
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+          }}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
@@ -87,11 +94,7 @@ function SubmissionRow({ submission }: { submission: SyndicateSubmission }) {
         {submission.message}
       </Text>
       {submission.attachmentUrls.length > 0 ? (
-        <ImageThumbnailRow
-          images={submission.attachmentUrls}
-          size={64}
-          onPress={setViewerIndex}
-        />
+        <ImageThumbnailRow images={submission.attachmentUrls} size={64} onPress={setViewerIndex} />
       ) : null}
       <Caption color="textMuted">
         {t('mySubmissions.submittedOn')}: {formatDate(submission.createdAt)}

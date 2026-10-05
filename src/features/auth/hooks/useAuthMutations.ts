@@ -3,6 +3,7 @@ import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 import { authApi } from '../api';
 import { useAuthStore } from '../store';
 import type {
+  ChangePasswordInput,
   LoginInput,
   PasswordResetRequestResult,
   RegisterInput,
@@ -76,4 +77,14 @@ export function useResetPasswordMutation(): UseMutationResult<
     mutationKey: ['auth', 'reset-password'],
     mutationFn: (input: ResetPasswordInput) => authApi.resetPassword(input),
   });
+}
+
+/**
+ * "تغيير كلمة المرور" — verifies the current password server-side, then keeps
+ * this device signed in with the fresh token pair (other devices are signed
+ * out). Passwords never touch any cache.
+ */
+export function useChangePasswordMutation(): UseMutationResult<void, unknown, ChangePasswordInput> {
+  const changePassword = useAuthStore((s) => s.changePassword);
+  return useMutation({ mutationKey: ['auth', 'change-password'], mutationFn: changePassword });
 }

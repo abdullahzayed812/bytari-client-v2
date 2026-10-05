@@ -75,6 +75,8 @@ export default {
       chatsHint: 'تواصل مع الأطباء والزملاء',
       contact: 'تواصل معنا',
       contactHint: 'تواصل ودعم فني',
+      settings: 'الإعدادات',
+      settingsHint: 'إعدادات الحساب والتطبيق',
     },
   },
 

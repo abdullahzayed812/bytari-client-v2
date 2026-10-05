@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { Button } from '@/components/actions';
 import { Card, Chip, Icon, type IconName } from '@/components/content';
 import { ConfirmationDialog, useToast } from '@/components/feedback';
 import { Switch } from '@/components/forms';
@@ -24,7 +23,10 @@ import type { ThemePreference } from '@/theme/ThemeProvider';
 
 type ExpandableKey = 'language' | 'appearance';
 
-/** Route: `/(app)/settings` — "الإعدادات". */
+/**
+ * Route: `/(app)/settings` — "الإعدادات". Shared by the Pet Owner and the
+ * Veterinarian interface (reachable from both category grids and the profile).
+ */
 export default function PetOwnerSettingsScreen() {
   const theme = useTheme();
   const toast = useToast();
@@ -55,8 +57,6 @@ export default function PetOwnerSettingsScreen() {
   };
 
   const changeTheme = (next: ThemePreference) => setThemePreference(next);
-
-  const notAvailable = () => toast.show({ message: t('comingSoon'), tone: 'info' });
 
   const pushEnabled = prefs.data?.pushEnabled ?? false;
 
@@ -97,7 +97,7 @@ export default function PetOwnerSettingsScreen() {
             }}
           >
             <Icon name="notifications-outline" size="iconMd" color="primary" />
-            <Text variant="bodyMedium" style={{ flex: 1, textAlign: 'right' }}>
+            <Text variant="bodyMedium" style={{ flex: 1 }}>
               {t('rows.notifications')}
             </Text>
             <Switch
@@ -118,10 +118,18 @@ export default function PetOwnerSettingsScreen() {
         </Card>
 
         {/* الخصوصية والأمان */}
-        <Row icon="lock-closed-outline" label={t('rows.privacy')} onPress={notAvailable} />
+        <Row
+          icon="lock-closed-outline"
+          label={t('rows.privacy')}
+          onPress={() => router.push(Routes.settingsPrivacy)}
+        />
 
         {/* تغيير كلمة المرور */}
-        <Row icon="key-outline" label={t('rows.changePassword')} onPress={notAvailable} />
+        <Row
+          icon="key-outline"
+          label={t('rows.changePassword')}
+          onPress={() => router.push(Routes.settingsChangePassword)}
+        />
 
         {/* مظهر التطبيق */}
         <Row
@@ -157,14 +165,27 @@ export default function PetOwnerSettingsScreen() {
         />
 
         <Section spacing="lg">
-          <Button
-            label={t('signOut')}
-            variant="outline"
-            leftIcon="log-out-outline"
-            fullWidth
-            loading={logout.isPending}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('signOut')}
+            disabled={logout.isPending}
             onPress={() => setConfirmLogout(true)}
-          />
+            style={({ pressed }) => ({
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              columnGap: theme.spacing.sm,
+              paddingVertical: theme.spacing.lg,
+              borderRadius: theme.radius.lg,
+              backgroundColor: theme.colors.dangerSoft,
+              opacity: pressed || logout.isPending ? 0.8 : 1,
+            })}
+          >
+            <Icon name="log-out-outline" size="iconMd" color="danger" />
+            <Text variant="bodyMedium" color="danger">
+              {t('signOut')}
+            </Text>
+          </Pressable>
         </Section>
         <View style={{ height: theme.spacing.huge }} />
       </View>
@@ -220,23 +241,18 @@ function Row({
           columnGap: theme.spacing.md,
         }}
       >
+        {/* logical order (start → end): icon · label · chevron — RTL puts the icon on the right */}
+        <Icon name={icon} size="iconMd" color="primary" />
+        <View style={{ flex: 1, rowGap: 2 }}>
+          <Text variant="bodyMedium">{label}</Text>
+          {sublabel ? <Caption color="textSecondary">{sublabel}</Caption> : null}
+        </View>
         <Icon
-          name={hasExpand ? (expanded ? 'chevron-down' : 'chevron-back') : 'chevron-back'}
+          name={hasExpand && expanded ? 'chevron-down' : 'chevron-forward'}
           size="iconSm"
           color="textMuted"
-          directional={!hasExpand}
+          directional={!(hasExpand && expanded)}
         />
-        <View style={{ flex: 1, rowGap: 2 }}>
-          <Text variant="bodyMedium" style={{ textAlign: 'right' }}>
-            {label}
-          </Text>
-          {sublabel ? (
-            <Caption color="textSecondary" style={{ textAlign: 'right' }}>
-              {sublabel}
-            </Caption>
-          ) : null}
-        </View>
-        <Icon name={icon} size="iconMd" color="primary" />
       </Pressable>
       {hasExpand && expanded ? (
         <View style={{ marginTop: theme.spacing.md }}>{children}</View>

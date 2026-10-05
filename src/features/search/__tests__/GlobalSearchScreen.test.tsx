@@ -13,10 +13,26 @@ beforeEach(() => {
 });
 
 describe('searchApi', () => {
-  it('calls GET /search with q, comma-joined types and limit', async () => {
+  it('calls GET /search with q, the interface, comma-joined types and limit', async () => {
     const get = jest.spyOn(apiClient, 'get').mockResolvedValue({ query: 'لقاح', groups: [] });
-    await searchApi.search('لقاح', { types: ['BOOK', 'CLINIC'], limit: 3 });
-    expect(get).toHaveBeenCalledWith('/search', { q: 'لقاح', types: 'BOOK,CLINIC', limit: 3 });
+    await searchApi.search('لقاح', { interface: 'VETERINARIAN', types: ['BOOK'], limit: 3 });
+    expect(get).toHaveBeenCalledWith('/search', {
+      q: 'لقاح',
+      interface: 'VETERINARIAN',
+      types: 'BOOK',
+      limit: 3,
+    });
+  });
+
+  it('defaults to the Pet Owner interface', async () => {
+    const get = jest.spyOn(apiClient, 'get').mockResolvedValue({ query: 'لقاح', groups: [] });
+    await searchApi.search('لقاح');
+    expect(get).toHaveBeenCalledWith('/search', {
+      q: 'لقاح',
+      interface: 'PET_OWNER',
+      types: undefined,
+      limit: undefined,
+    });
   });
 });
 
@@ -55,12 +71,14 @@ describe('GlobalSearchScreen', () => {
       ],
     });
     renderWithProviders(<GlobalSearchScreen />);
-    const input = screen.getByLabelText('ابحث عن كتاب، منتج، عيادة، مكتب، مزرعة، خدمة…');
+    const input = screen.getByLabelText('ابحث عن منتج، عيادة، مزرعة، خدمة، خبر أو نصيحة…');
     fireEvent.changeText(input, 'ل');
     expect(search).not.toHaveBeenCalled();
 
     fireEvent.changeText(input, 'لقاح');
     expect(await screen.findByText('لقاح القطط')).toBeOnTheScreen();
+    // owner mode (default) → the Pet Owner interface is requested
+    expect(search).toHaveBeenCalledWith('لقاح', { interface: 'PET_OWNER', types: undefined });
     expect(screen.getByText('متجر أصحاب الحيوانات')).toBeOnTheScreen();
     fireEvent.press(screen.getByText('لقاح القطط'));
     await waitFor(() =>

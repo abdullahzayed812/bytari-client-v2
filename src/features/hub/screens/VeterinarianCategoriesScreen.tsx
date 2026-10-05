@@ -23,7 +23,8 @@ type CategoryKey =
   | 'offices'
   | 'courses'
   | 'chats'
-  | 'contact';
+  | 'contact'
+  | 'settings';
 
 type Tone = { surface: keyof ColorTokens; accent: keyof ColorTokens };
 
@@ -53,9 +54,19 @@ interface Category {
  * `PetOwnerCategoriesScreen`.
  */
 const CATEGORIES: Category[] = [
-  { key: 'inquiries', icon: 'chatbubbles-outline', tone: 'green', route: Routes.support('inquiries') },
+  {
+    key: 'inquiries',
+    icon: 'chatbubbles-outline',
+    tone: 'green',
+    route: Routes.support('inquiries'),
+  },
   { key: 'home', icon: 'shield-checkmark-outline', tone: 'blue', route: Routes.home },
-  { key: 'magazine', icon: 'newspaper-outline', tone: 'violet', route: Routes.veterinaryMagazineHome },
+  {
+    key: 'magazine',
+    icon: 'newspaper-outline',
+    tone: 'violet',
+    route: Routes.veterinaryMagazineHome,
+  },
   { key: 'books', icon: 'book-outline', tone: 'amber', route: Routes.veterinaryBooksHome },
   { key: 'store', icon: 'bag-handle-outline', tone: 'green', route: Routes.veterinarianStore },
   { key: 'syndicate', icon: 'people-outline', tone: 'red', route: Routes.syndicates },
@@ -65,6 +76,7 @@ const CATEGORIES: Category[] = [
   { key: 'courses', icon: 'school-outline', tone: 'green', route: Routes.vetCourses },
   { key: 'chats', icon: 'chatbox-outline', tone: 'violet', route: Routes.chat },
   { key: 'contact', icon: 'call-outline', tone: 'green', route: Routes.contact },
+  { key: 'settings', icon: 'settings-outline', tone: 'violet', route: Routes.settings },
 ];
 
 interface HeaderButtonProps {

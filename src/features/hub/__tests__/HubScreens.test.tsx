@@ -132,6 +132,9 @@ describe('CategoriesTabScreen — leftmost tab is mode-aware', () => {
 
     expect(screen.getByText('كل الأقسام')).toBeTruthy();
     expect(screen.getByText('الوظائف الشاغرة')).toBeTruthy();
+    // Settings is reachable from the Veterinarian interface too
+    fireEvent.press(screen.getByText('الإعدادات'));
+    expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/settings');
     // the old Services hub headings are not rendered in veterinarian mode
     expect(screen.queryByText('الرعاية والدعم')).toBeNull();
   });

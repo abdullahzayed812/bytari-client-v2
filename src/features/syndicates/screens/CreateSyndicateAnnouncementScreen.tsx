@@ -72,7 +72,10 @@ export default function CreateSyndicateAnnouncementScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t('announcements.addAnnouncement')} showBack />
-      <ScrollView contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={{ rowGap: theme.spacing.xs }}>
           <Label>{t('announcements.form.type')}</Label>
           <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
@@ -87,7 +90,12 @@ export default function CreateSyndicateAnnouncementScreen() {
           </View>
         </View>
 
-        <FormField control={control} name="title" label={t('announcements.form.title')} placeholder={t('announcements.form.titlePlaceholder')} />
+        <FormField
+          control={control}
+          name="title"
+          label={t('announcements.form.title')}
+          placeholder={t('announcements.form.titlePlaceholder')}
+        />
         <FormField
           control={control}
           name="body"
@@ -99,7 +107,13 @@ export default function CreateSyndicateAnnouncementScreen() {
 
         <View style={{ rowGap: theme.spacing.xs }}>
           <Label>{t('announcements.form.image')}</Label>
-          <ImageUploader value={null} provider={imageProvider} shape="square" size={140} onChange={(r) => setImageStorageKey(r?.storageKey ?? null)} />
+          <ImageUploader
+            value={null}
+            provider={imageProvider}
+            shape="square"
+            size={140}
+            onChange={(r) => setImageStorageKey(r?.storageKey ?? null)}
+          />
           <Caption>{t('announcements.form.imageHint')}</Caption>
         </View>
 
@@ -108,7 +122,9 @@ export default function CreateSyndicateAnnouncementScreen() {
 
       <View style={{ padding: theme.screenPadding }}>
         <Button
-          label={create.isPending ? t('announcements.form.submitting') : t('announcements.form.submit')}
+          label={
+            create.isPending ? t('announcements.form.submitting') : t('announcements.form.submit')
+          }
           fullWidth
           loading={create.isPending}
           disabled={create.isPending}

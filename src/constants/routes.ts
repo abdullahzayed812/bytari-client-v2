@@ -241,6 +241,14 @@ export const Routes = {
   // Settings & Contact ("الإعدادات" / "تواصل معنا")
   settings: '/(app)/settings',
   settingsAbout: '/(app)/settings/about',
+  /** Profile sub-pages (reached from the Account tab's "إدارة حسابي" grid). */
+  profileEdit: '/(app)/profile/edit',
+  profileDocuments: '/(app)/profile/documents',
+  profileAds: '/(app)/profile/ads',
+  /** "الخصوصية والأمان". */
+  settingsPrivacy: '/(app)/settings/privacy',
+  /** "تغيير كلمة المرور". */
+  settingsChangePassword: '/(app)/settings/change-password',
   contact: '/(app)/contact',
 
   // Veterinary Services marketplace ("الخدمات")

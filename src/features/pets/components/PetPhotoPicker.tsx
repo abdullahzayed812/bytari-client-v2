@@ -61,7 +61,9 @@ export function PetPhotoPicker({ photos, onAdd, onRemove }: PetPhotoPickerProps)
           ) : null}
         </View>
       </ScrollView>
-      <Caption color="textMuted">{t('form.galleryCount', { count: photos.length, max: MAX_PHOTOS })}</Caption>
+      <Caption color="textMuted">
+        {t('form.galleryCount', { count: photos.length, max: MAX_PHOTOS })}
+      </Caption>
     </View>
   );
 }

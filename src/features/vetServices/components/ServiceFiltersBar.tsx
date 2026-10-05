@@ -40,7 +40,14 @@ export function ServiceFiltersBar({
   return (
     <>
       <View style={{ paddingHorizontal: theme.screenPadding }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4, justifyContent: 'flex-end' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 4,
+            justifyContent: 'flex-end',
+          }}
+        >
           <Icon name="options-outline" size="iconSm" color="serviceAccent" />
           <Caption style={{ color: theme.colors.serviceAccent }}>{t('filters.label')}</Caption>
         </View>
@@ -74,7 +81,11 @@ export function ServiceFiltersBar({
         })}
       </ScrollView>
 
-      <BottomSheet visible={openKey !== null} onClose={() => setOpenKey(null)} title={active?.label}>
+      <BottomSheet
+        visible={openKey !== null}
+        onClose={() => setOpenKey(null)}
+        title={active?.label}
+      >
         <View style={{ rowGap: theme.spacing.xs }}>
           <OptionRow
             label={t('filters.any')}

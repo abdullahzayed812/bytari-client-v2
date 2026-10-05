@@ -66,9 +66,13 @@ export const syndicatesApi = {
       search: filter.search || undefined,
     });
   },
-  /** Syndicates pinned to the Veterinarian Home (ACTIVE only, pin order). */
+  /** The CALLER's pinned syndicates for their Veterinarian Home (ACTIVE only, pin order). */
   listPinned(): Promise<PublicSyndicate[]> {
     return apiClient.get<PublicSyndicate[]>('/syndicates/pinned');
+  },
+  /** "تثبيت النقابة" — pin / unpin for the caller's own Home (any approved vet / admin). */
+  setPinned(organizationId: string, pinned: boolean): Promise<PublicSyndicate> {
+    return apiClient.put<PublicSyndicate>(`/syndicates/${organizationId}/pin`, { pinned });
   },
 
   getOne(organizationId: string): Promise<PublicSyndicate> {

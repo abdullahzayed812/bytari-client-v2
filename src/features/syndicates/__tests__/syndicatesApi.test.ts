@@ -1,6 +1,6 @@
 import { apiClient } from '@/services/api';
 
-import { adminSyndicatesApi, syndicatesApi } from '../api';
+import { syndicatesApi } from '../api';
 
 const envelope = jest.spyOn(apiClient, 'requestEnvelope');
 const get = jest.spyOn(apiClient, 'get');
@@ -127,9 +127,9 @@ describe('syndicates — pin to Veterinarian Home', () => {
     expect(get).toHaveBeenCalledWith('/syndicates/pinned');
   });
 
-  it('setPinned → PUT /admin/syndicates/:id/pin { pinned }', async () => {
+  it('setPinned → PUT /syndicates/:id/pin { pinned } (per-veterinarian pin)', async () => {
     const put = jest.spyOn(apiClient, 'put').mockResolvedValueOnce({});
-    await adminSyndicatesApi.setPinned('s1', true);
-    expect(put).toHaveBeenCalledWith('/admin/syndicates/s1/pin', { pinned: true });
+    await syndicatesApi.setPinned('s1', true);
+    expect(put).toHaveBeenCalledWith('/syndicates/s1/pin', { pinned: true });
   });
 });

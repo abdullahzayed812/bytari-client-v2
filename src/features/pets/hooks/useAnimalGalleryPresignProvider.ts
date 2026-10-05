@@ -26,7 +26,10 @@ export function useAnimalGalleryPresignProvider(petId: string | undefined): Pres
       },
       finalizeUpload: async (storageKey, file) => {
         if (!petId) throw new Error('useAnimalGalleryPresignProvider: petId is required');
-        const pet = await petsApi.finalizeGalleryImage(petId, { storageKey, mimeType: file.mimeType });
+        const pet = await petsApi.finalizeGalleryImage(petId, {
+          storageKey,
+          mimeType: file.mimeType,
+        });
         qc.setQueryData(petKeys.detail(petId), pet);
         void qc.invalidateQueries({ queryKey: petKeys.lists() });
       },

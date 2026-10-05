@@ -7,7 +7,6 @@ import {
   Modal,
   PanResponder,
   Platform,
-  ScrollView,
   View,
   type LayoutChangeEvent,
   type PanResponderInstance,
@@ -18,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, IconButton } from '@/components/actions';
 import { Chip } from '@/components/content';
 import { Loading } from '@/components/feedback';
-import { Caption, Label, Text } from '@/components/typography';
+import { Text } from '@/components/typography';
 import { createLogger } from '@/lib/logger';
 import {
   computeResize,
@@ -29,7 +28,6 @@ import {
   moveCropRect,
   registerImageEditor,
   resizeCropRect,
-  RESIZE_OPTIONS,
   type CropAspect,
   type CropCorner,
   type CropRect,
@@ -72,24 +70,13 @@ function getSize(uri: string): Promise<Size> {
   );
 }
 
-/** Width/height after a 0/90/180/270° rotation. */
-function rotated(size: Size, rotation: number): Size {
-  return rotation % 180 === 0 ? size : { width: size.height, height: size.width };
-}
-
 function isWholeImage(rect: CropRect, base: Size): boolean {
   const c = cropActionOf(rect, base);
   return c.originX === 0 && c.originY === 0 && c.width === base.width && c.height === base.height;
 }
 
-function buildActions(
-  rotation: number,
-  base: Size,
-  rect: CropRect | null,
-  maxDimension: ResizeOption,
-): Action[] {
+function buildActions(base: Size, rect: CropRect | null, maxDimension: ResizeOption): Action[] {
   const actions: Action[] = [];
-  if (rotation) actions.push({ rotate: rotation });
   let out = base;
   if (rect && !isWholeImage(rect, base)) {
     const crop = cropActionOf(rect, base);
@@ -102,8 +89,10 @@ function buildActions(
 }
 
 /**
- * The app-wide image editor: free / ratio-locked manual DRAG-crop (move the
- * frame, drag its corners), rotate, resize to a longest-edge cap. Mounted
+ * The app-wide image editor — deliberately minimal: pick the image size /
+ * dimensions (crop ratio), drag the frame and its corners to crop/resize, and
+ * save. The output is always capped to a sensible longest edge
+ * (`defaultMaxDimension`, 2048 px) without any extra control. Mounted
  * ONCE at the root; every `pickImage` / `pickImages` call routes the picked
  * image through it via `registerImageEditor`, so all upload locations share
  * one implementation on iOS, Android and web (PanResponder works with touch
@@ -120,13 +109,12 @@ export function ImageEditorHost() {
   const [size, setSize] = useState<Size | null>(null);
   const [aspect, setAspect] = useState<CropAspect>('free');
   const [maxDimension, setMaxDimension] = useState<ResizeOption>(null);
-  const [rotation, setRotation] = useState(0);
   const [preview, setPreview] = useState<string | null>(null);
   const [rect, setRect] = useState<CropRect | null>(null);
   const [stage, setStage] = useState<Size | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const base = useMemo(() => (size ? rotated(size, rotation) : null), [size, rotation]);
+  const base = size;
   const ratio = base ? lockedRatio(aspect, base.width, base.height) : null;
   // source px → on-screen points, fitting the rotated image inside the stage
   const scale = base && stage ? Math.min(stage.width / base.width, stage.height / base.height) : 0;
@@ -143,7 +131,6 @@ export function ImageEditorHost() {
     const aspects = upcoming.options.aspects ?? CROP_ASPECTS;
     setAspect(upcoming.options.defaultAspect ?? aspects[0] ?? 'free');
     setMaxDimension(upcoming.options.defaultMaxDimension ?? 2048);
-    setRotation(0);
     setPreview(null);
     setRect(null);
     setSize(
@@ -177,14 +164,12 @@ export function ImageEditorHost() {
       });
   }, [job, size, next]);
 
-  // Down-scaled, rotated (uncropped) image the crop frame is drawn over.
+  // Down-scaled (uncropped) image the crop frame is drawn over.
   useEffect(() => {
     if (!job || !size) return;
     let cancelled = false;
     const actions: Action[] = [];
-    if (rotation) actions.push({ rotate: rotation });
-    const r = rotated(size, rotation);
-    const resize = computeResize(r.width, r.height, PREVIEW_MAX);
+    const resize = computeResize(size.width, size.height, PREVIEW_MAX);
     if (resize) actions.push({ resize });
     manipulateAsync(job.file.uri, actions, { compress: 0.7, format: SaveFormat.JPEG })
       .then((out) => {
@@ -197,9 +182,9 @@ export function ImageEditorHost() {
     return () => {
       cancelled = true;
     };
-  }, [job, size, rotation]);
+  }, [job, size]);
 
-  // A new image, rotation or aspect starts from that aspect's largest centred frame.
+  // A new image or aspect starts from that aspect's largest centred frame.
   useEffect(() => {
     if (base) setRect(initialCropRect(base.width, base.height, aspect));
   }, [base, aspect]);
@@ -251,7 +236,7 @@ export function ImageEditorHost() {
     if (!job || !base) return;
     setBusy(true);
     try {
-      const actions = buildActions(rotation, base, rect, maxDimension);
+      const actions = buildActions(base, rect, maxDimension);
       if (actions.length === 0) {
         finish(job.file);
         return;
@@ -291,17 +276,6 @@ export function ImageEditorHost() {
 
   if (!job) return null;
   const aspects = job.options.aspects ?? CROP_ASPECTS;
-  const crop = base && rect ? cropActionOf(rect, base) : null;
-  const result = crop
-    ? (() => {
-        const r = computeResize(crop.width, crop.height, maxDimension);
-        if (!r) return crop;
-        return 'width' in r
-          ? { width: r.width, height: Math.round((crop.height * r.width) / crop.width) }
-          : { width: Math.round((crop.width * r.height) / crop.height), height: r.height };
-      })()
-    : null;
-
   const dispW = base ? base.width * scale : 0;
   const dispH = base ? base.height * scale : 0;
   const box = rect
@@ -340,20 +314,13 @@ export function ImageEditorHost() {
                 })
               : t('media.editor.title')}
           </Text>
-          <View style={{ flexDirection: 'row', columnGap: theme.spacing.xs }}>
-            <IconButton
-              icon="scan-outline"
-              variant="soft"
-              accessibilityLabel={t('media.editor.reset')}
-              onPress={() => base && setRect(initialCropRect(base.width, base.height, aspect))}
-            />
-            <IconButton
-              icon="refresh-outline"
-              variant="soft"
-              accessibilityLabel={t('media.editor.rotate')}
-              onPress={() => setRotation((r) => (r + 90) % 360)}
-            />
-          </View>
+          <IconButton
+            icon="close"
+            variant="soft"
+            accessibilityLabel={t('media.editor.cancel')}
+            disabled={busy}
+            onPress={() => finish(null)}
+          />
         </View>
 
         <View
@@ -506,93 +473,44 @@ export function ImageEditorHost() {
           )}
         </View>
 
-        <ScrollView
-          style={{ flexGrow: 0 }}
-          contentContainerStyle={{
-            paddingHorizontal: theme.screenPadding,
-            rowGap: theme.spacing.sm,
-          }}
-        >
-          <Caption color="textSecondary">{t('media.editor.dragHint')}</Caption>
-          {aspects.length > 1 ? (
-            <>
-              <Label>{t('media.editor.aspect')}</Label>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-                {aspects.map((a) => (
-                  <Chip
-                    key={a}
-                    label={
-                      a === 'original'
-                        ? t('media.editor.original')
-                        : a === 'free'
-                          ? t('media.editor.free')
-                          : a
-                    }
-                    selected={aspect === a}
-                    onPress={() => setAspect(a)}
-                  />
-                ))}
-              </View>
-            </>
-          ) : null}
-
-          <Label>{t('media.editor.size')}</Label>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-            {RESIZE_OPTIONS.map((m) => (
+        {/* image size / dimensions */}
+        {aspects.length > 1 ? (
+          <View
+            accessibilityLabel={t('media.editor.size')}
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: theme.spacing.xs,
+              paddingHorizontal: theme.screenPadding,
+            }}
+          >
+            {aspects.map((a) => (
               <Chip
-                key={String(m)}
-                label={m ? t('media.editor.maxPx', { px: m }) : t('media.editor.original')}
-                selected={maxDimension === m}
-                onPress={() => setMaxDimension(m)}
+                key={a}
+                label={
+                  a === 'original'
+                    ? t('media.editor.original')
+                    : a === 'free'
+                      ? t('media.editor.free')
+                      : a
+                }
+                selected={aspect === a}
+                onPress={() => setAspect(a)}
               />
             ))}
           </View>
-          {result ? (
-            <Caption>
-              {t('media.editor.resultSize', { width: result.width, height: result.height })}
-            </Caption>
-          ) : null}
-        </ScrollView>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            columnGap: theme.spacing.sm,
-            paddingHorizontal: theme.screenPadding,
-            paddingTop: theme.spacing.md,
-          }}
-        >
-          <View style={{ flex: 2 }}>
-            <Button
-              label={t('media.editor.apply')}
-              fullWidth
-              loading={busy}
-              disabled={busy || !base || !rect}
-              onPress={() => void apply()}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button
-              label={t('media.editor.cancel')}
-              variant="ghost"
-              fullWidth
-              disabled={busy}
-              onPress={() => finish(null)}
-            />
-          </View>
-        </View>
-        {job.options.total > 1 && job.options.index + 1 < job.options.total ? (
-          <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.xs }}>
-            <Button
-              label={t('media.editor.keepRest')}
-              variant="ghost"
-              size="sm"
-              fullWidth
-              disabled={busy}
-              onPress={() => finish('keep-rest')}
-            />
-          </View>
         ) : null}
+
+        <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.md }}>
+          <Button
+            label={t('media.editor.save')}
+            fullWidth
+            loading={busy}
+            disabled={busy || !base || !rect}
+            onPress={() => void apply()}
+          />
+        </View>
       </View>
     </Modal>
   );

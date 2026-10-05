@@ -29,11 +29,7 @@ export function TermsAcceptField({ termsKey, accepted, onChange }: TermsAcceptFi
     <View style={{ rowGap: theme.spacing.xs }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
         <View style={{ flex: 1 }}>
-          <Checkbox
-            label="أوافق على الشروط والأحكام"
-            checked={accepted}
-            onChange={onChange}
-          />
+          <Checkbox label="أوافق على الشروط والأحكام" checked={accepted} onChange={onChange} />
         </View>
         <TextButton label="عرض الشروط" onPress={() => setOpen(true)} />
       </View>
@@ -48,9 +44,16 @@ export function TermsAcceptField({ termsKey, accepted, onChange }: TermsAcceptFi
           {doc.clauses.map((clause, i) => (
             <View
               key={i}
-              style={{ flexDirection: 'row', columnGap: theme.spacing.sm, alignItems: 'flex-start' }}
+              style={{
+                flexDirection: 'row',
+                columnGap: theme.spacing.sm,
+                alignItems: 'flex-start',
+              }}
             >
-              <Text variant="label" style={{ minWidth: 22, textAlign: 'left', color: theme.colors.serviceAccent }}>
+              <Text
+                variant="label"
+                style={{ minWidth: 22, textAlign: 'left', color: theme.colors.serviceAccent }}
+              >
                 {i + 1}.
               </Text>
               <Text style={{ flex: 1 }}>{clause}</Text>

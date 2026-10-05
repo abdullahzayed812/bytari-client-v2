@@ -64,10 +64,20 @@ export default function SyndicateAnnouncementsScreen() {
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
           ListEmptyComponent={
-            <EmptyState icon="megaphone-outline" title={t('announcements.empty')} message={t('announcements.emptyHint')} />
+            <EmptyState
+              icon="megaphone-outline"
+              title={t('announcements.empty')}
+              message={t('announcements.emptyHint')}
+            />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('announcements.loadingMore')} /> : null}
-          contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge, flexGrow: 1 }}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('announcements.loadingMore')} /> : null
+          }
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            paddingBottom: theme.spacing.huge,
+            flexGrow: 1,
+          }}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();

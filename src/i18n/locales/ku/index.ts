@@ -21,6 +21,7 @@ import petOwnerStore from './petOwnerStore';
 import pets from './pets';
 import poultry from './poultry';
 import poultryMarket from './poultryMarket';
+import profile from './profile';
 import publications from './publications';
 import registration from './registration';
 import settings from './settings';
@@ -61,6 +62,7 @@ export const ku: DeepPartial<TranslationResources> = {
   news,
   contact,
   settings,
+  profile,
   users,
   showcase,
   registration,

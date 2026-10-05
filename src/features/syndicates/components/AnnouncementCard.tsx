@@ -22,7 +22,12 @@ export interface AnnouncementCardProps {
 }
 
 /** An announcement card, matching both the home-screen carousel and "الإعلانات والتبليغات" list. */
-export function AnnouncementCard({ announcement, onPress, onImagePress, width }: AnnouncementCardProps) {
+export function AnnouncementCard({
+  announcement,
+  onPress,
+  onImagePress,
+  width,
+}: AnnouncementCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
 
@@ -50,17 +55,27 @@ export function AnnouncementCard({ announcement, onPress, onImagePress, width }:
         style={{ height: 140, backgroundColor: theme.colors.surfaceAccent }}
       >
         {announcement.imageUrl ? (
-          <Image source={{ uri: announcement.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+          <Image
+            source={{ uri: announcement.imageUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+          />
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Icon
-              name={announcement.type === 'IMPORTANT_NOTICE' ? 'alert-circle-outline' : 'megaphone-outline'}
+              name={
+                announcement.type === 'IMPORTANT_NOTICE'
+                  ? 'alert-circle-outline'
+                  : 'megaphone-outline'
+              }
               size="iconXl"
               color={announcement.type === 'IMPORTANT_NOTICE' ? 'danger' : 'success'}
             />
           </View>
         )}
-        <View style={{ position: 'absolute', top: theme.spacing.sm, insetInlineEnd: theme.spacing.sm }}>
+        <View
+          style={{ position: 'absolute', top: theme.spacing.sm, insetInlineEnd: theme.spacing.sm }}
+        >
           <SyndicateAnnouncementTypeBadge type={announcement.type} />
         </View>
       </Pressable>
@@ -85,7 +100,12 @@ export function AnnouncementCard({ announcement, onPress, onImagePress, width }:
             <Icon name="calendar-outline" size="iconXs" color="textMuted" />
             <Caption color="textMuted">{formatDate(announcement.publishedAt)}</Caption>
           </View>
-          <Button label={t('announcements.viewDetails')} variant="primary" size="sm" onPress={onPress} />
+          <Button
+            label={t('announcements.viewDetails')}
+            variant="primary"
+            size="sm"
+            onPress={onPress}
+          />
         </View>
       </View>
     </Pressable>

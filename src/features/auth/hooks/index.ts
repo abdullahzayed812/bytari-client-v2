@@ -8,5 +8,6 @@ export {
   useResetPasswordMutation,
   useLogoutMutation,
   useLogoutAllMutation,
+  useChangePasswordMutation,
 } from './useAuthMutations';
 export { useVeterinarianStatus, type VeterinarianStatusInfo } from './useVeterinarianStatus';

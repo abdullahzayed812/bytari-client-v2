@@ -74,6 +74,10 @@ export interface User {
   governorate?: string | null;
   /** Optional veterinarian specialization ("التخصص"). */
   specialization?: string | null;
+  /** Self-written "نبذة عني" — absent on older payloads. */
+  bio?: string | null;
+  /** WhatsApp contact number — absent on older payloads. */
+  whatsapp?: string | null;
   gender?: Gender | null;
   /** Resolved avatar URL (never the storage key). */
   avatarUrl?: string | null;
@@ -166,6 +170,22 @@ export interface ResetPasswordInput {
 export interface ResetPasswordResult {
   success: boolean;
   revokedSessions: number;
+}
+
+/** `POST /auth/change-password` body — the user's OWN password. */
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/**
+ * `POST /auth/change-password` (200). Every other session is revoked
+ * server-side; `tokens` is the fresh pair that keeps THIS device signed in.
+ */
+export interface ChangePasswordResult {
+  success: boolean;
+  revokedSessions: number;
+  tokens: AuthTokens;
 }
 
 /** `POST /auth/refresh` (200) — **tokens only, no user**. */

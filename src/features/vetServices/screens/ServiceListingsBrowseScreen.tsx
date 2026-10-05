@@ -4,19 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useAuth, useCapabilities, useDebouncedValue } from '@/hooks';
-import { apiErrorMessage } from '@/lib/apiError';
+import { useCapabilities, useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { ServiceFiltersBar, ServiceListingCard } from '../components';
 import { IRAQ_GOVERNORATES } from '../constants';
-import { useServiceListings, useStartListingConversation } from '../hooks';
+import { useServiceListings } from '../hooks';
 import { VET_SERVICE_ANIMAL_TYPES, VET_SERVICE_TYPES, type ListingBrowseFilter } from '../types';
 
 /** Route `/(app)/vet-services/listings` — "خدمات الأطباء" (reference screenshot 2A). */
@@ -24,22 +23,6 @@ export default function ServiceListingsBrowseScreen() {
   const theme = useTheme();
   const { t } = useTranslation('vetServices');
   const caps = useCapabilities();
-  const toast = useToast();
-  const { user } = useAuth();
-  const startChat = useStartListingConversation();
-  const [contactingId, setContactingId] = useState<string | null>(null);
-
-  // Every signed-in user (pet owners AND other vets) may request / contact a
-  // provider — the backend only refuses the provider's own listing.
-  const contact = (listingId: string) => {
-    setContactingId(listingId);
-    startChat.mutate(listingId, {
-      onSuccess: ({ conversationId }) => router.push(Routes.vetServiceDeal(conversationId)),
-      onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
-      onSettled: () => setContactingId(null),
-    });
-  };
-
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
   const [f, setF] = useState<Record<string, string | undefined>>({});
@@ -119,27 +102,15 @@ export default function ServiceListingsBrowseScreen() {
           numColumns={2}
           keyExtractor={(l) => l.id}
           columnWrapperStyle={{ gap: theme.spacing.md }}
-          renderItem={({ item }) => {
-            const own = item.veterinarian.id === user?.id;
-            return (
-              <View style={{ flex: 1 }}>
-                <ServiceListingCard
-                  listing={item}
-                  onPress={() => router.push(Routes.vetServiceListing(item.id))}
-                  onPrimary={() =>
-                    router.push(
-                      own
-                        ? Routes.vetServiceListing(item.id)
-                        : Routes.vetServiceListingRequest(item.id),
-                    )
-                  }
-                  primaryLabel={own ? t('actions.viewService') : t('actions.requestService')}
-                  onContact={own ? undefined : () => contact(item.id)}
-                  contactLoading={contactingId === item.id}
-                />
-              </View>
-            );
-          }}
+          // Request / contact live on the Service Details page only.
+          renderItem={({ item }) => (
+            <View style={{ flex: 1 }}>
+              <ServiceListingCard
+                listing={item}
+                onPress={() => router.push(Routes.vetServiceListing(item.id))}
+              />
+            </View>
+          )}
           ListEmptyComponent={
             <EmptyState
               icon="medkit-outline"

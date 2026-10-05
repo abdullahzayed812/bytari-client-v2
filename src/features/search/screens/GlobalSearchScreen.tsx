@@ -61,12 +61,14 @@ export function searchHitHref(hit: SearchHit): Href {
   }
 }
 
-/** Route `/(app)/search` — the Home header global search. */
+/** Route `/(app)/search` — the Home header global search, scoped to the active interface. */
 export default function GlobalSearchScreen() {
   const theme = useTheme();
   const { t } = useTranslation('home');
   const [text, setText] = useState('');
   const q = useGlobalSearch(text);
+  const placeholder =
+    q.scope === 'VETERINARIAN' ? t('search.placeholderVet') : t('search.placeholder');
 
   const sections = (q.data?.groups ?? []).map((g) => ({
     type: g.type,
@@ -127,8 +129,8 @@ export default function GlobalSearchScreen() {
           value={text}
           onChangeText={setText}
           onClear={() => setText('')}
-          placeholder={t('search.placeholder')}
-          accessibilityLabel={t('search.placeholder')}
+          placeholder={placeholder}
+          accessibilityLabel={placeholder}
           autoFocus
           returnKeyType="search"
           maxLength={120}

@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 
 import { useTheme } from '@/theme';
 
-/** Settings stack: menu → About. */
+/** Settings stack: menu → About / Privacy & security / Change password. */
 export default function SettingsLayout() {
   const theme = useTheme();
   return (

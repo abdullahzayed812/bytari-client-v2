@@ -77,6 +77,8 @@ const nav: KuNamespace<'nav'> = {
       chatsHint: 'پەیوەندی لەگەڵ پزیشکان و هاوکاران',
       contact: 'پەیوەندیمان پێوە بکە',
       contactHint: 'پەیوەندی و پشتگیریی تەکنیکی',
+      settings: 'ڕێکخستنەکان',
+      settingsHint: 'ڕێکخستنەکانی هەژمار و ئەپ',
     },
   },
 

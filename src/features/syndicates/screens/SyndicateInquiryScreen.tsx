@@ -71,7 +71,10 @@ export default function SyndicateInquiryScreen() {
       },
       {
         onSuccess: () => {
-          toast.show({ message: isRequest ? t('request.success') : t('inquiry.success'), tone: 'success' });
+          toast.show({
+            message: isRequest ? t('request.success') : t('inquiry.success'),
+            tone: 'success',
+          });
           // Land on "طلباتي واستفساراتي" so the submission (and, later, the
           // syndicate's reply) is immediately easy to find.
           router.replace(Routes.syndicateMy);
@@ -97,12 +100,16 @@ export default function SyndicateInquiryScreen() {
           control={control}
           name="message"
           label={isRequest ? t('request.messageLabel') : t('inquiry.messageLabel')}
-          placeholder={isRequest ? t('request.messagePlaceholder') : t('inquiry.messagePlaceholder')}
+          placeholder={
+            isRequest ? t('request.messagePlaceholder') : t('inquiry.messagePlaceholder')
+          }
           multiline
           numberOfLines={5}
         />
         {!isRequest ? (
-          <Caption color="textMuted">{t('inquiry.messageCounter', { count: messageLength })}</Caption>
+          <Caption color="textMuted">
+            {t('inquiry.messageCounter', { count: messageLength })}
+          </Caption>
         ) : null}
 
         {!isRequest ? (
@@ -131,7 +138,9 @@ export default function SyndicateInquiryScreen() {
           </View>
         ) : null}
 
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.sm }}>
+        <View
+          style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.sm }}
+        >
           <Icon name="shield-checkmark-outline" size="iconSm" color="textMuted" />
           <Caption color="textSecondary" style={{ flex: 1 }}>
             {t('inquiry.privacyNote')}
@@ -143,7 +152,13 @@ export default function SyndicateInquiryScreen() {
 
       <View style={{ padding: theme.screenPadding }}>
         <Button
-          label={submit.isPending ? t('inquiry.submitting') : isRequest ? t('request.submit') : t('inquiry.submit')}
+          label={
+            submit.isPending
+              ? t('inquiry.submitting')
+              : isRequest
+                ? t('request.submit')
+                : t('inquiry.submit')
+          }
           fullWidth
           loading={submit.isPending}
           disabled={submit.isPending}

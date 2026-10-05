@@ -39,7 +39,6 @@ export const Permission = {
   ORGANIZATION_ADMIN_MANAGE: 'organization.admin.manage',
   // syndicates
   SYNDICATE_ADMIN_CREATE: 'syndicate.admin.create',
-  SYNDICATE_ADMIN_PIN: 'syndicate.admin.pin',
   SYNDICATE_ANNOUNCEMENT_MANAGE: 'syndicate.announcement.manage',
   // Global Chat rooms
   CHAT_ROOM_ADMIN_CREATE: 'chat_room.admin.create',

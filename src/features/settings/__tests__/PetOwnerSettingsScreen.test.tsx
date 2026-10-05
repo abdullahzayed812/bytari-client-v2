@@ -36,11 +36,12 @@ describe('PetOwnerSettingsScreen — "الإعدادات"', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/settings/about');
   });
 
-  it('unbuilt rows show a "coming soon" toast and do not navigate', () => {
+  it('privacy & security and change password open their real screens', () => {
     renderWithProviders(<PetOwnerSettingsScreen />);
     fireEvent.press(screen.getByText('الخصوصية والأمان'));
-    expect(screen.getByText('هذا القسم غير متاح حالياً.')).toBeTruthy();
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/settings/privacy');
     fireEvent.press(screen.getByText('تغيير كلمة المرور'));
-    expect(routerMock.push).not.toHaveBeenCalled();
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/settings/change-password');
+    expect(screen.queryByText('هذا القسم غير متاح حالياً.')).toBeNull();
   });
 });

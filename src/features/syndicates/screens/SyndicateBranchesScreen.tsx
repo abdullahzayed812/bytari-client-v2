@@ -52,13 +52,22 @@ export default function SyndicateBranchesScreen() {
           columnWrapperStyle={{ gap: theme.spacing.md }}
           renderItem={({ item }) => (
             <View style={{ flex: 1 }}>
-              <SyndicateBranchCard branch={item} onPress={() => router.push(Routes.syndicateMain(item.id))} />
+              <SyndicateBranchCard
+                branch={item}
+                onPress={() => router.push(Routes.syndicateMain(item.id))}
+              />
             </View>
           )}
           ListEmptyComponent={
-            <EmptyState icon="business-outline" title={t('branches.empty')} message={t('branches.emptyHint')} />
+            <EmptyState
+              icon="business-outline"
+              title={t('branches.empty')}
+              message={t('branches.emptyHint')}
+            />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('branches.loadingMore')} /> : null}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('branches.loadingMore')} /> : null
+          }
           contentContainerStyle={{
             padding: theme.screenPadding,
             paddingBottom: theme.spacing.huge,

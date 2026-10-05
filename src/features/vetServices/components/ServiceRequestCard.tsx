@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
@@ -18,19 +18,27 @@ export function ServiceRequestCard({
   onPrimary,
   primaryLabel,
   showStatus,
+  rectangular,
 }: {
   request: ServiceRequest;
   onPress: () => void;
   onPrimary?: () => void;
   primaryLabel?: string;
   showStatus?: boolean;
+  /** Grid tile look: tighter corners, fills its grid cell's height. */
+  rectangular?: boolean;
 }) {
   const theme = useTheme();
   const { t, i18n } = useTranslation('vetServices');
   const img = request.imageUrls[0] ?? null;
 
   return (
-    <Card variant="elevated" padding="none" onPress={onPress} style={{ overflow: 'hidden' }}>
+    <Card
+      variant="elevated"
+      padding="none"
+      onPress={onPress}
+      style={[{ overflow: 'hidden' }, rectangular && { borderRadius: theme.radius.md, flex: 1 }]}
+    >
       <View style={{ height: 110, backgroundColor: theme.colors.requestSurface }}>
         {img ? (
           <Image
@@ -59,7 +67,7 @@ export function ServiceRequestCard({
         </View>
       </View>
 
-      <View style={{ padding: theme.spacing.md, rowGap: 4 }}>
+      <View style={[{ padding: theme.spacing.md, rowGap: 4 }, rectangular && { flex: 1 }]}>
         <Text variant="bodyStrong" numberOfLines={1}>
           {request.title}
         </Text>
@@ -75,7 +83,15 @@ export function ServiceRequestCard({
             .filter(Boolean)
             .join(' · ')}
         </Row>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            columnGap: 4,
+            marginTop: 2,
+          }}
+        >
           <Text variant="bodyStrong" style={{ color: theme.colors.requestAccent }}>
             {formatPrice(request.budgetAmount)}
           </Text>
@@ -84,7 +100,12 @@ export function ServiceRequestCard({
           </Caption>
         </View>
         {onPrimary ? (
-          <View style={{ marginTop: theme.spacing.xs }}>
+          <View
+            style={{
+              marginTop: rectangular ? 'auto' : theme.spacing.xs,
+              paddingTop: theme.spacing.xs,
+            }}
+          >
             <Button
               label={primaryLabel ?? t('actions.submitOffer')}
               variant="primary"

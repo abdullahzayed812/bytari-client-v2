@@ -28,6 +28,10 @@ export default {
     count: '{{count}} حيوان',
     loadMore: 'تحميل المزيد',
     loadingMore: 'جارٍ التحميل…',
+    farmsTitle: 'المزارع والحقول',
+    farmsSubtitle: 'المزارع والحقول المرتبطة بحسابك',
+    farmsEmpty: 'لا توجد مزارع أو حقول مرتبطة بحسابك',
+    farmsError: 'تعذّر تحميل المزارع.',
   },
   card: {
     unknownBreed: 'سلالة غير محددة',

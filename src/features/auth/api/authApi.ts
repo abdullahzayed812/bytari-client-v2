@@ -2,6 +2,8 @@ import { apiClient } from '@/services/api';
 
 import type {
   AuthResult,
+  ChangePasswordInput,
+  ChangePasswordResult,
   LoginInput,
   LogoutAllResult,
   LogoutResult,
@@ -107,6 +109,15 @@ export const authApi = {
   /** `POST /auth/logout` (bearer) → `{ success }`. Revokes the current session. */
   logout(refreshToken?: string): Promise<LogoutResult> {
     return apiClient.post<LogoutResult>('/auth/logout', refreshToken ? { refreshToken } : {});
+  },
+
+  /**
+   * `POST /auth/change-password` (bearer) → `{ success, revokedSessions, tokens }`.
+   * Errors: 400 `INVALID_CURRENT_PASSWORD` / `PASSWORD_UNCHANGED` (never 401),
+   * 422 (new password policy), 429.
+   */
+  changePassword(input: ChangePasswordInput): Promise<ChangePasswordResult> {
+    return apiClient.post<ChangePasswordResult>('/auth/change-password', input);
   },
 
   /** `POST /auth/logout-all` (bearer) → `{ success, revokedSessions }`. */

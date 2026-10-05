@@ -4,9 +4,7 @@ import { petKeys, petsApi } from '../api';
 import type { CreatePetInput, Pet, UpdatePetInput } from '../types';
 
 /** Remove one gallery photo by storage key. Mirrors `useRemoveOrganizationGalleryImage`. */
-export function useRemovePetGalleryImage(
-  petId: string,
-): UseMutationResult<Pet, unknown, string> {
+export function useRemovePetGalleryImage(petId: string): UseMutationResult<Pet, unknown, string> {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ['pets', 'gallery', 'remove', petId],

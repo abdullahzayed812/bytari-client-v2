@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, useWindowDimensions, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Avatar, Card } from '@/components/content';
@@ -25,6 +25,11 @@ import type { ListingRequest } from '../types';
 
 type Tab = 'sent' | 'posted';
 
+/** Two cards per row from this content width up; a single column on very narrow phones. */
+const TWO_COLUMN_MIN_WIDTH = 340;
+/** On wide (web/tablet) screens the grid is capped so the two cards stay card-sized. */
+const MAX_GRID_WIDTH = 960;
+
 /**
  * Route `/(app)/vet-services/my-requests` — the PET OWNER's "طلباتي":
  *  - "طلباتي للأطباء": requests sent to a vet's service listing — the vet,
@@ -32,13 +37,17 @@ type Tab = 'sent' | 'posted';
  *  - "طلباتي المنشورة": service requests the owner published — each shows how
  *    many vets responded; opening one lists the vets' offers, each with chat.
  * Everything rides the existing marketplace endpoints + PET_OWNER_VETERINARIAN
- * chat; the backend scopes every list to the caller.
+ * chat; the backend scopes every list to the caller. Both tabs are a grid of
+ * rectangular cards — two per row (one on very narrow phones), capped in width
+ * on large web screens.
  */
 export default function MyServiceRequestsScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation('vetServices');
   const toast = useToast();
   const [tab, setTab] = useState<Tab>('sent');
+  const { width } = useWindowDimensions();
+  const columns = width >= TWO_COLUMN_MIN_WIDTH ? 2 : 1;
 
   const sentQ = useMyListingRequests(undefined, { enabled: tab === 'sent' });
   const postedQ = useMyServiceRequests(undefined, { enabled: tab === 'posted' });
@@ -58,67 +67,60 @@ export default function MyServiceRequestsScreen() {
     );
   };
 
+  // Rectangular grid tile: status, the service + vet, number/date, and the chat
+  // action; tapping the tile opens the request details.
   const renderSent = ({ item: lr }: { item: ListingRequest }) => {
     const vet = lr.listing?.veterinarian;
     const vetName = vet ? `${vet.firstName} ${vet.lastName}` : '';
     return (
-      <Card
-        variant="elevated"
-        padding="md"
-        onPress={() => router.push(Routes.vetServiceEngagement('listing-request', lr.id))}
-      >
-        <View
-          style={{ flexDirection: 'row', columnGap: theme.spacing.md, alignItems: 'flex-start' }}
+      <View style={{ flex: 1 / columns }}>
+        <Card
+          variant="elevated"
+          padding="md"
+          accessibilityLabel={lr.listing?.title ?? lr.requestNumber}
+          onPress={() => router.push(Routes.vetServiceEngagement('listing-request', lr.id))}
+          style={{ flex: 1, borderRadius: theme.radius.md, minHeight: 190 }}
         >
-          <Avatar name={vetName || lr.requestNumber} size="avatarMd" />
-          <View style={{ flex: 1, rowGap: 2 }}>
+          <View style={{ flex: 1, rowGap: theme.spacing.xs }}>
             <View
               style={{
                 flexDirection: 'row',
-                justifyContent: 'space-between',
                 alignItems: 'center',
+                justifyContent: 'space-between',
+                columnGap: theme.spacing.xs,
               }}
             >
-              <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
-                {lr.listing?.title ?? lr.requestNumber}
-              </Text>
+              <Avatar name={vetName || lr.requestNumber} size="avatarSm" />
               <EngagementStatusBadge status={lr.status} />
             </View>
+            <Text variant="bodyStrong" numberOfLines={2}>
+              {lr.listing?.title ?? lr.requestNumber}
+            </Text>
             {vetName ? (
               <Caption color="textSecondary" numberOfLines={1}>
                 {t('common.doctorPrefix', { name: vetName })}
               </Caption>
             ) : null}
-            <Caption color="textMuted">
-              {`${lr.requestNumber} · ${formatVetServiceDate(lr.createdAt, i18n.language)}`}
+            <Caption color="textMuted" numberOfLines={1}>
+              {lr.requestNumber}
             </Caption>
+            <Caption color="textMuted" numberOfLines={1}>
+              {formatVetServiceDate(lr.createdAt, i18n.language)}
+            </Caption>
+            <View style={{ marginTop: 'auto', paddingTop: theme.spacing.xs }}>
+              <Button
+                label={t('myRequests.chatVet')}
+                size="sm"
+                variant="primary"
+                fullWidth
+                leftIcon="chatbubbles-outline"
+                loading={startChat.isPending && startChat.variables?.id === lr.id}
+                onPress={() => chatWith(lr)}
+              />
+            </View>
           </View>
-        </View>
-        <View
-          style={{ flexDirection: 'row', columnGap: theme.spacing.sm, marginTop: theme.spacing.md }}
-        >
-          <View style={{ flex: 1 }}>
-            <Button
-              label={t('myRequests.chatVet')}
-              size="sm"
-              variant="primary"
-              fullWidth
-              leftIcon="chatbubbles-outline"
-              loading={startChat.isPending && startChat.variables?.id === lr.id}
-              onPress={() => chatWith(lr)}
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button
-              label={t('myRequests.details')}
-              size="sm"
-              variant="outline"
-              fullWidth
-              onPress={() => router.push(Routes.vetServiceEngagement('listing-request', lr.id))}
-            />
-          </View>
-        </View>
-      </Card>
+        </Card>
+      </View>
     );
   };
 
@@ -135,7 +137,16 @@ export default function MyServiceRequestsScreen() {
     padding: theme.screenPadding,
     paddingBottom: theme.spacing.huge,
     flexGrow: 1,
+    width: '100%',
+    maxWidth: MAX_GRID_WIDTH,
+    alignSelf: 'center',
   } as const;
+  const grid = {
+    numColumns: columns,
+    // FlatList cannot change `numColumns` on the fly — remount on a breakpoint flip.
+    key: `${tab}-${columns}`,
+    columnWrapperStyle: columns > 1 ? { columnGap: theme.spacing.md } : undefined,
+  };
   const separator = () => <View style={{ height: theme.spacing.md }} />;
 
   return (
@@ -160,6 +171,7 @@ export default function MyServiceRequestsScreen() {
         </View>
       ) : tab === 'sent' ? (
         <FlatList
+          {...grid}
           data={sentQ.listingRequests}
           keyExtractor={(i) => i.id}
           renderItem={renderSent}
@@ -181,16 +193,20 @@ export default function MyServiceRequestsScreen() {
         />
       ) : (
         <FlatList
+          {...grid}
           data={postedQ.requests}
           keyExtractor={(i) => i.id}
           renderItem={({ item }) => (
-            <ServiceRequestCard
-              request={item}
-              showStatus
-              onPress={() => router.push(Routes.vetServiceRequest(item.id))}
-              primaryLabel={t('myRequests.viewResponses', { count: item.offerCount ?? 0 })}
-              onPrimary={() => router.push(Routes.vetServiceRequest(item.id))}
-            />
+            <View style={{ flex: 1 / columns }}>
+              <ServiceRequestCard
+                request={item}
+                showStatus
+                rectangular
+                onPress={() => router.push(Routes.vetServiceRequest(item.id))}
+                primaryLabel={t('myRequests.viewResponses', { count: item.offerCount ?? 0 })}
+                onPrimary={() => router.push(Routes.vetServiceRequest(item.id))}
+              />
+            </View>
           )}
           ItemSeparatorComponent={separator}
           ListEmptyComponent={

@@ -9,6 +9,7 @@ import type {
   AuthResult,
   AuthStatus,
   AuthTokens,
+  ChangePasswordInput,
   LoginInput,
   RegisterInput,
   ResendVerificationResult,
@@ -51,6 +52,8 @@ interface AuthState {
   resendVerification: (email: string) => Promise<ResendVerificationResult>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
+  /** Change the own password; stores the fresh token pair the server returns (other devices are signed out). */
+  changePassword: (input: ChangePasswordInput) => Promise<void>;
   /** Re-pull `/auth/me` (after vet approval, role change, resume). */
   /** Re-pulls `/auth/me`. Resolves `true` only when the backend answered with a fresh session. */
   refreshSession: () => Promise<boolean>;
@@ -219,6 +222,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
         log.warn('logout-all failed — clearing locally anyway', { reason: describe(error) });
       }
       await teardown();
+    },
+
+    changePassword: async (input) => {
+      const { tokens } = await authApi.changePassword(input);
+      await tokenStorage.saveTokens(tokens);
+      set({ tokens });
     },
 
     // Also re-evaluates the onboarding gate: a `pending-approval` session flips

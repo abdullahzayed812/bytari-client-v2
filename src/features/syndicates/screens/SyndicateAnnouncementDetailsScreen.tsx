@@ -42,7 +42,11 @@ export default function SyndicateAnnouncementDetailsScreen() {
                 onPress={() => setViewerOpen(true)}
                 style={{ width: '100%', height: '100%' }}
               >
-                <Image source={{ uri: announcement.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                <Image
+                  source={{ uri: announcement.imageUrl }}
+                  style={{ width: '100%', height: '100%' }}
+                  contentFit="cover"
+                />
               </Pressable>
             ) : (
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -53,11 +57,15 @@ export default function SyndicateAnnouncementDetailsScreen() {
           <View style={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}>
             <SyndicateAnnouncementTypeBadge type={announcement.type} />
             <Heading level={3}>{announcement.title}</Heading>
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
+            >
               <Icon name="business-outline" size="iconSm" color="textMuted" />
               <Caption>{announcement.syndicateName}</Caption>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
+            >
               <Icon name="calendar-outline" size="iconSm" color="textMuted" />
               <Caption>{formatDate(announcement.publishedAt)}</Caption>
             </View>

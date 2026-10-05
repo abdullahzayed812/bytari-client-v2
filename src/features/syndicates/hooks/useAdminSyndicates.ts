@@ -26,12 +26,11 @@ export function useDeleteSyndicate() {
   });
 }
 
-/** `PUT /admin/syndicates/:id/pin` — pin / unpin on the Veterinarian Home. */
+/** `PUT /syndicates/:id/pin` — pin / unpin on the caller's OWN Veterinarian Home. */
 export function useSetSyndicatePinned() {
   const qc = useQueryClient();
   return useMutation<PublicSyndicate, ApiError, { organizationId: string; pinned: boolean }>({
-    mutationFn: ({ organizationId, pinned }) =>
-      adminSyndicatesApi.setPinned(organizationId, pinned),
+    mutationFn: ({ organizationId, pinned }) => syndicatesApi.setPinned(organizationId, pinned),
     onSuccess: (s) => {
       qc.setQueryData(syndicateKeys.syndicate(s.id), (cur: PublicSyndicate | undefined) =>
         cur ? { ...cur, pinnedToHome: s.pinnedToHome } : s,
@@ -41,7 +40,7 @@ export function useSetSyndicatePinned() {
   });
 }
 
-/** Syndicates pinned to the Veterinarian Home (bottom section). */
+/** The caller's syndicates pinned to their Veterinarian Home (bottom section). */
 export function usePinnedSyndicates(options: { enabled?: boolean } = {}) {
   return useQuery<PublicSyndicate[], ApiError>({
     queryKey: syndicateKeys.pinned(),
