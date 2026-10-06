@@ -75,6 +75,10 @@ export const adminVetJobsApi = {
   rejectSeeker(id: string, reason: string): Promise<VetJobSeekerProfile> {
     return apiClient.post<VetJobSeekerProfile>(`/admin/vet-job-seekers/${id}/reject`, { reason });
   },
+  /** `vet_job.delete` — "حذف ملف الباحث عن عمل", any status. */
+  async deleteSeeker(id: string): Promise<void> {
+    await apiClient.delete(`/admin/vet-job-seekers/${id}`);
+  },
 
   /** `GET /admin/vet-job-applications?jobOfferId=` — one offer's applicants (read-only, `vet_job.read`). */
   async listApplications(

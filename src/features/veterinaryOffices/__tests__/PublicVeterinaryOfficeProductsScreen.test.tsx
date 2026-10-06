@@ -65,7 +65,7 @@ describe('PublicVeterinaryOfficeProductsScreen', () => {
   it('sends the search term to the backend (server-side, no local filtering)', async () => {
     renderWithProviders(<PublicVeterinaryOfficeProductsScreen />);
     fireEvent.changeText(
-      screen.getByPlaceholderText('ابحث باسم المنتج أو العلامة التجارية...'),
+      screen.getByPlaceholderText('ابحث بالاسم أو العلامة التجارية أو بلد المنشأ...'),
       'أنتي',
     );
     await waitFor(

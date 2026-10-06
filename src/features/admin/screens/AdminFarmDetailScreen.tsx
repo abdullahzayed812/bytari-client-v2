@@ -43,13 +43,19 @@ function renewalTone(s: RenewalRequestStatus): 'success' | 'warning' | 'danger' 
   return 'warning';
 }
 
-type OrgPending = 'approve' | 'reject' | OrgStatusAction | null;
+type OrgPending = 'approve' | 'reject' | 'delete' | OrgStatusAction | null;
 
-/** `/admin/farms/[organizationId]` — approval + subscription + renewal review for one farm. */
+/**
+ * `/admin/farms/[organizationId]` — the complete farm file (registration
+ * profile, owner, current activity) + approval, subscription, renewal review
+ * and "حذف المزرعة" for poultry, sheep and cattle farms alike.
+ */
 export default function AdminFarmDetailScreen() {
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
   const { t } = useTranslation('admin');
+  const { t: tp } = useTranslation('poultry');
+  const { t: tl } = useTranslation('sheepCattleFarm');
   const theme = useTheme();
   const toast = useToast();
 
@@ -101,12 +107,33 @@ export default function AdminFarmDetailScreen() {
       },
     );
 
+  const runDelete = () =>
+    decide.mutate(
+      { decision: 'delete' },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('farms.toast.deleted'), tone: 'success' });
+          setOrgPending(null);
+          if (router.canGoBack()) router.back();
+        },
+        onError: fail,
+      },
+    );
+
   const org = q.data;
+  const farm = org?.farm;
   const supervisors = (membersQ.data ?? []).filter((m) => m.roleKey === 'SUPERVISOR');
 
   return (
     <ScrollScreen>
-      <AppHeader title={t('farms.detail.title')} showBack />
+      <AppHeader
+        title={
+          farm?.farmSpecies === 'SHEEP' || farm?.farmSpecies === 'CATTLE'
+            ? t('farms.detail.titleGeneric')
+            : t('farms.detail.title')
+        }
+        showBack
+      />
 
       {q.isLoading ? (
         <Loading fill />
@@ -151,14 +178,88 @@ export default function AdminFarmDetailScreen() {
             />
           </Section>
 
+          {/* The farm's registration profile (`farm_details`). */}
           <Section spacing="lg">
+            <Label>{t('farms.detail.profileSection')}</Label>
             <Card variant="outlined" padding="md">
               <View style={{ rowGap: theme.spacing.sm }}>
-                <Row label={t('farms.detail.ownerLabel')} value={org.ownerUserId} />
+                <OptRow
+                  label={t('farms.detail.speciesLabel')}
+                  value={farm?.farmSpecies ? t(`farms.species.${farm.farmSpecies}`) : null}
+                />
+                <OptRow label={t('farms.detail.governorateLabel')} value={farm?.governorate} />
+                <OptRow label={t('farms.detail.locationLabel')} value={farm?.location} />
+                <OptRow label={t('farms.detail.addressLabel')} value={farm?.address} />
+                <OptRow label={t('farms.detail.capacityLabel')} value={farm?.capacity} />
+                <OptRow
+                  label={t('farms.detail.establishedLabel')}
+                  value={farm?.establishedOn ? formatDate(farm.establishedOn) : null}
+                />
+                <OptRow
+                  label={t('farms.detail.poultryTypeLabel')}
+                  value={
+                    farm?.poultryProductionType
+                      ? tp(`category.${farm.poultryProductionType}`, {
+                          defaultValue: farm.poultryProductionType,
+                        })
+                      : null
+                  }
+                />
+                <OptRow
+                  label={t('farms.detail.sheepTypeLabel')}
+                  value={
+                    farm?.sheepProductionType
+                      ? tl(`create.sheepProduction.${farm.sheepProductionType}`, {
+                          defaultValue: farm.sheepProductionType,
+                        })
+                      : null
+                  }
+                />
+                <OptRow
+                  label={t('farms.detail.cattleTypeLabel')}
+                  value={
+                    farm?.cattleProductionType
+                      ? tl(`create.cattleProduction.${farm.cattleProductionType}`, {
+                          defaultValue: farm.cattleProductionType,
+                        })
+                      : null
+                  }
+                />
+                <OptRow label={t('farms.detail.birdCountLabel')} value={farm?.currentBirdCount} />
+                <OptRow label={t('farms.detail.sheepCountLabel')} value={farm?.currentSheepCount} />
+                <OptRow
+                  label={t('farms.detail.cattleCountLabel')}
+                  value={farm?.currentCattleCount}
+                />
+                <OptRow label={t('farms.detail.contactNameLabel')} value={farm?.contactName} />
+                <OptRow label={t('farms.detail.contactPhoneLabel')} value={farm?.contactPhone} />
+                <OptRow label={t('farms.detail.contactEmailLabel')} value={farm?.contactEmail} />
                 <Row label={t('orgs.detail.createdLabel')} value={formatDate(org.createdAt)} />
                 {org.decisionReason ? (
                   <Row label={t('orgs.detail.decisionLabel')} value={org.decisionReason} />
                 ) : null}
+              </View>
+            </Card>
+          </Section>
+
+          <Section spacing="lg">
+            <Label>{t('farms.detail.ownerSection')}</Label>
+            <Card variant="outlined" padding="md">
+              <View style={{ rowGap: theme.spacing.sm }}>
+                <Row
+                  label={t('farms.detail.ownerNameLabel')}
+                  value={
+                    org.owner
+                      ? `${org.owner.firstName} ${org.owner.lastName}`.trim()
+                      : t('farms.detail.notSet')
+                  }
+                />
+                <OptRow label={t('farms.detail.ownerEmailLabel')} value={org.owner?.email} />
+                <OptRow label={t('farms.detail.ownerPhoneLabel')} value={org.owner?.phone} />
+                <OptRow
+                  label={t('farms.detail.memberCountLabel')}
+                  value={membersQ.data ? membersQ.data.length : null}
+                />
               </View>
             </Card>
           </Section>
@@ -196,6 +297,15 @@ export default function AdminFarmDetailScreen() {
                   variant="primary"
                   fullWidth
                   onPress={() => setOrgPending('activate')}
+                />
+              ) : null}
+              {org.status !== 'DEACTIVATED' ? (
+                <Button
+                  label={t('farms.detail.delete')}
+                  variant="danger"
+                  leftIcon="trash-outline"
+                  fullWidth
+                  onPress={() => setOrgPending('delete')}
                 />
               ) : null}
             </View>
@@ -338,6 +448,17 @@ export default function AdminFarmDetailScreen() {
         onConfirm={runApprove}
         onCancel={() => setOrgPending(null)}
       />
+      <ConfirmationDialog
+        visible={orgPending === 'delete'}
+        title={t('farms.detail.deleteTitle')}
+        message={t('farms.detail.deleteBody')}
+        confirmLabel={t('farms.detail.delete')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={decide.isPending}
+        onConfirm={runDelete}
+        onCancel={() => setOrgPending(null)}
+      />
       <ReasonPromptDialog
         visible={orgPending === 'reject'}
         title={t('orgs.rejectTitle')}
@@ -436,4 +557,10 @@ function Row({ label, value }: { label: string; value: string }) {
       </Text>
     </View>
   );
+}
+
+/** A profile row that is simply omitted when the owner left the field empty. */
+function OptRow({ label, value }: { label: string; value: string | number | null | undefined }) {
+  if (value === null || value === undefined || value === '') return null;
+  return <Row label={label} value={String(value)} />;
 }

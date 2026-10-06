@@ -28,10 +28,14 @@ import { petOwnerStoreAdminService } from '../api/petOwnerStoreAdminApi';
 // --- products -----------------------------------------------------
 
 export function usePetStoreAdminProducts(
-  params: { search?: string; status?: PetStoreProductStatus } = {},
+  params: { search?: string; status?: PetStoreProductStatus; categoryId?: string } = {},
 ) {
   const pageSize = AppConfig.defaultPageSize;
-  const filter = { search: params.search || undefined, status: params.status };
+  const filter = {
+    search: params.search || undefined,
+    status: params.status,
+    categoryId: params.categoryId || undefined,
+  };
 
   const query = useInfiniteQuery<
     Paginated<PetStoreAdminProduct>,

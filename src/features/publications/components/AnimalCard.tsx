@@ -40,9 +40,11 @@ function ageLabel(
  * The list-screen card — image, name/breed, and a 3-icon info row
  * (age / gender / location). The corner badge is the kind ("مفقود" /
  * "متاح للتبني" / "متاح للتزاوج"). A RESOLVED listing (FOUND / ADOPTED /
- * MATED / CLOSED) stays in the list but is shown LOCKED: a status strip
- * across the top, a dimmed photo. Deleting / managing a listing happens
- * inside its detail screen — never from the card.
+ * MATED / CLOSED) stays in the list with the same design (photo NOT dimmed)
+ * and a clear status strip («تم التبني» / «تم التزاوج» / «تم العثور عليه»)
+ * across the top, but is NON-INTERACTIVE: pressing it opens nothing. There
+ * is no delete control on the card — the owner finishes a listing with the
+ * kind's completion action inside the listing.
  */
 export function AnimalCard({ publication, kind, width, onPress, status }: AnimalCardProps) {
   const theme = useTheme();
@@ -66,9 +68,15 @@ export function AnimalCard({ publication, kind, width, onPress, status }: Animal
 
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t('card.open', { name: animal.name })}
-      onPress={onPress}
+      accessibilityRole={resolution ? undefined : 'button'}
+      accessibilityLabel={
+        resolution
+          ? `${animal.name} — ${t(`resolution.status.${resolution}`)}`
+          : t('card.open', { name: animal.name })
+      }
+      accessibilityState={{ disabled: Boolean(resolution) }}
+      disabled={Boolean(resolution)}
+      onPress={resolution ? undefined : onPress}
       style={({ pressed }) => [
         {
           width,
@@ -79,14 +87,14 @@ export function AnimalCard({ publication, kind, width, onPress, status }: Animal
           overflow: 'hidden',
           ...theme.shadows.xs,
         },
-        pressed && { opacity: 0.85 },
+        pressed && !resolution && { opacity: 0.85 },
       ]}
     >
       <View style={{ aspectRatio: 1, backgroundColor: theme.colors.surfaceAccent }}>
         {cover ? (
           <Image
             source={cover}
-            style={{ width: '100%', height: '100%', opacity: resolution ? 0.55 : 1 }}
+            style={{ width: '100%', height: '100%' }}
             contentFit="cover"
             accessibilityIgnoresInvertColors
           />
@@ -155,7 +163,11 @@ export function AnimalCard({ publication, kind, width, onPress, status }: Animal
                 resolution === 'CLOSED' ? theme.colors.textMuted : theme.colors.success,
             }}
           >
-            <Icon name="lock-closed" size="iconXs" color="onPrimary" />
+            <Icon
+              name={resolution === 'CLOSED' ? 'lock-closed' : 'checkmark-circle'}
+              size="iconXs"
+              color="onPrimary"
+            />
             <Text variant="label" style={{ color: theme.colors.onPrimary }}>
               {t(`resolution.status.${resolution}`)}
             </Text>

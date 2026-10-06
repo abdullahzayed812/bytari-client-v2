@@ -107,6 +107,9 @@ export function useAdminDeleteVetJobOffer() {
 export function useAdminApproveVetJobSeeker() {
   return useModerate((id) => adminVetJobsApi.approveSeeker(id), 'seeker-approve');
 }
+export function useAdminDeleteVetJobSeeker() {
+  return useModerate((id) => adminVetJobsApi.deleteSeeker(id), 'seeker-delete');
+}
 export function useAdminRejectVetJobSeeker() {
   return useModerate(
     (id, reason) => adminVetJobsApi.rejectSeeker(id, reason ?? ''),

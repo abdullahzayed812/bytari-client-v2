@@ -14,6 +14,7 @@ import { DateTimeField } from '@/features/clinicAppointments';
 import { OrgFormLayout } from '@/features/organizations';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { toLocalIsoDate } from '@/utils';
 
 import { TermsAcceptField } from '../components';
 import { formatVetServiceDate, IRAQ_GOVERNORATES } from '../constants';
@@ -89,7 +90,7 @@ export default function AddServiceRequestScreen() {
       district: district.trim() || undefined,
       detailedAddress: detailedAddress.trim() || undefined,
       needsFieldVisit,
-      preferredDate: hasPreferredDate ? preferredDate.toISOString().slice(0, 10) : undefined,
+      preferredDate: hasPreferredDate ? toLocalIsoDate(preferredDate) : undefined,
       budgetAmount: budgetAmount.trim() || undefined,
       urgency,
       extraNotes: extraNotes.trim() || undefined,

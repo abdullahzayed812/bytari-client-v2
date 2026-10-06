@@ -48,7 +48,7 @@ export function VeterinarianHomeHeader() {
       <View
         style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm, flex: 1 }}
       >
-        <Avatar name={name} size="avatarMd" />
+        <Avatar uri={user?.avatarUrl} name={name} size="avatarMd" />
         <View style={{ flex: 1 }}>
           <Caption numberOfLines={1}>{t('home.greeting')}</Caption>
           {name ? (

@@ -9,6 +9,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { MarketNavCard } from '@/features/farm';
+import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -60,6 +61,7 @@ export default function PoultryMarketHubScreen() {
                 : t('gate.notStartedBody')
             }
           />
+          <SubscriptionTrialCard subject="POULTRY_TRADER" />
           {requested ? (
             <Alert tone="info" message={t('gate.renewalPending')} />
           ) : (
@@ -86,11 +88,14 @@ export default function PoultryMarketHubScreen() {
         <AppHeader title={tp('landing.marketTitle')} showBack />
         <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
           {trader.isPending ? (
-            <EmptyState
-              icon="time-outline"
-              title={t('gate.pendingTitle')}
-              message={t('gate.pendingBody')}
-            />
+            <>
+              <EmptyState
+                icon="time-outline"
+                title={t('gate.pendingTitle')}
+                message={t('gate.pendingBody')}
+              />
+              <SubscriptionTrialCard subject="POULTRY_TRADER" />
+            </>
           ) : trader.isSuspended ? (
             <EmptyState icon="ban-outline" title={t('gate.suspendedTitle')} />
           ) : trader.isRejected ? (

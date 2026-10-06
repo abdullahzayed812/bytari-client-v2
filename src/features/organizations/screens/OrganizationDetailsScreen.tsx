@@ -20,8 +20,10 @@ import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { organizationManagesAnimals } from '@/features/animals/constants';
 import { FarmJoinCodeCard, organizationIsFarm } from '@/features/farmShared';
+import { SubscriptionTrialCard } from '@/features/subscriptions/SubscriptionTrialCard';
 import { organizationOwnsVeterinaryOfficeProducts } from '@/features/veterinaryOffices/constants';
 import { organizationOwnsVeterinaryStoreProducts } from '@/features/veterinaryStore/constants';
+// Deep import (not a barrel) — keeps the organizations ↔ subscriptions graph acyclic.
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -234,6 +236,14 @@ export default function OrganizationDetailsScreen() {
                   </View>
                 ) : null}
               </Card>
+            </Section>
+          ) : null}
+
+          {/* Clinics & offices: free-trial info + "إرسال معلومات الاشتراك" (owner / manager). */}
+          {(org.type === 'CLINIC' || org.type === 'VETERINARY_OFFICE') &&
+          caps.canEditOrganization ? (
+            <Section spacing="xl">
+              <SubscriptionTrialCard subject={org.type} organizationId={org.id} />
             </Section>
           ) : null}
 

@@ -5,7 +5,9 @@ import { View } from 'react-native';
 import { Button, TextButton } from '@/components/actions';
 import { Input } from '@/components/forms';
 import { Modal } from '@/components/overlays';
+import { useSubscriptionInfo } from '@/features/subscriptions';
 import { useTheme } from '@/theme';
+import { toLocalIsoDate } from '@/utils';
 
 export interface SubscriptionDatesDialogProps {
   visible: boolean;
@@ -35,6 +37,8 @@ export function SubscriptionDatesDialog({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [touched, setTouched] = useState(false);
+  // One server-configured trial length for every subscription type.
+  const trialDays = useSubscriptionInfo('CLINIC').data?.freeTrialDays ?? 0;
 
   useEffect(() => {
     if (visible) {
@@ -59,7 +63,8 @@ export function SubscriptionDatesDialog({
         ? t('farms.detail.dateRangeError')
         : undefined;
 
-  const toIso = (d: Date): string => d.toISOString().slice(0, 10);
+  // local calendar day — toISOString() is UTC and shifts the day east of UTC
+  const toIso = (d: Date): string => toLocalIsoDate(d);
   const fillExpired = () => {
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
@@ -67,6 +72,14 @@ export function SubscriptionDatesDialog({
     yesterday.setDate(yesterday.getDate() - 1);
     setStartDate(toIso(oneYearAgo));
     setEndDate(toIso(yesterday));
+    setTouched(true);
+  };
+  const fillTrial = () => {
+    const today = new Date();
+    const end = new Date();
+    end.setDate(end.getDate() + trialDays);
+    setStartDate(toIso(today));
+    setEndDate(toIso(end));
     setTouched(true);
   };
   const fillActiveYear = () => {
@@ -89,6 +102,13 @@ export function SubscriptionDatesDialog({
             onPress={fillExpired}
             disabled={loading}
           />
+          {trialDays > 0 ? (
+            <TextButton
+              label={t('farms.detail.quickTrial', { count: trialDays })}
+              onPress={fillTrial}
+              disabled={loading}
+            />
+          ) : null}
           <TextButton
             label={t('farms.detail.quickActiveYear')}
             onPress={fillActiveYear}

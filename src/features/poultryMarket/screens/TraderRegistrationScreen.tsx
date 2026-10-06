@@ -13,16 +13,20 @@ import { Caption, Label } from '@/components/typography';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
 import { Advertisement } from '@/features/ads';
 import { useAuthStore } from '@/features/auth/store';
+import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useAuth } from '@/hooks';
 import { fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-
 
 import { BenefitsCard } from '../components';
 import { TRADER_TYPE_ORDER } from '../constants';
 import { useRegisterTrader, useTraderStatus } from '../hooks';
 import type { TraderType } from '../types';
-import { buildRegisterTraderSchema, marketErrorMessage, type RegisterTraderFormValues } from '../validation/schemas';
+import {
+  buildRegisterTraderSchema,
+  marketErrorMessage,
+  type RegisterTraderFormValues,
+} from '../validation/schemas';
 
 /**
  * Starter values — the form opens pre-filled so registration is one review
@@ -110,7 +114,13 @@ export default function TraderRegistrationScreen() {
         <AppHeader title={t('register.title')} showBack />
         <View style={{ flex: 1, justifyContent: 'center', padding: theme.screenPadding }}>
           <EmptyState
-            icon={trader.isApproved ? 'checkmark-circle-outline' : trader.isSuspended ? 'ban-outline' : 'time-outline'}
+            icon={
+              trader.isApproved
+                ? 'checkmark-circle-outline'
+                : trader.isSuspended
+                  ? 'ban-outline'
+                  : 'time-outline'
+            }
             title={
               trader.isApproved
                 ? t('status.approvedTitle')
@@ -118,7 +128,13 @@ export default function TraderRegistrationScreen() {
                   ? t('status.suspendedTitle')
                   : t('status.pendingTitle')
             }
-            message={trader.isApproved ? undefined : trader.isSuspended ? t('status.suspendedFallback') : t('status.pendingBody')}
+            message={
+              trader.isApproved
+                ? undefined
+                : trader.isSuspended
+                  ? t('status.suspendedFallback')
+                  : t('status.pendingBody')
+            }
           />
         </View>
       </ScrollScreen>
@@ -211,7 +227,9 @@ export default function TraderRegistrationScreen() {
                 checked={value === true}
                 onChange={onChange}
               />
-              {fieldState.error ? <Caption color="danger">{fieldState.error.message}</Caption> : null}
+              {fieldState.error ? (
+                <Caption color="danger">{fieldState.error.message}</Caption>
+              ) : null}
             </View>
           )}
         />
@@ -238,6 +256,8 @@ export default function TraderRegistrationScreen() {
           }}
         >
           <Caption style={{ color: theme.colors.success }}>{t('register.trialBanner')}</Caption>
+          {/* the trial length — sending needs a registration, so no send button yet */}
+          <SubscriptionTrialCard subject="POULTRY_TRADER" canSend={false} />
         </View>
       </Section>
     </ScrollScreen>

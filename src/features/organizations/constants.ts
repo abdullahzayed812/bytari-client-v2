@@ -126,14 +126,41 @@ export const SYNDICATE_PERMISSION_GROUPS = [
   },
 ] as const satisfies readonly { key: string; permissions: readonly string[] }[];
 
+/**
+ * VETERINARY_OFFICE / VETERINARY_STORE supervisor permissions — the office's
+ * products (view / add / edit / delete / stock) and the "رسالة للمتابعين"
+ * broadcast. A SUPERVISOR has NO product permission by default (backend
+ * design: the owner picks per membership), so without these an office
+ * supervisor could never reach the office's products. Copied VERBATIM from
+ * the backend `ORG_PERMISSION_KEYS` catalogue.
+ */
+export const OFFICE_PERMISSION_GROUPS = [
+  {
+    key: 'products',
+    permissions: [
+      'product.read',
+      'product.create',
+      'product.update',
+      'product.delete',
+      'product.inventory.adjust',
+    ],
+  },
+  {
+    key: 'followers',
+    permissions: ['organization.broadcast.send'],
+  },
+] as const satisfies readonly { key: string; permissions: readonly string[] }[];
+
 export type AnyOrgPermissionGroupKey =
   | OrgPermissionGroupKey
   | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key']
-  | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['key'];
+  | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['key']
+  | (typeof OFFICE_PERMISSION_GROUPS)[number]['key'];
 export type AnyOrgPermissionKey =
   | OrgManagementPermissionKey
   | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number]
-  | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['permissions'][number];
+  | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['permissions'][number]
+  | (typeof OFFICE_PERMISSION_GROUPS)[number]['permissions'][number];
 
 export interface OrgPermissionGroup {
   key: AnyOrgPermissionGroupKey;
@@ -146,6 +173,9 @@ export function permissionGroupsFor(
 ): readonly OrgPermissionGroup[] {
   if (type === 'CHAT_ROOM') return [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS];
   if (type === 'SYNDICATE') return [...SYNDICATE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  if (type === 'VETERINARY_OFFICE' || type === 'VETERINARY_STORE') {
+    return [...OFFICE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  }
   return ORG_PERMISSION_GROUPS;
 }
 

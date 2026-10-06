@@ -2,9 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Chip } from '@/components/content';
+import { Label } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import type { PetStoreCategory } from '../types';
+
+import { HomeCategoryCircle } from './HomeCategoryCircle';
 
 interface CategoryChipsProps {
   categories: PetStoreCategory[];
@@ -17,6 +20,10 @@ interface CategoryChipsProps {
  * category). Row 2 (when the active section has sub-categories): "كل <section>"
  * + one chip per sub-category. Selecting a section filters by the section id —
  * the backend expands it to the section's own + every sub-category's products.
+ *
+ * Right after a main (animal) section is picked, its product sections
+ * (أدوية / أغذية / مكملات / إكسسوارات …) are shown as image tiles instead of
+ * row 2, so browsing reads «animal → section → products».
  */
 export function CategoryChips({ categories, selectedId, onSelect }: CategoryChipsProps) {
   const theme = useTheme();
@@ -56,7 +63,26 @@ export function CategoryChips({ categories, selectedId, onSelect }: CategoryChip
           />
         ))}
       </ScrollView>
-      {activeSection && children.length > 0 ? (
+      {activeSection && children.length > 0 && selectedId === activeSection.id ? (
+        <View style={{ rowGap: theme.spacing.sm }}>
+          <Label style={{ paddingHorizontal: theme.screenPadding }}>
+            {t('categories.sectionsOf', { name: activeSection.name })}
+          </Label>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              rowGap: theme.spacing.md,
+              columnGap: theme.spacing.sm,
+              paddingHorizontal: theme.screenPadding,
+            }}
+          >
+            {children.map((c) => (
+              <HomeCategoryCircle key={c.id} category={c} onPress={() => onSelect(c.id)} />
+            ))}
+          </View>
+        </View>
+      ) : activeSection && children.length > 0 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={rail}>
           <Chip
             label={t('categories.allInSection', { name: activeSection.name })}

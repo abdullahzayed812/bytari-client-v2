@@ -409,6 +409,8 @@ export default {
     savePermissions: 'حفظ الصلاحيات',
   },
   permissionGroups: {
+    products: 'المنتجات',
+    followers: 'المتابعون',
     organization: 'المؤسسة',
     members: 'الأعضاء',
     supervisors: 'المشرفون',
@@ -417,6 +419,30 @@ export default {
     syndicate: 'إدارة النقابة',
   },
   permissions: {
+    'product.read': {
+      label: 'عرض المنتجات',
+      hint: 'الاطلاع على منتجات المكتب ولوحة التحكم.',
+    },
+    'product.create': {
+      label: 'إضافة منتجات',
+      hint: 'إضافة منتجات جديدة إلى المكتب.',
+    },
+    'product.update': {
+      label: 'تعديل المنتجات',
+      hint: 'تعديل بيانات المنتجات وصورها وإخفاؤها.',
+    },
+    'product.delete': {
+      label: 'حذف المنتجات',
+      hint: 'حذف منتجات المكتب.',
+    },
+    'product.inventory.adjust': {
+      label: 'تعديل المخزون',
+      hint: 'زيادة أو إنقاص كمية المخزون.',
+    },
+    'organization.broadcast.send': {
+      label: 'مراسلة المتابعين',
+      hint: 'إرسال رسالة إلى جميع متابعي المكتب.',
+    },
     'organization.read': {
       label: 'عرض المؤسسة',
       hint: 'الاطلاع على ملف المؤسسة.',

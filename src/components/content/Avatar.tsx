@@ -21,7 +21,10 @@ function initials(name?: string): string {
 /** Rounded avatar with an image, or initials fallback on a soft green surface. */
 export function Avatar({ uri, name, size = 'avatarMd', accessibilityLabel }: AvatarProps) {
   const theme = useTheme();
-  const [failed, setFailed] = useState(false);
+  // A load failure belongs to ONE uri — a new photo (or a re-signed URL)
+  // must get its own attempt instead of staying on the initials forever.
+  const [failedUri, setFailedUri] = useState<string | null>(null);
+  const failed = Boolean(uri) && failedUri === uri;
   const diameter = typeof size === 'number' ? size : theme.sizes[size];
   const showImage = uri && !failed;
 
@@ -42,7 +45,7 @@ export function Avatar({ uri, name, size = 'avatarMd', accessibilityLabel }: Ava
       {showImage ? (
         <Image
           source={{ uri }}
-          onError={() => setFailed(true)}
+          onError={() => setFailedUri(uri)}
           style={{ width: '100%', height: '100%' }}
           resizeMode="cover"
         />

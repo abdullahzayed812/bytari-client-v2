@@ -25,6 +25,7 @@ import { CompletedWeeksSection } from '@/features/farmShared/components/Complete
 import { DailyRecordWeekStrip } from '@/features/farmShared/components/DailyRecordWeekStrip';
 import { FarmAddStaffSheet } from '@/features/farmShared/components/FarmAddStaffSheet';
 import { orgCapabilities, useOrganization, useOrganizationMembers } from '@/features/organizations';
+import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useCapabilities } from '@/hooks';
 import { businessToday } from '@/lib/businessDate';
 import { useTheme } from '@/theme';
@@ -220,6 +221,10 @@ export default function PoultryFarmDetailsScreen() {
             caps.isOwner ? () => router.push(Routes.farmSubscriptionRenewal(orgId)) : undefined
           }
         />
+
+        {caps.isOwner ? (
+          <SubscriptionTrialCard subject="POULTRY_FARM" organizationId={orgId} />
+        ) : null}
 
         {canOperateFarm ? (
           <>

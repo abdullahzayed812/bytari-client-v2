@@ -96,7 +96,8 @@ export function HomeHeader() {
       <View
         style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm, flex: 1 }}
       >
-        <Avatar name={name} size="avatarMd" />
+        {/* the signed-in user's photo (`/auth/me` → `avatarUrl`); initials until one exists */}
+        <Avatar uri={user?.avatarUrl} name={name} size="avatarMd" />
         <View style={{ flex: 1 }}>
           <Caption numberOfLines={1}>{greeting}</Caption>
           {name ? (

@@ -10,6 +10,7 @@ import { PasswordInput } from '@/components/forms';
 import { ScrollScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import { useChangePasswordMutation } from '@/features/auth';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError, ApiErrorCode } from '@/services/api';
@@ -68,7 +69,9 @@ export default function ChangePasswordScreen() {
         onSuccess: () => {
           setValues({ current: '', next: '', confirm: '' });
           toast.show({ tone: 'success', message: t('password.success') });
-          router.back();
+          // web deep-link / refresh has no history — land on the settings menu
+          if (router.canGoBack()) router.back();
+          else router.replace(Routes.settings);
         },
         onError: (error) => {
           if (error instanceof ApiError && error.code === ApiErrorCode.INVALID_CURRENT_PASSWORD) {

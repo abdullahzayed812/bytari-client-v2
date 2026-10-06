@@ -19,6 +19,7 @@ export {
 export {
   usePublicPublications,
   useMyPublications,
+  useMyPublicationInteractions,
   usePublicPublication,
   useAnimalPublications,
   useAnimalPublication,

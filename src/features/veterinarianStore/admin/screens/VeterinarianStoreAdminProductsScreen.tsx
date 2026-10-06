@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Badge, Card, Chip } from '@/components/content';
@@ -17,7 +17,7 @@ import { useTheme } from '@/theme';
 
 import type { VetStoreProductStatus } from '../../types';
 import { formatAmount } from '../../utils';
-import { useVetStoreAdminProducts } from '../hooks';
+import { useVetStoreAdminCategories, useVetStoreAdminProducts } from '../hooks';
 
 /** Route `/(app)/admin/veterinarian-store/products` — catalogue management list. */
 export default function VeterinarianStoreAdminProductsScreen() {
@@ -28,7 +28,10 @@ export default function VeterinarianStoreAdminProductsScreen() {
   const [status, setStatus] = useState<VetStoreProductStatus | undefined>();
   const [viewerImage, setViewerImage] = useState<string | null>(null);
 
-  const q = useVetStoreAdminProducts({ search, status });
+  const [categoryId, setCategoryId] = useState<string | undefined>();
+  const categories = useVetStoreAdminCategories();
+
+  const q = useVetStoreAdminProducts({ search, status, categoryId });
 
   const header = (
     <View style={{ rowGap: theme.spacing.sm, paddingBottom: theme.spacing.md }}>
@@ -55,6 +58,33 @@ export default function VeterinarianStoreAdminProductsScreen() {
           onPress={() => setStatus('INACTIVE')}
         />
       </View>
+      {categories.data && categories.data.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ columnGap: theme.spacing.xs }}
+        >
+          <Chip
+            label={t('admin.products.filterAllCategories')}
+            selected={!categoryId}
+            onPress={() => setCategoryId(undefined)}
+          />
+          {categories.data.map((c) => {
+            // "Section › Sub-category" — a section also matches its children.
+            const parent = c.parentId
+              ? categories.data.find((p) => p.id === c.parentId)
+              : undefined;
+            return (
+              <Chip
+                key={c.id}
+                label={parent ? `${parent.name} › ${c.name}` : c.name}
+                selected={categoryId === c.id}
+                onPress={() => setCategoryId(c.id)}
+              />
+            );
+          })}
+        </ScrollView>
+      ) : null}
     </View>
   );
 

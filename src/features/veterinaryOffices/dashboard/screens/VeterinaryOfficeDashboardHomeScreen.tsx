@@ -12,6 +12,7 @@ import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversationUnreadSummary } from '@/features/chat';
 import { useOrganization, useOrganizationSubscriptionRenewals } from '@/features/organizations';
+import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
@@ -250,6 +251,13 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
                     : undefined
                 }
               />
+              <View style={{ marginTop: theme.spacing.md }}>
+                <SubscriptionTrialCard
+                  subject="VETERINARY_OFFICE"
+                  organizationId={orgId}
+                  canSend={isOwner}
+                />
+              </View>
             </Section>
 
             {isLocked ? (

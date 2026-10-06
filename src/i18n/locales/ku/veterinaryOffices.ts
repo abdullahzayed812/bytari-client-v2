@@ -35,7 +35,7 @@ const veterinaryOffices: KuNamespace<'veterinaryOffices'> = {
   products: {
     title: 'بەرهەمەکان',
     filter: 'پاڵاوتن',
-    searchPlaceholder: 'گەڕان بە ناو یان براندی بەرهەم...',
+    searchPlaceholder: 'گەڕان بە ناو، براند یان وڵاتی بەرهەمهێنان...',
     all: 'هەموو',
     filterTitle: 'پاڵاوتنی بەرهەمەکان',
     filterBrand: 'براند',
@@ -85,7 +85,7 @@ const veterinaryOffices: KuNamespace<'veterinaryOffices'> = {
     },
     list: {
       title: 'بەرهەمەکانی نووسینگە',
-      searchPlaceholder: 'گەڕان بە ناوی بەرهەم…',
+      searchPlaceholder: 'گەڕان بە ناو، براند یان وڵاتی بەرهەمهێنان…',
       filterAll: 'هەموو',
       count: '{{count}} بەرهەم',
       addCta: 'زیادکردنی بەرهەم',

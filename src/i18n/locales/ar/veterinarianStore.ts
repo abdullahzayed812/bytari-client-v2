@@ -30,6 +30,7 @@ export default {
   categories: {
     all: 'الكل',
     allInSection: 'كل {{name}}',
+    sectionsOf: 'أقسام {{name}}',
   },
 
   product: {
@@ -146,6 +147,7 @@ export default {
       filterAll: 'الكل',
       filterActive: 'نشط',
       filterInactive: 'غير نشط',
+      filterAllCategories: 'كل التصنيفات',
     },
     detail: {
       title: 'تفاصيل المنتج',

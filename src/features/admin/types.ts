@@ -333,10 +333,55 @@ export interface AdminFarmListItem {
    * when the owner never uploaded one. The raw storage key is never sent.
    */
   imageUrl?: string | null;
+  /** Owner contact + the farm's own registration profile (admin-only route). */
+  ownerEmail?: string | null;
+  ownerPhone?: string | null;
+  governorate?: string | null;
+  location?: string | null;
+  address?: string | null;
+  capacity?: number | null;
+  establishedOn?: string | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  poultryProductionType?: string | null;
+  sheepProductionType?: string | null;
+  cattleProductionType?: string | null;
+  currentBirdCount?: number | null;
+  currentSheepCount?: number | null;
+  currentCattleCount?: number | null;
+  /** Open (ACTIVE) flocks / batches and ACTIVE members. */
+  poultryFlockCount?: number;
+  sheepBatchCount?: number;
+  cattleBatchCount?: number;
+  memberCount?: number;
 }
 
-/** Which farm family the admin list is scoped to. */
-export type FarmSpeciesGroup = 'POULTRY' | 'LIVESTOCK';
+/**
+ * Which farm family the admin list is scoped to. `LIVESTOCK` = sheep + cattle;
+ * a MIXED farm is listed under every species it actually holds.
+ */
+export type FarmSpeciesGroup = 'POULTRY' | 'LIVESTOCK' | 'SHEEP' | 'CATTLE';
+
+/** `GET /admin/organizations/:id` → `farm` (FARM only) — the farm's registration profile. */
+export interface AdminFarmProfile {
+  imageUrl: string | null;
+  location: string | null;
+  governorate: string | null;
+  address: string | null;
+  capacity: number | null;
+  currentBirdCount: number | null;
+  establishedOn: string | null;
+  poultryProductionType: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  farmSpecies: 'POULTRY' | 'SHEEP' | 'CATTLE' | 'MIXED' | null;
+  currentSheepCount: number | null;
+  currentCattleCount: number | null;
+  sheepProductionType: string | null;
+  cattleProductionType: string | null;
+}
 
 export interface AdminListFarmsFilter {
   page: number;
@@ -384,6 +429,8 @@ export interface AdminOrganizationFile extends OrganizationWithDetails {
   pendingRenewalRequest?: AdminFarmRenewalRequest | null;
   /** Registration terms the applicant accepted (clinic / office / farm). */
   termsAcceptances?: AdminTermsAcceptance[];
+  /** FARM only — the full farm file. */
+  farm?: AdminFarmProfile;
 }
 
 export interface AdminTermsAcceptance {

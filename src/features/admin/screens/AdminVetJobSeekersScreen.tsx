@@ -6,12 +6,15 @@ import { Button, TextButton } from '@/components/actions';
 import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Label } from '@/components/typography';
+import { Permission } from '@/constants/permissions';
 import {
   useAdminApproveVetJobSeeker,
+  useAdminDeleteVetJobSeeker,
   useAdminRejectVetJobSeeker,
   useAdminVetJobSeekers,
 } from '@/features/vetJobs';
 import type { VetJobModerationStatus, VetJobSeekerProfile } from '@/features/vetJobs';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -45,8 +48,8 @@ type DetailKey =
 /**
  * `/admin/vet-job-seekers` — the Veterinarian Jobs seeker-profile moderation
  * queue ("باحثون عن عمل"). Defaults to PENDING. Approve / reject are
- * backend-authorised (`vet_job.approve` / `vet_job.reject`; ADMIN or VET_JOBS
- * supervisor).
+ * backend-authorised (`vet_job.approve` / `vet_job.reject` / `vet_job.delete`;
+ * ADMIN or VET_JOBS supervisor). Delete works for any status.
  */
 export default function AdminVetJobSeekersScreen() {
   const { t } = useTranslation('admin');
@@ -57,6 +60,9 @@ export default function AdminVetJobSeekersScreen() {
   const q = useAdminVetJobSeekers({ status });
   const approve = useAdminApproveVetJobSeeker();
   const reject = useAdminRejectVetJobSeeker();
+  const del = useAdminDeleteVetJobSeeker();
+  const canDelete = useCapabilities().can(Permission.VET_JOB_DELETE);
+  const [deleting, setDeleting] = useState<VetJobSeekerProfile | null>(null);
 
   const [approving, setApproving] = useState<VetJobSeekerProfile | null>(null);
   const [rejecting, setRejecting] = useState<VetJobSeekerProfile | null>(null);
@@ -161,6 +167,13 @@ export default function AdminVetJobSeekersScreen() {
                     onPress={() => setRejecting(p)}
                   />
                 </>
+              ) : canDelete ? (
+                <Button
+                  label={t('vetJobSeekers.delete')}
+                  variant="danger"
+                  leftIcon="trash-outline"
+                  onPress={() => setDeleting(p)}
+                />
               ) : undefined
             }
           />
@@ -196,7 +209,11 @@ export default function AdminVetJobSeekersScreen() {
       <AdminDetailModal
         visible={detail != null}
         onClose={() => setDetail(null)}
-        title={detail ? `${detail.user.firstName} ${detail.user.lastName}` : t('vetJobSeekers.details.title')}
+        title={
+          detail
+            ? `${detail.user.firstName} ${detail.user.lastName}`
+            : t('vetJobSeekers.details.title')
+        }
         fields={detail ? detailFields(detail) : []}
       >
         <View style={{ rowGap: theme.spacing.xs, marginTop: theme.spacing.sm }}>
@@ -220,7 +237,9 @@ export default function AdminVetJobSeekersScreen() {
         </View>
 
         {detail?.status === 'PENDING' ? (
-          <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+          <View
+            style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}
+          >
             <Button
               label={t('vetJobSeekers.approve')}
               variant="primary"
@@ -241,7 +260,45 @@ export default function AdminVetJobSeekersScreen() {
             />
           </View>
         ) : null}
+        {detail && canDelete ? (
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <Button
+              label={t('vetJobSeekers.delete')}
+              variant="danger"
+              leftIcon="trash-outline"
+              onPress={() => {
+                const p = detail;
+                setDetail(null);
+                setDeleting(p);
+              }}
+            />
+          </View>
+        ) : null}
       </AdminDetailModal>
+
+      <ConfirmationDialog
+        visible={deleting != null}
+        title={t('vetJobSeekers.deleteTitle')}
+        message={t('vetJobSeekers.deleteBody')}
+        confirmLabel={t('vetJobSeekers.delete')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={del.isPending}
+        onConfirm={() => {
+          if (!deleting) return;
+          del.mutate(
+            { id: deleting.id },
+            {
+              onSuccess: () => {
+                toast.show({ message: t('vetJobSeekers.toast.deleted'), tone: 'success' });
+                setDeleting(null);
+              },
+              onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+            },
+          );
+        }}
+        onCancel={() => setDeleting(null)}
+      />
 
       <ImageViewer
         visible={viewer !== null}

@@ -115,6 +115,8 @@ export function useOrgDecisionMutation(
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminKeys.organizations.detail(organizationId) });
       void qc.invalidateQueries({ queryKey: adminKeys.organizations.lists() });
+      // farm status / delete changes the farm management lists too
+      void qc.invalidateQueries({ queryKey: adminKeys.farms.lists() });
     },
   });
 }

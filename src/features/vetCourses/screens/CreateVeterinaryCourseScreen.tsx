@@ -18,6 +18,7 @@ import { DateTimeField } from '@/features/clinicAppointments';
 import { DateField } from '@/features/vetJobs';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { toLocalIsoDate } from '@/utils';
 
 import {
   useCreateVetCourse,
@@ -58,7 +59,7 @@ interface FormValues {
 function daysFromNow(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
+  return toLocalIsoDate(d);
 }
 
 /** Pre-filled so a test submission needs no typing — every field stays editable. */

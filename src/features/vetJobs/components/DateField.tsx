@@ -1,14 +1,15 @@
-import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
+import { WebDateTimeInput } from '@/components/forms';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, fromLocalIsoDate, toLocalIsoDate } from '@/utils';
 
 export interface DateFieldProps {
   label?: string;
@@ -34,20 +35,46 @@ export function DateField({
   const theme = useTheme();
   const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
-  const current = value ? new Date(`${value}T00:00:00`) : new Date();
+  const current = (value ? fromLocalIsoDate(value) : null) ?? new Date();
   const [draft, setDraft] = useState(current);
 
+  // LOCAL calendar day — `toISOString()` is UTC and shifts the day back east of UTC.
+  const commit = (next: Date): void => onChange(toLocalIsoDate(next));
+
   const openPicker = () => {
+    if (Platform.OS === 'android') {
+      // imperative dialog — the inline-rendered one misbehaves when unmounted from its own onChange
+      DateTimePickerAndroid.open({
+        value: current,
+        mode: 'date',
+        minimumDate,
+        onChange: (event, next) => {
+          if (event.type === 'set' && next) commit(next);
+        },
+      });
+      return;
+    }
     setDraft(current);
     setOpen(true);
   };
 
-  const commit = (next: Date): void => onChange(next.toISOString().slice(0, 10));
-
-  const handleAndroidChange = (event: DateTimePickerEvent, next?: Date) => {
-    setOpen(false);
-    if (event.type === 'set' && next) commit(next);
-  };
+  if (Platform.OS === 'web') {
+    // the community picker renders nothing on web — use the browser's date input
+    return (
+      <View style={{ rowGap: theme.spacing.xs }}>
+        {label ? <Label>{label}</Label> : null}
+        <WebDateTimeInput
+          mode="date"
+          value={value ?? ''}
+          min={minimumDate ? toLocalIsoDate(minimumDate) : undefined}
+          invalid={Boolean(error)}
+          accessibilityLabel={accessibilityLabel || placeholder}
+          onChange={(v) => onChange(v)}
+        />
+        {error ? <Caption color="danger">{error}</Caption> : null}
+      </View>
+    );
+  }
 
   return (
     <View style={{ rowGap: theme.spacing.xs }}>
@@ -75,16 +102,7 @@ export function DateField({
       </Pressable>
       {error ? <Caption color="danger">{error}</Caption> : null}
 
-      {open && Platform.OS === 'android' ? (
-        <DateTimePicker
-          value={current}
-          mode="date"
-          minimumDate={minimumDate}
-          onChange={handleAndroidChange}
-        />
-      ) : null}
-
-      {Platform.OS !== 'android' ? (
+      {Platform.OS === 'ios' ? (
         <BottomSheet visible={open} onClose={() => setOpen(false)} title={label}>
           <DateTimePicker
             value={draft}

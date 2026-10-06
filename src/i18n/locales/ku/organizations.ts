@@ -423,6 +423,8 @@ const organizations: KuNamespace<'organizations'> = {
     savePermissions: 'پاشەکەوتکردنی مۆڵەتەکان',
   },
   permissionGroups: {
+    products: 'بەرهەمەکان',
+    followers: 'شوێنکەوتووان',
     organization: 'دامەزراوە',
     members: 'ئەندامان',
     supervisors: 'سەرپەرشتیاران',
@@ -431,6 +433,30 @@ const organizations: KuNamespace<'organizations'> = {
     syndicate: 'بەڕێوەبردنی سەندیکا',
   },
   permissions: {
+    'product.read': {
+      label: 'بینینی بەرهەمەکان',
+      hint: 'بینینی بەرهەمەکانی نووسینگە و داشبۆرد.',
+    },
+    'product.create': {
+      label: 'زیادکردنی بەرهەم',
+      hint: 'زیادکردنی بەرهەمی نوێ بۆ نووسینگە.',
+    },
+    'product.update': {
+      label: 'دەستکاریکردنی بەرهەم',
+      hint: 'گۆڕینی زانیاری و وێنەی بەرهەمەکان.',
+    },
+    'product.delete': {
+      label: 'سڕینەوەی بەرهەم',
+      hint: 'سڕینەوەی بەرهەمەکانی نووسینگە.',
+    },
+    'product.inventory.adjust': {
+      label: 'ڕێکخستنی کۆگا',
+      hint: 'زیادکردن یان کەمکردنی بڕی کۆگا.',
+    },
+    'organization.broadcast.send': {
+      label: 'نامە بۆ شوێنکەوتووان',
+      hint: 'ناردنی نامە بۆ هەموو شوێنکەوتووانی نووسینگە.',
+    },
     'organization.read': {
       label: 'بینینی دامەزراوە',
       hint: 'بینینی پرۆفایلی دامەزراوە.',

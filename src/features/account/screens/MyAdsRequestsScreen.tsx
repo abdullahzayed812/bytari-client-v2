@@ -12,7 +12,11 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useMyPublications } from '@/features/publications';
+import {
+  publicationKindSlug,
+  useMyPublicationInteractions,
+  useMyPublications,
+} from '@/features/publications';
 import { useMyVetJobApplications, useMyVetJobOffers } from '@/features/vetJobs/hooks';
 import {
   useMyListingRequests,
@@ -80,6 +84,8 @@ function engagementState(status: string): State {
  *    offers on owners' service requests + job applications.
  *  - Pet Owner — ads: own published service requests + animal publications;
  *    requests: requests sent to vets' service listings.
+ *  - Both — requests also list my adoption / mating requests and lost-animal
+ *    sighting reports (`GET /animal-publications/interactions/mine`).
  * Each row opens that item's existing screen.
  */
 export default function MyAdsRequestsScreen() {
@@ -101,14 +107,16 @@ export default function MyAdsRequestsScreen() {
   const mating = useMyPublications('MATING', { enabled: owner && ads });
   const lost = useMyPublications('LOST', { enabled: owner && ads });
   const listingRequests = useMyListingRequests(undefined, { enabled: owner && !ads });
+  // both interfaces: my adoption / mating requests + lost-animal sighting reports
+  const animalRequests = useMyPublicationInteractions({ enabled: !ads });
 
   const active = vet
     ? ads
       ? [listings, jobOffers]
-      : [offers, applications]
+      : [offers, applications, animalRequests]
     : ads
       ? [serviceRequests, adoption, mating, lost]
-      : [listingRequests];
+      : [listingRequests, animalRequests];
   const loading = active.some((q) => q.isLoading);
   const refetching = active.some((q) => q.isRefetching);
   const refresh = () => active.forEach((q) => void q.refetch());
@@ -200,6 +208,31 @@ export default function MyAdsRequestsScreen() {
         });
       }
     }
+    if (!ads) {
+      for (const i of animalRequests.interactions) {
+        const p = i.publication;
+        out.push({
+          key: `pi:${i.id}`,
+          section: 'PUBLICATIONS',
+          title: p.animalName,
+          createdAt: i.createdAt,
+          imageUrl: null,
+          state:
+            p.status === 'REJECTED'
+              ? 'rejected'
+              : p.status !== 'APPROVED'
+                ? 'review'
+                : p.resolution
+                  ? 'ended'
+                  : 'active',
+          // a resolved listing is locked — continue in the conversation instead
+          href:
+            p.resolution && i.conversationId
+              ? Routes.chatThread(i.conversationId)
+              : Routes.publicationDetail(publicationKindSlug(p.kind), p.id),
+        });
+      }
+    }
     return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }, [
     vet,
@@ -213,6 +246,7 @@ export default function MyAdsRequestsScreen() {
     mating.publications,
     lost.publications,
     listingRequests.listingRequests,
+    animalRequests.interactions,
   ]);
 
   // "إضافة إعلان جديد": a vet publishes a service; an owner publishes a service request.

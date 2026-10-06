@@ -10,3 +10,4 @@ export {
   type SegmentedControlOption,
 } from './SegmentedControl';
 export { TileOptionGroup, type TileOptionGroupProps, type TileOption } from './TileOptionGroup';
+export { WebDateTimeInput, type WebDateTimeInputProps } from './WebDateTimeInput';

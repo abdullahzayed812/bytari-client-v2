@@ -33,6 +33,7 @@ const veterinarianStore: KuNamespace<'veterinarianStore'> = {
   categories: {
     all: 'هەموو',
     allInSection: 'هەموو {{name}}',
+    sectionsOf: 'بەشەکانی {{name}}',
   },
 
   product: {

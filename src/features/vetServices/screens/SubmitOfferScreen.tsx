@@ -12,6 +12,7 @@ import { DateTimeField } from '@/features/clinicAppointments';
 import { OrgFormLayout } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
+import { toLocalIsoDate } from '@/utils';
 
 import { TermsAcceptField } from '../components';
 import { formatVetServiceDate } from '../constants';
@@ -65,7 +66,7 @@ export default function SubmitOfferScreen() {
 
     const input: CreateOfferInput = {
       proposedAmount: proposedAmount.trim() || undefined,
-      executionDate: hasExecDate ? executionDate.toISOString().slice(0, 10) : undefined,
+      executionDate: hasExecDate ? toLocalIsoDate(executionDate) : undefined,
       expectedDuration: expectedDuration.trim() || undefined,
       includesFieldVisit,
       details: details.trim() || undefined,

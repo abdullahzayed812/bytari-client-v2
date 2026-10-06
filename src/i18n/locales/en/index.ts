@@ -17,6 +17,16 @@ export const en: TranslationResources = {
       POULTRY: 'Poultry',
       GENERAL: 'General (all sections)',
     },
+    subscription: {
+      trialTitle: 'Free trial period',
+      trialLoading: 'Loading free-trial information…',
+      trialBody: 'Free trial for {{count}} days from the subscription activation date.',
+      trialNone: 'There is no free trial at the moment.',
+      trialHow:
+        'The free trial starts once the administration approves your request; afterwards you can request a subscription renewal. For prices and details, send the subscription information to the administration.',
+      sendInfo: 'Send subscription information',
+      sent: 'Subscription information sent to the administration — the reply arrives in the conversation',
+    },
     share: {
       copied: 'Copied to clipboard',
       unavailable: 'Sharing is not supported in this browser',
@@ -886,6 +896,7 @@ export const en: TranslationResources = {
     categories: {
       all: 'All',
       allInSection: 'All {{name}}',
+      sectionsOf: '{{name}} sections',
     },
     product: {
       title: 'Product details',
@@ -993,6 +1004,7 @@ export const en: TranslationResources = {
         filterAll: 'All',
         filterActive: 'Active',
         filterInactive: 'Inactive',
+        filterAllCategories: 'All categories',
       },
       detail: {
         title: 'Product details',
@@ -1099,6 +1111,7 @@ export const en: TranslationResources = {
     categories: {
       all: 'All',
       allInSection: 'All {{name}}',
+      sectionsOf: '{{name}} sections',
     },
     product: {
       title: 'Product details',
@@ -1206,6 +1219,7 @@ export const en: TranslationResources = {
         filterAll: 'All',
         filterActive: 'Active',
         filterInactive: 'Inactive',
+        filterAllCategories: 'All categories',
       },
       detail: {
         title: 'Product details',
@@ -2781,6 +2795,8 @@ export const en: TranslationResources = {
       savePermissions: 'Save permissions',
     },
     permissionGroups: {
+      products: 'Products',
+      followers: 'Followers',
       organization: 'Organization',
       members: 'Members',
       supervisors: 'Supervisors',
@@ -2789,6 +2805,30 @@ export const en: TranslationResources = {
       syndicate: 'Syndicate management',
     },
     permissions: {
+      'product.read': {
+        label: 'View products',
+        hint: 'See the office products and dashboard.',
+      },
+      'product.create': {
+        label: 'Add products',
+        hint: 'Add new products to the office.',
+      },
+      'product.update': {
+        label: 'Edit products',
+        hint: 'Edit product details, photos and visibility.',
+      },
+      'product.delete': {
+        label: 'Delete products',
+        hint: 'Delete office products.',
+      },
+      'product.inventory.adjust': {
+        label: 'Adjust stock',
+        hint: 'Increase or decrease stock quantities.',
+      },
+      'organization.broadcast.send': {
+        label: 'Message followers',
+        hint: 'Send a message to all office followers.',
+      },
       'organization.read': {
         label: 'View the organization',
         hint: 'See the organization profile.',
@@ -6435,7 +6475,20 @@ export const en: TranslationResources = {
         pending: 'Pending review',
         active: 'Active',
         expired: 'Subscription expired',
+        deleted: 'Deleted',
         renewals: 'Renewal requests',
+      },
+      species: {
+        allLivestock: 'Sheep & cattle',
+        SHEEP: 'Sheep',
+        CATTLE: 'Cattle',
+        POULTRY: 'Poultry',
+        MIXED: 'Mixed',
+      },
+      rowCounts: {
+        POULTRY: '{{count}} active flocks',
+        SHEEP: '{{count}} active sheep batches',
+        CATTLE: '{{count}} active cattle batches',
       },
       ownerLabel: 'Owner',
       subscriptionStatus: {
@@ -6465,6 +6518,7 @@ export const en: TranslationResources = {
         dateFormatError: 'Invalid date format. Use: year-month-day (e.g. 2026-09-01)',
         dateRangeError: 'The end date must be on or after the start date',
         quickExpired: 'Mark as expired (for testing)',
+        quickTrial: 'Free trial ({{count}} days from today)',
         quickActiveYear: 'Activate for 1 year from today',
         save: 'Save',
         renewalsSection: 'Subscription renewal requests',
@@ -6477,8 +6531,39 @@ export const en: TranslationResources = {
         rejectRenewalTitle: 'Reject the renewal request',
         rejectRenewalBody: 'A reason is required (at least 3 characters).',
         requestStatus: { PENDING: 'Under review', APPROVED: 'Approved', REJECTED: 'Rejected' },
+        titleGeneric: 'Farm profile',
+        profileSection: 'Farm information',
+        ownerSection: 'Owner',
+        operationsSection: 'Current activity',
+        speciesLabel: 'Farm type',
+        governorateLabel: 'Governorate',
+        locationLabel: 'Location',
+        addressLabel: 'Address',
+        capacityLabel: 'Capacity',
+        establishedLabel: 'Established',
+        contactNameLabel: 'Contact person',
+        contactPhoneLabel: 'Contact phone',
+        contactEmailLabel: 'Contact email',
+        poultryTypeLabel: 'Poultry production type',
+        sheepTypeLabel: 'Sheep production type',
+        cattleTypeLabel: 'Cattle production type',
+        birdCountLabel: 'Current birds',
+        sheepCountLabel: 'Current sheep',
+        cattleCountLabel: 'Current cattle',
+        ownerNameLabel: 'Name',
+        ownerEmailLabel: 'Email',
+        ownerPhoneLabel: 'Phone',
+        flockCountLabel: 'Active poultry flocks',
+        sheepBatchCountLabel: 'Active sheep batches',
+        cattleBatchCountLabel: 'Active cattle batches',
+        memberCountLabel: 'Farm members',
+        delete: 'Delete farm',
+        deleteTitle: 'Delete farm',
+        deleteBody:
+          'The farm is permanently deactivated: it leaves every list, all actions on it are blocked and open renewal requests are closed. Its records are kept for audit and it can be re-activated from the "Deleted" tab.',
       },
       toast: {
+        deleted: 'Farm deleted',
         subscriptionSet: 'Subscription period updated',
         renewalApproved: 'Renewal request approved',
         renewalRejected: 'Renewal request rejected',
@@ -6830,7 +6915,15 @@ export const en: TranslationResources = {
       rejectBody: 'This profile will not be shown to users. The veterinarian is told the reason.',
       reasonLabel: 'Rejection reason',
       reasonPlaceholder: 'Write the rejection reason…',
-      toast: { approved: 'Profile approved', rejected: 'Profile rejected' },
+      delete: 'Delete profile',
+      deleteTitle: 'Delete job-seeker profile',
+      deleteBody:
+        'The job-seeker profile will be permanently deleted and removed from the seekers list. This cannot be undone.',
+      toast: {
+        approved: 'Profile approved',
+        rejected: 'Profile rejected',
+        deleted: 'Profile deleted',
+      },
       details: {
         title: 'Profile details',
         user: 'Veterinarian',
@@ -7595,7 +7688,7 @@ export const en: TranslationResources = {
     products: {
       title: 'Products',
       filter: 'Filter',
-      searchPlaceholder: 'Search by product name or brand...',
+      searchPlaceholder: 'Search by name, brand or country of origin...',
       filterTitle: 'Filter products',
       filterBrand: 'Brand',
       filterCountry: 'Country of origin',
@@ -7645,7 +7738,7 @@ export const en: TranslationResources = {
       },
       list: {
         title: 'Office products',
-        searchPlaceholder: 'Search by product name…',
+        searchPlaceholder: 'Search by name, brand or country of origin…',
         filterAll: 'All',
         count: '{{count}} products',
         addCta: 'Add product',

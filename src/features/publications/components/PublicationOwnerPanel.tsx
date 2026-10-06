@@ -26,8 +26,8 @@ import {
 } from '../types';
 
 /**
- * Owner-only part of a listing's detail: its OUTCOME (available → FOUND /
- * ADOPTED / CLOSED, or reopen) and the requests / sighting reports received,
+ * Owner-only part of a listing's detail: its OUTCOME (available → the kind's
+ * completion: ADOPTED / MATED / FOUND, or reopen) and the requests / sighting reports received,
  * each with a button into the in-app conversation with that person. Every
  * action is re-authorized server-side (owner only).
  */
@@ -86,17 +86,20 @@ export function PublicationOwnerPanel({ publication }: { publication: AnimalPubl
               <Caption>{t('resolution.onlyApproved')}</Caption>
             ) : current === null ? (
               <View style={{ rowGap: theme.spacing.xs }}>
-                {RESOLUTIONS_BY_KIND[publication.kind].map((r) => (
-                  <Button
-                    key={r}
-                    label={t(`resolution.action.${r}`)}
-                    variant={r === 'CLOSED' ? 'outline' : 'primary'}
-                    size="sm"
-                    fullWidth
-                    disabled={resolve.isPending}
-                    onPress={() => setPending(r)}
-                  />
-                ))}
+                {/* Only the kind's completion action: تم التبني / تم التزاوج / تم العثور عليه. */}
+                {RESOLUTIONS_BY_KIND[publication.kind]
+                  .filter((r) => r !== 'CLOSED')
+                  .map((r) => (
+                    <Button
+                      key={r}
+                      label={t(`resolution.action.${r}`)}
+                      variant="primary"
+                      size="sm"
+                      fullWidth
+                      disabled={resolve.isPending}
+                      onPress={() => setPending(r)}
+                    />
+                  ))}
               </View>
             ) : (
               <Button

@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 
-import { formatDate } from '@/utils';
+import { formatDate, toLocalIsoDate } from '@/utils';
 
 /** ISO `YYYY-MM-DD` → the app-wide `YYYY-M-D` display date. */
 export function formatCourseDate(date: string): string {
@@ -28,7 +28,7 @@ export function formatCourseDuration(
 
 /** Days from today until `startDate` (0 if today or already started). "تبدأ بعد N يوم". */
 export function daysUntilStart(startDate: string): number {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalIsoDate(new Date());
   const start = new Date(`${startDate}T00:00:00Z`).getTime();
   const now = new Date(`${today}T00:00:00Z`).getTime();
   return Math.max(0, Math.round((start - now) / (24 * 60 * 60 * 1000)));
@@ -43,6 +43,6 @@ export function deriveMyCourseStatus(course: {
   cancelledAt: string | null;
 }): MyVetCourseStatus {
   if (course.cancelledAt) return 'CANCELLED';
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalIsoDate(new Date());
   return course.endDate < today ? 'COMPLETED' : 'UPCOMING';
 }

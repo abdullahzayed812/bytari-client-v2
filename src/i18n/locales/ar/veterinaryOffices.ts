@@ -33,7 +33,7 @@ export default {
   products: {
     title: 'المنتجات',
     filter: 'تصفية',
-    searchPlaceholder: 'ابحث باسم المنتج أو العلامة التجارية...',
+    searchPlaceholder: 'ابحث بالاسم أو العلامة التجارية أو بلد المنشأ...',
     all: 'الكل',
     filterTitle: 'تصفية المنتجات',
     filterBrand: 'العلامة التجارية',
@@ -83,7 +83,7 @@ export default {
     },
     list: {
       title: 'منتجات المكتب',
-      searchPlaceholder: 'ابحث باسم المنتج…',
+      searchPlaceholder: 'ابحث بالاسم أو العلامة التجارية أو بلد المنشأ…',
       filterAll: 'الكل',
       count: '{{count}} منتج',
       addCta: 'إضافة منتج',
