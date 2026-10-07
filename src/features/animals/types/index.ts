@@ -82,3 +82,36 @@ export interface Paginated<T> {
   items: T[];
   meta: PageMeta;
 }
+
+/**
+ * `GET /organizations/:organizationId/animals/:animalId` — the clinic-visible
+ * animal profile (server `ClinicAnimalDTO`). Requires
+ * `animal.veterinary.access.read` AND the clinic's ACTIVE grant (else 404).
+ * Carries **no owner identity**, none of the owner's private notes, and no
+ * storage keys — owner contact is never disclosed to an organization.
+ */
+export interface ClinicAnimalProfile {
+  id: string;
+  name: string;
+  /** CHECK-constrained on `animals.species`, unlike the free-form list-row string. */
+  species: AnimalSpecies;
+  breed: string | null;
+  sex: 'MALE' | 'FEMALE' | 'UNKNOWN';
+  dateOfBirth: string | null;
+  ageEstimate: 'UNDER_1_YEAR' | 'ONE_TO_3_YEARS' | 'THREE_TO_7_YEARS' | 'OVER_7_YEARS' | null;
+  color: string | null;
+  distinguishingFeatures: string | null;
+  status: AnimalStatus;
+  galleryUrls: string[];
+  /** This clinic's ACTIVE grant — `null` only when an ADMIN views without one. */
+  access: { id: string; grantedAt: string } | null;
+  /** Full veterinary-history summary (every clinic's entries). */
+  stats: {
+    medicalRecordsCount: number;
+    vaccinationsCount: number;
+    /** `YYYY-MM-DD` */
+    lastVisitDate: string | null;
+    /** `YYYY-MM-DD` — earliest upcoming next-due date. */
+    nextVaccinationDue: string | null;
+  };
+}

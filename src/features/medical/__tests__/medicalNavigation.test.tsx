@@ -1,6 +1,7 @@
 import { Routes } from '@/constants/routes';
 import { useAuthStore } from '@/features/auth/store';
 import { organizationAnimalsApi } from '@/features/animals/api';
+import { clinicDashboardApi } from '@/features/clinicDashboard/api';
 import OrganizationAnimalDetailScreen from '@/features/animals/screens/OrganizationAnimalDetailScreen';
 import { organizationsApi } from '@/features/organizations';
 import { petsApi } from '@/features/pets';
@@ -66,19 +67,27 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     jest
       .spyOn(organizationsApi, 'get')
       .mockResolvedValue({ id: 'o1', type: 'CLINIC', myRole: 'OWNER' } as never);
-    jest.spyOn(organizationAnimalsApi, 'list').mockResolvedValue({
-      items: [
-        {
-          id: 'g1',
-          animalId: 'a1',
-          organizationId: 'o1',
-          status: 'ACTIVE',
-          grantedByUserId: 'u1',
-          createdAt: '2026-01-01T00:00:00.000Z',
-          animal: { name: 'لولو', species: 'DOG', status: 'ACTIVE' },
-        },
-      ],
-      meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
+    // Permissions summary unavailable → the screen falls back to the `myRole` heuristic.
+    jest.spyOn(clinicDashboardApi, 'getSummary').mockRejectedValue(new Error('offline'));
+    jest.spyOn(organizationAnimalsApi, 'getProfile').mockResolvedValue({
+      id: 'a1',
+      name: 'لولو',
+      species: 'DOG',
+      breed: null,
+      sex: 'UNKNOWN',
+      dateOfBirth: null,
+      ageEstimate: null,
+      color: null,
+      distinguishingFeatures: null,
+      status: 'ACTIVE',
+      galleryUrls: [],
+      access: { id: 'g1', grantedAt: '2026-01-01T00:00:00.000Z' },
+      stats: {
+        medicalRecordsCount: 0,
+        vaccinationsCount: 0,
+        lastVisitDate: null,
+        nextVaccinationDue: null,
+      },
     });
     renderWithProviders(<OrganizationAnimalDetailScreen />);
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());

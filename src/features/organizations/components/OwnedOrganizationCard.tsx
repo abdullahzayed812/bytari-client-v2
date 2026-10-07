@@ -181,7 +181,7 @@ export function OwnedOrganizationCard({
           </View>
         ) : null}
 
-        {isOffice ? (
+        {(isOffice || org.type === 'CLINIC') && onEnterDashboard ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('card.enterDashboard')}

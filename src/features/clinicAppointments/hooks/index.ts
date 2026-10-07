@@ -6,3 +6,8 @@ export {
   useCancelPetOwnerAppointment,
   useRespondToReschedule,
 } from './usePetOwnerAppointments';
+export {
+  useClinicAppointments,
+  useClinicAppointmentAction,
+  type ClinicAppointmentAction,
+} from './useClinicAppointments';

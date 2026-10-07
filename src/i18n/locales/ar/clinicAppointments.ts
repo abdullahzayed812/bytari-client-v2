@@ -82,6 +82,22 @@ const clinicAppointments = {
     CANCELLED: 'تم إلغاء الموعد',
     COMPLETED: 'اكتمل الموعد',
   },
+  // --- Clinic Dashboard side ("مواعيد العيادة") ---
+  clinic: {
+    title: 'مواعيد العيادة',
+    empty: 'لا توجد مواعيد',
+    emptyHint: 'ستظهر هنا طلبات المواعيد التي يحجزها أصحاب الحيوانات لدى عيادتك.',
+    readOnly: 'يمكنك عرض المواعيد دون إدارتها.',
+    confirm: 'تأكيد',
+    reject: 'رفض',
+    complete: 'تم الإنجاز',
+    rejectConfirmTitle: 'رفض الموعد',
+    rejectConfirmBody: 'سيتم إشعار صاحب الحيوان برفض الطلب.',
+    cancel: 'تراجع',
+    updated: 'تم تحديث الموعد.',
+    messageOwner: 'مراسلة المالك',
+    openAnimal: 'ملف الحيوان',
+  },
 };
 
 export default clinicAppointments;

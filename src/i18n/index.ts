@@ -36,6 +36,7 @@ export const NAMESPACES = [
   'news',
   'chat',
   'clinicAppointments',
+  'clinicDashboard',
   'contact',
   'settings',
   'profile',

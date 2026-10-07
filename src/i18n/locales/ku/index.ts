@@ -4,6 +4,7 @@ import ads from './ads';
 import auth from './auth';
 import chat from './chat';
 import clinicAppointments from './clinicAppointments';
+import clinicDashboard from './clinicDashboard';
 import common from './common';
 import contact from './contact';
 import content from './content';
@@ -68,6 +69,7 @@ export const ku: DeepPartial<TranslationResources> = {
   registration,
   chat,
   clinicAppointments,
+  clinicDashboard,
   content,
   globalChat,
   notifications,

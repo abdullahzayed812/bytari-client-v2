@@ -42,8 +42,10 @@ const VETERINARY_ORG_TYPES = new Set(SECTION_DEFS.map((s) => s.type));
  * `PoultryFarmDetailsScreen`, the same destination `PoultryFarmsLandingScreen`
  * uses; despite the route's "poultry" naming it's the generic farm dashboard,
  * gated by `isFarm` + the vet's granted `farm.*` permissions, not a
- * species-specific screen) rather than the generic `OrganizationDetailsScreen`
- * a CLINIC/OFFICE card uses. Backend-scoped like `MyOrganizationsScreen`,
+ * species-specific screen). A CLINIC card opens the Clinic Dashboard
+ * (`Routes.clinicDashboard` — `ClinicDashboardHomeScreen`) and a
+ * VETERINARY_OFFICE card the Veterinary Office Dashboard; both still reach the
+ * generic `OrganizationDetailsScreen` from inside. Backend-scoped like `MyOrganizationsScreen`,
  * filtered client-side to the org types this section covers.
  */
 export default function MyVeterinaryOrganizationsScreen() {
@@ -69,6 +71,7 @@ export default function MyVeterinaryOrganizationsScreen() {
 
   const goToDetail = (org: MyOrganization) => router.push(Routes.organizationDetail(org.id));
   const goToDashboard = (org: MyOrganization) => {
+    if (org.type === 'CLINIC') return router.push(Routes.clinicDashboard(org.id));
     if (org.type === 'VETERINARY_OFFICE') return router.push(Routes.vetOfficeDashboard(org.id));
     if (org.type === 'FARM') return router.push(Routes.farmDashboard(org.id, org.farmSpecies));
     return goToDetail(org);

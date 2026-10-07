@@ -1,11 +1,13 @@
 import { useAuthStore } from '@/features/auth/store';
+import { clinicDashboardApi } from '@/features/clinicDashboard';
+import type { ClinicDashboardSummary } from '@/features/clinicDashboard';
 import { organizationsApi } from '@/features/organizations';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { organizationAnimalsApi } from '../api';
 import OrganizationAnimalDetailScreen from '../screens/OrganizationAnimalDetailScreen';
-import type { OrganizationAnimalGrant } from '../types';
+import type { ClinicAnimalProfile } from '../types';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -50,25 +52,65 @@ const orgDetail = {
   myRole: 'OWNER',
 } as const;
 
-const grant: OrganizationAnimalGrant = {
-  id: 'g1',
-  animalId: 'a1',
-  organizationId: 'o1',
+const profile: ClinicAnimalProfile = {
+  id: 'a1',
+  name: 'لولو',
+  species: 'DOG',
+  breed: 'هاسكي',
+  sex: 'FEMALE',
+  dateOfBirth: null,
+  ageEstimate: 'ONE_TO_3_YEARS',
+  color: 'أبيض',
+  distinguishingFeatures: null,
   status: 'ACTIVE',
-  grantedByUserId: 'u1',
-  createdAt: '2026-02-03T00:00:00.000Z',
-  animal: { name: 'لولو', species: 'DOG', status: 'ACTIVE' },
+  galleryUrls: [],
+  access: { id: 'g1', grantedAt: '2026-02-03T00:00:00.000Z' },
+  stats: {
+    medicalRecordsCount: 3,
+    vaccinationsCount: 2,
+    lastVisitDate: '2026-02-01',
+    nextVaccinationDue: null,
+  },
 };
 
-describe('OrganizationAnimalDetailScreen (§8, §12, §14)', () => {
+const allowAll: ClinicDashboardSummary['permissions'] = {
+  canViewAnimals: true,
+  canManageAnimalAccess: true,
+  canViewMedicalRecords: true,
+  canCreateMedicalRecords: true,
+  canViewVaccinations: true,
+  canCreateVaccinations: true,
+  canViewAppointments: true,
+  canManageAppointments: true,
+  canSendBroadcast: true,
+  canViewMembers: true,
+  canViewSupervisors: true,
+  canEditOrganization: true,
+};
+
+function summaryWith(permissions: Partial<ClinicDashboardSummary['permissions']>) {
+  return {
+    permissions: { ...allowAll, ...permissions },
+    animals: null,
+    medical: null,
+    appointments: null,
+    followersCount: 0,
+    rating: null,
+    reviewsCount: 0,
+  } satisfies ClinicDashboardSummary;
+}
+
+describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
   const get = jest.spyOn(organizationsApi, 'get');
-  const list = jest.spyOn(organizationAnimalsApi, 'list');
+  const getProfile = jest.spyOn(organizationAnimalsApi, 'getProfile');
+  const getSummary = jest.spyOn(clinicDashboardApi, 'getSummary');
   const revoke = jest.spyOn(organizationAnimalsApi, 'revoke');
 
   beforeEach(() => {
     resetRouterMock();
     get.mockReset().mockResolvedValue(orgDetail as never);
-    list.mockReset();
+    getProfile.mockReset();
+    getSummary.mockReset().mockResolvedValue(summaryWith({}));
     revoke.mockReset();
     setSearchParams({ organizationId: 'o1', animalId: 'a1' });
     seedOwner();
@@ -78,44 +120,73 @@ describe('OrganizationAnimalDetailScreen (§8, §12, §14)', () => {
     useAuthStore.setState({ session: null });
   });
 
-  it('shows the animal overview, an explicit owner-not-shared block, and future-module placeholders', async () => {
-    list.mockResolvedValue({
-      items: [grant],
-      meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
-    });
+  it('shows the clinic profile, stats, the owner-not-shared block and the medical modules', async () => {
+    getProfile.mockResolvedValue(profile);
     renderWithProviders(<OrganizationAnimalDetailScreen />);
 
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
+    expect(getProfile).toHaveBeenCalledWith('o1', 'a1');
+    expect(screen.getByText('هاسكي')).toBeOnTheScreen();
+    expect(screen.getByText('أنثى')).toBeOnTheScreen();
+    expect(screen.getByText('من سنة إلى 3 سنوات')).toBeOnTheScreen();
+    expect(screen.getByText('إجمالي الزيارات')).toBeOnTheScreen();
+    expect(screen.getByText('3')).toBeOnTheScreen();
     expect(screen.getByText('معلومات المالك')).toBeOnTheScreen();
     expect(screen.getByText('بيانات المالك غير متاحة')).toBeOnTheScreen();
-    expect(screen.getByText('السجل الطبي')).toBeOnTheScreen();
-    expect(screen.getByText('التطعيمات')).toBeOnTheScreen();
-    // no medical business logic rendered — only the "coming soon" placeholders
-    expect(screen.getAllByText('قريباً').length).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.getByText('السجل الطبي الكامل')).toBeOnTheScreen());
+    // stat label + medical nav row
+    expect(screen.getAllByText('التطعيمات')).toHaveLength(2);
   });
 
-  it('renders a plain "not linked" state when the animal is not in the organization', async () => {
-    list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 50, total: 0, totalPages: 1 } });
+  it('opens the existing medical-record create screen from "إضافة سجل طبي"', async () => {
+    getProfile.mockResolvedValue(profile);
+    renderWithProviders(<OrganizationAnimalDetailScreen />);
+    await waitFor(() => expect(screen.getByText('إضافة سجل طبي')).toBeOnTheScreen());
+    fireEvent.press(screen.getByText('إضافة سجل طبي'));
+    expect(routerMock.push).toHaveBeenCalledWith(
+      '/(app)/organizations/o1/animals/a1/medical-records/create',
+    );
+  });
+
+  it('hides write actions and revoke when the backend permissions deny them', async () => {
+    getSummary.mockResolvedValue(
+      summaryWith({
+        canCreateMedicalRecords: false,
+        canCreateVaccinations: false,
+        canManageAnimalAccess: false,
+      }),
+    );
+    getProfile.mockResolvedValue(profile);
+    renderWithProviders(<OrganizationAnimalDetailScreen />);
+    await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
+    await waitFor(() => expect(getSummary).toHaveBeenCalled());
+    await waitFor(() => expect(screen.queryByText('إضافة سجل طبي')).toBeNull());
+    expect(screen.queryByText('إضافة تطعيم')).toBeNull();
+    expect(screen.queryByText('إلغاء وصول المؤسسة')).toBeNull();
+  });
+
+  it('renders a plain "not linked" state on a 404 (no grant for this clinic)', async () => {
+    const { ApiError } = jest.requireActual('@/services/api') as typeof import('@/services/api');
+    getProfile.mockRejectedValue(new ApiError({ code: 'NOT_FOUND', message: 'nope', status: 404 }));
     renderWithProviders(<OrganizationAnimalDetailScreen />);
     await waitFor(() => expect(screen.getByText('الحيوان غير مرتبط بالمؤسسة')).toBeOnTheScreen());
   });
 
   it('renders a safe forbidden state on a 403 (no authorization detail leaked)', async () => {
     const { ApiError } = jest.requireActual('@/services/api') as typeof import('@/services/api');
-    list.mockRejectedValue(new ApiError({ code: 'FORBIDDEN', message: 'secret', status: 403 }));
+    getProfile.mockRejectedValue(
+      new ApiError({ code: 'FORBIDDEN', message: 'secret', status: 403 }),
+    );
     renderWithProviders(<OrganizationAnimalDetailScreen />);
     await waitFor(() => expect(screen.getByText('الحيوان غير متاح')).toBeOnTheScreen());
     expect(screen.queryByText('secret')).toBeNull();
   });
 
   it('an OWNER can revoke access: confirm → DELETE by animalId', async () => {
-    list.mockResolvedValue({
-      items: [grant],
-      meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
-    });
+    getProfile.mockResolvedValue(profile);
     revoke.mockResolvedValue({ revoked: true });
     renderWithProviders(<OrganizationAnimalDetailScreen />);
-    await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('إلغاء وصول المؤسسة')).toBeOnTheScreen());
 
     fireEvent.press(screen.getByText('إلغاء وصول المؤسسة'));
     await waitFor(() =>

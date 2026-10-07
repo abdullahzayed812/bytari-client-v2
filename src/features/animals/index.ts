@@ -12,6 +12,7 @@ export { organizationAnimalsApi, orgAnimalKeys, type OrganizationAnimalsApi } fr
 export {
   useOrganizationAnimals,
   useOrganizationAnimal,
+  useClinicAnimalProfile,
   useGrantOrganizationAnimalAccess,
   useRevokeOrganizationAnimalAccess,
 } from './hooks';

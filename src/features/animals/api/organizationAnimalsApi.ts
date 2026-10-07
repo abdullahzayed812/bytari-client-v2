@@ -3,6 +3,7 @@ import type { PageMeta as ApiPageMeta } from '@/services/api';
 
 import type {
   ClinicAnimalAccess,
+  ClinicAnimalProfile,
   GrantAnimalAccessInput,
   OrganizationAnimalGrant,
   Paginated,
@@ -18,9 +19,10 @@ import type {
  *   GET    /organizations/:organizationId/animal-access?page&pageSize
  *   POST   /organizations/:organizationId/animal-access        { animalId }
  *   DELETE /organizations/:organizationId/animal-access/:animalId
+ *   GET    /organizations/:organizationId/animals/:animalId   (clinic-visible profile)
  *
- * No endpoint here is invented. There is NO organization-scoped animal search
- * or animal-detail endpoint (see MOBILE_ARCHITECTURE.md §54).
+ * No endpoint here is invented. There is still NO organization-scoped animal
+ * search (see MOBILE_ARCHITECTURE.md §63).
  */
 export const organizationAnimalsApi = {
   async list(
@@ -49,6 +51,13 @@ export const organizationAnimalsApi = {
     return apiClient.post<ClinicAnimalAccess>(
       `/organizations/${organizationId}/animal-access`,
       input,
+    );
+  },
+
+  /** Clinic-visible profile; 404 when the clinic holds no ACTIVE grant for the animal. */
+  getProfile(organizationId: string, animalId: string): Promise<ClinicAnimalProfile> {
+    return apiClient.get<ClinicAnimalProfile>(
+      `/organizations/${organizationId}/animals/${animalId}`,
     );
   },
 

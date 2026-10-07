@@ -3274,3 +3274,55 @@ already-complete `/admin/*` backend: user list + suspend/activate, organization
 approvals + subscription window, veterinarian approvals, system-supervisor
 assignment, audit-log viewer, and admin broadcast. Everything else in
 `docs/01_SCOPE.md §1.7` now has a working mobile surface.
+
+---
+
+# Clinic Dashboard & clinic Pet Details (migrated from legacy `bytari`)
+
+## 164. What was migrated
+
+Legacy `bytari` `mobile/app/clinic-dashboard.tsx` and the clinic mode of
+`mobile/app/(tabs)/pet-details.tsx`, rebuilt on v2 contracts (no legacy tRPC):
+
+| Legacy                                                         | v2                                                                                                               |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `clinics.getDashboardData` (public, trusted a client `userId`) | `GET /organizations/:id/clinic-dashboard/summary` — authenticated, `organization.read`, RBAC-derived permissions |
+| `clinics.getLatestPets` (no clinic membership check)           | existing `GET /organizations/:id/animal-access` (first page)                                                     |
+| `pets.getProfile` with `clinicId`                              | `GET /organizations/:id/animals/:animalId` — needs `animal.veterinary.access.read` + ACTIVE grant (else 404)     |
+| quick review / full exam / lab / files / notes tabs            | existing medical-record + vaccination screens (`orgAnimal*` routes)                                              |
+| `clinic-appointments` screen                                   | `ClinicAppointmentsScreen` over the existing clinic-side appointment routes (confirm / reject / complete)        |
+| `clinic-chats`, "send to followers"                            | reused `VeterinaryOfficeConversationsScreen` / `SendFollowerMessageScreen` (org-generic) under clinic routes     |
+| staff / settings                                               | existing members / supervisors / organization edit screens                                                       |
+
+`MyVeterinaryOrganizationsScreen`: a CLINIC card (and its "دخول لوحة التحكم"
+button) now opens `Routes.clinicDashboard(org.id)`; OFFICE / FARM unchanged.
+`OrganizationDetailsScreen` stays reachable from the dashboard ("ملف العيادة").
+
+## 165. Authorization
+
+- Dashboard sections (`animals` / `medical` / `appointments`) are `null`
+  server-side unless the caller holds the permission of the list they summarise;
+  the screen renders only what it receives. `permissions` replaces the `myRole`
+  heuristic on the dashboard, the clinic animal screen and the appointments
+  screen (`useClinicPermissions`, falling back to `orgCapabilities` until loaded).
+- The clinic animal profile carries **no owner identity**, none of the owner's
+  private `notes`, and no storage keys (§63 still holds for owner data).
+- "Message the owner" exists only on an appointment card — the one place a
+  clinic has a legitimate owner relationship (the owner booked the visit).
+
+## 166. Not migrated (and why)
+
+- **Owner name / phone on clinic pet details** — v2 deliberately never discloses
+  owner identity to organizations, and a clinic grant does not require owner
+  consent. Needs a product decision (e.g. owner-approved sharing) first.
+- **Reminders** (`petReminders`), **lab results / files / notes tabs**, **quick
+  review vs full exam record types** — not in the v2 spec; medical records carry
+  diagnosis / treatment / notes, attachments are deferred (server §11.3).
+- **Barcode / QR scan search over all pets** — the legacy search read every pet
+  in the system (`pets.getAllPets`); v2 has no clinic-scoped animal search
+  (§63). Search opens the clinic's own animal list (local name filter).
+- **"Send to visitors"** broadcast, inventory, reports — no v2 backend
+  (legacy showed "coming soon" for inventory / reports too).
+- **Clinic-proposed reschedule** — backend route exists; no UI yet.
+- **Owner-side "clinics that treated my pet" tab** — no owner-facing endpoint
+  lists a pet's clinic grants.

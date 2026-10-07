@@ -410,6 +410,14 @@ export const Routes = {
     `/(app)/organizations/${organizationId}/subscription-renewal` as const,
 
   // Veterinary Office Dashboard — its own 5-tab shell, entered via "دخول لوحة التحكم".
+  // --- Clinic Dashboard (لوحة العيادة) — the CLINIC card's destination ---
+  clinicDashboard: (organizationId: string) => `/(app)/clinic-dashboard/${organizationId}` as const,
+  clinicDashboardAppointments: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/appointments` as const,
+  clinicDashboardConversations: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/conversations` as const,
+  clinicDashboardBroadcast: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/broadcast` as const,
   vetOfficeDashboard: (organizationId: string) =>
     `/(app)/vet-office-dashboard/${organizationId}` as const,
   vetOfficeDashboardProducts: (organizationId: string) =>

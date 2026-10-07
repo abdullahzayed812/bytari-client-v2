@@ -33,6 +33,7 @@ export function useRevokeOrganizationAnimalAccess(
     mutationFn: ({ animalId }) => organizationAnimalsApi.revoke(organizationId, animalId),
     onSuccess: (_data, { animalId }) => {
       qc.removeQueries({ queryKey: orgAnimalKeys.detail(organizationId, animalId) });
+      qc.removeQueries({ queryKey: orgAnimalKeys.profile(organizationId, animalId) });
       void qc.invalidateQueries({ queryKey: orgAnimalKeys.forOrg(organizationId) });
     },
   });
