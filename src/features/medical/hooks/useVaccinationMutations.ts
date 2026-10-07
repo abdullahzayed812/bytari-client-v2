@@ -3,6 +3,8 @@ import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/r
 import { medicalKeys, vaccinationsApi } from '../api';
 import type { Vaccination, VaccinationInput } from '../types';
 
+import { invalidateClinicMedical } from './useClinicCare';
+
 /** Vaccination mutations — CLINIC context only. Same invalidation rules as medical records (§33). */
 
 export function useCreateVaccination(
@@ -14,7 +16,7 @@ export function useCreateVaccination(
     mutationKey: ['medical', 'vaccinations', 'create', organizationId, animalId],
     mutationFn: (body: VaccinationInput) => vaccinationsApi.create(organizationId, animalId, body),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: medicalKeys.vaccinations(animalId) });
+      invalidateClinicMedical(qc, organizationId, animalId);
     },
   });
 }
@@ -30,7 +32,7 @@ export function useUpdateVaccination(
       vaccinationsApi.update(organizationId, animalId, vaccinationId, body),
     onSuccess: (_data, { vaccinationId }) => {
       void qc.invalidateQueries({ queryKey: medicalKeys.vaccination(animalId, vaccinationId) });
-      void qc.invalidateQueries({ queryKey: medicalKeys.vaccinations(animalId) });
+      invalidateClinicMedical(qc, organizationId, animalId);
     },
   });
 }
@@ -46,7 +48,7 @@ export function useDeleteVaccination(
       vaccinationsApi.remove(organizationId, animalId, vaccinationId),
     onSuccess: (_data, { vaccinationId }) => {
       qc.removeQueries({ queryKey: medicalKeys.vaccination(animalId, vaccinationId) });
-      void qc.invalidateQueries({ queryKey: medicalKeys.vaccinations(animalId) });
+      invalidateClinicMedical(qc, organizationId, animalId);
     },
   });
 }

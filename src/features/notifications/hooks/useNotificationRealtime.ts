@@ -29,6 +29,7 @@ export function useNotificationRealtime(): void {
     const refresh = (): void => {
       void qc.invalidateQueries({ queryKey: notificationKeys.lists() });
       void qc.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.petUnseenAll() });
     };
 
     const subs = [

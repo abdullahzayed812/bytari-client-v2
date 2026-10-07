@@ -81,6 +81,10 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
       distinguishingFeatures: null,
       status: 'ACTIVE',
       galleryUrls: [],
+      weightKg: null,
+      isNeutered: null,
+      medicalHistory: null,
+      owner: null,
       access: { id: 'g1', grantedAt: '2026-01-01T00:00:00.000Z' },
       stats: {
         medicalRecordsCount: 0,

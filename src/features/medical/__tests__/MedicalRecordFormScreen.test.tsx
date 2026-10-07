@@ -5,10 +5,12 @@ import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/route
 import { medicalRecordsApi } from '../api';
 import MedicalRecordFormScreen from '../screens/MedicalRecordFormScreen';
 import type { MedicalRecord } from '../types';
+import { recordExtras } from './fixtures';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
 const rec: MedicalRecord = {
+  ...recordExtras,
   id: 'r1',
   animalId: 'a1',
   organizationId: 'o1',

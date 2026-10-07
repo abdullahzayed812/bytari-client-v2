@@ -6,9 +6,11 @@ import { Button } from '@/components/actions';
 import { Badge, Card, Divider, Icon, type IconName } from '@/components/content';
 import { EmptyState, ErrorState, SkeletonText } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
+import { QrCode } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { usePetUnseenCounts } from '@/features/notifications/hooks';
 import { PublicationKindBadge, PublicationStatusBadge } from '@/features/publications/components';
 import { PUBLICATION_KIND_META } from '@/features/publications/constants';
 import { useAnimalPublications } from '@/features/publications/hooks';
@@ -34,6 +36,8 @@ export default function PetDetailsScreen() {
   const isOwner = Boolean(pet && user && pet.currentOwnerUserId === user.id);
   const canPublish = isOwner && pet?.status === 'ACTIVE';
   const listings = useAnimalPublications(petId, { enabled: canPublish });
+  // "New from the clinic" per section — unread pet-care notifications, owner only.
+  const unseen = usePetUnseenCounts(petId, isOwner);
 
   const notFound = q.error instanceof ApiError && q.error.status === 404;
 
@@ -128,6 +132,37 @@ export default function PetDetailsScreen() {
               />
               <Divider spacing="sm" />
               <InfoRow label={t('detail.fieldAge')} value={ageLabel} />
+              <Divider spacing="sm" />
+              <InfoRow label={t('detail.fieldColor')} value={pet.color ?? t('detail.noValue')} />
+              <Divider spacing="sm" />
+              <InfoRow
+                label={t('detail.fieldWeight')}
+                value={
+                  pet.weightKg != null
+                    ? t('detail.weightValue', { value: pet.weightKg })
+                    : t('detail.noValue')
+                }
+              />
+              <Divider spacing="sm" />
+              <InfoRow
+                label={t('detail.fieldNeutered')}
+                value={
+                  pet.isNeutered == null
+                    ? t('detail.noValue')
+                    : pet.isNeutered
+                      ? t('form.neuteredYes')
+                      : t('form.neuteredNo')
+                }
+              />
+              {pet.medicalHistory ? (
+                <>
+                  <Divider spacing="sm" />
+                  <View style={{ rowGap: 4 }}>
+                    <Caption>{t('form.medicalHistoryLabel')}</Caption>
+                    <Text variant="body">{pet.medicalHistory}</Text>
+                  </View>
+                </>
+              ) : null}
               {pet.notes ? (
                 <>
                   <Divider spacing="sm" />
@@ -192,12 +227,25 @@ export default function PetDetailsScreen() {
                   <MedicalNavRow
                     icon="medkit-outline"
                     label={t('detail.medicalRecords')}
+                    newCount={unseen.medicalRecords}
                     onPress={() => router.push(Routes.petMedicalRecords(pet.id))}
                   />
                   <MedicalNavRow
                     icon="shield-checkmark-outline"
                     label={t('detail.vaccinations')}
+                    newCount={unseen.vaccinations}
                     onPress={() => router.push(Routes.petVaccinations(pet.id))}
+                  />
+                  <MedicalNavRow
+                    icon="notifications-outline"
+                    label={t('detail.reminders')}
+                    newCount={unseen.reminders}
+                    onPress={() => router.push(Routes.petReminders(pet.id))}
+                  />
+                  <MedicalNavRow
+                    icon="medkit"
+                    label={t('detail.clinics')}
+                    onPress={() => router.push(Routes.petClinics(pet.id))}
                   />
                 </>
               ) : (
@@ -255,6 +303,22 @@ export default function PetDetailsScreen() {
             </Section>
           ) : null}
 
+          {/* Legacy "رقم المعرف" + barcode: the clinic scans it to find the pet. */}
+          {isOwner ? (
+            <Section spacing="xl">
+              <Label>{t('detail.idSection')}</Label>
+              <Card variant="outlined" padding="md">
+                <View style={{ alignItems: 'center', rowGap: theme.spacing.sm }}>
+                  <QrCode value={pet.id} size={140} accessibilityLabel={t('detail.idSection')} />
+                  <Text variant="caption" selectable>
+                    {pet.id}
+                  </Text>
+                  <Caption style={{ textAlign: 'center' }}>{t('detail.idHint')}</Caption>
+                </View>
+              </Card>
+            </Section>
+          ) : null}
+
           {pet.status === 'ACTIVE' ? (
             <Button
               label={t('detail.edit')}
@@ -285,18 +349,29 @@ function MedicalNavRow({
   icon,
   label,
   onPress,
+  newCount = 0,
 }: {
   icon: IconName;
   label: string;
   onPress: () => void;
+  /** Unseen clinic additions in this section (badge hidden at 0). */
+  newCount?: number;
 }) {
+  const { t } = useTranslation('pets');
+  const badge = newCount > 0 ? t('detail.newCount', { count: newCount }) : null;
   return (
-    <Card variant="outlined" padding="md" onPress={onPress} accessibilityLabel={label}>
+    <Card
+      variant="outlined"
+      padding="md"
+      onPress={onPress}
+      accessibilityLabel={badge ? `${label}، ${badge}` : label}
+    >
       <Row gap="md">
         <Icon name={icon} size="iconMd" color="primary" />
         <Text variant="bodyMedium" style={{ flex: 1 }}>
           {label}
         </Text>
+        {badge ? <Badge label={badge} tone="danger" size="sm" /> : null}
         <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
       </Row>
     </Card>

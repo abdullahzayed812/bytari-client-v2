@@ -417,6 +417,34 @@ export default {
       title: 'اكتمل الموعد',
       body: 'تم تسجيل موعدك كمكتمل.',
     },
+    CLINIC_APPOINTMENT_CREATED: {
+      title: 'موعد جديد',
+      body: 'حددت العيادة موعدًا لحيوانك.',
+    },
+    CLINIC_APPOINTMENT_REMINDER: {
+      title: 'تذكير بموعد',
+      body: 'لديك موعد قادم في العيادة.',
+    },
+    VACCINATION_ADDED: {
+      title: 'تم إضافة تطعيم جديد',
+      body: 'أضافت العيادة تطعيمًا لحيوانك.',
+    },
+    VACCINATION_DUE: {
+      title: 'تذكير بالتطعيم',
+      body: 'حان موعد تطعيم حيوانك.',
+    },
+    REMINDER_ADDED: {
+      title: 'تم إضافة تذكير جديد',
+      body: 'أضافت العيادة تذكيرًا لحيوانك.',
+    },
+    REMINDER_DUE: {
+      title: 'تذكير من العيادة',
+      body: 'لديك تذكير لحيوانك من العيادة.',
+    },
+    MEDICAL_RECORD_ADDED: {
+      title: 'سجل طبي جديد',
+      body: 'أضافت العيادة سجلًا طبيًا لحيوانك.',
+    },
     ADMIN_ANNOUNCEMENT: {
       title: 'إعلان',
       body: 'لديك إعلان جديد.',

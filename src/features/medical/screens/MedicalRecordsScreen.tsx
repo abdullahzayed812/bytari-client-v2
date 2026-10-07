@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
@@ -8,6 +9,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useMarkPetSectionSeen } from '@/features/notifications/hooks';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
@@ -34,6 +36,34 @@ export default function MedicalRecordsScreen() {
   const canAdd = isClinic && caps.canManageOrganizationMedical;
 
   const q = useMedicalRecords({ animalId, organizationId });
+  // Owner opened this section → clear only its "new" badge on Pet Details.
+  useMarkPetSectionSeen(animalId, 'medicalRecords', !isClinic);
+  // Legacy clinic tabs التحاليل / الملفات / الملاحظات are views over the same records.
+  const { view } = useLocalSearchParams<{ view?: 'lab' | 'files' | 'notes' }>();
+  const records = useMemo(() => {
+    if (view === 'lab') return q.records.filter((r) => r.labNotes);
+    if (view === 'files')
+      return q.records.filter((r) => r.prescriptionKey || r.attachmentKeys.length > 0);
+    if (view === 'notes') return q.records.filter((r) => r.notes);
+    return q.records;
+  }, [q.records, view]);
+  const createType = view === 'lab' ? 'LAB' : view === 'files' ? 'FILE' : undefined;
+  const title =
+    view === 'lab'
+      ? t('records.labTab')
+      : view === 'files'
+        ? t('records.filesTab')
+        : view === 'notes'
+          ? t('records.notesTab')
+          : t('records.title');
+  const emptyTitle =
+    view === 'lab'
+      ? t('records.labEmpty')
+      : view === 'files'
+        ? t('records.filesEmpty')
+        : view === 'notes'
+          ? t('records.notesEmpty')
+          : t('records.empty');
 
   const goToDetail = (r: MedicalRecord) =>
     router.push(
@@ -41,13 +71,16 @@ export default function MedicalRecordsScreen() {
         ? Routes.orgAnimalMedicalRecord(organizationId as string, animalId, r.id)
         : Routes.petMedicalRecord(animalId, r.id),
     );
-  const goToCreate = () =>
-    router.push(Routes.orgAnimalMedicalRecordCreate(organizationId as string, animalId));
+  const goToCreate = () => {
+    const path = Routes.orgAnimalMedicalRecordCreate(organizationId as string, animalId);
+    if (createType) router.push({ pathname: path as never, params: { type: createType } });
+    else router.push(path);
+  };
 
   return (
     <SafeAreaScreen>
       <AppHeader
-        title={t('records.title')}
+        title={title}
         showBack
         right={
           canAdd ? (
@@ -79,7 +112,7 @@ export default function MedicalRecordsScreen() {
         </View>
       ) : (
         <FlatList
-          data={q.records}
+          data={records}
           keyExtractor={(r) => r.id}
           renderItem={({ item }) => (
             <MedicalRecordCard
@@ -89,7 +122,7 @@ export default function MedicalRecordsScreen() {
             />
           )}
           ListHeaderComponent={
-            q.total > 0 ? (
+            q.total > 0 && !view ? (
               <Caption style={{ paddingBottom: theme.spacing.sm }}>
                 {t('records.count', { count: q.total })}
               </Caption>
@@ -98,7 +131,7 @@ export default function MedicalRecordsScreen() {
           ListEmptyComponent={
             <EmptyState
               icon="medkit-outline"
-              title={t('records.empty')}
+              title={emptyTitle}
               message={canAdd ? t('records.emptyHintClinic') : t('records.emptyHint')}
               actionLabel={canAdd ? t('records.addCta') : undefined}
               onAction={canAdd ? goToCreate : undefined}

@@ -82,6 +82,23 @@ export function useCloseConversation(
   });
 }
 
+/** Clinic side: pause / resume a pet owner ↔ clinic conversation (legacy toggleActive). */
+export function useSetClinicChatActive(): UseMutationResult<
+  Conversation,
+  unknown,
+  { conversationId: string; active: boolean }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['chat', 'clinic-active'],
+    mutationFn: ({ conversationId, active }) => chatApi.setClinicActive(conversationId, active),
+    onSuccess: (c) => {
+      qc.setQueryData(chatKeys.detail(c.id), c);
+      void qc.invalidateQueries({ queryKey: chatKeys.lists() });
+    },
+  });
+}
+
 /** Start (or fetch the existing) conversation, then invalidate the list. */
 export function useStartConversation(): UseMutationResult<
   Conversation,

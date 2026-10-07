@@ -9,6 +9,7 @@ export {
   useMarkConversationRead,
   useDeleteMessage,
   useCloseConversation,
+  useSetClinicChatActive,
   useStartConversation,
 } from './useChatMutations';
 export { useConversationRealtime, useChatListRealtime } from './useChatRealtime';

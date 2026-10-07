@@ -31,6 +31,8 @@ export function apiErrorMessage(error: unknown): string {
       return t('veterinarianPendingApproval');
     case ApiErrorCode.ORGANIZATION_SUBSCRIPTION_EXPIRED:
       return t('organizationSubscriptionExpired');
+    case ApiErrorCode.ORGANIZATION_NOT_ACTIVE:
+      return t('organizationNotActive');
     case ApiErrorCode.FORBIDDEN:
     case ApiErrorCode.PERMISSION_DENIED:
       return t('forbidden');

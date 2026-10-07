@@ -8,6 +8,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useMarkPetSectionSeen } from '@/features/notifications/hooks';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
@@ -30,6 +31,8 @@ export default function VaccinationsScreen() {
   const canAdd = isClinic && caps.canManageOrganizationMedical;
 
   const q = useVaccinations({ animalId, organizationId });
+  // Owner opened this section → clear only its "new" badge on Pet Details.
+  useMarkPetSectionSeen(animalId, 'vaccinations', !isClinic);
 
   const goToDetail = (v: Vaccination) =>
     router.push(

@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
@@ -13,11 +14,13 @@ export interface AnimalCardProps {
   onPress?: () => void;
 }
 
+/** The short identifier printed on cards — the UUID prefix the search accepts. */
+export const shortAnimalId = (animalId: string): string => `#${animalId.slice(0, 8)}`;
+
 /**
- * Presentation-only row for one organization animal. Shows ONLY the fields the
- * backend returns on the `animal-access` list item (name, species, animal
- * status, access status). No breed / sex / owner — the backend does not send
- * them to an organization (§7, §54).
+ * Presentation-only row for one of the clinic's patients — the fields the
+ * backend returns on the `animal-access` list item: photo, name, species,
+ * breed, current owner, short id, animal + access status.
  */
 export function AnimalCard({ grant, onPress }: AnimalCardProps) {
   const theme = useTheme();
@@ -46,22 +49,44 @@ export function AnimalCard({ grant, onPress }: AnimalCardProps) {
     >
       <View
         style={{
-          width: 44,
-          height: 44,
+          width: 52,
+          height: 52,
           borderRadius: theme.radius.md,
           backgroundColor: theme.colors.surfaceAccent,
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         }}
       >
-        <Icon name={animalSpeciesIcon(species)} size="iconMd" color="primary" />
+        {grant.animal.photoUrl ? (
+          <Image
+            source={{ uri: grant.animal.photoUrl }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <Icon name={animalSpeciesIcon(species)} size="iconMd" color="primary" />
+        )}
       </View>
 
       <View style={{ flex: 1, rowGap: 4 }}>
         <Text variant="bodyStrong" numberOfLines={1}>
           {grant.animal.name}
         </Text>
-        <Caption numberOfLines={1}>{t(`species.${species}`, { defaultValue: species })}</Caption>
+        <Caption numberOfLines={1}>
+          {[t(`species.${species}`, { defaultValue: species }), grant.animal.breed]
+            .filter(Boolean)
+            .join(' · ')}
+        </Caption>
+        {grant.ownerName ? (
+          <Caption numberOfLines={1} color="textMuted">
+            {t('card.owner', { name: grant.ownerName })}
+          </Caption>
+        ) : null}
+        <Caption numberOfLines={1} color="textMuted" selectable>
+          {shortAnimalId(grant.animalId)}
+        </Caption>
         <View
           style={{
             flexDirection: 'row',

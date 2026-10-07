@@ -12,6 +12,8 @@ export const orgAnimalKeys = {
   all: ['organization-animals'] as const,
   forOrg: (organizationId: string) => [...orgAnimalKeys.all, organizationId] as const,
   list: (organizationId: string) => [...orgAnimalKeys.forOrg(organizationId), 'list'] as const,
+  search: (organizationId: string, term: string) =>
+    [...orgAnimalKeys.forOrg(organizationId), 'search', term] as const,
   detail: (organizationId: string, animalId: string) =>
     [...orgAnimalKeys.forOrg(organizationId), 'detail', animalId] as const,
   profile: (organizationId: string, animalId: string) =>

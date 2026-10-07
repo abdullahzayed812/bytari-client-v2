@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +11,7 @@ import { ApiError } from '@/services/api';
 import { MedicalRecordForm } from '../components';
 import { devMedicalRecordDefaults } from '../data/devDefaults';
 import { useCreateMedicalRecord, useMedicalRecord, useUpdateMedicalRecord } from '../hooks';
-import type { MedicalRecordInput } from '../types';
+import { MEDICAL_RECORD_TYPES, type MedicalRecordInput, type MedicalRecordType } from '../types';
 import { medicalErrorMessage, type MedicalRecordFormValues } from '../validation/schemas';
 
 import { useMedicalRouteScope } from './useMedicalRouteScope';
@@ -25,8 +25,14 @@ export default function MedicalRecordFormScreen() {
   const { t } = useTranslation('medical');
   const toast = useToast();
   const { animalId, organizationId, recordId } = useMedicalRouteScope();
+  const { type } = useLocalSearchParams<{ type?: string }>();
   const orgId = organizationId ?? '';
   const isEdit = Boolean(recordId);
+  const createType: MedicalRecordType = (MEDICAL_RECORD_TYPES as readonly string[]).includes(
+    type ?? '',
+  )
+    ? (type as MedicalRecordType)
+    : 'GENERAL';
 
   const existing = useMedicalRecord({ animalId, organizationId }, recordId, { enabled: isEdit });
   const create = useCreateMedicalRecord(orgId, animalId);
@@ -60,6 +66,7 @@ export default function MedicalRecordFormScreen() {
   }
 
   const record = existing.data;
+  const recordType: MedicalRecordType = record?.recordType ?? createType;
   const defaults: Partial<MedicalRecordFormValues> = record
     ? {
         visitDate: record.visitDate ?? '',
@@ -67,33 +74,30 @@ export default function MedicalRecordFormScreen() {
         diagnosis: record.diagnosis ?? '',
         treatment: record.treatment ?? '',
         notes: record.notes ?? '',
+        symptoms: record.symptoms ?? '',
+        severity: record.severity ?? '',
+        labNotes: record.labNotes ?? '',
       }
-    : devDataEnabled
+    : devDataEnabled && recordType === 'GENERAL'
       ? devMedicalRecordDefaults()
       : {};
+  const defaultAttachments = record
+    ? {
+        prescription: record.prescriptionKey
+          ? { key: record.prescriptionKey, url: record.prescriptionUrl }
+          : null,
+        attachments: record.attachmentKeys.map((key, i) => ({
+          key,
+          url: record.attachmentUrls[i] ?? null,
+        })),
+      }
+    : undefined;
 
-  const onSubmit = (values: MedicalRecordFormValues) => {
+  const onSubmit = (body: MedicalRecordInput, { isDraft }: { isDraft: boolean }) => {
     if (inFlight.current || busy) return;
     inFlight.current = true;
     setFormError(null);
     setServerFields({});
-
-    // Blank optional strings → omitted (create) / null (edit clears the field).
-    const trim = (s?: string) => (s?.trim() ? s.trim() : undefined);
-    const createBody: MedicalRecordInput = {
-      visitDate: trim(values.visitDate),
-      reason: trim(values.reason),
-      diagnosis: trim(values.diagnosis),
-      treatment: trim(values.treatment),
-      notes: trim(values.notes),
-    };
-    const editBody: MedicalRecordInput = {
-      visitDate: trim(values.visitDate),
-      reason: values.reason?.trim() ? values.reason.trim() : null,
-      diagnosis: values.diagnosis?.trim() ? values.diagnosis.trim() : null,
-      treatment: values.treatment?.trim() ? values.treatment.trim() : null,
-      notes: values.notes?.trim() ? values.notes.trim() : null,
-    };
 
     const onError = (error: unknown) => {
       setServerFields(fieldErrors(error));
@@ -102,13 +106,18 @@ export default function MedicalRecordFormScreen() {
     const onSettled = () => {
       inFlight.current = false;
     };
+    const successMessage = isDraft
+      ? t('records.draftSuccess')
+      : isEdit
+        ? t('records.editSuccess')
+        : t('records.createSuccess');
 
     if (isEdit && record) {
       update.mutate(
-        { recordId: record.id, body: editBody },
+        { recordId: record.id, body },
         {
           onSuccess: () => {
-            toast.show({ tone: 'success', message: t('records.editSuccess') });
+            toast.show({ tone: 'success', message: successMessage });
             router.back();
           },
           onError,
@@ -116,9 +125,9 @@ export default function MedicalRecordFormScreen() {
         },
       );
     } else {
-      create.mutate(createBody, {
+      create.mutate(body, {
         onSuccess: () => {
-          toast.show({ tone: 'success', message: t('records.createSuccess') });
+          toast.show({ tone: 'success', message: successMessage });
           router.back();
         },
         onError,
@@ -127,10 +136,25 @@ export default function MedicalRecordFormScreen() {
     }
   };
 
+  const title = isEdit
+    ? t('records.editTitle')
+    : recordType === 'FULL_EXAM'
+      ? t('records.addTitleFullExam')
+      : recordType === 'LAB'
+        ? t('records.addTitleLab')
+        : recordType === 'FILE'
+          ? t('records.addTitleFile')
+          : t('records.addTitle');
+
   return (
-    <OrgFormLayout title={isEdit ? t('records.editTitle') : t('records.addTitle')}>
+    <OrgFormLayout title={title}>
       <MedicalRecordForm
         mode={isEdit ? 'edit' : 'create'}
+        recordType={recordType}
+        organizationId={orgId}
+        animalId={animalId}
+        isDraft={record?.isDraft ?? false}
+        defaultAttachments={defaultAttachments}
         defaultValues={defaults}
         submitting={busy}
         formError={formError}

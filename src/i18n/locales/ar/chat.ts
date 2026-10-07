@@ -16,6 +16,9 @@ export default {
   },
   thread: {
     title: 'المحادثة',
+    pauseClinicChat: 'إيقاف المحادثة',
+    resumeClinicChat: 'تفعيل المحادثة',
+    clinicChatPaused: 'أوقفت العيادة هذه المحادثة مؤقتاً.',
     notFoundTitle: 'المحادثة غير متاحة',
     notFoundBody: 'قد تكون هذه المحادثة محذوفة، أو ليست لديك صلاحية عرضها.',
     back: 'رجوع',

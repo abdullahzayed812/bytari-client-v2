@@ -70,7 +70,7 @@ describe('notificationHref — post-Phase-15 types (push payloads)', () => {
     [
       'CLINIC_APPOINTMENT_CANCELLED',
       { appointmentId: 'a1', organizationId: 'cl1', audience: 'CLINIC' },
-      '/(app)/organizations/cl1',
+      '/(app)/clinic-dashboard/cl1/appointments',
     ],
     [
       'SYNDICATE_ANNOUNCEMENT_PUBLISHED',

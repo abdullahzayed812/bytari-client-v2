@@ -16,6 +16,7 @@ export function useMarkNotificationRead(): UseMutationResult<AppNotification, un
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: notificationKeys.lists() });
       void qc.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.petUnseenAll() });
     },
   });
 }
@@ -32,6 +33,7 @@ export function useMarkAllNotificationsRead(): UseMutationResult<
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: notificationKeys.lists() });
       void qc.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.petUnseenAll() });
     },
   });
 }

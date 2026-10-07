@@ -6,3 +6,4 @@ export {
 export { useMarkNotificationRead, useMarkAllNotificationsRead } from './useNotificationMutations';
 export { useNotificationRealtime } from './useNotificationRealtime';
 export { useOpenNotification } from './useOpenNotification';
+export { usePetUnseenCounts, useMarkPetSectionSeen } from './usePetUnseen';

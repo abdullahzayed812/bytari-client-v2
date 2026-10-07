@@ -61,6 +61,12 @@ export interface Pet {
   color?: string | null;
   distinguishingFeatures?: string | null;
   ageEstimate?: PetAgeEstimate | null;
+  /** Legacy `pets.weight` (kg). */
+  weightKg?: number | null;
+  /** Legacy `pets.is_neutered`; `null` = not stated. */
+  isNeutered?: boolean | null;
+  /** Legacy free-text medical history — ADMIN-editable only. */
+  medicalHistory?: string | null;
   /** Resolved R2 photo URLs — the client never builds them. */
   galleryUrls?: string[];
   /** Raw storage keys backing {@link galleryUrls}, same order — needed to remove a specific photo. */
@@ -80,6 +86,8 @@ export interface CreatePetInput {
   color?: string | null;
   distinguishingFeatures?: string | null;
   ageEstimate?: PetAgeEstimate | null;
+  weightKg?: number | null;
+  isNeutered?: boolean | null;
 }
 
 export interface UpdatePetInput {
@@ -92,6 +100,9 @@ export interface UpdatePetInput {
   color?: string | null;
   distinguishingFeatures?: string | null;
   ageEstimate?: PetAgeEstimate | null;
+  weightKg?: number | null;
+  isNeutered?: boolean | null;
+  medicalHistory?: string | null;
 }
 
 // --- ownership (Phase 12) --------------------------------------------

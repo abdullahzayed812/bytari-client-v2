@@ -6,7 +6,7 @@ import { Caption, Text } from '@/components/typography';
 import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
 
-import { displayDateOnly, recordedByThisClinic } from '../constants';
+import { VACCINATION_STATUS_TONE, displayDateOnly, recordedByThisClinic } from '../constants';
 import type { Vaccination } from '../types';
 
 export interface VaccinationCardProps {
@@ -20,8 +20,11 @@ export function VaccinationCard({ vaccination, organizationId, onPress }: Vaccin
   const theme = useTheme();
   const { t } = useTranslation('medical');
   const mine = recordedByThisClinic(vaccination, organizationId);
+  // Legacy rule: only a still-SCHEDULED dose can be overdue.
   const overdue = Boolean(
-    vaccination.nextDueOn && vaccination.nextDueOn < new Date().toISOString().slice(0, 10),
+    vaccination.status === 'SCHEDULED' &&
+    vaccination.nextDueOn &&
+    vaccination.nextDueOn < new Date().toISOString().slice(0, 10),
   );
 
   return (
@@ -47,6 +50,11 @@ export function VaccinationCard({ vaccination, organizationId, onPress }: Vaccin
         <Text variant="bodyStrong" style={{ flex: 1 }} numberOfLines={1}>
           {vaccination.vaccineName}
         </Text>
+        <Badge
+          label={t(`vaccinations.status.${vaccination.status}`)}
+          tone={VACCINATION_STATUS_TONE[vaccination.status]}
+          size="sm"
+        />
         {organizationId ? (
           <Badge
             label={mine ? t('vaccinations.recordedHere') : t('vaccinations.recordedElsewhere')}

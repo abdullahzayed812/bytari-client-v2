@@ -66,6 +66,7 @@ export default function VaccinationFormScreen() {
         administeredOn: v.administeredOn,
         nextDueOn: v.nextDueOn ?? '',
         notes: v.notes ?? '',
+        status: v.status,
       }
     : devDataEnabled
       ? devVaccinationDefaults()
@@ -82,6 +83,7 @@ export default function VaccinationFormScreen() {
       administeredOn: values.administeredOn.trim(),
       nextDueOn: values.nextDueOn?.trim() ? values.nextDueOn.trim() : isEdit ? null : undefined,
       notes: values.notes?.trim() ? values.notes.trim() : isEdit ? null : undefined,
+      status: values.status || undefined,
     };
 
     const onError = (error: unknown) => {

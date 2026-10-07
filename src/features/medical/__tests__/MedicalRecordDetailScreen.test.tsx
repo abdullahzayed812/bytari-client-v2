@@ -6,6 +6,7 @@ import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/route
 import { medicalRecordsApi } from '../api';
 import MedicalRecordDetailScreen from '../screens/MedicalRecordDetailScreen';
 import type { MedicalRecord } from '../types';
+import { recordExtras } from './fixtures';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -37,6 +38,7 @@ function seed() {
 const orgDetail = { id: 'o1', type: 'CLINIC', myRole: 'OWNER' } as const;
 
 const rec = (over: Partial<MedicalRecord> = {}): MedicalRecord => ({
+  ...recordExtras,
   id: 'r1',
   animalId: 'a1',
   organizationId: 'o1',

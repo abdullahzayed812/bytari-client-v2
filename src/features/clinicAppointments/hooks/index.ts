@@ -9,5 +9,7 @@ export {
 export {
   useClinicAppointments,
   useClinicAppointmentAction,
+  useCreateClinicAppointment,
+  useRemindTodayAppointments,
   type ClinicAppointmentAction,
 } from './useClinicAppointments';

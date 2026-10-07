@@ -10,6 +10,7 @@ import type { NotificationListFilter } from '../types';
  *   notificationKeys.detail(id)     → ['notifications', 'detail', id]
  *   notificationKeys.preferences()  → ['notifications', 'preferences']
  *   notificationKeys.devices()      → ['notifications', 'devices']
+ *   notificationKeys.petUnseen(id)  → ['notifications', 'pet-unseen', id]
  */
 export const notificationKeys = {
   all: ['notifications'] as const,
@@ -20,4 +21,6 @@ export const notificationKeys = {
   detail: (notificationId: string) => [...notificationKeys.all, 'detail', notificationId] as const,
   preferences: () => [...notificationKeys.all, 'preferences'] as const,
   devices: () => [...notificationKeys.all, 'devices'] as const,
+  petUnseenAll: () => [...notificationKeys.all, 'pet-unseen'] as const,
+  petUnseen: (animalId: string) => [...notificationKeys.petUnseenAll(), animalId] as const,
 };

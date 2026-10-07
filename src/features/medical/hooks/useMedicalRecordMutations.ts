@@ -3,6 +3,8 @@ import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/r
 import { medicalKeys, medicalRecordsApi } from '../api';
 import type { MedicalRecord, MedicalRecordInput } from '../types';
 
+import { invalidateClinicMedical } from './useClinicCare';
+
 /**
  * Medical-record mutations — CLINIC context only (owners are read-only). The
  * backend takes `organizationId` / `animalId` from the route and
@@ -20,7 +22,7 @@ export function useCreateMedicalRecord(
     mutationFn: (body: MedicalRecordInput) =>
       medicalRecordsApi.create(organizationId, animalId, body),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: medicalKeys.records(animalId) });
+      invalidateClinicMedical(qc, organizationId, animalId);
     },
   });
 }
@@ -36,7 +38,7 @@ export function useUpdateMedicalRecord(
       medicalRecordsApi.update(organizationId, animalId, recordId, body),
     onSuccess: (_data, { recordId }) => {
       void qc.invalidateQueries({ queryKey: medicalKeys.record(animalId, recordId) });
-      void qc.invalidateQueries({ queryKey: medicalKeys.records(animalId) });
+      invalidateClinicMedical(qc, organizationId, animalId);
     },
   });
 }
@@ -51,7 +53,7 @@ export function useDeleteMedicalRecord(
     mutationFn: ({ recordId }) => medicalRecordsApi.remove(organizationId, animalId, recordId),
     onSuccess: (_data, { recordId }) => {
       qc.removeQueries({ queryKey: medicalKeys.record(animalId, recordId) });
-      void qc.invalidateQueries({ queryKey: medicalKeys.records(animalId) });
+      invalidateClinicMedical(qc, organizationId, animalId);
     },
   });
 }

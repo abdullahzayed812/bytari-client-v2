@@ -29,11 +29,13 @@ export const organizationAnimalsApi = {
     organizationId: string,
     page: number,
     pageSize: number,
+    /** Server-side match on id (exact) / name / breed / species / owner name — this clinic's animals only. */
+    search?: string,
   ): Promise<Paginated<OrganizationAnimalGrant>> {
     const envelope = await apiClient.requestEnvelope<OrganizationAnimalGrant[]>({
       method: 'GET',
       url: `/organizations/${organizationId}/animal-access`,
-      params: { page, pageSize },
+      params: { page, pageSize, ...(search ? { search } : {}) },
     });
     const meta = (envelope.meta ?? {}) as Partial<ApiPageMeta>;
     return {

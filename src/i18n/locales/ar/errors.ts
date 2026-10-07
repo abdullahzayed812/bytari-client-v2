@@ -15,6 +15,7 @@ export default {
   accountInactive: 'هذا الحساب موقوف أو معطّل. تواصل مع الدعم.',
   emailVerificationRequired: 'يجب تفعيل بريدك الإلكتروني أولاً.',
   veterinarianPendingApproval: 'حسابك كطبيب بيطري بانتظار موافقة الإدارة.',
+  organizationNotActive: 'هذه المنشأة غير نشطة حالياً (قيد المراجعة أو موقوفة)، ولا يمكن إدارتها.',
   organizationSubscriptionExpired: 'انتهى اشتراك هذه المنشأة. جدّد الاشتراك لمتابعة الإدارة.',
   invalidVerificationCode: 'الرمز الذي أدخلته غير صحيح.',
   verificationCodeExpired: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.',

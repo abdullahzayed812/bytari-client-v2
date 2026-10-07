@@ -110,6 +110,13 @@ export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; 
   CLINIC_APPOINTMENT_RESCHEDULE_PROPOSED: { icon: 'calendar-outline', tone: 'warning' },
   CLINIC_APPOINTMENT_CANCELLED: { icon: 'calendar-outline', tone: 'neutral' },
   CLINIC_APPOINTMENT_COMPLETED: { icon: 'calendar-outline', tone: 'success' },
+  CLINIC_APPOINTMENT_CREATED: { icon: 'calendar-outline', tone: 'primary' },
+  CLINIC_APPOINTMENT_REMINDER: { icon: 'alarm-outline', tone: 'warning' },
+  VACCINATION_ADDED: { icon: 'shield-checkmark-outline', tone: 'success' },
+  VACCINATION_DUE: { icon: 'shield-checkmark-outline', tone: 'warning' },
+  REMINDER_ADDED: { icon: 'notifications-outline', tone: 'primary' },
+  REMINDER_DUE: { icon: 'notifications-outline', tone: 'warning' },
+  MEDICAL_RECORD_ADDED: { icon: 'document-text-outline', tone: 'primary' },
   ADMIN_ANNOUNCEMENT: { icon: 'megaphone-outline', tone: 'warning' },
   ORGANIZATION_BROADCAST: { icon: 'megaphone-outline', tone: 'primary' },
   VETERINARY_OFFICE_PRODUCT_ADDED: { icon: 'cube-outline', tone: 'primary' },
@@ -454,12 +461,27 @@ function hrefByType(
     case 'CLINIC_APPOINTMENT_REJECTED':
     case 'CLINIC_APPOINTMENT_RESCHEDULE_PROPOSED':
     case 'CLINIC_APPOINTMENT_CANCELLED':
-    case 'CLINIC_APPOINTMENT_COMPLETED': {
+    case 'CLINIC_APPOINTMENT_COMPLETED':
+    case 'CLINIC_APPOINTMENT_CREATED':
+    case 'CLINIC_APPOINTMENT_REMINDER': {
       const clinicSide =
         pick(d, 'audience') === 'CLINIC' || n.type === 'CLINIC_APPOINTMENT_REQUESTED';
-      if (clinicSide) return orgId ? Routes.organizationDetail(orgId) : Routes.organizations;
+      if (clinicSide) {
+        return orgId ? Routes.clinicDashboardAppointments(orgId) : Routes.organizations;
+      }
       const aid = id('appointmentId');
       return aid ? Routes.petOwnerAppointment(aid) : Routes.petOwnerAppointments;
+    }
+
+    // Clinic veterinary care → the owner's Pet Details, where the per-section
+    // "new" badges point at what changed (the screen re-checks ownership).
+    case 'VACCINATION_ADDED':
+    case 'VACCINATION_DUE':
+    case 'REMINDER_ADDED':
+    case 'REMINDER_DUE':
+    case 'MEDICAL_RECORD_ADDED': {
+      const animalId = pick(d, 'animalId');
+      return animalId ? Routes.petDetail(animalId) : Routes.pets;
     }
 
     case 'CONTENT_PUBLISHED':

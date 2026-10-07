@@ -35,14 +35,18 @@ export default function GrantAnimalAccessScreen() {
   const theme = useTheme();
   const { t } = useTranslation('orgAnimals');
   const toast = useToast();
-  const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
+  // `animalId` may be pre-filled (e.g. a scanned code that is not linked yet).
+  const { organizationId, animalId: presetAnimalId } = useLocalSearchParams<{
+    organizationId: string;
+    animalId?: string;
+  }>();
   const orgId = organizationId ?? '';
   const grant = useGrantOrganizationAnimalAccess(orgId);
 
   const schema = useMemo(() => buildGrantAnimalAccessSchema(t), [t]);
   const { control, handleSubmit } = useForm<GrantAnimalAccessFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { animalId: '' },
+    defaultValues: { animalId: presetAnimalId ?? '' },
     mode: 'onTouched',
   });
   const inFlight = useRef(false);

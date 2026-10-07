@@ -168,6 +168,13 @@ export const chatApi = {
   },
 
   /** "إيقاف المحادثة" — close a PET_OWNER_VETERINARIAN marketplace deal conversation. */
+  /** Clinic pauses (`false`) / resumes (`true`) its chat with a pet owner. */
+  async setClinicActive(conversationId: string, active: boolean): Promise<Conversation> {
+    return toConversation(
+      await apiClient.post<unknown>(`/conversations/${conversationId}/clinic-active`, { active }),
+    );
+  },
+
   async close(conversationId: string): Promise<Conversation> {
     return toConversation(await apiClient.post<unknown>(`/conversations/${conversationId}/close`));
   },

@@ -30,6 +30,13 @@ export interface ClinicMedicalStats {
   medicalRecordsToday: number;
   vaccinationsCount: number;
   vaccinationsDueToday: number;
+  remindersCount: number;
+  remindersToday: number;
+  /** Distinct animals per source (legacy quick-access counters). */
+  medicalAnimals: number;
+  vaccinationAnimals: number;
+  reminderAnimals: number;
+  totalDistinctAnimals: number;
   visitorsToday: number;
 }
 
@@ -37,6 +44,7 @@ export interface ClinicAppointmentStats {
   todayCount: number;
   pendingCount: number;
   upcomingCount: number;
+  appointmentAnimals: number;
 }
 
 /** A section is `null` when the caller may not read the list it summarises. */

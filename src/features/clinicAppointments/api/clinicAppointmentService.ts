@@ -1,7 +1,12 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
-import type { AppointmentListPage, AppointmentStatus, ClinicAppointment } from '../types';
+import type {
+  AppointmentListPage,
+  AppointmentStatus,
+  BookAppointmentInput,
+  ClinicAppointment,
+} from '../types';
 
 /**
  * Clinic-side appointment wrappers (the Clinic Dashboard). The backend gates
@@ -14,6 +19,11 @@ import type { AppointmentListPage, AppointmentStatus, ClinicAppointment } from '
  *  - `POST /organizations/:organizationId/clinic-appointments/:id/confirm`
  *  - `POST /organizations/:organizationId/clinic-appointments/:id/reject   { reason? }`
  *  - `POST /organizations/:organizationId/clinic-appointments/:id/complete`
+ *  - `POST /organizations/:organizationId/clinic-appointments/:id/reschedule { proposedScheduledFor, reason? }`
+ *  - `POST /organizations/:organizationId/clinic-appointments/by-clinic`   (clinic books; CONFIRMED)
+ *  - `POST /organizations/:organizationId/clinic-appointments/:id/remind`  (notify the owner)
+ *  - `POST /organizations/:organizationId/clinic-appointments/remind-today`
+ *  - `DELETE /organizations/:organizationId/clinic-appointments/:id`       (COMPLETED only)
  */
 export const clinicAppointmentService = {
   async list(
@@ -51,6 +61,42 @@ export const clinicAppointmentService = {
     return apiClient.post<ClinicAppointment>(
       `/organizations/${organizationId}/clinic-appointments/${appointmentId}/reject`,
       reason ? { reason } : {},
+    );
+  },
+
+  proposeReschedule(
+    organizationId: string,
+    appointmentId: string,
+    proposedScheduledFor: string,
+  ): Promise<ClinicAppointment> {
+    return apiClient.post<ClinicAppointment>(
+      `/organizations/${organizationId}/clinic-appointments/${appointmentId}/reschedule`,
+      { proposedScheduledFor },
+    );
+  },
+
+  createByClinic(organizationId: string, input: BookAppointmentInput): Promise<ClinicAppointment> {
+    return apiClient.post<ClinicAppointment>(
+      `/organizations/${organizationId}/clinic-appointments/by-clinic`,
+      input,
+    );
+  },
+
+  remind(organizationId: string, appointmentId: string): Promise<{ notified: boolean }> {
+    return apiClient.post<{ notified: boolean }>(
+      `/organizations/${organizationId}/clinic-appointments/${appointmentId}/remind`,
+    );
+  },
+
+  remindToday(organizationId: string): Promise<{ sent: number }> {
+    return apiClient.post<{ sent: number }>(
+      `/organizations/${organizationId}/clinic-appointments/remind-today`,
+    );
+  },
+
+  remove(organizationId: string, appointmentId: string): Promise<{ deleted: boolean }> {
+    return apiClient.delete<{ deleted: boolean }>(
+      `/organizations/${organizationId}/clinic-appointments/${appointmentId}`,
     );
   },
 

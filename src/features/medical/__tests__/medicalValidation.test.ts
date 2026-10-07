@@ -12,7 +12,7 @@ const t = i18n.getFixedT('ar', 'medical');
 describe('buildMedicalRecordSchema — mirrors the backend', () => {
   const schema = buildMedicalRecordSchema(t);
 
-  it('rejects an entry with no reason / diagnosis / treatment / notes', () => {
+  it('only checks types/lengths — the "at least one field" rule lives in the form (attachments are outside it)', () => {
     const r = schema.safeParse({
       visitDate: '',
       reason: '',
@@ -20,7 +20,12 @@ describe('buildMedicalRecordSchema — mirrors the backend', () => {
       treatment: '',
       notes: '',
     });
-    expect(r.success).toBe(false);
+    expect(r.success).toBe(true);
+  });
+
+  it('rejects an unknown severity and an over-long lab result', () => {
+    expect(schema.safeParse({ severity: 'EXTREME' }).success).toBe(false);
+    expect(schema.safeParse({ labNotes: 'x'.repeat(8001) }).success).toBe(false);
   });
 
   it('accepts an entry with just a diagnosis', () => {

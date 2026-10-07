@@ -3310,19 +3310,37 @@ button) now opens `Routes.clinicDashboard(org.id)`; OFFICE / FARM unchanged.
 - "Message the owner" exists only on an appointment card — the one place a
   clinic has a legitimate owner relationship (the owner booked the visit).
 
-## 166. Not migrated (and why)
+## 166. Legacy parity pass (data-entry 1:1)
 
-- **Owner name / phone on clinic pet details** — v2 deliberately never discloses
-  owner identity to organizations, and a clinic grant does not require owner
-  consent. Needs a product decision (e.g. owner-approved sharing) first.
-- **Reminders** (`petReminders`), **lab results / files / notes tabs**, **quick
-  review vs full exam record types** — not in the v2 spec; medical records carry
-  diagnosis / treatment / notes, attachments are deferred (server §11.3).
-- **Barcode / QR scan search over all pets** — the legacy search read every pet
-  in the system (`pets.getAllPets`); v2 has no clinic-scoped animal search
-  (§63). Search opens the clinic's own animal list (local name filter).
-- **"Send to visitors"** broadcast, inventory, reports — no v2 backend
-  (legacy showed "coming soon" for inventory / reports too).
-- **Clinic-proposed reschedule** — backend route exists; no UI yet.
-- **Owner-side "clinics that treated my pet" tab** — no owner-facing endpoint
-  lists a pet's clinic grants.
+Second pass migrated every reachable legacy data-entry flow (server migration
+`20261101010000_clinic_medical_parity`):
+
+| Legacy                                                                                 | v2                                                                                                       |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| full exam (diagnosis, symptoms, severity, meds, lab, files, notes, draft)              | `MedicalRecordFormScreen ?type=FULL_EXAM` — same fields; medications folded into `treatment` as before   |
+| lab tab / file tab (`recordType` تحليل / ملف)                                          | `?type=LAB` / `?type=FILE`; list views `medical-records?view=lab                                         | files | notes` |
+| prescription image + `fileUrls`                                                        | `prescriptionKey` + `attachmentKeys` (R2, clinic-scoped keys, signed URLs)                               |
+| vaccination status / reschedule / notify; clinic vaccinations                          | `status` + `VaccinationActions`; `/clinic-dashboard/:id/vaccinations`                                    |
+| `pet_reminders` (clinic CRUD, complete, reschedule, notify, today batch; owner delete) | `animal_reminders`; reminder screens (clinic + `/pets/:id/reminders`); `/clinic-dashboard/:id/reminders` |
+| quick review + templates settings                                                      | `/clinic-dashboard/:id/quick-review[?animalId]`, `/quick-review-settings`                                |
+| pet weight / neutered / admin medical history                                          | `animals.weight_kg`, `is_neutered`, `medical_history` (ADMIN-only edit)                                  |
+| clinic pet page owner name + phone, chat + pause                                       | `ClinicOwnerCard`; `POST /conversations/:id/clinic-active`                                               |
+| pet ID + barcode; dashboard search + scan                                              | QR on both pet pages; dashboard server search (`animal-access?search=`) + `AnimalCodeScannerModal`       |
+| owner "clinics" tab                                                                    | `/pets/:id/clinics` (`GET /animals/:id/clinics`)                                                         |
+| clinic appointments: create, delete (completed), remind, today                         | `appointments-new`, list actions (`by-clinic`, `remind`, `remind-today`, DELETE)                         |
+| send to visitors                                                                       | broadcast `audience: CLINIC_VISITORS`                                                                    |
+
+**Owner contact is now shown to a clinic holding an ACTIVE grant** (legacy
+behaviour) — this supersedes the §63 "no owner information" limitation.
+
+## 167. Not migrated (and why)
+
+- **Treatment cards, follow-up / access requests, owner approval of pending
+  medical actions, "cancel follow-up"** — unreachable / commented out in the
+  legacy UI (dead code); v2 uses the clinic grant instead.
+- **Inventory / reports buttons** — legacy showed only a "coming soon" alert.
+- **"Remove all clinic data for a pet"** (legacy staff screen) — v2 keeps
+  medical history (RESTRICT FKs, audit); revoke access + per-record delete exist.
+- **Owner deleting a clinic's vaccination** — v2 keeps vaccinations clinic-owned
+  history (owner read-only, §11.1); owners can delete reminders as before.
+- **Full-exam "treatment duration" date** — shown but never saved by the legacy app.

@@ -23,7 +23,13 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { displayDateOnly, recordedByThisClinic } from '../constants';
+import { MedicalAttachmentsView } from '../components/MedicalAttachmentsView';
+import {
+  RECORD_TYPE_TONE,
+  SEVERITY_TONE,
+  displayDateOnly,
+  recordedByThisClinic,
+} from '../constants';
 import { useDeleteMedicalRecord, useMedicalRecord } from '../hooks';
 import { medicalErrorMessage } from '../validation/schemas';
 
@@ -97,6 +103,23 @@ export default function MedicalRecordDetailScreen() {
                 />
               ) : null}
             </Row>
+            <Row gap="xs" wrap style={{ marginTop: theme.spacing.xs }}>
+              <Badge
+                label={t(`records.recordType.${record.recordType}`)}
+                tone={RECORD_TYPE_TONE[record.recordType]}
+                size="sm"
+              />
+              {record.isDraft ? (
+                <Badge label={t('records.draft')} tone="warning" size="sm" />
+              ) : null}
+              {record.severity ? (
+                <Badge
+                  label={t(`records.severity.${record.severity}`)}
+                  tone={SEVERITY_TONE[record.severity]}
+                  size="sm"
+                />
+              ) : null}
+            </Row>
           </Section>
 
           <Section spacing="xl">
@@ -110,11 +133,24 @@ export default function MedicalRecordDetailScreen() {
               <Divider spacing="sm" />
               <Field label={t('records.fieldDiagnosis')} value={record.diagnosis} />
               <Divider spacing="sm" />
+              <Field label={t('records.fieldSymptoms')} value={record.symptoms} />
+              <Divider spacing="sm" />
               <Field label={t('records.fieldTreatment')} value={record.treatment} />
+              <Divider spacing="sm" />
+              <Field label={t('records.fieldLabNotes')} value={record.labNotes} />
               <Divider spacing="sm" />
               <Field label={t('records.fieldNotes')} value={record.notes} />
             </Card>
           </Section>
+
+          {record.prescriptionUrl || record.attachmentUrls.length > 0 ? (
+            <Section spacing="xl">
+              <MedicalAttachmentsView
+                prescriptionUrl={record.prescriptionUrl}
+                attachmentUrls={record.attachmentUrls}
+              />
+            </Section>
+          ) : null}
 
           <Section spacing="xl">
             <Card variant="outlined" padding="md">

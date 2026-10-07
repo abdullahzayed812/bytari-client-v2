@@ -10,7 +10,12 @@ import { AppConfig } from '@/constants/config';
 import type { ApiError } from '@/services/api';
 
 import { appointmentKeys, clinicAppointmentService } from '../api';
-import type { AppointmentListPage, AppointmentStatus, ClinicAppointment } from '../types';
+import type {
+  AppointmentListPage,
+  AppointmentStatus,
+  BookAppointmentInput,
+  ClinicAppointment,
+} from '../types';
 
 /** The clinic's incoming appointments (Clinic Dashboard), optionally one status. */
 export function useClinicAppointments(organizationId: string, status?: AppointmentStatus) {
@@ -44,7 +49,10 @@ export function useClinicAppointments(organizationId: string, status?: Appointme
 export type ClinicAppointmentAction =
   | { kind: 'confirm'; appointmentId: string }
   | { kind: 'reject'; appointmentId: string; reason?: string }
-  | { kind: 'complete'; appointmentId: string };
+  | { kind: 'complete'; appointmentId: string }
+  | { kind: 'reschedule'; appointmentId: string; proposedScheduledFor: string }
+  | { kind: 'remind'; appointmentId: string }
+  | { kind: 'delete'; appointmentId: string };
 
 /**
  * Confirm / reject / complete one of the clinic's appointments. Refreshes every
@@ -53,7 +61,7 @@ export type ClinicAppointmentAction =
  */
 export function useClinicAppointmentAction(organizationId: string) {
   const qc = useQueryClient();
-  return useMutation<ClinicAppointment, ApiError, ClinicAppointmentAction>({
+  return useMutation<ClinicAppointment | null, ApiError, ClinicAppointmentAction>({
     mutationKey: ['clinic-appointments', 'clinic-action', organizationId],
     mutationFn: (action) => {
       switch (action.kind) {
@@ -67,12 +75,48 @@ export function useClinicAppointmentAction(organizationId: string) {
           );
         case 'complete':
           return clinicAppointmentService.complete(organizationId, action.appointmentId);
+        case 'reschedule':
+          return clinicAppointmentService.proposeReschedule(
+            organizationId,
+            action.appointmentId,
+            action.proposedScheduledFor,
+          );
+        case 'remind':
+          return clinicAppointmentService
+            .remind(organizationId, action.appointmentId)
+            .then(() => null);
+        case 'delete':
+          return clinicAppointmentService
+            .remove(organizationId, action.appointmentId)
+            .then(() => null);
       }
     },
+    onSuccess: (appointment) => {
+      if (appointment) qc.setQueryData(appointmentKeys.detail(appointment.id), appointment);
+      void qc.invalidateQueries({ queryKey: appointmentKeys.all });
+      void qc.invalidateQueries({ queryKey: ['clinic-dashboard', 'summary', organizationId] });
+    },
+  });
+}
+
+/** The clinic books a visit for one of its animals (legacy createAppointment). */
+export function useCreateClinicAppointment(organizationId: string) {
+  const qc = useQueryClient();
+  return useMutation<ClinicAppointment, ApiError, BookAppointmentInput>({
+    mutationKey: ['clinic-appointments', 'by-clinic', organizationId],
+    mutationFn: (input) => clinicAppointmentService.createByClinic(organizationId, input),
     onSuccess: (appointment) => {
       qc.setQueryData(appointmentKeys.detail(appointment.id), appointment);
       void qc.invalidateQueries({ queryKey: appointmentKeys.all });
       void qc.invalidateQueries({ queryKey: ['clinic-dashboard', 'summary', organizationId] });
     },
+  });
+}
+
+/** "تذكير مواعيد اليوم" (legacy sendTodayAppointmentsNotification). */
+export function useRemindTodayAppointments(organizationId: string) {
+  return useMutation<{ sent: number }, ApiError, void>({
+    mutationKey: ['clinic-appointments', 'remind-today', organizationId],
+    mutationFn: () => clinicAppointmentService.remindToday(organizationId),
   });
 }

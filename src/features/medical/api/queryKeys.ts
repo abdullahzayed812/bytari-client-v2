@@ -29,6 +29,22 @@ export const medicalKeys = {
   vaccination: (animalId: string, vaccinationId: string) =>
     [...medicalKeys.vaccinations(animalId), 'detail', vaccinationId] as const,
 
+  /** Reminders (legacy pet_reminders) — `scope` as for records. */
+  reminders: (animalId: string) => [...medicalKeys.forAnimal(animalId), 'reminders'] as const,
+  reminderList: (animalId: string, scope: string) =>
+    [...medicalKeys.reminders(animalId), 'list', { scope }] as const,
+  reminder: (animalId: string, reminderId: string) =>
+    [...medicalKeys.reminders(animalId), 'detail', reminderId] as const,
+
+  /** Clinic-wide lists / settings — keyed by the clinic, not an animal. */
+  clinic: (organizationId: string) => [...medicalKeys.all, 'clinic', organizationId] as const,
+  clinicVaccinations: (organizationId: string, status: string) =>
+    [...medicalKeys.clinic(organizationId), 'vaccinations', { status }] as const,
+  clinicReminders: (organizationId: string, status: string) =>
+    [...medicalKeys.clinic(organizationId), 'reminders', { status }] as const,
+  templates: (organizationId: string) =>
+    [...medicalKeys.clinic(organizationId), 'templates'] as const,
+
   /** Composed medical-history timeline (Phase 12). */
   timeline: (animalId: string) => [...medicalKeys.forAnimal(animalId), 'timeline'] as const,
   timelineList: (animalId: string, scope: string, type: string) =>

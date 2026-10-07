@@ -14,6 +14,7 @@ export interface MedicalRouteScope extends MedicalScope {
   isClinic: boolean;
   recordId?: string;
   vaccinationId?: string;
+  reminderId?: string;
 }
 
 export function useMedicalRouteScope(): MedicalRouteScope {
@@ -23,6 +24,7 @@ export function useMedicalRouteScope(): MedicalRouteScope {
     petId?: string;
     recordId?: string;
     vaccinationId?: string;
+    reminderId?: string;
   }>();
 
   const animalId = params.animalId ?? params.petId ?? '';
@@ -34,5 +36,6 @@ export function useMedicalRouteScope(): MedicalRouteScope {
     isClinic: Boolean(organizationId),
     recordId: params.recordId,
     vaccinationId: params.vaccinationId,
+    reminderId: params.reminderId,
   };
 }

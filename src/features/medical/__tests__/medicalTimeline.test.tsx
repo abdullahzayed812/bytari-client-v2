@@ -15,6 +15,7 @@ import { medicalHistoryApi } from '../api';
 import { useMedicalTimeline } from '../hooks';
 import MedicalTimelineScreen from '../screens/MedicalTimelineScreen';
 import type { MedicalTimelineEntry } from '../types';
+import { recordExtras, vaccinationExtras } from './fixtures';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -25,6 +26,7 @@ const record = (over: Partial<MedicalTimelineEntry> = {}): MedicalTimelineEntry 
   recordedByUserId: 'u1',
   createdAt: '2026-03-01T10:00:00.000Z',
   medicalRecord: {
+    ...recordExtras,
     id: 'r1',
     animalId: 'a1',
     organizationId: 'o1',
@@ -47,6 +49,7 @@ const vaccination: MedicalTimelineEntry = {
   recordedByUserId: 'u1',
   createdAt: '2026-02-01T10:00:00.000Z',
   vaccination: {
+    ...vaccinationExtras,
     id: 'v1',
     animalId: 'a1',
     organizationId: 'o1',

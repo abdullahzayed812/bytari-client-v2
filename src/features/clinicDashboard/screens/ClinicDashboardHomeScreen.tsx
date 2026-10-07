@@ -6,7 +6,6 @@ import { FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-nat
 import { Button } from '@/components/actions';
 import { Badge, Card, Icon, type IconName } from '@/components/content';
 import { Alert, EmptyState, ErrorState, Loading } from '@/components/feedback';
-import { SearchInput } from '@/components/forms';
 import { Row, SafeAreaScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
@@ -19,6 +18,7 @@ import { useOrganization } from '@/features/organizations';
 import { ApiError } from '@/services/api';
 import { useTheme, type ColorTokens } from '@/theme';
 
+import { ClinicPetSearch } from '../components';
 import { useClinicDashboard } from '../hooks';
 
 const RECENT_ANIMALS_COUNT = 5;
@@ -183,6 +183,19 @@ export default function ClinicDashboardHomeScreen() {
             </Row>
           </View>
 
+          {/* --- Owned-pet search + QR / ID lookup (the primary action) --- */}
+          {perms?.canViewAnimals ? (
+            <Section spacing="sm">
+              <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.sm }}>
+                {t('search.title')}
+              </Text>
+              <ClinicPetSearch
+                organizationId={orgId}
+                canLink={Boolean(perms.canManageAnimalAccess) && isActive && !isExpired}
+              />
+            </Section>
+          ) : null}
+
           {!isActive ? (
             <Section spacing="sm">
               <Alert tone="warning" title={t('inactiveTitle')} message={t('inactiveBody')} />
@@ -201,26 +214,6 @@ export default function ClinicDashboardHomeScreen() {
                   />
                 </View>
               ) : null}
-            </Section>
-          ) : null}
-
-          {/* --- Animal search → the clinic's animal list (local name filter) --- */}
-          {perms?.canViewAnimals ? (
-            <Section spacing="lg">
-              <Pressable
-                accessibilityRole="search"
-                accessibilityLabel={t('search.placeholder')}
-                onPress={() => go(Routes.organizationAnimals(orgId))}
-              >
-                <View pointerEvents="none">
-                  <SearchInput
-                    value=""
-                    onChangeText={() => undefined}
-                    editable={false}
-                    placeholder={t('search.placeholder')}
-                  />
-                </View>
-              </Pressable>
             </Section>
           ) : null}
 
@@ -245,8 +238,16 @@ export default function ClinicDashboardHomeScreen() {
                         tone={TONES.blue}
                         value={summary.data.medical.vaccinationsDueToday}
                         label={t('today.vaccinationsDue')}
+                        onPress={() => go(Routes.clinicVaccinations(orgId))}
                       />
                     ) : null}
+                    <TodayStat
+                      icon="notifications-outline"
+                      tone={TONES.amber}
+                      value={summary.data.medical.remindersToday}
+                      label={t('today.reminders')}
+                      onPress={() => go(Routes.clinicReminders(orgId))}
+                    />
                     <TodayStat
                       icon="person-circle-outline"
                       tone={TONES.rose}
@@ -325,6 +326,65 @@ export default function ClinicDashboardHomeScreen() {
               {t('quick.title')}
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+              {perms?.canCreateMedicalRecords ? (
+                <>
+                  <QuickTile
+                    icon="flash-outline"
+                    tone={TONES.blue}
+                    label={t('quick.quickReview')}
+                    count={summary.data.medical?.medicalAnimals}
+                    onPress={() => go(Routes.clinicQuickReview(orgId))}
+                  />
+                  <QuickTile
+                    icon="clipboard-outline"
+                    tone={TONES.mint}
+                    label={t('quick.fullExam')}
+                    count={summary.data.medical?.medicalAnimals}
+                    onPress={() => go(Routes.clinicFullExam(orgId))}
+                  />
+                </>
+              ) : null}
+              {perms?.canViewVaccinations ? (
+                <QuickTile
+                  icon="shield-checkmark-outline"
+                  tone={TONES.mint}
+                  label={t('quick.vaccinations')}
+                  count={summary.data.medical?.vaccinationAnimals}
+                  badge={summary.data.medical?.vaccinationsDueToday}
+                  onPress={() => go(Routes.clinicVaccinations(orgId))}
+                />
+              ) : null}
+              {perms?.canViewMedicalRecords ? (
+                <QuickTile
+                  icon="notifications-outline"
+                  tone={TONES.amber}
+                  label={t('quick.reminders')}
+                  count={summary.data.medical?.reminderAnimals}
+                  badge={summary.data.medical?.remindersToday}
+                  onPress={() => go(Routes.clinicReminders(orgId))}
+                />
+              ) : null}
+              {perms?.canSendBroadcast && isActive && !isExpired ? (
+                <QuickTile
+                  icon="megaphone-outline"
+                  tone={TONES.rose}
+                  label={t('quick.broadcastVisitors')}
+                  onPress={() =>
+                    router.push({
+                      pathname: Routes.clinicDashboardBroadcast(orgId) as never,
+                      params: { audience: 'CLINIC_VISITORS' },
+                    })
+                  }
+                />
+              ) : null}
+              {perms?.canViewMedicalRecords ? (
+                <QuickTile
+                  icon="settings-outline"
+                  tone={TONES.violet}
+                  label={t('quick.quickReviewSettings')}
+                  onPress={() => go(Routes.clinicQuickReviewSettings(orgId))}
+                />
+              ) : null}
               {perms?.canViewAnimals ? (
                 <QuickTile
                   icon="paw-outline"
@@ -599,9 +659,18 @@ function RecentAnimalCard({
             backgroundColor: theme.colors.surfaceAccent,
             alignItems: 'center',
             justifyContent: 'center',
+            overflow: 'hidden',
           }}
         >
-          <Icon name={animalSpeciesIcon(grant.animal.species)} size="iconMd" color="primary" />
+          {grant.animal.photoUrl ? (
+            <Image
+              source={{ uri: grant.animal.photoUrl }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="cover"
+            />
+          ) : (
+            <Icon name={animalSpeciesIcon(grant.animal.species)} size="iconMd" color="primary" />
+          )}
         </View>
         <Text variant="bodyStrong" numberOfLines={1}>
           {grant.animal.name}

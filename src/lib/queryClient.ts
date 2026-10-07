@@ -1,6 +1,12 @@
-import { QueryClient, type QueryClientConfig } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  type QueryClientConfig,
+} from '@tanstack/react-query';
 
 import { ApiError } from '@/services/api/errors';
+import { ApiErrorCode } from '@/services/api/types';
 
 import { createLogger } from './logger';
 
@@ -41,6 +47,28 @@ const config: QueryClientConfig = {
   },
 };
 
+/**
+ * A request rejected because an organization may not operate (pending /
+ * inactive / subscription expired) means any cached organization profile is
+ * stale — refetch it so the clinic gate switches to the locked state instead
+ * of a cached "active" dashboard staying on screen.
+ */
+const ORGANIZATION_LOCK_CODES: ReadonlySet<string> = new Set([
+  ApiErrorCode.ORGANIZATION_NOT_ACTIVE,
+  ApiErrorCode.ORGANIZATION_SUBSCRIPTION_EXPIRED,
+]);
+
 export function createQueryClient(): QueryClient {
-  return new QueryClient(config);
+  let client: QueryClient | null = null;
+  const onLockError = (error: unknown): void => {
+    if (error instanceof ApiError && ORGANIZATION_LOCK_CODES.has(error.code)) {
+      void client?.invalidateQueries({ queryKey: ['organizations', 'detail'] });
+    }
+  };
+  client = new QueryClient({
+    ...config,
+    queryCache: new QueryCache({ onError: onLockError }),
+    mutationCache: new MutationCache({ onError: onLockError }),
+  });
+  return client;
 }

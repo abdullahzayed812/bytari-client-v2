@@ -13,10 +13,16 @@ export {
   useOrganizationAnimals,
   useOrganizationAnimal,
   useClinicAnimalProfile,
+  useOrganizationAnimalSearch,
   useGrantOrganizationAnimalAccess,
   useRevokeOrganizationAnimalAccess,
 } from './hooks';
-export { AnimalCard, AnimalCardSkeleton, type AnimalCardProps } from './components';
+export {
+  AnimalCard,
+  AnimalCardSkeleton,
+  ClinicAnimalPicker,
+  type AnimalCardProps,
+} from './components';
 export {
   OrganizationAnimalsScreen,
   OrganizationAnimalDetailScreen,

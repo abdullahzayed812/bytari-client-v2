@@ -53,7 +53,12 @@ export interface OrganizationAnimalGrant {
     /** Free-form string from the backend; usually an {@link AnimalSpecies}. */
     species: string;
     status: string;
+    breed?: string | null;
+    /** First gallery photo (signed / public URL), when the owner added one. */
+    photoUrl?: string | null;
   };
+  /** Current owner's display name (clinic holds an ACTIVE grant). */
+  ownerName?: string | null;
 }
 
 /** `POST /organizations/:organizationId/animal-access` request body. */
@@ -106,6 +111,12 @@ export interface ClinicAnimalProfile {
   /** This clinic's ACTIVE grant — `null` only when an ADMIN views without one. */
   access: { id: string; grantedAt: string } | null;
   /** Full veterinary-history summary (every clinic's entries). */
+  weightKg: number | null;
+  isNeutered: boolean | null;
+  /** Legacy free-text medical history (ADMIN-maintained). */
+  medicalHistory: string | null;
+  /** Current owner — shown to a clinic that holds an ACTIVE grant (legacy clinic pet page). */
+  owner: { id: string; firstName: string; lastName: string; phone: string | null } | null;
   stats: {
     medicalRecordsCount: number;
     vaccinationsCount: number;

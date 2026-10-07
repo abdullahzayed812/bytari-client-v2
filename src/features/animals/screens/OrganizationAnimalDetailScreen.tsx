@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { Button, TextButton } from '@/components/actions';
+import { TextButton } from '@/components/actions';
 import { Badge, Card, Divider, Icon, type IconName } from '@/components/content';
 import {
   ConfirmationDialog,
@@ -13,7 +13,7 @@ import {
   useToast,
 } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
-import { ImageViewer } from '@/components/media';
+import { ImageViewer, QrCode } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -27,6 +27,7 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
+import { ClinicOwnerCard } from '../components/ClinicOwnerCard';
 import { ANIMAL_STATUS_TONE, CLINIC_ACCESS_STATUS_TONE } from '../constants';
 import { useClinicAnimalProfile, useRevokeOrganizationAnimalAccess } from '../hooks';
 import type { ClinicAnimalProfile } from '../types';
@@ -66,7 +67,18 @@ export default function OrganizationAnimalDetailScreen() {
     createVaccination: perms ? perms.canCreateVaccinations : caps.canManageOrganizationMedical,
     revoke: perms ? perms.canManageAnimalAccess : caps.canManageOrganizationAnimalAccess,
     viewAppointments: perms?.canViewAppointments ?? false,
+    manageAppointments: perms?.canManageAppointments ?? false,
   };
+  const createRecord = (type?: 'FULL_EXAM' | 'LAB' | 'FILE') => {
+    const path = Routes.orgAnimalMedicalRecordCreate(orgId, animalId ?? '');
+    if (type) router.push({ pathname: path as never, params: { type } });
+    else router.push(path);
+  };
+  const recordsView = (view: 'lab' | 'files' | 'notes') =>
+    router.push({
+      pathname: Routes.orgAnimalMedicalRecords(orgId, animalId ?? '') as never,
+      params: { view },
+    });
 
   const q = useClinicAnimalProfile(orgId, animalId);
   const revoke = useRevokeOrganizationAnimalAccess(orgId);
@@ -203,37 +215,94 @@ export default function OrganizationAnimalDetailScreen() {
             </Card>
           </Section>
 
-          {/* --- Clinic actions ---------------------------------------- */}
-          {isActiveAnimal && (can.createRecord || can.createVaccination) ? (
+          {/* --- Clinic actions (legacy مراجعة سريعة / فحص كامل / إضافة …) --- */}
+          {isActiveAnimal &&
+          (can.createRecord || can.createVaccination || can.manageAppointments) ? (
             <Section spacing="lg">
               <Label>{t('detail.actionsSection')}</Label>
-              <Row gap="sm">
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
                 {can.createRecord ? (
-                  <View style={{ flex: 1 }}>
-                    <Button
-                      label={t('detail.addMedicalRecord')}
-                      leftIcon="medkit-outline"
+                  <>
+                    <ActionButton
+                      icon="flash-outline"
+                      label={t('detail.quickReview')}
                       onPress={() =>
-                        router.push(Routes.orgAnimalMedicalRecordCreate(orgId, animal.id))
+                        router.push({
+                          pathname: Routes.clinicQuickReview(orgId) as never,
+                          params: { animalId: animal.id },
+                        })
                       }
                     />
-                  </View>
+                    <ActionButton
+                      icon="clipboard-outline"
+                      label={t('detail.fullExam')}
+                      onPress={() => createRecord('FULL_EXAM')}
+                    />
+                    <ActionButton
+                      icon="medkit-outline"
+                      label={t('detail.addMedicalRecord')}
+                      onPress={() => createRecord()}
+                    />
+                  </>
                 ) : null}
                 {can.createVaccination ? (
-                  <View style={{ flex: 1 }}>
-                    <Button
-                      label={t('detail.addVaccination')}
-                      variant="outline"
-                      leftIcon="shield-checkmark-outline"
-                      onPress={() =>
-                        router.push(Routes.orgAnimalVaccinationCreate(orgId, animal.id))
-                      }
-                    />
-                  </View>
+                  <ActionButton
+                    icon="shield-checkmark-outline"
+                    label={t('detail.addVaccination')}
+                    onPress={() => router.push(Routes.orgAnimalVaccinationCreate(orgId, animal.id))}
+                  />
                 ) : null}
-              </Row>
+                {can.createRecord ? (
+                  <>
+                    <ActionButton
+                      icon="notifications-outline"
+                      label={t('detail.addReminder')}
+                      onPress={() => router.push(Routes.orgAnimalReminderCreate(orgId, animal.id))}
+                    />
+                    <ActionButton
+                      icon="flask-outline"
+                      label={t('detail.addLab')}
+                      onPress={() => createRecord('LAB')}
+                    />
+                    <ActionButton
+                      icon="folder-outline"
+                      label={t('detail.addFile')}
+                      onPress={() => createRecord('FILE')}
+                    />
+                  </>
+                ) : null}
+                {can.manageAppointments ? (
+                  <ActionButton
+                    icon="calendar-outline"
+                    label={t('detail.bookAppointment')}
+                    onPress={() =>
+                      router.push({
+                        pathname: Routes.clinicDashboardAppointmentNew(orgId) as never,
+                        params: { animalId: animal.id },
+                      })
+                    }
+                  />
+                ) : null}
+              </View>
             </Section>
           ) : null}
+
+          {/* --- Owner (legacy "صاحب الحيوان" + محادثة المالك) ---------------- */}
+          <Section spacing="xl">
+            <Label>{t('detail.ownerSection')}</Label>
+            {animal.owner ? (
+              <ClinicOwnerCard organizationId={orgId} owner={animal.owner} />
+            ) : (
+              <Card variant="outlined" padding="md">
+                <Row gap="md">
+                  <Icon name="person-outline" size="iconMd" color="textMuted" />
+                  <Text variant="bodyMedium" color="textSecondary" style={{ flex: 1 }}>
+                    {t('detail.ownerUnknown')}
+                  </Text>
+                </Row>
+              </Card>
+            )}
+          </Section>
 
           {/* --- Overview: animal information ------------------------- */}
           <Section spacing="xl">
@@ -242,23 +311,21 @@ export default function OrganizationAnimalDetailScreen() {
             <Caption style={{ marginTop: theme.spacing.xs }}>{t('detail.fieldsNote')}</Caption>
           </Section>
 
-          {/* --- Owner information (not disclosed to the organization) --- */}
+          {/* --- Animal ID + scannable code (legacy barcode) ------------- */}
           <Section spacing="xl">
-            <Label>{t('detail.ownerSection')}</Label>
+            <Label>{t('detail.idSection')}</Label>
             <Card variant="outlined" padding="md">
-              <Row gap="md">
-                <Icon name="person-outline" size="iconMd" color="textMuted" />
-                <View style={{ flex: 1 }}>
-                  <Text variant="bodyMedium" color="textSecondary">
-                    {t('detail.ownerHiddenTitle')}
-                  </Text>
-                  <Caption>{t('detail.ownerHiddenBody')}</Caption>
-                </View>
-              </Row>
+              <View style={{ alignItems: 'center', rowGap: theme.spacing.sm }}>
+                <QrCode value={animal.id} size={140} accessibilityLabel={t('detail.idSection')} />
+                <Text variant="caption" selectable>
+                  {animal.id}
+                </Text>
+                <Caption style={{ textAlign: 'center' }}>{t('detail.idHint')}</Caption>
+              </View>
             </Card>
           </Section>
 
-          {/* --- Medical modules ---------------------------------------- */}
+          {/* --- Medical modules (legacy clinic tabs) -------------------- */}
           {can.viewRecords || can.viewVaccinations || can.viewAppointments ? (
             <Section spacing="xl">
               <Label>{t('detail.medicalSection')}</Label>
@@ -283,6 +350,30 @@ export default function OrganizationAnimalDetailScreen() {
                     label={t('detail.vaccinations')}
                     onPress={() => router.push(Routes.orgAnimalVaccinations(orgId, animal.id))}
                   />
+                ) : null}
+                {can.viewRecords ? (
+                  <>
+                    <NavRow
+                      icon="notifications-outline"
+                      label={t('detail.reminders')}
+                      onPress={() => router.push(Routes.orgAnimalReminders(orgId, animal.id))}
+                    />
+                    <NavRow
+                      icon="flask-outline"
+                      label={t('detail.lab')}
+                      onPress={() => recordsView('lab')}
+                    />
+                    <NavRow
+                      icon="folder-outline"
+                      label={t('detail.files')}
+                      onPress={() => recordsView('files')}
+                    />
+                    <NavRow
+                      icon="document-text-outline"
+                      label={t('detail.notes')}
+                      onPress={() => recordsView('notes')}
+                    />
+                  </>
                 ) : null}
                 {can.viewAppointments ? (
                   <NavRow
@@ -370,6 +461,19 @@ function AnimalInfoCard({ animal }: { animal: ClinicAnimalProfile }) {
     { label: t('detail.fieldSex'), value: t(`detail.sex.${animal.sex}`) },
     { label: t('detail.fieldAge'), value: ageLabel },
     { label: t('detail.fieldColor'), value: animal.color ?? none },
+    {
+      label: t('detail.fieldWeight'),
+      value: animal.weightKg !== null ? t('detail.weightValue', { value: animal.weightKg }) : none,
+    },
+    {
+      label: t('detail.fieldNeutered'),
+      value:
+        animal.isNeutered === null
+          ? none
+          : animal.isNeutered
+            ? t('detail.neutered')
+            : t('detail.notNeutered'),
+    },
     { label: t('detail.fieldFeatures'), value: animal.distinguishingFeatures ?? none },
     {
       label: t('detail.fieldAnimalStatus'),
@@ -380,6 +484,9 @@ function AnimalInfoCard({ animal }: { animal: ClinicAnimalProfile }) {
       value: animal.access ? formatDate(animal.access.grantedAt) : none,
     },
     { label: t('detail.fieldAnimalId'), value: animal.id, selectable: true },
+    ...(animal.medicalHistory
+      ? [{ label: t('detail.fieldMedicalHistory'), value: animal.medicalHistory, selectable: true }]
+      : []),
   ];
 
   return (
@@ -391,7 +498,7 @@ function AnimalInfoCard({ animal }: { animal: ClinicAnimalProfile }) {
             <Caption>{row.label}</Caption>
             <Text
               variant="bodyMedium"
-              numberOfLines={row.selectable ? 2 : 1}
+              numberOfLines={row.selectable ? 6 : 1}
               selectable={row.selectable}
               style={{ maxWidth: '60%' }}
             >
@@ -400,6 +507,34 @@ function AnimalInfoCard({ animal }: { animal: ClinicAnimalProfile }) {
           </Row>
         </View>
       ))}
+    </Card>
+  );
+}
+
+function ActionButton({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: IconName;
+  label: string;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Card
+      variant="outlined"
+      padding="sm"
+      onPress={onPress}
+      accessibilityLabel={label}
+      style={{ flexGrow: 1, minWidth: '30%' }}
+    >
+      <View style={{ alignItems: 'center', rowGap: theme.spacing.xs }}>
+        <Icon name={icon} size="iconMd" color="primary" />
+        <Text variant="label" style={{ textAlign: 'center' }}>
+          {label}
+        </Text>
+      </View>
     </Card>
   );
 }

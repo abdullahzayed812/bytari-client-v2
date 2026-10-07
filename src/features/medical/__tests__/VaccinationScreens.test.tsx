@@ -8,6 +8,7 @@ import VaccinationDetailScreen from '../screens/VaccinationDetailScreen';
 import VaccinationFormScreen from '../screens/VaccinationFormScreen';
 import VaccinationsScreen from '../screens/VaccinationsScreen';
 import type { Vaccination } from '../types';
+import { vaccinationExtras } from './fixtures';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -55,6 +56,7 @@ function seedVet() {
 }
 
 const vax = (over: Partial<Vaccination> = {}): Vaccination => ({
+  ...vaccinationExtras,
   id: 'v1',
   animalId: 'a1',
   organizationId: 'o1',

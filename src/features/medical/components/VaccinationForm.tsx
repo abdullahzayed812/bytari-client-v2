@@ -5,10 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
+import { Chip } from '@/components/content';
 import { Alert } from '@/components/feedback';
 import { FormField } from '@/components/forms';
+import { Row } from '@/components/layout';
+import { Label } from '@/components/typography';
 import { useTheme } from '@/theme';
 
+import { VACCINATION_STATUSES } from '../types';
 import { buildVaccinationSchema, type VaccinationFormValues } from '../validation/schemas';
 
 export interface VaccinationFormProps {
@@ -25,6 +29,7 @@ const EMPTY: VaccinationFormValues = {
   administeredOn: '',
   nextDueOn: '',
   notes: '',
+  status: '',
 };
 
 /** Shared add/edit vaccination form. RHF + zod (mirrors the backend), RTL, no API logic. */
@@ -40,7 +45,7 @@ export function VaccinationForm({
   const { t } = useTranslation('medical');
   const schema = useMemo(() => buildVaccinationSchema(t), [t]);
 
-  const { control, handleSubmit } = useForm<VaccinationFormValues>({
+  const { control, handleSubmit, watch, setValue } = useForm<VaccinationFormValues>({
     resolver: zodResolver(schema),
     defaultValues: { ...EMPTY, ...defaultValues },
     mode: 'onTouched',
@@ -79,6 +84,20 @@ export function VaccinationForm({
         autoCorrect={false}
         serverError={serverFields.nextDueOn}
       />
+
+      <View style={{ rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
+        <Label>{t('vaccinations.fieldStatus')}</Label>
+        <Row gap="sm" wrap>
+          {VACCINATION_STATUSES.map((s) => (
+            <Chip
+              key={s}
+              label={t(`vaccinations.status.${s}`)}
+              selected={watch('status') === s}
+              onPress={() => setValue('status', watch('status') === s ? '' : s)}
+            />
+          ))}
+        </Row>
+      </View>
 
       <FormField
         control={control}

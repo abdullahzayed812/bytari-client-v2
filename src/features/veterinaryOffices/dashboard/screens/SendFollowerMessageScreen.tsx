@@ -13,6 +13,8 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
+// Deep import (not the barrel) — keeps veterinaryOffices ↔ clinicDashboard acyclic.
+import { useClinicDashboard } from '@/features/clinicDashboard/hooks';
 import { useOrganization } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -36,13 +38,26 @@ export default function SendFollowerMessageScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOfficeDashboard');
   const toast = useToast();
-  const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
+  const { organizationId, audience: audienceParam } = useLocalSearchParams<{
+    organizationId: string;
+    audience?: string;
+  }>();
   const orgId = organizationId ?? '';
+  // Reused by the Clinic Dashboard for both "للمتابعين" and "للمراجعين".
+  const audience = audienceParam === 'CLINIC_VISITORS' ? 'CLINIC_VISITORS' : 'FOLLOWERS';
+  const toVisitors = audience === 'CLINIC_VISITORS';
 
   const org = useOrganization(orgId);
   const canOperate =
     org.data?.status === 'ACTIVE' && org.data?.details.subscriptionStatus === 'ACTIVE';
-  const summary = useVeterinaryOfficeDashboard(orgId);
+  const isOffice = org.data?.type === 'VETERINARY_OFFICE';
+  const officeSummary = useVeterinaryOfficeDashboard(orgId, { enabled: isOffice });
+  const clinicSummary = useClinicDashboard(orgId, {
+    enabled: org.data?.type === 'CLINIC' && !toVisitors,
+  });
+  const followersCount = isOffice
+    ? officeSummary.data?.followersCount
+    : clinicSummary.data?.followersCount;
   const send = useSendFollowerBroadcast(orgId);
   const imageProvider = useBroadcastImageProvider(orgId);
   const [imageStorageKey, setImageStorageKey] = useState<string | null>(null);
@@ -73,6 +88,7 @@ export default function SendFollowerMessageScreen() {
         body: values.body.trim(),
         imageStorageKey,
         linkUrl: normalizeLink(values.linkUrl),
+        ...(toVisitors ? { audience } : {}),
       },
       {
         onSuccess: () => {
@@ -87,7 +103,10 @@ export default function SendFollowerMessageScreen() {
   return (
     <VeterinaryOfficeDashboardShell organizationId={orgId} active="home">
       <ScrollScreen edges={[]}>
-        <AppHeader title={t('broadcast.title')} showBack />
+        <AppHeader
+          title={toVisitors ? t('broadcast.visitorsTitle') : t('broadcast.title')}
+          showBack
+        />
 
         <Section spacing="lg">
           <View
@@ -102,11 +121,15 @@ export default function SendFollowerMessageScreen() {
           >
             <View style={{ alignItems: 'flex-start' }}>
               <Text variant="heading" color="primary">
-                {summary.data?.followersCount ?? 0}
+                {toVisitors ? '—' : (followersCount ?? 0)}
               </Text>
-              <Caption>{t('broadcast.followersLabel')}</Caption>
+              <Caption>
+                {toVisitors ? t('broadcast.visitorsLabel') : t('broadcast.followersLabel')}
+              </Caption>
             </View>
-            <Text style={{ flex: 1, marginStart: theme.spacing.lg }}>{t('broadcast.intro')}</Text>
+            <Text style={{ flex: 1, marginStart: theme.spacing.lg }}>
+              {toVisitors ? t('broadcast.visitorsIntro') : t('broadcast.intro')}
+            </Text>
           </View>
         </Section>
 

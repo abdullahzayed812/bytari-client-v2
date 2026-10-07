@@ -25,7 +25,8 @@ describe('medical-record mutations (§33 — no optimistic updates; invalidate o
     await result.current.mutateAsync({ diagnosis: 'x' });
 
     expect(medicalRecordsApi.create).toHaveBeenCalledWith('o1', 'a1', { diagnosis: 'x' });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.records('a1') });
+    // Broader since clinic parity: the whole animal medical state (records ⊂ forAnimal).
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.forAnimal('a1') });
   });
 
   it('update → PATCHes then invalidates the detail + the list prefix', async () => {
@@ -38,7 +39,8 @@ describe('medical-record mutations (§33 — no optimistic updates; invalidate o
 
     expect(medicalRecordsApi.update).toHaveBeenCalledWith('o1', 'a1', 'r1', { notes: 'n' });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.record('a1', 'r1') });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.records('a1') });
+    // Broader since clinic parity: the whole animal medical state (records ⊂ forAnimal).
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.forAnimal('a1') });
   });
 
   it('delete → DELETEs then drops the detail + invalidates the list prefix', async () => {
@@ -51,7 +53,8 @@ describe('medical-record mutations (§33 — no optimistic updates; invalidate o
     await result.current.mutateAsync({ recordId: 'r1' });
 
     expect(remove).toHaveBeenCalledWith({ queryKey: medicalKeys.record('a1', 'r1') });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.records('a1') });
+    // Broader since clinic parity: the whole animal medical state (records ⊂ forAnimal).
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.forAnimal('a1') });
   });
 
   it('a backend 403 propagates as an ApiError (client never re-authorises)', async () => {
@@ -79,7 +82,7 @@ describe('vaccination mutations', () => {
       vaccineName: 'Rabies',
       administeredOn: '2026-01-02',
     });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.vaccinations('a1') });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.forAnimal('a1') });
   });
 
   it('update → PATCHes then invalidates the detail + list prefix', async () => {
@@ -91,7 +94,7 @@ describe('vaccination mutations', () => {
     await result.current.mutateAsync({ vaccinationId: 'v1', body: { notes: 'n' } });
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.vaccination('a1', 'v1') });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.vaccinations('a1') });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: medicalKeys.forAnimal('a1') });
   });
 
   it('delete → DELETEs then drops the detail', async () => {

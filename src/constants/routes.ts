@@ -49,6 +49,10 @@ export const Routes = {
   petVaccination: (petId: string, vaccinationId: string) =>
     `/(app)/pets/${petId}/vaccinations/${vaccinationId}` as const,
   petMedicalHistory: (petId: string) => `/(app)/pets/${petId}/medical-history` as const,
+  /** Owner view of the pet's clinic reminders (read + delete, legacy parity). */
+  petReminders: (petId: string) => `/(app)/pets/${petId}/reminders` as const,
+  /** Owner "العيادات" — clinics that treat / recorded the pet. */
+  petClinics: (petId: string) => `/(app)/pets/${petId}/clinics` as const,
 
   // Animal community — Adoption / Mating / Lost (Mobile Phase 8)
   publications: (kind: 'adoption' | 'mating' | 'lost') => `/(app)/publications/${kind}` as const,
@@ -414,6 +418,9 @@ export const Routes = {
   clinicDashboard: (organizationId: string) => `/(app)/clinic-dashboard/${organizationId}` as const,
   clinicDashboardAppointments: (organizationId: string) =>
     `/(app)/clinic-dashboard/${organizationId}/appointments` as const,
+  /** Clinic-created appointment (legacy createAppointment); optional `?animalId=`. */
+  clinicDashboardAppointmentNew: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/appointments-new` as const,
   clinicDashboardConversations: (organizationId: string) =>
     `/(app)/clinic-dashboard/${organizationId}/conversations` as const,
   clinicDashboardBroadcast: (organizationId: string) =>
@@ -450,6 +457,24 @@ export const Routes = {
     `/(app)/organizations/${organizationId}/animals/${animalId}/vaccinations/${vaccinationId}` as const,
   orgAnimalVaccinationEdit: (organizationId: string, animalId: string, vaccinationId: string) =>
     `/(app)/organizations/${organizationId}/animals/${animalId}/vaccinations/${vaccinationId}/edit` as const,
+  orgAnimalReminders: (organizationId: string, animalId: string) =>
+    `/(app)/organizations/${organizationId}/animals/${animalId}/reminders` as const,
+  orgAnimalReminderCreate: (organizationId: string, animalId: string) =>
+    `/(app)/organizations/${organizationId}/animals/${animalId}/reminders/create` as const,
+  orgAnimalReminderEdit: (organizationId: string, animalId: string, reminderId: string) =>
+    `/(app)/organizations/${organizationId}/animals/${animalId}/reminders/${reminderId}/edit` as const,
+  /** Legacy "مراجعة سريعة" — `animalId` optional (pick the animal first). */
+  clinicQuickReview: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/quick-review` as const,
+  clinicQuickReviewSettings: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/quick-review-settings` as const,
+  /** Legacy "فحص كامل" entry without a pre-selected animal. */
+  clinicFullExam: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/full-exam` as const,
+  clinicVaccinations: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/vaccinations` as const,
+  clinicReminders: (organizationId: string) =>
+    `/(app)/clinic-dashboard/${organizationId}/reminders` as const,
   orgAnimalMedicalHistory: (organizationId: string, animalId: string) =>
     `/(app)/organizations/${organizationId}/animals/${animalId}/medical-history` as const,
 

@@ -8,6 +8,8 @@ import type {
   NotificationPreferences,
   Paginated,
   NotificationSource,
+  PetCareSection,
+  PetUnseenCounts,
   RegisteredDevice,
 } from '../types';
 
@@ -69,6 +71,8 @@ function toNotification(raw: unknown): AppNotification {
  *   GET   /notifications/:id                (own rows only — another id is 404)
  *   POST  /notifications/:id/read           (idempotent)
  *   POST  /notifications/read-all
+ *   GET   /notifications/pets/:animalId/unseen   (own unread pet-care notifications per section)
+ *   POST  /notifications/pets/:animalId/seen     { section } — clears ONE section
  *   GET   /notifications/preferences
  *   PATCH /notifications/preferences         { pushEnabled }
  *   POST  /notifications/devices             { token, platform, deviceId?, appVersion? }
@@ -108,6 +112,27 @@ export const notificationsApi = {
 
   async markAllRead(): Promise<{ updated: number }> {
     const res = await apiClient.post<{ updated: number }>('/notifications/read-all', {});
+    return { updated: Number(res?.updated ?? 0) };
+  },
+
+  async petUnseen(animalId: string): Promise<PetUnseenCounts> {
+    const res = await apiClient.get<Partial<PetUnseenCounts>>(
+      `/notifications/pets/${animalId}/unseen`,
+    );
+    return {
+      medicalRecords: Number(res?.medicalRecords ?? 0),
+      vaccinations: Number(res?.vaccinations ?? 0),
+      reminders: Number(res?.reminders ?? 0),
+    };
+  },
+
+  async markPetSectionSeen(
+    animalId: string,
+    section: PetCareSection,
+  ): Promise<{ updated: number }> {
+    const res = await apiClient.post<{ updated: number }>(`/notifications/pets/${animalId}/seen`, {
+      section,
+    });
     return { updated: Number(res?.updated ?? 0) };
   },
 

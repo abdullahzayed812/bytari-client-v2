@@ -4,3 +4,13 @@ export { MedicalTimelineItem, type MedicalTimelineItemProps } from './MedicalTim
 export { RecordCardSkeleton } from './RecordCardSkeleton';
 export { MedicalRecordForm, type MedicalRecordFormProps } from './MedicalRecordForm';
 export { VaccinationForm, type VaccinationFormProps } from './VaccinationForm';
+export {
+  MedicalAttachmentsEditor,
+  type MedicalAttachmentsEditorProps,
+  type MedicalAttachment,
+  type MedicalAttachmentsValue,
+} from './MedicalAttachmentsEditor';
+export { MedicalAttachmentsView } from './MedicalAttachmentsView';
+export { VaccinationActions } from './VaccinationActions';
+export { RescheduleSheet } from './RescheduleSheet';
+export { ReminderCard } from './ReminderCard';

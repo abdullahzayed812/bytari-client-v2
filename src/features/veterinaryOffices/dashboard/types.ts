@@ -23,6 +23,8 @@ export interface SendFollowerBroadcastInput {
   body: string;
   imageStorageKey?: string | null;
   linkUrl?: string | null;
+  /** `CLINIC_VISITORS` = legacy "إرسال رسالة للمراجعين" (clinics only); default followers. */
+  audience?: 'FOLLOWERS' | 'CLINIC_VISITORS';
 }
 
 export interface BroadcastImageUploadUrlInput {

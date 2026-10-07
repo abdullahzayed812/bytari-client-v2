@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Platform, View } from 'react-native';
 
+import { IconButton } from '@/components/actions';
 import {
   ConfirmationDialog,
   EmptyState,
@@ -28,6 +29,7 @@ import {
   useMarkConversationRead,
   useMessages,
   useSendMessage,
+  useSetClinicChatActive,
 } from '../hooks';
 import type { OutgoingAttachment } from '../types';
 
@@ -58,6 +60,11 @@ export default function ConversationThreadScreen() {
   const lastMarkedRef = useRef<string | null>(null);
 
   const conversation = conversationQ.data;
+  // Legacy clinic "إيقاف / تفعيل المحادثة": a paused pet owner ↔ clinic chat.
+  const isClinicChat = conversation?.type === 'PET_OWNER_CLINIC';
+  const paused = isClinicChat && conversation?.status === 'CLOSED';
+  const clinicCanToggle = isClinicChat && conversation?.viewerSide === 'CLINIC';
+  const toggle = useSetClinicChatActive();
 
   // While this thread is on screen, a foreground push for it is not shown.
   useFocusEffect(
@@ -129,12 +136,33 @@ export default function ConversationThreadScreen() {
         showBack
         right={
           conversation ? (
-            <ConversationTitle
-              conversation={conversation}
-              variant="caption"
-              color="textSecondary"
-              numberOfLines={1}
-            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
+              <ConversationTitle
+                conversation={conversation}
+                variant="caption"
+                color="textSecondary"
+                numberOfLines={1}
+              />
+              {clinicCanToggle ? (
+                <IconButton
+                  icon={paused ? 'play-circle-outline' : 'pause-circle-outline'}
+                  size="sm"
+                  accessibilityLabel={
+                    paused ? t('thread.resumeClinicChat') : t('thread.pauseClinicChat')
+                  }
+                  disabled={toggle.isPending}
+                  onPress={() =>
+                    toggle.mutate(
+                      { conversationId: conversation.id, active: paused },
+                      {
+                        onError: (error) =>
+                          toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                      },
+                    )
+                  }
+                />
+              ) : null}
+            </View>
           ) : undefined
         }
       />
@@ -186,6 +214,7 @@ export default function ConversationThreadScreen() {
         )}
 
         <MessageComposer
+          disabledReason={paused ? t('thread.clinicChatPaused') : null}
           conversationId={id}
           sending={send.isPending}
           error={sendError}

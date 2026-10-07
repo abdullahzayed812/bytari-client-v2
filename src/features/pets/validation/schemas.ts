@@ -55,7 +55,32 @@ export function buildPetSchema(t: TFn) {
       .optional()
       .or(z.literal('')),
     notes: optionalText(2000),
+    color: optionalText(60),
+    /** Legacy weight in kg — positive, up to 2 decimals. */
+    weightKg: z
+      .string()
+      .trim()
+      .regex(/^\d{1,4}([.,]\d{1,2})?$/, t('form.errors.weightInvalid'))
+      .refine((v) => Number(v.replace(',', '.')) > 0, t('form.errors.weightInvalid'))
+      .optional()
+      .or(z.literal('')),
+    isNeutered: z.enum(['', 'yes', 'no']).optional(),
+    /** ADMIN only (legacy admin edit) — ignored for everyone else. */
+    medicalHistory: optionalText(8000),
   });
+}
+
+/** Form → API for the legacy weight / neutered fields (blank → `undefined`). */
+export function toParityFields(values: PetFormValues): {
+  color?: string;
+  weightKg?: number;
+  isNeutered?: boolean;
+} {
+  return {
+    color: values.color?.trim() || undefined,
+    weightKg: values.weightKg?.trim() ? Number(values.weightKg.replace(',', '.')) : undefined,
+    isNeutered: values.isNeutered === 'yes' ? true : values.isNeutered === 'no' ? false : undefined,
+  };
 }
 
 export type PetFormValues = z.infer<ReturnType<typeof buildPetSchema>>;
@@ -69,6 +94,7 @@ export function toCreateInput(values: PetFormValues) {
     breed: values.breed?.trim() || undefined,
     dateOfBirth: values.dateOfBirth?.trim() || undefined,
     notes: values.notes?.trim() || undefined,
+    ...toParityFields(values),
   };
 }
 

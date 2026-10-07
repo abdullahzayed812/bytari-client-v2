@@ -23,6 +23,7 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
+import { VaccinationActions } from '../components/VaccinationActions';
 import { displayDateOnly, recordedByThisClinic } from '../constants';
 import { useDeleteVaccination, useVaccination } from '../hooks';
 import { medicalErrorMessage } from '../validation/schemas';
@@ -117,8 +118,22 @@ export default function VaccinationDetailScreen() {
                 value={v.nextDueOn ? displayDateOnly(v.nextDueOn) : null}
               />
               <Divider spacing="sm" />
+              <Field
+                label={t('vaccinations.fieldStatus')}
+                value={t(`vaccinations.status.${v.status}`)}
+              />
+              <Divider spacing="sm" />
               <Field label={t('vaccinations.fieldNotes')} value={v.notes} />
             </Card>
+            {canEdit ? (
+              <View style={{ marginTop: theme.spacing.md }}>
+                <VaccinationActions
+                  organizationId={organizationId as string}
+                  vaccination={v}
+                  canManage
+                />
+              </View>
+            ) : null}
           </Section>
 
           <Section spacing="xl">

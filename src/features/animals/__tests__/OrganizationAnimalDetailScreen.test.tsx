@@ -64,6 +64,10 @@ const profile: ClinicAnimalProfile = {
   distinguishingFeatures: null,
   status: 'ACTIVE',
   galleryUrls: [],
+  weightKg: null,
+  isNeutered: null,
+  medicalHistory: null,
+  owner: null,
   access: { id: 'g1', grantedAt: '2026-02-03T00:00:00.000Z' },
   stats: {
     medicalRecordsCount: 3,
@@ -132,7 +136,7 @@ describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
     expect(screen.getByText('إجمالي الزيارات')).toBeOnTheScreen();
     expect(screen.getByText('3')).toBeOnTheScreen();
     expect(screen.getByText('معلومات المالك')).toBeOnTheScreen();
-    expect(screen.getByText('بيانات المالك غير متاحة')).toBeOnTheScreen();
+    expect(screen.getByText('لا يوجد مالك حالي مسجل لهذا الحيوان.')).toBeOnTheScreen();
     await waitFor(() => expect(screen.getByText('السجل الطبي الكامل')).toBeOnTheScreen());
     // stat label + medical nav row
     expect(screen.getAllByText('التطعيمات')).toHaveLength(2);

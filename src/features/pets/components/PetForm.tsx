@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
+import { Chip } from '@/components/content';
 import { Alert } from '@/components/feedback';
 import { FormField, Select } from '@/components/forms';
-import { Text } from '@/components/typography';
+import { Row } from '@/components/layout';
+import { Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import { SEX_OPTIONS, SPECIES_OPTIONS } from '../constants';
@@ -23,6 +25,8 @@ export interface PetFormProps {
   /** Per-field backend (422) errors keyed by field name. */
   serverFields?: Record<string, string>;
   onSubmit: (values: PetFormValues) => void;
+  /** ADMIN editing — shows the legacy admin-only medical-history field. */
+  showMedicalHistory?: boolean;
 }
 
 const EMPTY: PetFormValues = {
@@ -32,6 +36,10 @@ const EMPTY: PetFormValues = {
   breed: '',
   dateOfBirth: '',
   notes: '',
+  color: '',
+  weightKg: '',
+  isNeutered: '',
+  medicalHistory: '',
 };
 
 /** Shared Add/Edit pet form. RHF + zod (mirrors the backend), RTL, no API logic. */
@@ -42,6 +50,7 @@ export function PetForm({
   formError,
   serverFields = {},
   onSubmit,
+  showMedicalHistory = false,
 }: PetFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('pets');
@@ -123,6 +132,54 @@ export function PetForm({
         returnKeyType="next"
         serverError={serverFields.dateOfBirth}
       />
+
+      <FormField
+        control={control}
+        name="color"
+        label={t('form.colorLabel')}
+        placeholder={t('form.colorPlaceholder')}
+        serverError={serverFields.color}
+      />
+
+      <FormField
+        control={control}
+        name="weightKg"
+        label={t('form.weightLabel')}
+        placeholder={t('form.weightPlaceholder')}
+        keyboardType="decimal-pad"
+        serverError={serverFields.weightKg}
+      />
+
+      <Controller
+        control={control}
+        name="isNeutered"
+        render={({ field: { value, onChange } }) => (
+          <View style={{ rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}>
+            <Label>{t('form.neuteredLabel')}</Label>
+            <Row gap="sm">
+              {(['yes', 'no'] as const).map((v) => (
+                <Chip
+                  key={v}
+                  label={v === 'yes' ? t('form.neuteredYes') : t('form.neuteredNo')}
+                  selected={value === v}
+                  onPress={() => onChange(value === v ? '' : v)}
+                />
+              ))}
+            </Row>
+          </View>
+        )}
+      />
+
+      {showMedicalHistory ? (
+        <FormField
+          control={control}
+          name="medicalHistory"
+          label={t('form.medicalHistoryLabel')}
+          multiline
+          numberOfLines={4}
+          serverError={serverFields.medicalHistory}
+        />
+      ) : null}
 
       <FormField
         control={control}

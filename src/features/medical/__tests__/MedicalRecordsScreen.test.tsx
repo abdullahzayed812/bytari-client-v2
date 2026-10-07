@@ -6,6 +6,7 @@ import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/route
 import { medicalRecordsApi } from '../api';
 import MedicalRecordsScreen from '../screens/MedicalRecordsScreen';
 import type { MedicalRecord } from '../types';
+import { recordExtras } from './fixtures';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -51,6 +52,7 @@ function seedVetSession() {
 }
 
 const rec = (over: Partial<MedicalRecord> = {}): MedicalRecord => ({
+  ...recordExtras,
   id: 'r1',
   animalId: 'a1',
   organizationId: 'o1',

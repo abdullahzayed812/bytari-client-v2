@@ -6,7 +6,7 @@ import { Caption, Text } from '@/components/typography';
 import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
 
-import { displayDateOnly, recordedByThisClinic } from '../constants';
+import { RECORD_TYPE_TONE, displayDateOnly, recordedByThisClinic } from '../constants';
 import type { MedicalRecord } from '../types';
 
 export interface MedicalRecordCardProps {
@@ -23,7 +23,8 @@ export function MedicalRecordCard({ record, organizationId, onPress }: MedicalRe
   const mine = recordedByThisClinic(record, organizationId);
   // The diagnosis gets its own line; the summary uses the next non-empty field
   // so nothing is shown twice.
-  const summary = record.reason || record.treatment || record.notes || '';
+  const summary =
+    record.reason || record.treatment || record.labNotes || record.notes || record.symptoms || '';
 
   return (
     <Pressable
@@ -48,6 +49,14 @@ export function MedicalRecordCard({ record, organizationId, onPress }: MedicalRe
         <Text variant="bodyStrong" style={{ flex: 1 }}>
           {displayDateOnly(record.visitDate)}
         </Text>
+        {record.recordType !== 'GENERAL' ? (
+          <Badge
+            label={t(`records.recordType.${record.recordType}`)}
+            tone={RECORD_TYPE_TONE[record.recordType]}
+            size="sm"
+          />
+        ) : null}
+        {record.isDraft ? <Badge label={t('records.draft')} tone="warning" size="sm" /> : null}
         {organizationId ? (
           <Badge
             label={mine ? t('records.recordedHere') : t('records.recordedElsewhere')}

@@ -109,6 +109,13 @@ export const NOTIFICATION_TYPES = [
   'CLINIC_APPOINTMENT_RESCHEDULE_PROPOSED',
   'CLINIC_APPOINTMENT_CANCELLED',
   'CLINIC_APPOINTMENT_COMPLETED',
+  'CLINIC_APPOINTMENT_CREATED',
+  'CLINIC_APPOINTMENT_REMINDER',
+  'VACCINATION_ADDED',
+  'VACCINATION_DUE',
+  'REMINDER_ADDED',
+  'REMINDER_DUE',
+  'MEDICAL_RECORD_ADDED',
   'ADMIN_ANNOUNCEMENT',
   'ORGANIZATION_BROADCAST',
   'VETERINARY_OFFICE_PRODUCT_ADDED',
@@ -151,6 +158,11 @@ export interface AppNotification {
   /** `SYSTEM` when talking to an older backend that does not send it. */
   source: NotificationSource;
 }
+
+/** Pet Details sections that carry a "new from the clinic" badge. */
+export type PetCareSection = 'medicalRecords' | 'vaccinations' | 'reminders';
+/** The owner's own unread clinic pet-care notifications for one pet, per section. */
+export type PetUnseenCounts = Record<PetCareSection, number>;
 
 export interface NotificationListFilter {
   page: number;

@@ -8,6 +8,7 @@ import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/
 import { ImagePreview, ImageUploader } from '@/components/media';
 import { Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -34,6 +35,7 @@ export default function EditPetScreen() {
   const q = usePet(petId);
   const update = useUpdatePet(petId ?? '');
   const deactivate = useDeactivatePet(petId ?? '');
+  const { isAdmin } = useCapabilities();
   const galleryPresign = useAnimalGalleryPresignProvider(petId);
   const removeGalleryImage = useRemovePetGalleryImage(petId ?? '');
 
@@ -71,6 +73,10 @@ export default function EditPetScreen() {
     breed: pet.breed ?? '',
     dateOfBirth: pet.dateOfBirth ?? '',
     notes: pet.notes ?? '',
+    color: pet.color ?? '',
+    weightKg: pet.weightKg != null ? String(pet.weightKg) : '',
+    isNeutered: pet.isNeutered == null ? '' : pet.isNeutered ? 'yes' : 'no',
+    medicalHistory: pet.medicalHistory ?? '',
   };
 
   const onSubmit = (values: PetFormValues) => {
@@ -86,6 +92,13 @@ export default function EditPetScreen() {
       breed: values.breed?.trim() ? values.breed.trim() : null,
       dateOfBirth: values.dateOfBirth?.trim() ? values.dateOfBirth.trim() : null,
       notes: values.notes?.trim() ? values.notes.trim() : null,
+      // Legacy weight / neutered / colour — blank clears.
+      color: values.color?.trim() ? values.color.trim() : null,
+      weightKg: values.weightKg?.trim() ? Number(values.weightKg.replace(',', '.')) : null,
+      isNeutered: values.isNeutered === 'yes' ? true : values.isNeutered === 'no' ? false : null,
+      ...(isAdmin
+        ? { medicalHistory: values.medicalHistory?.trim() ? values.medicalHistory.trim() : null }
+        : {}),
     };
     update.mutate(payload, {
       onSuccess: () => {
@@ -142,6 +155,7 @@ export default function EditPetScreen() {
       </View>
 
       <PetForm
+        showMedicalHistory={isAdmin}
         mode="edit"
         defaultValues={defaults}
         submitting={update.isPending}
