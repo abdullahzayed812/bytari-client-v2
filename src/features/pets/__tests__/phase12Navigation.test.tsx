@@ -40,6 +40,7 @@ function seedOwner(id = OWNER) {
 
 const petFor = (ownerId: string) => ({
   id: 'p1',
+  publicCode: 'K7M4QXR',
   name: 'ميمي',
   species: 'CAT' as const,
   breed: null,
@@ -75,13 +76,13 @@ describe('Phase 12 navigation', () => {
   it('route builders are deep-link-safe absolute paths', () => {
     expect(Routes.petTransferRequests).toBe('/(app)/pets/transfer-requests');
     expect(Routes.petOwnership('p1')).toBe('/(app)/pets/p1/ownership');
-    expect(Routes.petMedicalHistory('p1')).toBe('/(app)/pets/p1/medical-history');
+    expect(Routes).not.toHaveProperty('petMedicalHistory'); // owner sees vaccinations / reminders only
     expect(Routes.orgAnimalMedicalHistory('o1', 'a1')).toBe(
       '/(app)/organizations/o1/animals/a1/medical-history',
     );
   });
 
-  it('owner Pet Details shows Transfer + Ownership history + Full medical history and navigates', async () => {
+  it('owner Pet Details shows Transfer + Ownership history (no clinic-private medical history) and navigates', async () => {
     renderWithProviders(<PetDetailsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
@@ -94,8 +95,7 @@ describe('Phase 12 navigation', () => {
       params: { petId: 'p1' },
     });
 
-    fireEvent.press(screen.getByLabelText('السجل الطبي الكامل'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/medical-history');
+    expect(screen.queryByLabelText('السجل الطبي الكامل')).toBeNull();
   });
 
   it('a non-owner sees no Transfer button (backend still authoritative)', async () => {

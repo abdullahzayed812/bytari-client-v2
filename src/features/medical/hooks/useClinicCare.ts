@@ -87,14 +87,13 @@ export function useSaveReminder(organizationId: string, animalId: string) {
   });
 }
 
+/** Clinic-only: the creating clinic deletes its reminder (owners cannot). */
 export function useDeleteReminder(organizationId: string | undefined, animalId: string) {
   const qc = useQueryClient();
   return useMutation<{ deleted: boolean }, ApiError, { reminderId: string }>({
-    mutationKey: ['medical', 'reminders', 'delete', organizationId ?? 'owner', animalId],
+    mutationKey: ['medical', 'reminders', 'delete', organizationId ?? 'none', animalId],
     mutationFn: ({ reminderId }) =>
-      organizationId
-        ? clinicCareApi.deleteReminder(organizationId, animalId, reminderId)
-        : clinicCareApi.deleteOwnerReminder(animalId, reminderId),
+      clinicCareApi.deleteReminder(organizationId as string, animalId, reminderId),
     onSuccess: () => invalidateClinicMedical(qc, organizationId, animalId),
   });
 }

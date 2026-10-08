@@ -17,7 +17,7 @@ export function ReminderCard({
 }: {
   reminder: AnimalReminder;
   organizationId?: string;
-  /** Action row (clinic edit / complete / notify, owner delete). */
+  /** Action row (the creating clinic: edit / complete / notify / delete). Owners get none. */
   footer?: React.ReactNode;
 }) {
   const theme = useTheme();

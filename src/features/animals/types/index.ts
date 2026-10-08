@@ -1,20 +1,15 @@
 /**
- * Organization ↔ animal contract — Mobile Phase 5. Mirrors the backend
- * `server/src/modules/veterinary-care` exactly:
+ * Clinic ↔ pet contract. Mirrors `server/src/modules/veterinary-care`:
  *
- *   GET    /organizations/:organizationId/animal-access            (list grants)
- *   POST   /organizations/:organizationId/animal-access            (grant)
- *   DELETE /organizations/:organizationId/animal-access/:animalId  (revoke)
+ *   GET /organizations/:organizationId/clinic-pets?search   (Recent / All Pets)
+ *   GET /organizations/:organizationId/clinic-pets/lookup?code  (open by ID / QR)
+ *   GET /organizations/:organizationId/animals/:animalId    (clinic pet profile)
  *
- * The relationship modelled here is `animal_clinic_access` — a revocable
- * veterinary-access GRANT held by a CLINIC organization. It is **independent of
- * animal ownership**: the animal stays owned by its Pet Owner. There is no
- * ownership transfer in this flow.
+ * There is NO link / grant: a pet belongs to its owner and exists independently
+ * of clinics. A clinic opens it by the owner's short public ID, and the pets a
+ * clinic "has" are exactly those it created its own records for. Every clinic
+ * read is limited to that clinic's own records.
  */
-
-/** `animal_clinic_access.status`. */
-export const CLINIC_ACCESS_STATUSES = ['ACTIVE', 'REVOKED'] as const;
-export type ClinicAccessStatus = (typeof CLINIC_ACCESS_STATUSES)[number];
 
 /** Backend `animals.species` vocabulary (mirrors Phase 3 `PET_SPECIES`). */
 export const ANIMAL_SPECIES = [
@@ -33,21 +28,11 @@ export type AnimalSpecies = (typeof ANIMAL_SPECIES)[number];
 export const ANIMAL_STATUSES = ['ACTIVE', 'DEACTIVATED'] as const;
 export type AnimalStatus = (typeof ANIMAL_STATUSES)[number];
 
-/**
- * One row of `GET /organizations/:organizationId/animal-access`. This is a
- * {@link ClinicAnimalAccess} grant plus the small animal summary the backend
- * joins in — **the only animal data an organization is given**. No breed / sex /
- * date-of-birth / notes / image, and **no owner information** (see §54).
- */
-export interface OrganizationAnimalGrant {
-  /** The access-grant id (NOT the animal id). */
-  id: string;
+/** One row of `GET /organizations/:organizationId/clinic-pets` (newest activity first). */
+export interface ClinicPet {
   animalId: string;
-  organizationId: string;
-  status: ClinicAccessStatus;
-  /** The organization member who granted the access. Not the animal's owner. */
-  grantedByUserId: string | null;
-  createdAt: string;
+  /** Short public pet ID (stored form, e.g. `K7M4QXR`). */
+  publicCode: string;
   animal: {
     name: string;
     /** Free-form string from the backend; usually an {@link AnimalSpecies}. */
@@ -57,23 +42,23 @@ export interface OrganizationAnimalGrant {
     /** First gallery photo (signed / public URL), when the owner added one. */
     photoUrl?: string | null;
   };
-  /** Current owner's display name (clinic holds an ACTIVE grant). */
+  /** Current owner's display name. */
   ownerName?: string | null;
+  /** This clinic's first / latest record for the pet. */
+  firstActivityAt: string;
+  lastActivityAt: string;
 }
 
-/** `POST /organizations/:organizationId/animal-access` request body. */
-export interface GrantAnimalAccessInput {
+/** `GET /organizations/:organizationId/clinic-pets/lookup?code=` */
+export interface ClinicPetLookup {
   animalId: string;
-}
-
-/** `POST /organizations/:organizationId/animal-access` 201 response. */
-export interface ClinicAnimalAccess {
-  id: string;
-  animalId: string;
-  organizationId: string;
-  status: ClinicAccessStatus;
-  grantedByUserId: string | null;
-  createdAt: string;
+  publicCode: string;
+  name: string;
+  species: string;
+  breed: string | null;
+  photoUrl: string | null;
+  /** This clinic already has its own records for the pet. */
+  workedWith: boolean;
 }
 
 export interface PageMeta {
@@ -90,13 +75,14 @@ export interface Paginated<T> {
 
 /**
  * `GET /organizations/:organizationId/animals/:animalId` — the clinic-visible
- * animal profile (server `ClinicAnimalDTO`). Requires
- * `animal.veterinary.access.read` AND the clinic's ACTIVE grant (else 404).
- * Carries **no owner identity**, none of the owner's private notes, and no
- * storage keys — owner contact is never disclosed to an organization.
+ * pet profile (server `ClinicAnimalDTO`). Requires
+ * `animal.veterinary.access.read`. Never the owner's private notes or storage
+ * keys; `stats` / `relationship` cover THIS clinic's own records only.
  */
 export interface ClinicAnimalProfile {
   id: string;
+  /** Short public pet ID. */
+  publicCode: string;
   name: string;
   /** CHECK-constrained on `animals.species`, unlike the free-form list-row string. */
   species: AnimalSpecies;
@@ -108,15 +94,15 @@ export interface ClinicAnimalProfile {
   distinguishingFeatures: string | null;
   status: AnimalStatus;
   galleryUrls: string[];
-  /** This clinic's ACTIVE grant — `null` only when an ADMIN views without one. */
-  access: { id: string; grantedAt: string } | null;
-  /** Full veterinary-history summary (every clinic's entries). */
+  /** This clinic's first / latest record — `null` until it adds something. */
+  relationship: { firstActivityAt: string; lastActivityAt: string } | null;
   weightKg: number | null;
   isNeutered: boolean | null;
   /** Legacy free-text medical history (ADMIN-maintained). */
   medicalHistory: string | null;
-  /** Current owner — shown to a clinic that holds an ACTIVE grant (legacy clinic pet page). */
+  /** Current owner (legacy clinic pet page: call / chat the owner). */
   owner: { id: string; firstName: string; lastName: string; phone: string | null } | null;
+  /** Counts over THIS clinic's own records only. */
   stats: {
     medicalRecordsCount: number;
     vaccinationsCount: number;

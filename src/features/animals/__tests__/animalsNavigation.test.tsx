@@ -66,7 +66,7 @@ describe('Phase 5 navigation (§24) + Pet Owner coexistence (§15)', () => {
 
   it('the route builders produce deep-link-safe absolute paths', () => {
     expect(Routes.organizationAnimals('o1')).toBe('/(app)/organizations/o1/animals');
-    expect(Routes.organizationAnimalsGrant('o1')).toBe('/(app)/organizations/o1/animals/grant');
+    expect(Routes.organizationAnimalsOpen('o1')).toBe('/(app)/organizations/o1/animals/open');
     expect(Routes.organizationAnimalDetail('o1', 'a1')).toBe('/(app)/organizations/o1/animals/a1');
   });
 
@@ -93,6 +93,7 @@ describe('Phase 5 navigation (§24) + Pet Owner coexistence (§15)', () => {
       items: [
         {
           id: 'p1',
+          publicCode: 'K7M4QXR',
           name: 'ميمي',
           species: 'CAT',
           breed: null,

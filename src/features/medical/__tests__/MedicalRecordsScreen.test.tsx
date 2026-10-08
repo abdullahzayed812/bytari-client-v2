@@ -12,13 +12,11 @@ jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
 const getOrg = jest.spyOn(organizationsApi, 'get');
 const listClinic = jest.spyOn(medicalRecordsApi, 'listForClinic');
-const listOwner = jest.spyOn(medicalRecordsApi, 'listForOwner');
 
 beforeEach(() => {
   resetRouterMock();
   getOrg.mockReset().mockResolvedValue({ id: 'o1', type: 'CLINIC', myRole: 'OWNER' } as never);
   listClinic.mockReset();
-  listOwner.mockReset();
   useAuthStore.setState({ session: null });
 });
 afterAll(() => {
@@ -111,29 +109,13 @@ describe('MedicalRecordsScreen — CLINIC context (§5, §17, §26)', () => {
   });
 });
 
-describe('MedicalRecordsScreen — OWNER context (§16 read-only)', () => {
+describe('MedicalRecordsScreen — no OWNER context (records are clinic-private)', () => {
   beforeEach(() => setSearchParams({ petId: 'a1' }));
 
-  it('reads via the owner endpoint and shows NO add button', async () => {
-    listOwner.mockResolvedValue({
-      items: [rec()],
-      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
-    });
+  it('never requests records without a clinic in the route', async () => {
     renderWithProviders(<MedicalRecordsScreen />);
-    await waitFor(() => expect(screen.getByText(/التهاب الأذن/)).toBeOnTheScreen());
-    expect(listOwner).toHaveBeenCalledWith('a1', 1, 20);
-    expect(screen.queryByLabelText('إضافة سجل')).toBeNull();
-  });
-
-  it('owner empty state has no create action', async () => {
-    listOwner.mockResolvedValue({
-      items: [],
-      meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
-    });
-    renderWithProviders(<MedicalRecordsScreen />);
-    await waitFor(() =>
-      expect(screen.getByText('لا توجد سجلات طبية لهذا الحيوان')).toBeOnTheScreen(),
-    );
-    expect(screen.queryByText('إضافة سجل')).toBeNull();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(listClinic).not.toHaveBeenCalled();
+    expect(screen.queryByText(/التهاب الأذن/)).toBeNull();
   });
 });

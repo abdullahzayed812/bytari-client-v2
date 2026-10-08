@@ -18,12 +18,12 @@ function readMeta(meta: unknown, page: number, pageSize: number, count: number):
  * `organizationId`, `animalId` nor `recordedByUserId` is ever in a body; they
  * come from the path / JWT.
  *
- *   CLINIC (full CRUD, `medical_record.{read,create,update,delete}` + veterinary access):
+ *   CLINIC only (`medical_record.{read,create,update,delete}`), and only the
+ *   records THIS clinic created — another clinic's record is a 404:
  *     GET/POST   /organizations/:orgId/animals/:animalId/medical-records
  *     GET/PATCH/DELETE  .../medical-records/:recordId
- *   OWNER (read-only, current owner or ADMIN):
- *     GET  /animals/:animalId/medical-records
- *     GET  /animals/:animalId/medical-records/:recordId
+ *
+ * Medical records are clinic-private: there is no owner endpoint.
  */
 export const medicalRecordsApi = {
   async listForClinic(
@@ -80,26 +80,6 @@ export const medicalRecordsApi = {
     return apiClient.delete<{ deleted: boolean }>(
       `/organizations/${organizationId}/animals/${animalId}/medical-records/${recordId}`,
     );
-  },
-
-  async listForOwner(
-    animalId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<Paginated<MedicalRecord>> {
-    const envelope = await apiClient.requestEnvelope<MedicalRecord[]>({
-      method: 'GET',
-      url: `/animals/${animalId}/medical-records`,
-      params: { page, pageSize },
-    });
-    return {
-      items: envelope.data,
-      meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
-    };
-  },
-
-  getForOwner(animalId: string, recordId: string): Promise<MedicalRecord> {
-    return apiClient.get<MedicalRecord>(`/animals/${animalId}/medical-records/${recordId}`);
   },
 };
 

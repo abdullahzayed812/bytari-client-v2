@@ -4,14 +4,13 @@ import { useMemo } from 'react';
 import { AppConfig } from '@/constants/config';
 
 import { orgAnimalKeys, organizationAnimalsApi } from '../api';
-import type { OrganizationAnimalGrant, Paginated } from '../types';
+import type { ClinicPet, Paginated } from '../types';
 
 /**
- * The animals a CLINIC organization has ACTIVE veterinary access to, as scoped
- * by the backend `GET /organizations/:organizationId/animal-access`. Paginated
- * so the list screen can append pages + pull-to-refresh. Requires
- * `animal.veterinary.access.read` server-side; a caller without it never
- * reaches the screen and a direct hit 403s.
+ * The clinic's pets — those it created its own records for — newest activity
+ * first (`GET /organizations/:organizationId/clinic-pets`). The first page is
+ * "Recent Pets", paging through it is "All Pets". Requires
+ * `animal.veterinary.access.read` server-side; a direct hit without it 403s.
  */
 export function useOrganizationAnimals(
   organizationId: string | undefined,
@@ -20,9 +19,9 @@ export function useOrganizationAnimals(
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
 
   const query = useInfiniteQuery<
-    Paginated<OrganizationAnimalGrant>,
+    Paginated<ClinicPet>,
     unknown,
-    InfiniteData<Paginated<OrganizationAnimalGrant>>,
+    InfiniteData<Paginated<ClinicPet>>,
     ReturnType<typeof orgAnimalKeys.list>,
     number
   >({
@@ -36,7 +35,7 @@ export function useOrganizationAnimals(
     staleTime: 15_000,
   });
 
-  const animals = useMemo<OrganizationAnimalGrant[]>(
+  const animals = useMemo<ClinicPet[]>(
     () => query.data?.pages.flatMap((p) => p.items) ?? [],
     [query.data],
   );

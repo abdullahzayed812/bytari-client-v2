@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { notificationKeys, notificationsApi } from '../api';
 import type { PetCareSection, PetUnseenCounts } from '../types';
 
-const NONE: PetUnseenCounts = { medicalRecords: 0, vaccinations: 0, reminders: 0 };
+const NONE: PetUnseenCounts = { vaccinations: 0, reminders: 0 };
 
 /**
  * Pet Details "new information" badges — the caller's OWN unread clinic

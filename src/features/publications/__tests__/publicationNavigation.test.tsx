@@ -12,6 +12,7 @@ jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
 const petFor = (ownerId: string) => ({
   id: 'p1',
+  publicCode: 'K7M4QXR',
   name: 'ميمي',
   species: 'CAT' as const,
   breed: null,

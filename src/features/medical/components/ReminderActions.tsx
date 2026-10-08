@@ -14,9 +14,10 @@ import { medicalErrorMessage } from '../validation/schemas';
 import { RescheduleSheet } from './RescheduleSheet';
 
 /**
- * Legacy reminder actions. CLINIC (own reminders only): edit · complete /
- * reopen · reschedule · notify owner · delete. OWNER: delete (legacy owner
- * capability). Every call is re-authorized by the backend.
+ * Clinic reminder actions (the creating clinic only): edit · complete /
+ * reopen · reschedule · notify owner · delete. Nothing renders for the owner —
+ * clinic-created reminders are read-only for them. Every call is re-authorized
+ * by the backend.
  */
 export function ReminderActions({
   reminder,
@@ -24,7 +25,7 @@ export function ReminderActions({
   canManage,
 }: {
   reminder: AnimalReminder;
-  /** Present ⇒ clinic context. */
+  /** The clinic context — without it nothing is rendered. */
   organizationId?: string;
   canManage: boolean;
 }) {
@@ -52,7 +53,7 @@ export function ReminderActions({
       },
     );
 
-  if (!canManage) return null;
+  if (!canManage || !organizationId) return null;
 
   return (
     <>

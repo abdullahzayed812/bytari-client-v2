@@ -1,40 +1,32 @@
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 
-import type {
-  ClinicAnimalAccess,
-  ClinicAnimalProfile,
-  GrantAnimalAccessInput,
-  OrganizationAnimalGrant,
-  Paginated,
-} from '../types';
+import type { ClinicAnimalProfile, ClinicPet, ClinicPetLookup, Paginated } from '../types';
 
 /**
- * Thin wrappers over the clinic-facing veterinary-access routes
- * (`server/src/modules/veterinary-care/presentation/clinical.routes.ts`),
- * mounted at `/organizations/:organizationId/...`. The API client attaches auth;
- * the backend enforces organization membership + the
- * `animal.veterinary.access.{read,manage}` permission for every call.
+ * Thin wrappers over the clinic-facing pet routes
+ * (`server/src/modules/veterinary-care/presentation/clinical.routes.ts` and
+ * `clinic-dashboard.routes.ts`). The backend enforces clinic membership +
+ * `animal.veterinary.access.read`, and scopes everything to THIS clinic:
  *
- *   GET    /organizations/:organizationId/animal-access?page&pageSize
- *   POST   /organizations/:organizationId/animal-access        { animalId }
- *   DELETE /organizations/:organizationId/animal-access/:animalId
- *   GET    /organizations/:organizationId/animals/:animalId   (clinic-visible profile)
+ *   GET /organizations/:organizationId/clinic-pets?page&pageSize&search
+ *   GET /organizations/:organizationId/clinic-pets/lookup?code
+ *   GET /organizations/:organizationId/animals/:animalId   (clinic pet profile)
  *
- * No endpoint here is invented. There is still NO organization-scoped animal
- * search (see MOBILE_ARCHITECTURE.md §63).
+ * There is no grant / link endpoint: opening a pet by its code creates nothing;
+ * the clinic's own records are what put a pet in its lists.
  */
 export const organizationAnimalsApi = {
   async list(
     organizationId: string,
     page: number,
     pageSize: number,
-    /** Server-side match on id (exact) / name / breed / species / owner name — this clinic's animals only. */
+    /** Server-side match on id / short ID (exact) or name / breed / species / owner — this clinic's pets only. */
     search?: string,
-  ): Promise<Paginated<OrganizationAnimalGrant>> {
-    const envelope = await apiClient.requestEnvelope<OrganizationAnimalGrant[]>({
+  ): Promise<Paginated<ClinicPet>> {
+    const envelope = await apiClient.requestEnvelope<ClinicPet[]>({
       method: 'GET',
-      url: `/organizations/${organizationId}/animal-access`,
+      url: `/organizations/${organizationId}/clinic-pets`,
       params: { page, pageSize, ...(search ? { search } : {}) },
     });
     const meta = (envelope.meta ?? {}) as Partial<ApiPageMeta>;
@@ -49,23 +41,17 @@ export const organizationAnimalsApi = {
     };
   },
 
-  grant(organizationId: string, input: GrantAnimalAccessInput): Promise<ClinicAnimalAccess> {
-    return apiClient.post<ClinicAnimalAccess>(
-      `/organizations/${organizationId}/animal-access`,
-      input,
-    );
+  /** Resolve a short public ID / scanned QR (or legacy UUID) to a pet; 404 when unknown. */
+  lookup(organizationId: string, code: string): Promise<ClinicPetLookup> {
+    return apiClient.get<ClinicPetLookup>(`/organizations/${organizationId}/clinic-pets/lookup`, {
+      code,
+    });
   },
 
-  /** Clinic-visible profile; 404 when the clinic holds no ACTIVE grant for the animal. */
+  /** Clinic-visible profile; 404 for an unknown / listing-only animal. */
   getProfile(organizationId: string, animalId: string): Promise<ClinicAnimalProfile> {
     return apiClient.get<ClinicAnimalProfile>(
       `/organizations/${organizationId}/animals/${animalId}`,
-    );
-  },
-
-  revoke(organizationId: string, animalId: string): Promise<{ revoked: boolean }> {
-    return apiClient.delete<{ revoked: boolean }>(
-      `/organizations/${organizationId}/animal-access/${animalId}`,
     );
   },
 };

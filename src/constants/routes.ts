@@ -41,17 +41,14 @@ export const Routes = {
    */
   petTransferRequests: '/(app)/pets/transfer-requests',
 
-  // Pet Owner medical history — read-only (Mobile Phase 6)
-  petMedicalRecords: (petId: string) => `/(app)/pets/${petId}/medical-records` as const,
-  petMedicalRecord: (petId: string, recordId: string) =>
-    `/(app)/pets/${petId}/medical-records/${recordId}` as const,
+  // Pet Owner view of clinic additions — read-only, owner-visible kinds only
+  // (vaccinations + reminders). Clinic medical records are private: no owner route.
   petVaccinations: (petId: string) => `/(app)/pets/${petId}/vaccinations` as const,
   petVaccination: (petId: string, vaccinationId: string) =>
     `/(app)/pets/${petId}/vaccinations/${vaccinationId}` as const,
-  petMedicalHistory: (petId: string) => `/(app)/pets/${petId}/medical-history` as const,
-  /** Owner view of the pet's clinic reminders (read + delete, legacy parity). */
+  /** Owner view of the pet's clinic reminders (read-only). */
   petReminders: (petId: string) => `/(app)/pets/${petId}/reminders` as const,
-  /** Owner "العيادات" — clinics that treat / recorded the pet. */
+  /** Owner "العيادات" — clinics that added vaccinations / reminders for the pet. */
   petClinics: (petId: string) => `/(app)/pets/${petId}/clinics` as const,
 
   // Animal community — Adoption / Mating / Lost (Mobile Phase 8)
@@ -373,8 +370,9 @@ export const Routes = {
   // Organization Animals (Mobile Phase 5)
   organizationAnimals: (organizationId: string) =>
     `/(app)/organizations/${organizationId}/animals` as const,
-  organizationAnimalsGrant: (organizationId: string) =>
-    `/(app)/organizations/${organizationId}/animals/grant` as const,
+  /** Open a pet by its short public ID / QR (no link is created). */
+  organizationAnimalsOpen: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/animals/open` as const,
   organizationAnimalDetail: (organizationId: string, animalId: string) =>
     `/(app)/organizations/${organizationId}/animals/${animalId}` as const,
 

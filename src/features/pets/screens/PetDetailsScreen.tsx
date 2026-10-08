@@ -23,8 +23,13 @@ import { formatDate } from '@/utils';
 import { FutureSectionRow, PetImage } from '../components';
 import { petAge } from '../constants';
 import { usePet } from '../hooks';
+import { formatPetCode } from '../petCode';
 
-/** Route `/pets/[petId]` — pet profile (§6). No medical data yet; future slots only. */
+/**
+ * Route `/pets/[petId]` — pet profile (§6). Of what clinics add, the owner
+ * sees ONLY vaccinations and reminders (read-only); clinic medical records,
+ * diagnoses, treatments and notes are clinic-private and have no entry here.
+ */
 export default function PetDetailsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('pets');
@@ -220,17 +225,6 @@ export default function PetDetailsScreen() {
               {isOwner ? (
                 <>
                   <MedicalNavRow
-                    icon="time-outline"
-                    label={t('detail.medicalHistory')}
-                    onPress={() => router.push(Routes.petMedicalHistory(pet.id))}
-                  />
-                  <MedicalNavRow
-                    icon="medkit-outline"
-                    label={t('detail.medicalRecords')}
-                    newCount={unseen.medicalRecords}
-                    onPress={() => router.push(Routes.petMedicalRecords(pet.id))}
-                  />
-                  <MedicalNavRow
                     icon="shield-checkmark-outline"
                     label={t('detail.vaccinations')}
                     newCount={unseen.vaccinations}
@@ -250,12 +244,11 @@ export default function PetDetailsScreen() {
                 </>
               ) : (
                 <>
-                  <FutureSectionRow icon="time-outline" label={t('detail.medicalHistory')} />
-                  <FutureSectionRow icon="medkit-outline" label={t('detail.medicalRecords')} />
                   <FutureSectionRow
                     icon="shield-checkmark-outline"
                     label={t('detail.vaccinations')}
                   />
+                  <FutureSectionRow icon="notifications-outline" label={t('detail.reminders')} />
                 </>
               )}
             </View>
@@ -303,15 +296,25 @@ export default function PetDetailsScreen() {
             </Section>
           ) : null}
 
-          {/* Legacy "رقم المعرف" + barcode: the clinic scans it to find the pet. */}
-          {isOwner ? (
+          {/* "رقم المعرف": the short public ID — read out or scanned at the clinic. */}
+          {isOwner && pet.publicCode ? (
             <Section spacing="xl">
               <Label>{t('detail.idSection')}</Label>
               <Card variant="outlined" padding="md">
                 <View style={{ alignItems: 'center', rowGap: theme.spacing.sm }}>
-                  <QrCode value={pet.id} size={140} accessibilityLabel={t('detail.idSection')} />
-                  <Text variant="caption" selectable>
-                    {pet.id}
+                  <QrCode
+                    value={pet.publicCode}
+                    size={140}
+                    accessibilityLabel={t('detail.idSection')}
+                  />
+                  <Text
+                    variant="title"
+                    weight="bold"
+                    selectable
+                    style={{ letterSpacing: 2 }}
+                    accessibilityLabel={pet.publicCode.split('').join(' ')}
+                  >
+                    {formatPetCode(pet.publicCode)}
                   </Text>
                   <Caption style={{ textAlign: 'center' }}>{t('detail.idHint')}</Caption>
                 </View>

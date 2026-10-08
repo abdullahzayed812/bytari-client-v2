@@ -15,6 +15,7 @@ beforeEach(() => {
   resetRouterMock();
   getPet.mockReset().mockResolvedValue({
     id: 'a1',
+    publicCode: 'K7M4QXR',
     name: 'ميمي',
     species: 'CAT',
     breed: null,

@@ -3,15 +3,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
-import { TextButton } from '@/components/actions';
 import { Badge, Card, Divider, Icon, type IconName } from '@/components/content';
-import {
-  ConfirmationDialog,
-  EmptyState,
-  ErrorState,
-  SkeletonText,
-  useToast,
-} from '@/components/feedback';
+import { EmptyState, ErrorState, SkeletonText } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { ImageViewer, QrCode } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -21,15 +14,15 @@ import { Routes } from '@/constants/routes';
 import { useClinicPermissions } from '@/features/clinicDashboard/hooks';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { PetImage, petAge } from '@/features/pets';
+import { formatPetCode } from '@/features/pets/petCode';
 import { useCapabilities } from '@/hooks';
-import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { ClinicOwnerCard } from '../components/ClinicOwnerCard';
-import { ANIMAL_STATUS_TONE, CLINIC_ACCESS_STATUS_TONE } from '../constants';
-import { useClinicAnimalProfile, useRevokeOrganizationAnimalAccess } from '../hooks';
+import { ANIMAL_STATUS_TONE } from '../constants';
+import { useClinicAnimalProfile } from '../hooks';
 import type { ClinicAnimalProfile } from '../types';
 
 /**
@@ -38,18 +31,14 @@ import type { ClinicAnimalProfile } from '../types';
  * clinic mode).
  *
  * Reads `GET /organizations/:id/animals/:animalId` — the clinic-visible
- * profile, available only while the clinic holds an ACTIVE grant (404
- * otherwise, so Clinic A can never open an animal only Clinic B treats). The
- * screen keeps ANIMAL information separate from OWNER information: the backend
- * never discloses the owner to an organization, so the owner block states that
- * explicitly. Medical work happens in the existing medical screens linked here;
- * action visibility comes from the backend-computed clinic permissions (falling
- * back to the `myRole` heuristic until they load).
+ * profile. There is no clinic ↔ pet link: the stats, and every medical list
+ * linked from here, cover ONLY this clinic's own records — another clinic's
+ * work is never shown. Action visibility comes from the backend-computed
+ * clinic permissions (falling back to the `myRole` heuristic until they load).
  */
 export default function OrganizationAnimalDetailScreen() {
   const theme = useTheme();
   const { t } = useTranslation('orgAnimals');
-  const toast = useToast();
   const { isAdmin } = useCapabilities();
   const { organizationId, animalId } = useLocalSearchParams<{
     organizationId: string;
@@ -65,7 +54,6 @@ export default function OrganizationAnimalDetailScreen() {
     viewVaccinations: perms ? perms.canViewVaccinations : caps.canViewOrganizationMedical,
     createRecord: perms ? perms.canCreateMedicalRecords : caps.canManageOrganizationMedical,
     createVaccination: perms ? perms.canCreateVaccinations : caps.canManageOrganizationMedical,
-    revoke: perms ? perms.canManageAnimalAccess : caps.canManageOrganizationAnimalAccess,
     viewAppointments: perms?.canViewAppointments ?? false,
     manageAppointments: perms?.canManageAppointments ?? false,
   };
@@ -81,8 +69,6 @@ export default function OrganizationAnimalDetailScreen() {
     });
 
   const q = useClinicAnimalProfile(orgId, animalId);
-  const revoke = useRevokeOrganizationAnimalAccess(orgId);
-  const [confirmRevoke, setConfirmRevoke] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const status = q.error instanceof ApiError ? q.error.status : undefined;
@@ -168,13 +154,6 @@ export default function OrganizationAnimalDetailScreen() {
                     tone="primary"
                     size="sm"
                   />
-                  {animal.access ? (
-                    <Badge
-                      label={t('accessStatus.ACTIVE')}
-                      tone={CLINIC_ACCESS_STATUS_TONE.ACTIVE}
-                      size="sm"
-                    />
-                  ) : null}
                   {!isActiveAnimal ? (
                     <Badge
                       label={t(`animalStatus.${animal.status}`, { defaultValue: animal.status })}
@@ -316,9 +295,13 @@ export default function OrganizationAnimalDetailScreen() {
             <Label>{t('detail.idSection')}</Label>
             <Card variant="outlined" padding="md">
               <View style={{ alignItems: 'center', rowGap: theme.spacing.sm }}>
-                <QrCode value={animal.id} size={140} accessibilityLabel={t('detail.idSection')} />
-                <Text variant="caption" selectable>
-                  {animal.id}
+                <QrCode
+                  value={animal.publicCode}
+                  size={140}
+                  accessibilityLabel={t('detail.idSection')}
+                />
+                <Text variant="title" weight="bold" selectable style={{ letterSpacing: 2 }}>
+                  {formatPetCode(animal.publicCode)}
                 </Text>
                 <Caption style={{ textAlign: 'center' }}>{t('detail.idHint')}</Caption>
               </View>
@@ -386,47 +369,10 @@ export default function OrganizationAnimalDetailScreen() {
             </Section>
           ) : null}
 
-          {can.revoke && animal.access ? (
-            <View style={{ marginTop: theme.spacing.md, alignItems: 'center' }}>
-              <TextButton
-                label={t('detail.revoke')}
-                tone="danger"
-                icon="close-circle-outline"
-                disabled={revoke.isPending}
-                onPress={() => setConfirmRevoke(true)}
-              />
-            </View>
-          ) : null}
-
           <ImageViewer
             visible={viewerOpen}
             images={animal.galleryUrls}
             onClose={() => setViewerOpen(false)}
-          />
-
-          <ConfirmationDialog
-            visible={confirmRevoke}
-            title={t('detail.revokeConfirmTitle')}
-            message={t('detail.revokeConfirmBody')}
-            confirmLabel={t('detail.revoke')}
-            cancelLabel={t('common.cancel')}
-            destructive
-            loading={revoke.isPending}
-            onConfirm={() => {
-              setConfirmRevoke(false);
-              revoke.mutate(
-                { animalId: animal.id },
-                {
-                  onSuccess: () => {
-                    toast.show({ tone: 'success', message: t('detail.revokeSuccess') });
-                    router.replace(Routes.organizationAnimals(orgId));
-                  },
-                  onError: (error) =>
-                    toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
-                },
-              );
-            }}
-            onCancel={() => setConfirmRevoke(false)}
           />
         </>
       )}
@@ -480,10 +426,14 @@ function AnimalInfoCard({ animal }: { animal: ClinicAnimalProfile }) {
       value: t(`animalStatus.${animal.status}`, { defaultValue: animal.status }),
     },
     {
-      label: t('detail.fieldGrantedAt'),
-      value: animal.access ? formatDate(animal.access.grantedAt) : none,
+      label: t('detail.fieldFirstRecord'),
+      value: animal.relationship ? formatDate(animal.relationship.firstActivityAt) : none,
     },
-    { label: t('detail.fieldAnimalId'), value: animal.id, selectable: true },
+    {
+      label: t('detail.fieldAnimalId'),
+      value: formatPetCode(animal.publicCode),
+      selectable: true,
+    },
     ...(animal.medicalHistory
       ? [{ label: t('detail.fieldMedicalHistory'), value: animal.medicalHistory, selectable: true }]
       : []),

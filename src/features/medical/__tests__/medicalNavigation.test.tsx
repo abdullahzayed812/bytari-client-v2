@@ -57,7 +57,8 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     expect(Routes.orgAnimalVaccination('o1', 'a1', 'v1')).toBe(
       '/(app)/organizations/o1/animals/a1/vaccinations/v1',
     );
-    expect(Routes.petMedicalRecords('p1')).toBe('/(app)/pets/p1/medical-records');
+    // Owners have no medical-records route (clinic-private).
+    expect(Routes).not.toHaveProperty('petMedicalRecords');
     expect(Routes.petVaccination('p1', 'v1')).toBe('/(app)/pets/p1/vaccinations/v1');
   });
 
@@ -71,6 +72,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     jest.spyOn(clinicDashboardApi, 'getSummary').mockRejectedValue(new Error('offline'));
     jest.spyOn(organizationAnimalsApi, 'getProfile').mockResolvedValue({
       id: 'a1',
+      publicCode: 'K7M4QXR',
       name: 'لولو',
       species: 'DOG',
       breed: null,
@@ -85,7 +87,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
       isNeutered: null,
       medicalHistory: null,
       owner: null,
-      access: { id: 'g1', grantedAt: '2026-01-01T00:00:00.000Z' },
+      relationship: null,
       stats: {
         medicalRecordsCount: 0,
         vaccinationsCount: 0,
@@ -105,7 +107,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/o1/animals/a1/vaccinations');
   });
 
-  it('Pet Details (owner) shows read-only Medical Records + Vaccinations entries', async () => {
+  it('Pet Details (owner) shows ONLY Vaccinations + Reminders entries, and the short pet ID', async () => {
     const owner = {
       id: 'owner1',
       email: 'o@x.c',
@@ -133,6 +135,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     setSearchParams({ petId: 'p1' });
     jest.spyOn(petsApi, 'get').mockResolvedValue({
       id: 'p1',
+      publicCode: 'K7M4QXR',
       name: 'ميمي',
       species: 'CAT',
       breed: null,
@@ -148,8 +151,14 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     renderWithProviders(<PetDetailsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
-    fireEvent.press(screen.getByLabelText('السجل الطبي'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/medical-records');
+    expect(screen.queryByLabelText('السجل الطبي')).toBeNull();
+    expect(screen.queryByLabelText('السجل الطبي الكامل')).toBeNull();
+    fireEvent.press(screen.getByLabelText('التطعيمات'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/vaccinations');
+    fireEvent.press(screen.getByLabelText('التذكيرات'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/reminders');
+    expect(screen.getByText('K7M-4QXR')).toBeOnTheScreen();
+    expect(screen.queryByText('p1')).toBeNull(); // never the internal id
   });
 
   it('Pet Owner "My Pets" (Phase 3) still renders', async () => {
@@ -157,6 +166,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
       items: [
         {
           id: 'p1',
+          publicCode: 'K7M4QXR',
           name: 'ميمي',
           species: 'CAT',
           breed: null,

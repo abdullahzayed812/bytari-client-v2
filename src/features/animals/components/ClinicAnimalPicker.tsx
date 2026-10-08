@@ -7,7 +7,7 @@ import { SearchInput } from '@/components/forms';
 import { useTheme } from '@/theme';
 
 import { useOrganizationAnimalSearch } from '../hooks';
-import type { OrganizationAnimalGrant } from '../types';
+import type { ClinicPet } from '../types';
 
 import { AnimalCard } from './AnimalCard';
 
@@ -23,7 +23,7 @@ export function ClinicAnimalPicker({
   emptyTitle,
 }: {
   organizationId: string;
-  onPick: (grant: OrganizationAnimalGrant) => void;
+  onPick: (pet: ClinicPet) => void;
   placeholder: string;
   emptyTitle: string;
 }) {
@@ -53,7 +53,7 @@ export function ClinicAnimalPicker({
       ) : (
         <FlatList
           data={items}
-          keyExtractor={(g) => g.id}
+          keyExtractor={(p) => p.animalId}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             paddingHorizontal: theme.screenPadding,
@@ -67,7 +67,7 @@ export function ClinicAnimalPicker({
               title={term.trim() ? t('list.noFilterMatch') : emptyTitle}
             />
           }
-          renderItem={({ item }) => <AnimalCard grant={item} onPress={() => onPick(item)} />}
+          renderItem={({ item }) => <AnimalCard pet={item} onPress={() => onPick(item)} />}
         />
       )}
     </View>

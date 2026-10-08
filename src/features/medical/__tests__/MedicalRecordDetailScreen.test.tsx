@@ -56,14 +56,12 @@ const rec = (over: Partial<MedicalRecord> = {}): MedicalRecord => ({
 describe('MedicalRecordDetailScreen (§6, §10, §18)', () => {
   const get = jest.spyOn(organizationsApi, 'get');
   const detail = jest.spyOn(medicalRecordsApi, 'getForClinic');
-  const detailOwner = jest.spyOn(medicalRecordsApi, 'getForOwner');
   const del = jest.spyOn(medicalRecordsApi, 'remove');
 
   beforeEach(() => {
     resetRouterMock();
     get.mockReset().mockResolvedValue(orgDetail as never);
     detail.mockReset();
-    detailOwner.mockReset();
     del.mockReset();
     seed();
   });
@@ -104,15 +102,13 @@ describe('MedicalRecordDetailScreen (§6, §10, §18)', () => {
     expect(screen.getByText('سجّلته عيادة أخرى؛ يمكنك عرضه فقط.')).toBeOnTheScreen();
   });
 
-  it('OWNER: read-only — no edit/delete, reads via the owner endpoint', async () => {
+  it('no OWNER path: without a clinic in the route nothing is fetched', async () => {
     setSearchParams({ petId: 'a1', recordId: 'r1' });
     useAuthStore.setState({ session: null });
-    detailOwner.mockResolvedValue(rec());
     renderWithProviders(<MedicalRecordDetailScreen />);
-    await waitFor(() => expect(screen.getByText(/التهاب الأذن/)).toBeOnTheScreen());
-    expect(detailOwner).toHaveBeenCalledWith('a1', 'r1');
-    expect(screen.queryByText('حذف السجل')).toBeNull();
-    expect(screen.queryByText('تعديل السجل')).toBeNull();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(detail).not.toHaveBeenCalled();
+    expect(screen.queryByText(/التهاب الأذن/)).toBeNull();
   });
 
   it('a 404 renders a plain not-found state (no authorization detail)', async () => {

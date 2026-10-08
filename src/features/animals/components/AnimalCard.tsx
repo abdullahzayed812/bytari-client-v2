@@ -6,31 +6,31 @@ import { Badge, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { ANIMAL_STATUS_TONE, CLINIC_ACCESS_STATUS_TONE, animalSpeciesIcon } from '../constants';
-import type { OrganizationAnimalGrant } from '../types';
+import { formatPetCode } from '@/features/pets/petCode';
+import { formatDate } from '@/utils';
+
+import { ANIMAL_STATUS_TONE, animalSpeciesIcon } from '../constants';
+import type { ClinicPet } from '../types';
 
 export interface AnimalCardProps {
-  grant: OrganizationAnimalGrant;
+  pet: ClinicPet;
   onPress?: () => void;
 }
 
-/** The short identifier printed on cards — the UUID prefix the search accepts. */
-export const shortAnimalId = (animalId: string): string => `#${animalId.slice(0, 8)}`;
-
 /**
- * Presentation-only row for one of the clinic's patients — the fields the
- * backend returns on the `animal-access` list item: photo, name, species,
- * breed, current owner, short id, animal + access status.
+ * Presentation-only row for one of the clinic's pets — the fields the backend
+ * returns on the `clinic-pets` list item: photo, name, species, breed, current
+ * owner, short public ID, this clinic's latest activity, animal status.
  */
-export function AnimalCard({ grant, onPress }: AnimalCardProps) {
+export function AnimalCard({ pet, onPress }: AnimalCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('orgAnimals');
-  const species = grant.animal.species;
+  const species = pet.animal.species;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t('card.open', { name: grant.animal.name })}
+      accessibilityLabel={t('card.open', { name: pet.animal.name })}
       onPress={onPress}
       style={({ pressed }) => [
         {
@@ -58,9 +58,9 @@ export function AnimalCard({ grant, onPress }: AnimalCardProps) {
           overflow: 'hidden',
         }}
       >
-        {grant.animal.photoUrl ? (
+        {pet.animal.photoUrl ? (
           <Image
-            source={{ uri: grant.animal.photoUrl }}
+            source={{ uri: pet.animal.photoUrl }}
             style={{ width: '100%', height: '100%' }}
             contentFit="cover"
             accessibilityIgnoresInvertColors
@@ -72,20 +72,20 @@ export function AnimalCard({ grant, onPress }: AnimalCardProps) {
 
       <View style={{ flex: 1, rowGap: 4 }}>
         <Text variant="bodyStrong" numberOfLines={1}>
-          {grant.animal.name}
+          {pet.animal.name}
         </Text>
         <Caption numberOfLines={1}>
-          {[t(`species.${species}`, { defaultValue: species }), grant.animal.breed]
+          {[t(`species.${species}`, { defaultValue: species }), pet.animal.breed]
             .filter(Boolean)
             .join(' · ')}
         </Caption>
-        {grant.ownerName ? (
+        {pet.ownerName ? (
           <Caption numberOfLines={1} color="textMuted">
-            {t('card.owner', { name: grant.ownerName })}
+            {t('card.owner', { name: pet.ownerName })}
           </Caption>
         ) : null}
         <Caption numberOfLines={1} color="textMuted" selectable>
-          {shortAnimalId(grant.animalId)}
+          {`#${formatPetCode(pet.publicCode)}`}
         </Caption>
         <View
           style={{
@@ -96,17 +96,15 @@ export function AnimalCard({ grant, onPress }: AnimalCardProps) {
             marginTop: 2,
           }}
         >
-          <Badge
-            label={t(`accessStatus.${grant.status}`)}
-            tone={CLINIC_ACCESS_STATUS_TONE[grant.status]}
-            size="sm"
-          />
-          {grant.animal.status !== 'ACTIVE' ? (
+          <Caption color="textMuted">
+            {t('card.lastActivity', { date: formatDate(pet.lastActivityAt) })}
+          </Caption>
+          {pet.animal.status !== 'ACTIVE' ? (
             <Badge
-              label={t(`animalStatus.${grant.animal.status}`, {
-                defaultValue: grant.animal.status,
+              label={t(`animalStatus.${pet.animal.status}`, {
+                defaultValue: pet.animal.status,
               })}
-              tone={ANIMAL_STATUS_TONE[grant.animal.status] ?? 'neutral'}
+              tone={ANIMAL_STATUS_TONE[pet.animal.status] ?? 'neutral'}
               size="sm"
             />
           ) : null}

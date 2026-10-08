@@ -14,6 +14,7 @@ const createPublication = jest.spyOn(publicationsApi, 'create');
 
 const createdAnimal: Pet = {
   id: 'a1',
+  publicCode: 'K7M4QXR',
   name: 'ميمي',
   species: 'CAT',
   breed: null,

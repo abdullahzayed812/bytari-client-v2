@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
@@ -11,47 +11,31 @@ import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { AnimalCard } from '@/features/animals/components/AnimalCard';
 import { AnimalCodeScannerModal } from '@/features/animals/components/AnimalCodeScannerModal';
-import {
-  useGrantOrganizationAnimalAccess,
-  useOrganizationAnimalSearch,
-} from '@/features/animals/hooks';
+import { useClinicPetLookup, useOrganizationAnimalSearch } from '@/features/animals/hooks';
+import { petCodeFromInput } from '@/features/pets/petCode';
 import { useDebouncedValue } from '@/hooks';
+import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 
-const UUID_IN_TEXT = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-const UUID_ONLY = new RegExp(`^${UUID_IN_TEXT.source}$`, 'i');
-
 /**
- * A scanned code is normally the pet's id (the Pet Details QR), possibly inside
- * a link — pull the UUID out; anything else is searched as plain text.
- */
-export function animalIdFromCode(code: string): string {
-  return code.match(UUID_IN_TEXT)?.[0].toLowerCase() ?? code.trim();
-}
-
-/**
- * Clinic Dashboard owned-pet search + QR / ID lookup. Searches ONLY this
- * clinic's own patients (server-side, debounced, paginated, permission-checked;
- * listing subjects are never returned). A scanned / typed id that is not one of
- * them shows one neutral "not found or not accessible" state — nothing about
- * the pet or its owner is revealed. Staff who may manage access can link the
- * pet (`POST animal-access`, which re-checks it is a registered, owned pet)
- * and go straight to its file.
+ * Clinic Dashboard pet search + open-by-ID. Typing searches ONLY this clinic's
+ * own pets (those it has records for — server-side, debounced). A short pet ID
+ * / scanned QR opens ANY registered pet via the lookup route: nothing is
+ * linked, and the clinic sees only what it records itself. An unknown code is
+ * one neutral "not found" state.
  */
 export function ClinicPetSearch({
   organizationId,
-  canLink,
+  canOpen,
 }: {
   organizationId: string;
-  /** `animal.veterinary.access.manage` on an operational clinic. */
-  canLink: boolean;
+  /** Operational clinic (active, not expired) — opening by ID is allowed. */
+  canOpen: boolean;
 }) {
   const theme = useTheme();
   const { t } = useTranslation('clinicDashboard');
   const [term, setTerm] = useState('');
   const [scanning, setScanning] = useState(false);
-  /** Set by a scan: open the pet directly once the lookup confirms access. */
-  const [scannedId, setScannedId] = useState<string | null>(null);
   const trimmed = term.trim();
   const active = trimmed.length > 0;
   // Debounced here (not in the hook) so the query only ever runs for a settled,
@@ -62,38 +46,27 @@ export function ClinicPetSearch({
     enabled: active && settled.length > 0,
     debounce: false,
   });
-  const grant = useGrantOrganizationAnimalAccess(organizationId);
+  const lookup = useClinicPetLookup(organizationId);
   const items = pending ? [] : (search.data?.items ?? []);
-  const isId = UUID_ONLY.test(trimmed);
+  const code = petCodeFromInput(trimmed);
   const busy = pending || (search.isFetching && !search.isError);
+  const lookupNotFound = lookup.error instanceof ApiError && lookup.error.status === 404;
 
   const open = (animalId: string) =>
     router.push(Routes.organizationAnimalDetail(organizationId, animalId) as never);
 
   const clear = () => {
     setTerm('');
-    setScannedId(null);
-    grant.reset();
+    lookup.reset();
   };
 
-  // Scan → accessible patient → straight into its file.
-  useEffect(() => {
-    if (!scannedId || busy || !search.isSuccess) return;
-    const hit = items.find((g) => g.animalId === scannedId);
-    if (hit) {
-      setScannedId(null);
-      open(hit.animalId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scannedId, busy, search.isSuccess, items]);
-
-  const linkAndOpen = () =>
-    grant.mutate(
-      { animalId: trimmed },
+  const openByCode = (value: string) =>
+    lookup.mutate(
+      { code: value },
       {
-        onSuccess: () => {
+        onSuccess: (pet) => {
           clear();
-          open(trimmed);
+          open(pet.animalId);
         },
       },
     );
@@ -106,20 +79,21 @@ export function ClinicPetSearch({
             value={term}
             onChangeText={(v) => {
               setTerm(v);
-              setScannedId(null);
-              grant.reset();
+              lookup.reset();
             }}
             onClear={clear}
             placeholder={t('search.placeholder')}
             accessibilityLabel={t('search.placeholder')}
           />
         </View>
-        <IconButton
-          icon="qr-code-outline"
-          variant="filled"
-          accessibilityLabel={t('search.scan')}
-          onPress={() => setScanning(true)}
-        />
+        {canOpen ? (
+          <IconButton
+            icon="qr-code-outline"
+            variant="filled"
+            accessibilityLabel={t('search.scan')}
+            onPress={() => setScanning(true)}
+          />
+        ) : null}
       </Row>
 
       {!active ? (
@@ -142,24 +116,30 @@ export function ClinicPetSearch({
           ) : busy && items.length === 0 ? (
             <Loading label={t('search.searching')} />
           ) : items.length > 0 ? (
-            items.map((g) => <AnimalCard key={g.id} grant={g} onPress={() => open(g.animalId)} />)
-          ) : isId ? (
+            items.map((p) => (
+              <AnimalCard key={p.animalId} pet={p} onPress={() => open(p.animalId)} />
+            ))
+          ) : code && canOpen ? (
             <>
-              <EmptyState
-                icon="lock-closed-outline"
-                title={t('search.inaccessibleTitle')}
-                message={t(canLink ? 'search.inaccessibleLinkBody' : 'search.inaccessibleBody')}
-              />
-              {grant.isError ? <Alert tone="danger" message={t('search.linkFailed')} /> : null}
-              {canLink ? (
-                <Button
-                  label={t('search.linkAndOpen')}
-                  variant="outline"
-                  leftIcon="link-outline"
-                  loading={grant.isPending}
-                  onPress={linkAndOpen}
+              {lookupNotFound ? (
+                <EmptyState
+                  icon="help-circle-outline"
+                  title={t('search.notFoundTitle')}
+                  message={t('search.notFoundBody')}
                 />
+              ) : (
+                <Caption color="textMuted">{t('search.openByIdHint')}</Caption>
+              )}
+              {lookup.isError && !lookupNotFound ? (
+                <Alert tone="danger" message={t('search.openFailed')} />
               ) : null}
+              <Button
+                label={t('search.openById')}
+                variant="outline"
+                leftIcon="folder-open-outline"
+                loading={lookup.isPending}
+                onPress={() => openByCode(trimmed)}
+              />
             </>
           ) : (
             <EmptyState
@@ -174,12 +154,11 @@ export function ClinicPetSearch({
       <AnimalCodeScannerModal
         visible={scanning}
         onClose={() => setScanning(false)}
-        onScanned={(code) => {
+        onScanned={(scanned) => {
           setScanning(false);
-          const id = animalIdFromCode(code);
-          setTerm(id);
-          grant.reset();
-          setScannedId(UUID_ONLY.test(id) ? id : null);
+          const value = petCodeFromInput(scanned) ?? scanned.trim();
+          setTerm(value);
+          openByCode(value);
         }}
       />
     </View>

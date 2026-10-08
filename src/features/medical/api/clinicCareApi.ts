@@ -130,9 +130,6 @@ export const clinicCareApi = {
     });
     return page(env.data, env.meta, p, pageSize);
   },
-  deleteOwnerReminder(animalId: string, reminderId: string): Promise<{ deleted: boolean }> {
-    return apiClient.delete<{ deleted: boolean }>(`/animals/${animalId}/reminders/${reminderId}`);
-  },
 
   // --- vaccinations (clinic-wide + notify) ------------------------------
   async listClinicVaccinations(

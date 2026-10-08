@@ -49,9 +49,7 @@ export default function MedicalRecordDetailScreen() {
   const del = useDeleteMedicalRecord(organizationId ?? '', animalId);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const listRoute = isClinic
-    ? Routes.orgAnimalMedicalRecords(organizationId as string, animalId)
-    : Routes.petMedicalRecords(animalId);
+  const listRoute = Routes.orgAnimalMedicalRecords(organizationId ?? '', animalId);
 
   const notFound =
     q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);

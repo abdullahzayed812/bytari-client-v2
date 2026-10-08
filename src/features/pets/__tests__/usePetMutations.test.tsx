@@ -9,6 +9,7 @@ import type { Pet } from '../types';
 
 const pet: Pet = {
   id: 'p1',
+  publicCode: 'K7M4QXR',
   name: 'Lulu',
   species: 'CAT',
   breed: null,

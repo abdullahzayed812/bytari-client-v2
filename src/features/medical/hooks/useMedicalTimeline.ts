@@ -7,10 +7,10 @@ import { medicalHistoryApi, medicalKeys, medicalScopeTag } from '../api';
 import type { MedicalScope, MedicalTimelineEntry, MedicalTimelineType, Paginated } from '../types';
 
 /**
- * The animal's composed medical history (records + vaccinations, newest first,
- * backend-ordered). CLINIC context reads via `/organizations/:orgId/...`
- * (`medical_record.read` + veterinary access); OWNER context via
- * `/animals/:animalId/...` (current owner / ADMIN). Optional `type` filter is a
+ * The animal's composed medical history (newest first, backend-ordered).
+ * CLINIC context (`/organizations/:orgId/...`, `medical_record.read`): THIS
+ * clinic's own records + vaccinations. OWNER context (`/animals/:animalId/...`):
+ * vaccinations only — clinic records are private. Optional `type` filter is a
  * backend param — no client-side filtering.
  */
 export function useMedicalTimeline(

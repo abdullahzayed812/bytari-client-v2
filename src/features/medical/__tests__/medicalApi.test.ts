@@ -63,23 +63,9 @@ describe('medicalRecordsApi — clinic + owner wrappers (mirror the backend rout
     expect(del).toHaveBeenCalledWith('/organizations/o1/animals/a1/medical-records/r1');
   });
 
-  it('listForOwner → GET /animals/:animalId/medical-records (no organization segment)', async () => {
-    envelope.mockResolvedValueOnce({
-      data: [],
-      meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
-    });
-    await medicalRecordsApi.listForOwner('a1', 1, 20);
-    expect(envelope).toHaveBeenCalledWith({
-      method: 'GET',
-      url: '/animals/a1/medical-records',
-      params: { page: 1, pageSize: 20 },
-    });
-  });
-
-  it('getForOwner → GET /animals/:animalId/medical-records/:recordId', async () => {
-    get.mockResolvedValueOnce({ id: 'r1' });
-    await medicalRecordsApi.getForOwner('a1', 'r1');
-    expect(get).toHaveBeenCalledWith('/animals/a1/medical-records/r1');
+  it('has no owner endpoints — medical records are clinic-private', () => {
+    expect(medicalRecordsApi).not.toHaveProperty('listForOwner');
+    expect(medicalRecordsApi).not.toHaveProperty('getForOwner');
   });
 });
 

@@ -159,8 +159,11 @@ export interface AppNotification {
   source: NotificationSource;
 }
 
-/** Pet Details sections that carry a "new from the clinic" badge. */
-export type PetCareSection = 'medicalRecords' | 'vaccinations' | 'reminders';
+/**
+ * Pet Details sections that carry a "new from the clinic" badge — only the
+ * owner-visible clinic additions (medical records are clinic-private).
+ */
+export type PetCareSection = 'vaccinations' | 'reminders';
 /** The owner's own unread clinic pet-care notifications for one pet, per section. */
 export type PetUnseenCounts = Record<PetCareSection, number>;
 

@@ -40,6 +40,7 @@ function seedOwner() {
 }
 const pet = (currentOwnerUserId: string) => ({
   id: 'p1',
+  publicCode: 'K7M4QXR',
   name: 'ميمي',
   species: 'CAT',
   breed: null,
@@ -93,19 +94,20 @@ describe('pet-care notification → Pet Details', () => {
 });
 
 describe('Pet Details "new" badges', () => {
-  it('shows per-section unseen counts on the owner’s medical rows (none at 0)', async () => {
+  it('shows per-section unseen counts on the owner’s vaccinations / reminders rows (none at 0)', async () => {
     getPet.mockResolvedValue(pet('owner1') as never);
-    unseen.mockResolvedValue({ medicalRecords: 2, vaccinations: 1, reminders: 0 });
+    unseen.mockResolvedValue({ vaccinations: 2, reminders: 0 });
     setSearchParams({ petId: 'p1' });
     renderWithProviders(<PetDetailsScreen />);
 
     await waitFor(() => expect(screen.getByText('2 جديد')).toBeOnTheScreen());
     expect(unseen).toHaveBeenCalledWith('p1');
-    expect(screen.getByText('1 جديد')).toBeOnTheScreen();
-    expect(screen.getByLabelText('السجل الطبي، 2 جديد')).toBeOnTheScreen();
+    expect(screen.getByLabelText('التطعيمات، 2 جديد')).toBeOnTheScreen();
     expect(screen.getByLabelText('التذكيرات')).toBeOnTheScreen(); // no badge
-    fireEvent.press(screen.getByLabelText('السجل الطبي، 2 جديد'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/medical-records');
+    // No clinic-private medical-records row for the owner.
+    expect(screen.queryByLabelText(/^السجل الطبي/)).toBeNull();
+    fireEvent.press(screen.getByLabelText('التطعيمات، 2 جديد'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/vaccinations');
   });
 
   it('a non-owner viewing a pet never asks for counters', async () => {

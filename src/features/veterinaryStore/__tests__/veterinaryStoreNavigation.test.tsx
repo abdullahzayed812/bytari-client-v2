@@ -79,8 +79,12 @@ describe('Phase 10 store navigation + capability gates + Pet Owner coexistence',
 
   it('route builders are deep-link-safe absolute paths', () => {
     expect(Routes.organizationStoreProducts('o1')).toBe('/(app)/organizations/o1/store-products');
-    expect(Routes.organizationStoreProductCreate('o1')).toBe('/(app)/organizations/o1/store-products/create');
-    expect(Routes.organizationStoreProduct('o1', 'p1')).toBe('/(app)/organizations/o1/store-products/p1');
+    expect(Routes.organizationStoreProductCreate('o1')).toBe(
+      '/(app)/organizations/o1/store-products/create',
+    );
+    expect(Routes.organizationStoreProduct('o1', 'p1')).toBe(
+      '/(app)/organizations/o1/store-products/p1',
+    );
     expect(Routes.organizationStoreProductEdit('o1', 'p1')).toBe(
       '/(app)/organizations/o1/store-products/p1/edit',
     );
@@ -143,6 +147,7 @@ describe('Phase 10 store navigation + capability gates + Pet Owner coexistence',
       items: [
         {
           id: 'p1',
+          publicCode: 'K7M4QXR',
           name: 'ميمي',
           species: 'CAT',
           breed: null,

@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -87,13 +86,6 @@ function SlideView({ slide, width }: { slide: AdSlide; width: number }) {
         accessibilityIgnoresInvertColors
         accessible
         accessibilityLabel={t('ads.a11y', { title: slide.title ?? '' })}
-      />
-      <LinearGradient
-        colors={['rgba(6,20,13,0)', 'rgba(6,20,13,0.75)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        locations={[0.35, 1]}
-        style={{ position: 'absolute', top: 0, bottom: 0, start: 0, end: 0 }}
       />
       {slide.title || slide.subtitle || hasCta ? (
         <View

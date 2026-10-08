@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { Badge, Card, Icon } from '@/components/content';
+import { Card, Icon } from '@/components/content';
 import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Row, SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -23,17 +23,15 @@ export interface PetClinic {
   logoUrl: string | null;
   phone: string | null;
   address: string | null;
-  hasActiveAccess: boolean;
-  grantedAt: string | null;
-  medicalRecordsCount: number;
   vaccinationsCount: number;
   remindersCount: number;
 }
 
 /**
  * Route `/pets/[petId]/clinics` — legacy owner tab "العيادات التي زارها الحيوان":
- * every clinic that treats the pet or recorded anything for it, with record /
- * vaccination / reminder counts, its profile, and a chat with the clinic.
+ * the clinics that added vaccinations / reminders for the pet (the only
+ * owner-visible clinic additions), with those counts, its profile, and a chat
+ * with the clinic.
  * Current owner (or ADMIN) only — enforced by the backend.
  */
 export default function PetClinicsScreen() {
@@ -97,15 +95,11 @@ export default function PetClinicsScreen() {
                   </Text>
                   <Caption>
                     {t('clinics.counts', {
-                      records: item.medicalRecordsCount,
                       vaccinations: item.vaccinationsCount,
                       reminders: item.remindersCount,
                     })}
                   </Caption>
                 </View>
-                {item.hasActiveAccess ? (
-                  <Badge label={t('clinics.activeAccess')} tone="success" size="sm" />
-                ) : null}
               </Row>
               <View style={{ marginTop: theme.spacing.sm }}>
                 <Button

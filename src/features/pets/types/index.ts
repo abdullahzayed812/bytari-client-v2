@@ -40,6 +40,11 @@ export type PetAgeEstimate = (typeof PET_AGE_ESTIMATES)[number];
 // --- DTO (list item, detail, create/update/deactivate response) --------
 export interface Pet {
   id: string;
+  /**
+   * Short public pet ID (7 chars, stored without the dash) — what the owner
+   * reads out / shows as a QR at a clinic. Display with `formatPetCode`.
+   */
+  publicCode: string;
   name: string;
   species: PetSpecies;
   breed: string | null;

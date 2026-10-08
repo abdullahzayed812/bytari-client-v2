@@ -33,16 +33,13 @@ export default function MedicalTimelineScreen() {
   const q = useMedicalTimeline({ animalId, organizationId }, { type: filter });
 
   const open = (entry: MedicalTimelineEntry) => {
+    // Medical records only ever appear in the clinic's own timeline.
     if (entry.type === 'MEDICAL_RECORD' && entry.medicalRecord) {
-      router.push(
-        isClinic
-          ? Routes.orgAnimalMedicalRecord(
-              organizationId as string,
-              animalId,
-              entry.medicalRecord.id,
-            )
-          : Routes.petMedicalRecord(animalId, entry.medicalRecord.id),
-      );
+      if (isClinic) {
+        router.push(
+          Routes.orgAnimalMedicalRecord(organizationId as string, animalId, entry.medicalRecord.id),
+        );
+      }
     } else if (entry.type === 'VACCINATION' && entry.vaccination) {
       router.push(
         isClinic

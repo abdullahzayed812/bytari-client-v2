@@ -139,6 +139,7 @@ describe('Phase 7 organization dashboard (§2–§8) + Pet Owner coexistence (§
       items: [
         {
           id: 'p1',
+          publicCode: 'K7M4QXR',
           name: 'ميمي',
           species: 'CAT',
           breed: null,

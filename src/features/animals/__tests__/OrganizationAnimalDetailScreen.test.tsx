@@ -54,6 +54,7 @@ const orgDetail = {
 
 const profile: ClinicAnimalProfile = {
   id: 'a1',
+  publicCode: 'K7M4QXR',
   name: 'لولو',
   species: 'DOG',
   breed: 'هاسكي',
@@ -68,7 +69,10 @@ const profile: ClinicAnimalProfile = {
   isNeutered: null,
   medicalHistory: null,
   owner: null,
-  access: { id: 'g1', grantedAt: '2026-02-03T00:00:00.000Z' },
+  relationship: {
+    firstActivityAt: '2026-02-03T00:00:00.000Z',
+    lastActivityAt: '2026-02-04T00:00:00.000Z',
+  },
   stats: {
     medicalRecordsCount: 3,
     vaccinationsCount: 2,
@@ -108,14 +112,12 @@ describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
   const get = jest.spyOn(organizationsApi, 'get');
   const getProfile = jest.spyOn(organizationAnimalsApi, 'getProfile');
   const getSummary = jest.spyOn(clinicDashboardApi, 'getSummary');
-  const revoke = jest.spyOn(organizationAnimalsApi, 'revoke');
 
   beforeEach(() => {
     resetRouterMock();
     get.mockReset().mockResolvedValue(orgDetail as never);
     getProfile.mockReset();
     getSummary.mockReset().mockResolvedValue(summaryWith({}));
-    revoke.mockReset();
     setSearchParams({ organizationId: 'o1', animalId: 'a1' });
     seedOwner();
   });
@@ -152,7 +154,7 @@ describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
     );
   });
 
-  it('hides write actions and revoke when the backend permissions deny them', async () => {
+  it('hides write actions when the backend permissions deny them', async () => {
     getSummary.mockResolvedValue(
       summaryWith({
         canCreateMedicalRecords: false,
@@ -169,11 +171,11 @@ describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
     expect(screen.queryByText('إلغاء وصول المؤسسة')).toBeNull();
   });
 
-  it('renders a plain "not linked" state on a 404 (no grant for this clinic)', async () => {
+  it('renders a plain "not found" state on a 404 (unknown pet)', async () => {
     const { ApiError } = jest.requireActual('@/services/api') as typeof import('@/services/api');
     getProfile.mockRejectedValue(new ApiError({ code: 'NOT_FOUND', message: 'nope', status: 404 }));
     renderWithProviders(<OrganizationAnimalDetailScreen />);
-    await waitFor(() => expect(screen.getByText('الحيوان غير مرتبط بالمؤسسة')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('الحيوان غير موجود')).toBeOnTheScreen());
   });
 
   it('renders a safe forbidden state on a 403 (no authorization detail leaked)', async () => {
@@ -186,22 +188,13 @@ describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
     expect(screen.queryByText('secret')).toBeNull();
   });
 
-  it('an OWNER can revoke access: confirm → DELETE by animalId', async () => {
+  it('shows the short pet ID (and QR of it) — never the internal id — and no revoke / link action', async () => {
     getProfile.mockResolvedValue(profile);
-    revoke.mockResolvedValue({ revoked: true });
     renderWithProviders(<OrganizationAnimalDetailScreen />);
-    await waitFor(() => expect(screen.getByText('إلغاء وصول المؤسسة')).toBeOnTheScreen());
-
-    fireEvent.press(screen.getByText('إلغاء وصول المؤسسة'));
-    await waitFor(() =>
-      expect(screen.getByText(/ستفقد المؤسسة صلاحية الوصول إلى هذا الحيوان/)).toBeOnTheScreen(),
-    );
-    const confirms = screen.getAllByText('إلغاء وصول المؤسسة');
-    fireEvent.press(confirms[confirms.length - 1]!);
-
-    await waitFor(() => expect(revoke).toHaveBeenCalledWith('o1', 'a1'));
-    await waitFor(() =>
-      expect(routerMock.replace).toHaveBeenCalledWith('/(app)/organizations/o1/animals'),
-    );
+    await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
+    expect(screen.getAllByText('K7M-4QXR').length).toBeGreaterThan(0);
+    expect(screen.queryByText('a1')).toBeNull();
+    expect(screen.queryByText('إلغاء وصول المؤسسة')).toBeNull();
+    expect(screen.queryByText('وصول نشط')).toBeNull();
   });
 });

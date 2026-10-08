@@ -1,21 +1,18 @@
 /**
- * Animals feature — Mobile Phase 5. Organization-side animal management: the
- * animals a CLINIC organization has veterinary access to (list · detail ·
- * grant · revoke), against `/organizations/:organizationId/animal-access`.
+ * Animals feature — the clinic side of pets. A CLINIC opens any registered pet
+ * by the owner's short public ID / QR (no link is created); its Recent / All
+ * Pets are the pets it created its own records for (`/clinic-pets`), and every
+ * read is limited to that clinic's own records.
  *
- * This is NOT ownership — the animal stays owned by its Pet Owner (whose
- * experience lives in `features/pets`, unchanged). No medical records,
- * vaccinations, treatments, or appointments here — later phases; the detail
- * screen only carries disabled placeholders for them.
+ * This is NOT ownership — the pet stays owned by its Pet Owner (whose
+ * experience lives in `features/pets`).
  */
 export { organizationAnimalsApi, orgAnimalKeys, type OrganizationAnimalsApi } from './api';
 export {
   useOrganizationAnimals,
-  useOrganizationAnimal,
   useClinicAnimalProfile,
   useOrganizationAnimalSearch,
-  useGrantOrganizationAnimalAccess,
-  useRevokeOrganizationAnimalAccess,
+  useClinicPetLookup,
 } from './hooks';
 export {
   AnimalCard,
@@ -26,20 +23,13 @@ export {
 export {
   OrganizationAnimalsScreen,
   OrganizationAnimalDetailScreen,
-  GrantAnimalAccessScreen,
+  OpenClinicPetScreen,
 } from './screens';
 export {
   VETERINARY_ANIMAL_ORG_TYPES,
   organizationManagesAnimals,
   animalSpeciesIcon,
   ANIMAL_SPECIES_ICON,
-  CLINIC_ACCESS_STATUS_TONE,
   ANIMAL_STATUS_TONE,
 } from './constants';
-export {
-  buildGrantAnimalAccessSchema,
-  grantAnimalAccessErrorMessage,
-  type GrantAnimalAccessFormValues,
-  type OrgAnimalsTFn,
-} from './validation/schemas';
 export * from './types';

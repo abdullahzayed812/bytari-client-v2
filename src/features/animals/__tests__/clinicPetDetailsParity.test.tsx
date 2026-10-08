@@ -42,6 +42,7 @@ const summary = {
 
 const profile: ClinicAnimalProfile = {
   id: 'a1',
+  publicCode: 'K7M4QXR',
   name: 'لولو',
   species: 'DOG',
   breed: null,
@@ -56,7 +57,7 @@ const profile: ClinicAnimalProfile = {
   isNeutered: true,
   medicalHistory: null,
   owner: { id: 'own1', firstName: 'سارة', lastName: 'علي', phone: '0770000000' },
-  access: { id: 'g1', grantedAt: '2026-02-03T00:00:00.000Z' },
+  relationship: null,
   stats: {
     medicalRecordsCount: 0,
     vaccinationsCount: 0,
@@ -126,16 +127,14 @@ describe('owner "clinics" tab', () => {
         logoUrl: null,
         phone: null,
         address: null,
-        hasActiveAccess: true,
-        grantedAt: '',
-        medicalRecordsCount: 2,
         vaccinationsCount: 1,
         remindersCount: 0,
       },
     ] as never);
     renderWithProviders(<PetClinicsScreen />);
     await waitFor(() => expect(screen.getByText('عيادة الرحمة')).toBeOnTheScreen());
-    expect(screen.getByText('2 سجلات طبية • 1 تطعيمات • 0 تذكيرات')).toBeOnTheScreen();
+    expect(screen.getByText('1 تطعيمات • 0 تذكيرات')).toBeOnTheScreen();
+    expect(screen.queryByText(/سجلات طبية/)).toBeNull();
     fireEvent.press(screen.getByLabelText('عيادة الرحمة'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/discover/o1');
   });

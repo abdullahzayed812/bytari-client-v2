@@ -9,7 +9,6 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useMarkPetSectionSeen } from '@/features/notifications/hooks';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
@@ -35,9 +34,8 @@ export default function MedicalRecordsScreen() {
   const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin);
   const canAdd = isClinic && caps.canManageOrganizationMedical;
 
+  // Clinic-only: records are clinic-private (no owner route / badge).
   const q = useMedicalRecords({ animalId, organizationId });
-  // Owner opened this section → clear only its "new" badge on Pet Details.
-  useMarkPetSectionSeen(animalId, 'medicalRecords', !isClinic);
   // Legacy clinic tabs التحاليل / الملفات / الملاحظات are views over the same records.
   const { view } = useLocalSearchParams<{ view?: 'lab' | 'files' | 'notes' }>();
   const records = useMemo(() => {
@@ -66,11 +64,7 @@ export default function MedicalRecordsScreen() {
           : t('records.empty');
 
   const goToDetail = (r: MedicalRecord) =>
-    router.push(
-      isClinic
-        ? Routes.orgAnimalMedicalRecord(organizationId as string, animalId, r.id)
-        : Routes.petMedicalRecord(animalId, r.id),
-    );
+    router.push(Routes.orgAnimalMedicalRecord(organizationId as string, animalId, r.id));
   const goToCreate = () => {
     const path = Routes.orgAnimalMedicalRecordCreate(organizationId as string, animalId);
     if (createType) router.push({ pathname: path as never, params: { type: createType } });

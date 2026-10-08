@@ -4,11 +4,11 @@ import { useDebouncedValue } from '@/hooks';
 import type { ApiError } from '@/services/api';
 
 import { orgAnimalKeys, organizationAnimalsApi } from '../api';
-import type { OrganizationAnimalGrant, Paginated } from '../types';
+import type { ClinicPet, Paginated } from '../types';
 
 /**
- * Server-side search among the clinic's OWN animals (legacy dashboard search
- * by id / name / owner / type / breed). Empty term → the newest page.
+ * Server-side search among the clinic's OWN pets (those it has records for):
+ * short ID / id, name, owner, type, breed. Empty term → the newest page.
  */
 export function useOrganizationAnimalSearch(
   organizationId: string | undefined,
@@ -18,7 +18,7 @@ export function useOrganizationAnimalSearch(
 ) {
   const settled = useDebouncedValue(term.trim());
   const debounced = options.debounce === false ? term.trim() : settled;
-  return useQuery<Paginated<OrganizationAnimalGrant>, ApiError>({
+  return useQuery<Paginated<ClinicPet>, ApiError>({
     queryKey: orgAnimalKeys.search(organizationId ?? 'unknown', debounced),
     queryFn: () =>
       organizationAnimalsApi.list(organizationId as string, 1, 50, debounced || undefined),

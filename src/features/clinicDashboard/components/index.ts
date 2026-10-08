@@ -1,2 +1,2 @@
-export { ClinicPetSearch, animalIdFromCode } from './ClinicPetSearch';
+export { ClinicPetSearch } from './ClinicPetSearch';
 export { ClinicOperationalGate } from './ClinicOperationalGate';

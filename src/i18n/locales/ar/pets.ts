@@ -40,8 +40,7 @@ export default {
   clinics: {
     title: 'العيادات التي زارها الحيوان',
     empty: 'لم يزر الحيوان أي عيادة بعد',
-    counts: '{{records}} سجلات طبية • {{vaccinations}} تطعيمات • {{reminders}} تذكيرات',
-    activeAccess: 'متابعة نشطة',
+    counts: '{{vaccinations}} تطعيمات • {{reminders}} تذكيرات',
     chat: 'محادثة العيادة',
   },
   detail: {
@@ -54,7 +53,7 @@ export default {
     newCount_other: '{{count}} جديد',
     clinics: 'العيادات التي زارها الحيوان',
     idSection: 'رقم المعرف',
-    idHint: 'اعرض هذا الرمز للعيادة لتجد ملف حيوانك بسرعة.',
+    idHint: 'اقرأ هذا الرقم المختصر للعيادة أو دعها تمسح الرمز لتفتح ملف حيوانك مباشرة.',
     title: 'ملف الحيوان',
     ownerYou: 'أنت المالك',
     sectionInfo: 'المعلومات الأساسية',

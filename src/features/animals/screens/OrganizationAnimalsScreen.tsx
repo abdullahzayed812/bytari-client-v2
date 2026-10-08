@@ -10,42 +10,43 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { orgCapabilities, useOrganization } from '@/features/organizations';
-import { useCapabilities, useDebouncedValue } from '@/hooks';
+import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { AnimalCard, AnimalCardSkeleton } from '../components';
 import { useOrganizationAnimals } from '../hooks';
-import type { OrganizationAnimalGrant } from '../types';
+import type { ClinicPet } from '../types';
 
 /**
- * Route `/organizations/[organizationId]/animals` — the animals a CLINIC has
- * veterinary access to. The backend list endpoint takes only `page`/`pageSize`
- * (no server-side search — see §54), so the filter box narrows the already
- * loaded rows by name; it is a convenience over *this clinic's* animals, not a
- * database search.
+ * Route `/organizations/[organizationId]/animals` — "All Pets": the pets this
+ * clinic has its own records for, latest activity first (no link list — the
+ * clinic's records are the relationship). The filter box narrows the loaded
+ * rows by name / short ID; "+" opens any pet by its short ID / QR.
  */
 export default function OrganizationAnimalsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('orgAnimals');
-  const { isAdmin } = useCapabilities();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
 
-  const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
   const q = useOrganizationAnimals(orgId);
 
   const [rawFilter, setRawFilter] = useState('');
   const filter = useDebouncedValue(rawFilter).trim().toLowerCase();
-  const visible = useMemo<OrganizationAnimalGrant[]>(
+  const visible = useMemo<ClinicPet[]>(
     () =>
-      filter ? q.animals.filter((g) => g.animal.name.toLowerCase().includes(filter)) : q.animals,
+      filter
+        ? q.animals.filter(
+            (p) =>
+              p.animal.name.toLowerCase().includes(filter) ||
+              p.publicCode.toLowerCase().includes(filter.replace(/[\s-]/g, '')),
+          )
+        : q.animals,
     [q.animals, filter],
   );
 
-  const goToDetail = (g: OrganizationAnimalGrant) =>
-    router.push(Routes.organizationAnimalDetail(orgId, g.animalId));
+  const goToDetail = (p: ClinicPet) =>
+    router.push(Routes.organizationAnimalDetail(orgId, p.animalId));
 
   const header = (
     <View style={{ paddingBottom: theme.spacing.md, rowGap: theme.spacing.sm }}>
@@ -66,14 +67,12 @@ export default function OrganizationAnimalsScreen() {
         title={t('list.title')}
         showBack
         right={
-          caps.canManageOrganizationAnimalAccess ? (
-            <IconButton
-              icon="add"
-              variant="soft"
-              accessibilityLabel={t('list.grantCta')}
-              onPress={() => router.push(Routes.organizationAnimalsGrant(orgId))}
-            />
-          ) : undefined
+          <IconButton
+            icon="qr-code-outline"
+            variant="soft"
+            accessibilityLabel={t('list.openCta')}
+            onPress={() => router.push(Routes.organizationAnimalsOpen(orgId))}
+          />
         }
       />
 
@@ -98,8 +97,8 @@ export default function OrganizationAnimalsScreen() {
       ) : (
         <FlatList
           data={visible}
-          keyExtractor={(g) => g.id}
-          renderItem={({ item }) => <AnimalCard grant={item} onPress={() => goToDetail(item)} />}
+          keyExtractor={(p) => p.animalId}
+          renderItem={({ item }) => <AnimalCard pet={item} onPress={() => goToDetail(item)} />}
           ListHeaderComponent={header}
           ListEmptyComponent={
             filter ? (
@@ -109,14 +108,8 @@ export default function OrganizationAnimalsScreen() {
                 icon="paw-outline"
                 title={t('list.empty')}
                 message={t('list.emptyHint')}
-                actionLabel={
-                  caps.canManageOrganizationAnimalAccess ? t('list.grantCta') : undefined
-                }
-                onAction={
-                  caps.canManageOrganizationAnimalAccess
-                    ? () => router.push(Routes.organizationAnimalsGrant(orgId))
-                    : undefined
-                }
+                actionLabel={t('list.openCta')}
+                onAction={() => router.push(Routes.organizationAnimalsOpen(orgId))}
               />
             )
           }

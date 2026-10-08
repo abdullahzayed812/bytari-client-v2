@@ -7,9 +7,9 @@ import type { ClinicAnimalProfile } from '../types';
 
 /**
  * The clinic-visible profile of one animal
- * (`GET /organizations/:organizationId/animals/:animalId`). A `404` means the
- * clinic holds no ACTIVE grant (never linked, or revoked); a `403` means the
- * caller lacks `animal.veterinary.access.read` — neither is retried.
+ * (`GET /organizations/:organizationId/animals/:animalId`). A `404` means an
+ * unknown / listing-only animal; a `403` means the caller lacks
+ * `animal.veterinary.access.read` — neither is retried.
  */
 export function useClinicAnimalProfile(
   organizationId: string | undefined,

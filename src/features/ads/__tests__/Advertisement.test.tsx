@@ -1,3 +1,5 @@
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
@@ -85,6 +87,13 @@ describe('Advertisement', () => {
     expect(screen.getByText('شريحة 2')).toBeOnTheScreen();
     // 1 banner slide + 3 carousel slides = 4 pagination dots (see below), i.e. one pager
     expect(screen.getAllByText('تسوق الآن')).toHaveLength(1);
+  });
+
+  it('shows the slide images without any gradient overlay', async () => {
+    list.mockResolvedValue([bannerCampaign(), carouselCampaign()]);
+    renderWithProviders(<Advertisement placement="HOME" />);
+    await waitFor(() => expect(screen.getByText('رعاية أفضل')).toBeOnTheScreen());
+    expect(screen.UNSAFE_queryAllByType(LinearGradient)).toHaveLength(0);
   });
 
   it('requests the placement it was given', async () => {

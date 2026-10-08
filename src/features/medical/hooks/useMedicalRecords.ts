@@ -8,10 +8,9 @@ import { medicalKeys, medicalRecordsApi, medicalScopeTag } from '../api';
 import type { MedicalRecord, MedicalScope, Paginated } from '../types';
 
 /**
- * An animal's medical-record history. CLINIC context (with `organizationId`)
- * reads via `/organizations/:orgId/...` and requires `medical_record.read` +
- * veterinary access; OWNER context reads via `/animals/:animalId/...` and is
- * allowed only for the animal's current owner (or ADMIN). Same DTO either way.
+ * THIS clinic's medical records for an animal (`medical_record.read`). Clinic
+ * context only — records are clinic-private, so without an `organizationId`
+ * the query never runs.
  */
 export function useMedicalRecords(
   scope: MedicalScope,
@@ -31,12 +30,10 @@ export function useMedicalRecords(
     queryKey: medicalKeys.recordList(animalId || 'unknown', tag),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      organizationId
-        ? medicalRecordsApi.listForClinic(organizationId, animalId, pageParam, pageSize)
-        : medicalRecordsApi.listForOwner(animalId, pageParam, pageSize),
+      medicalRecordsApi.listForClinic(organizationId as string, animalId, pageParam, pageSize),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
-    enabled: Boolean(animalId) && (params.enabled ?? true),
+    enabled: Boolean(animalId) && Boolean(organizationId) && (params.enabled ?? true),
     staleTime: 15_000,
   });
 
@@ -49,7 +46,7 @@ export function useMedicalRecords(
   return { ...query, records, total };
 }
 
-/** One medical record. Backend returns `404` for an unknown id or (on write paths) another clinic's record. */
+/** One of THIS clinic's medical records — `404` for an unknown id or another clinic's record. */
 export function useMedicalRecord(
   scope: MedicalScope,
   recordId: string | undefined,
@@ -59,10 +56,12 @@ export function useMedicalRecord(
   return useQuery<MedicalRecord, ApiError>({
     queryKey: medicalKeys.record(animalId || 'unknown', recordId ?? 'unknown'),
     queryFn: () =>
-      organizationId
-        ? medicalRecordsApi.getForClinic(organizationId, animalId, recordId as string)
-        : medicalRecordsApi.getForOwner(animalId, recordId as string),
-    enabled: Boolean(animalId) && Boolean(recordId) && (options.enabled ?? true),
+      medicalRecordsApi.getForClinic(organizationId as string, animalId, recordId as string),
+    enabled:
+      Boolean(animalId) &&
+      Boolean(organizationId) &&
+      Boolean(recordId) &&
+      (options.enabled ?? true),
     retry: (count, error) =>
       !(error instanceof ApiError && (error.status === 404 || error.status === 403)) && count < 2,
   });

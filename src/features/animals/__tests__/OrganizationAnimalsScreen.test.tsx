@@ -8,7 +8,7 @@ import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/route
 
 import { organizationAnimalsApi } from '../api';
 import OrganizationAnimalsScreen from '../screens/OrganizationAnimalsScreen';
-import type { OrganizationAnimalGrant } from '../types';
+import type { ClinicPet } from '../types';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -54,13 +54,11 @@ const orgDetail = {
   myRole: 'OWNER',
 } as const;
 
-const grant = (over: Partial<OrganizationAnimalGrant> = {}): OrganizationAnimalGrant => ({
-  id: 'g1',
+const grant = (over: Partial<ClinicPet> = {}): ClinicPet => ({
   animalId: 'a1',
-  organizationId: 'o1',
-  status: 'ACTIVE',
-  grantedByUserId: 'u1',
-  createdAt: '2026-01-01T00:00:00.000Z',
+  publicCode: 'K7M4QXR',
+  firstActivityAt: '2026-01-01T00:00:00.000Z',
+  lastActivityAt: '2026-01-02T00:00:00.000Z',
   animal: { name: 'لولو', species: 'DOG', status: 'ACTIVE' },
   ...over,
 });
@@ -89,13 +87,25 @@ describe('OrganizationAnimalsScreen (§5, §22, §26, §27)', () => {
     renderWithProviders(<OrganizationAnimalsScreen />);
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
     expect(list).toHaveBeenCalledWith('o1', 1, 20);
+    // The card shows the short public ID, never the internal id.
+    expect(screen.getByText('#K7M-4QXR')).toBeOnTheScreen();
   });
 
-  it('shows the empty state when the organization has no linked animals', async () => {
+  it('the header action opens a pet by ID (no link / grant screen)', async () => {
     list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 } });
     renderWithProviders(<OrganizationAnimalsScreen />);
     await waitFor(() =>
-      expect(screen.getByText('لا توجد حيوانات مرتبطة بهذه المؤسسة')).toBeOnTheScreen(),
+      expect(screen.getAllByLabelText('فتح حيوان برقم المعرف').length).toBeGreaterThan(0),
+    );
+    fireEvent.press(screen.getAllByLabelText('فتح حيوان برقم المعرف')[0]!);
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/o1/animals/open');
+  });
+
+  it('shows the empty state when the clinic has not worked with any pet', async () => {
+    list.mockResolvedValue({ items: [], meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 } });
+    renderWithProviders(<OrganizationAnimalsScreen />);
+    await waitFor(() =>
+      expect(screen.getByText('لم تُضف العيادة أي معلومات لحيوان بعد')).toBeOnTheScreen(),
     );
   });
 
@@ -122,8 +132,8 @@ describe('OrganizationAnimalsScreen (§5, §22, §26, §27)', () => {
       items: [
         grant(),
         grant({
-          id: 'g2',
           animalId: 'a2',
+          publicCode: 'P9Q2RST',
           animal: { name: 'ميمي', species: 'CAT', status: 'ACTIVE' },
         }),
       ],
@@ -133,7 +143,7 @@ describe('OrganizationAnimalsScreen (§5, §22, §26, §27)', () => {
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
     // The filter is debounced (`useDebouncedValue`) — poll until it settles.
-    fireEvent.changeText(screen.getByPlaceholderText('تصفية بالاسم…'), 'لولو');
+    fireEvent.changeText(screen.getByPlaceholderText('تصفية بالاسم أو رقم المعرف…'), 'لولو');
     await waitFor(
       () => {
         expect(screen.getByText('لولو')).toBeOnTheScreen();
@@ -142,7 +152,7 @@ describe('OrganizationAnimalsScreen (§5, §22, §26, §27)', () => {
       { timeout: 5000, interval: 60 },
     );
 
-    fireEvent.changeText(screen.getByPlaceholderText('تصفية بالاسم…'), 'zzz');
+    fireEvent.changeText(screen.getByPlaceholderText('تصفية بالاسم أو رقم المعرف…'), 'zzz');
     await waitFor(() => expect(screen.getByText('لم يتم العثور على الحيوان')).toBeOnTheScreen(), {
       timeout: 5000,
       interval: 60,

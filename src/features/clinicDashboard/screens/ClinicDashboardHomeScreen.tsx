@@ -12,7 +12,7 @@ import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { animalSpeciesIcon } from '@/features/animals/constants';
 import { useOrganizationAnimals } from '@/features/animals/hooks';
-import type { OrganizationAnimalGrant } from '@/features/animals/types';
+import type { ClinicPet } from '@/features/animals/types';
 import { useConversationUnreadSummary } from '@/features/chat';
 import { useOrganization } from '@/features/organizations';
 import { ApiError } from '@/services/api';
@@ -41,7 +41,7 @@ const TONES = {
  * v2 contracts: the header + stats come from `GET /organizations/:id` and the
  * new `GET /organizations/:id/clinic-dashboard/summary` (clinic-scoped counts +
  * the caller's real RBAC permissions — the legacy screen trusted a client-sent
- * `userId`). Every tile links to an existing v2 screen (animals, grant,
+ * `userId`). Every tile links to an existing v2 screen (animals, open-by-ID,
  * appointments, conversations, broadcast, members, supervisors, profile) and is
  * shown only when the backend says the caller may use it.
  */
@@ -189,10 +189,7 @@ export default function ClinicDashboardHomeScreen() {
               <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.sm }}>
                 {t('search.title')}
               </Text>
-              <ClinicPetSearch
-                organizationId={orgId}
-                canLink={Boolean(perms.canManageAnimalAccess) && isActive && !isExpired}
-              />
+              <ClinicPetSearch organizationId={orgId} canOpen={isActive && !isExpired} />
             </Section>
           ) : null}
 
@@ -304,14 +301,14 @@ export default function ClinicDashboardHomeScreen() {
               ) : (
                 <FlatList
                   data={recentAnimals}
-                  keyExtractor={(g) => g.id}
+                  keyExtractor={(p) => p.animalId}
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   style={{ marginTop: theme.spacing.md }}
                   ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
                   renderItem={({ item }) => (
                     <RecentAnimalCard
-                      grant={item}
+                      pet={item}
                       onPress={() => go(Routes.organizationAnimalDetail(orgId, item.animalId))}
                     />
                   )}
@@ -394,12 +391,12 @@ export default function ClinicDashboardHomeScreen() {
                   onPress={() => go(Routes.organizationAnimals(orgId))}
                 />
               ) : null}
-              {perms?.canManageAnimalAccess && isActive ? (
+              {perms?.canViewAnimals && isActive ? (
                 <QuickTile
-                  icon="link-outline"
+                  icon="qr-code-outline"
                   tone={TONES.mint}
-                  label={t('quick.linkAnimal')}
-                  onPress={() => go(Routes.organizationAnimalsGrant(orgId))}
+                  label={t('quick.openPet')}
+                  onPress={() => go(Routes.organizationAnimalsOpen(orgId))}
                 />
               ) : null}
               {perms?.canViewAppointments ? (
@@ -633,13 +630,7 @@ function SettingRow({
   );
 }
 
-function RecentAnimalCard({
-  grant,
-  onPress,
-}: {
-  grant: OrganizationAnimalGrant;
-  onPress: () => void;
-}) {
+function RecentAnimalCard({ pet, onPress }: { pet: ClinicPet; onPress: () => void }) {
   const theme = useTheme();
   const { t } = useTranslation('orgAnimals');
   return (
@@ -647,7 +638,7 @@ function RecentAnimalCard({
       variant="outlined"
       padding="md"
       onPress={onPress}
-      accessibilityLabel={t('card.open', { name: grant.animal.name })}
+      accessibilityLabel={t('card.open', { name: pet.animal.name })}
       style={{ width: RECENT_CARD_WIDTH }}
     >
       <View style={{ alignItems: 'center', rowGap: theme.spacing.xs }}>
@@ -662,21 +653,21 @@ function RecentAnimalCard({
             overflow: 'hidden',
           }}
         >
-          {grant.animal.photoUrl ? (
+          {pet.animal.photoUrl ? (
             <Image
-              source={{ uri: grant.animal.photoUrl }}
+              source={{ uri: pet.animal.photoUrl }}
               style={{ width: '100%', height: '100%' }}
               contentFit="cover"
             />
           ) : (
-            <Icon name={animalSpeciesIcon(grant.animal.species)} size="iconMd" color="primary" />
+            <Icon name={animalSpeciesIcon(pet.animal.species)} size="iconMd" color="primary" />
           )}
         </View>
         <Text variant="bodyStrong" numberOfLines={1}>
-          {grant.animal.name}
+          {pet.animal.name}
         </Text>
         <Caption numberOfLines={1}>
-          {t(`species.${grant.animal.species}`, { defaultValue: grant.animal.species })}
+          {t(`species.${pet.animal.species}`, { defaultValue: pet.animal.species })}
         </Caption>
       </View>
     </Card>

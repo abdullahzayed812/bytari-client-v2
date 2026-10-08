@@ -22,8 +22,8 @@ import { useMedicalRouteScope } from './useMedicalRouteScope';
 /**
  * An animal's reminders (legacy "التذكيرات" tab). CLINIC context
  * (`/organizations/[orgId]/animals/[animalId]/reminders`): add + manage this
- * clinic's own reminders. OWNER context (`/pets/[petId]/reminders`): read every
- * clinic's reminders and delete them, as in the legacy app.
+ * clinic's own reminders (the API returns only this clinic's). OWNER context
+ * (`/pets/[petId]/reminders`): read every clinic's reminders — read-only.
  */
 export default function RemindersScreen() {
   const theme = useTheme();
@@ -95,11 +95,11 @@ export default function RemindersScreen() {
                 <ReminderActions
                   reminder={item}
                   organizationId={organizationId}
+                  // Only the clinic that created a reminder may change it; the owner is read-only.
                   canManage={
-                    isClinic
-                      ? caps.canManageOrganizationMedical &&
-                        recordedByThisClinic(item, organizationId)
-                      : true
+                    isClinic &&
+                    caps.canManageOrganizationMedical &&
+                    recordedByThisClinic(item, organizationId)
                   }
                 />
               }

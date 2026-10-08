@@ -31,6 +31,7 @@ const request = (over: Partial<AnimalTransferRequest> = {}): AnimalTransferReque
 
 const myPet: Pet = {
   id: 'a1',
+  publicCode: 'K7M4QXR',
   name: 'ميمي',
   species: 'CAT',
   breed: null,

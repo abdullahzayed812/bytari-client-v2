@@ -53,6 +53,13 @@ export {
 } from './screens';
 export { petAge, SPECIES_ICON, SPECIES_OPTIONS, SEX_OPTIONS, type PetAge } from './constants';
 export {
+  formatPetCode,
+  normalizePetCode,
+  petCodeFromInput,
+  PET_CODE_ALPHABET,
+  PET_CODE_LENGTH,
+} from './petCode';
+export {
   buildPetSchema,
   toCreateInput,
   buildTransferRequestSchema,

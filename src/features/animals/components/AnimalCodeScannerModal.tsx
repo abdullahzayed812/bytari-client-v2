@@ -11,8 +11,8 @@ import { useTheme } from '@/theme';
 /**
  * Legacy dashboard barcode search ("مسح الباركود"): scans a QR / barcode
  * (same symbologies the legacy scanner accepted) and hands back its text —
- * normally an animal id shown on the pet's profile. The caller searches ONLY
- * the clinic's own animals with it.
+ * normally the short pet ID from the owner's Pet Details QR (older QRs carry
+ * the UUID). The caller opens the pet with it via the lookup route.
  */
 export function AnimalCodeScannerModal({
   visible,

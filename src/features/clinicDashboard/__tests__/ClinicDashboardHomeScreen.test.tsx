@@ -80,12 +80,10 @@ describe('ClinicDashboardHomeScreen', () => {
     listAnimals.mockReset().mockResolvedValue({
       items: [
         {
-          id: 'g1',
           animalId: 'a1',
-          organizationId: 'c1',
-          status: 'ACTIVE',
-          grantedByUserId: 'u1',
-          createdAt: '',
+          publicCode: 'K7M4QXR',
+          firstActivityAt: '',
+          lastActivityAt: '',
           animal: { name: 'لولو', species: 'DOG', status: 'ACTIVE' },
         },
       ],
@@ -113,8 +111,8 @@ describe('ClinicDashboardHomeScreen', () => {
 
     fireEvent.press(screen.getByRole('button', { name: /^المواعيد/ }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/appointments');
-    fireEvent.press(screen.getByRole('button', { name: 'ربط حيوان' }));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/animals/grant');
+    fireEvent.press(screen.getByRole('button', { name: 'فتح حيوان برقم المعرف' }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/animals/open');
     fireEvent.press(screen.getByRole('button', { name: 'إرسال رسالة للمتابعين' }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/broadcast');
     fireEvent.press(screen.getByText('ملف العيادة'));
@@ -145,7 +143,7 @@ describe('ClinicDashboardHomeScreen', () => {
     await waitFor(() => expect(screen.getByText('عيادة الرحمة')).toBeOnTheScreen());
     expect(screen.queryByText('الحيوانات الأخيرة')).toBeNull();
     expect(screen.queryByText('جميع الحيوانات')).toBeNull();
-    expect(screen.queryByText('ربط حيوان')).toBeNull();
+    expect(screen.queryByText('فتح حيوان برقم المعرف')).toBeNull();
     expect(screen.queryByText('إرسال رسالة للمتابعين')).toBeNull();
     expect(screen.queryByText('إعدادات العيادة')).toBeNull();
     expect(screen.queryByText('سجلات اليوم')).toBeNull();

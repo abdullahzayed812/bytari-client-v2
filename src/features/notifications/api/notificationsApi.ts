@@ -120,7 +120,6 @@ export const notificationsApi = {
       `/notifications/pets/${animalId}/unseen`,
     );
     return {
-      medicalRecords: Number(res?.medicalRecords ?? 0),
       vaccinations: Number(res?.vaccinations ?? 0),
       reminders: Number(res?.reminders ?? 0),
     };

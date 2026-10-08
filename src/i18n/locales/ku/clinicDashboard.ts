@@ -31,13 +31,10 @@ const clinicDashboard: KuNamespace<'clinicDashboard'> = {
   recent: {
     title: 'دوایین ئاژەڵەکان',
     viewAll: 'بینینی هەموو',
-    empty: 'هێشتا هیچ ئاژەڵێک بە کلینیکەکەوە نەبەستراوە',
-    emptyHint: 'ئاژەڵێک بە کلینیکەکەوە ببەستە بۆ بەدواداچوون و تۆمارکردنی مێژووی پزیشکی.',
   },
   quick: {
     title: 'دەستگەیشتنی خێرا',
     animals: 'هەموو ئاژەڵەکان',
-    linkAnimal: 'بەستنەوەی ئاژەڵ',
     appointments: 'ژوانەکان',
     conversations: 'گفتوگۆکان',
     broadcast: 'ناردنی نامە بۆ شوێنکەوتووان',
