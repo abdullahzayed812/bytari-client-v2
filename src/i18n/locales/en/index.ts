@@ -2541,6 +2541,17 @@ export const en: TranslationResources = {
       sectionOffices: 'Veterinary offices',
       sectionFarms: 'Farms (poultry/sheep/cattle)',
     },
+    leaveMembership: {
+      CLINIC: 'Leave clinic',
+      VETERINARY_OFFICE: 'Leave veterinary office',
+      FARM: 'Leave farm',
+      confirmTitle: 'Leave {{name}}',
+      confirmBody:
+        'Your membership in “{{name}}” ends and your access to it is removed, including its dashboard, chats and any permissions granted to you. The organization, its owner and the other members are not affected. The owner can add you again later.',
+      confirm: 'Leave',
+      cancel: 'Cancel',
+      success: 'You left “{{name}}”.',
+    },
     card: {
       open: 'Open {{name}}',
       owner: 'Owner',
@@ -5051,11 +5062,7 @@ export const en: TranslationResources = {
       resultsCount: '{{count}} results',
       resultsCount_other: '{{count}} results',
       noResultsHint: "Try another term or scan the pet's QR code.",
-      openByIdHint: "This pet isn't among the clinic's pets yet. You can open its file by ID.",
-      openById: 'Open pet file',
-      notFoundTitle: 'Pet not found',
-      notFoundBody: 'No pet has that ID. Check the pet ID or scan the QR code again.',
-      openFailed: "Couldn't open the pet file. Please try again.",
+      notFound: 'Pet not found',
     },
     today: {
       title: 'Today',

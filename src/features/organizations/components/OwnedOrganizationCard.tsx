@@ -23,7 +23,15 @@ export interface OwnedOrganizationCardProps {
   organization: MyOrganization;
   onEnterDashboard?: () => void;
   onPress?: () => void;
+  /**
+   * "Leave clinic / office / farm" — shown only to non-owner members of those
+   * types. The backend re-checks membership and ownership on submit.
+   */
+  onLeave?: () => void;
+  leaving?: boolean;
 }
+
+const LEAVABLE_TYPES = new Set(['CLINIC', 'VETERINARY_OFFICE', 'FARM'] as const);
 
 const SUBSCRIPTION_TONE = { ACTIVE: 'success', NOT_STARTED: 'neutral', EXPIRED: 'danger' } as const;
 
@@ -39,12 +47,18 @@ export function OwnedOrganizationCard({
   organization: org,
   onEnterDashboard,
   onPress,
+  onLeave,
+  leaving = false,
 }: OwnedOrganizationCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
   const isOwner = org.myRole === 'OWNER';
   const isOffice = org.type === 'VETERINARY_OFFICE';
   const isFarm = org.type === 'FARM';
+  const leaveType =
+    onLeave && !isOwner && org.myRole && LEAVABLE_TYPES.has(org.type as 'CLINIC')
+      ? (org.type as 'CLINIC' | 'VETERINARY_OFFICE' | 'FARM')
+      : null;
   // FARM photos live on `imageUrl` (farm_details.image_key); clinics/offices
   // have a logo and/or registration gallery photos.
   const photo = org.logoUrl ?? org.imageUrl ?? org.galleryUrls?.[0] ?? null;
@@ -201,6 +215,18 @@ export function OwnedOrganizationCard({
               {t('card.enterDashboard')}
             </Text>
           </Pressable>
+        ) : null}
+
+        {leaveType ? (
+          <View style={{ alignItems: 'center' }}>
+            <TextButton
+              label={t(`leaveMembership.${leaveType}`)}
+              tone="danger"
+              icon="exit-outline"
+              disabled={leaving}
+              onPress={onLeave}
+            />
+          </View>
         ) : null}
       </View>
     </Pressable>

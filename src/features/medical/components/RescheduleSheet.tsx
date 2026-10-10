@@ -6,8 +6,7 @@ import { Button } from '@/components/actions';
 import { Input } from '@/components/forms';
 import { BottomSheet } from '@/components/overlays';
 import { useTheme } from '@/theme';
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+import { normalizeIsoDate } from '@/utils';
 
 /**
  * Pick a new `YYYY-MM-DD` date (legacy "إعادة جدولة" for vaccinations and
@@ -42,11 +41,12 @@ export function RescheduleSheet({
 
   const submit = () => {
     const v = value.trim();
-    if (!DATE_RE.test(v) || Number.isNaN(Date.parse(v))) {
+    const day = normalizeIsoDate(v);
+    if (!day) {
       setError(t('reminders.errors.dateFormat'));
       return;
     }
-    onSubmit(v);
+    onSubmit(day);
   };
 
   return (

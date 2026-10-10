@@ -7,10 +7,9 @@ import { Input, Select } from '@/components/forms';
 import { BottomSheet } from '@/components/overlays';
 import { PET_SEXES, PET_SPECIES, type PetSex, type PetSpecies } from '@/features/pets/types';
 import { useTheme } from '@/theme';
+import { isValidIsoDate } from '@/utils';
 
 import type { AdminAnimal, AdminUpdateAnimalInput } from '../types';
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * Admin / ANIMAL-supervisor edit of a registered pet PROFILE
@@ -54,7 +53,7 @@ export function AdminAnimalEditSheet({
   }, [animal]);
 
   const dobError =
-    dateOfBirth.trim() !== '' && !DATE_RE.test(dateOfBirth.trim())
+    dateOfBirth.trim() !== '' && !isValidIsoDate(dateOfBirth)
       ? t('adminAnimals.edit.dateError')
       : undefined;
   const valid = name.trim().length > 0 && !dobError;

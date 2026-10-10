@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
+import { isNotFutureIsoDate, isValidIsoDate } from '@/utils';
 
 import { PET_SEXES, PET_SPECIES } from '../types';
 
@@ -22,8 +23,6 @@ import { PET_SEXES, PET_SPECIES } from '../types';
  * Empty optional strings are treated as "not provided".
  */
 export type TFn = TFunction<'pets'>;
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function buildPetSchema(t: TFn) {
   const optionalText = (max: number) =>
@@ -47,11 +46,8 @@ export function buildPetSchema(t: TFn) {
     dateOfBirth: z
       .string()
       .trim()
-      .regex(DATE_RE, t('form.errors.dateFormat'))
-      .refine(
-        (v) => !Number.isNaN(Date.parse(v)) && new Date(v) <= new Date(),
-        t('form.errors.dateFuture'),
-      )
+      .refine(isValidIsoDate, t('form.errors.dateFormat'))
+      .refine((v) => isNotFutureIsoDate(v), t('form.errors.dateFuture'))
       .optional()
       .or(z.literal('')),
     notes: optionalText(2000),

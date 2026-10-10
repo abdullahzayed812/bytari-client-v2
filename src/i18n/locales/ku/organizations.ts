@@ -142,6 +142,17 @@ const organizations: KuNamespace<'organizations'> = {
     sectionOffices: 'نووسینگە ڤێتێرنەرییەکان',
     sectionFarms: 'کێڵگەکان (پەلەوەر/مەڕ/مانگا)',
   },
+  leaveMembership: {
+    CLINIC: 'جێهێشتنی کلینیک',
+    VETERINARY_OFFICE: 'جێهێشتنی نووسینگەی ڤێتێرنەری',
+    FARM: 'جێهێشتنی کێڵگە',
+    confirmTitle: 'جێهێشتنی {{name}}',
+    confirmBody:
+      'ئەندامێتیت لە «{{name}}» کۆتایی پێدێت و دەستگەیشتنت پێی هەڵدەوەشێتەوە، لەوانە داشبۆرد و گفتوگۆکان و مۆڵەتەکانت. دامەزراوەکە و خاوەنەکەی و ئەندامانی تر کاریگەر نابن.',
+    confirm: 'جێهێشتن',
+    cancel: 'هەڵوەشاندنەوە',
+    success: '«{{name}}»ت جێهێشت.',
+  },
   card: {
     open: 'کردنەوەی {{name}}',
     owner: 'خاوەن',

@@ -1,12 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
 import { Input } from '@/components/forms';
+import { isValidIsoDate } from '@/utils';
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-export function isValidIsoDate(value: string): boolean {
-  return ISO_DATE.test(value);
-}
+/** Re-exported for the farm screens' submit gates — padded or unpadded, real calendar dates only. */
+export { isValidIsoDate };
 
 export interface DateFieldInputProps {
   label: string;
@@ -17,7 +15,7 @@ export interface DateFieldInputProps {
 }
 
 /**
- * A `YYYY-MM-DD` text field with a persistent format hint and an inline error
+ * A `YYYY-MM-DD` (or `YYYY-M-D`) text field with a persistent format hint and an inline error
  * the moment the value stops matching — so an invalid date never just leaves
  * the submit button silently disabled with no explanation.
  */

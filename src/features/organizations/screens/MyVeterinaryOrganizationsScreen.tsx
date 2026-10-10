@@ -5,16 +5,23 @@ import { Pressable, RefreshControl, SectionList, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { EmptyState, ErrorState, Loading } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { OwnedOrganizationCard } from '../components';
-import { useOrganizations } from '../hooks';
+import { useLeaveAnyOrganization, useOrganizations } from '../hooks';
 import type { MyOrganization, OrganizationType } from '../types';
 
 /**
@@ -53,6 +60,9 @@ export default function MyVeterinaryOrganizationsScreen() {
   const { t } = useTranslation('organizations');
   const q = useOrganizations({ pageSize: 50 });
   const [pickerOpen, setPickerOpen] = useState(false);
+  const toast = useToast();
+  const leave = useLeaveAnyOrganization();
+  const [leaveTarget, setLeaveTarget] = useState<MyOrganization | null>(null);
 
   const items = useMemo(
     () => q.organizations.filter((o) => VETERINARY_ORG_TYPES.has(o.type)),
@@ -75,6 +85,24 @@ export default function MyVeterinaryOrganizationsScreen() {
     if (org.type === 'VETERINARY_OFFICE') return router.push(Routes.vetOfficeDashboard(org.id));
     if (org.type === 'FARM') return router.push(Routes.farmDashboard(org.id, org.farmSpecies));
     return goToDetail(org);
+  };
+  const confirmLeave = () => {
+    const org = leaveTarget;
+    if (!org) return;
+    setLeaveTarget(null);
+    leave.mutate(
+      { organizationId: org.id },
+      {
+        onSuccess: () => {
+          toast.show({
+            tone: 'success',
+            message: t('leaveMembership.success', { name: org.name }),
+          });
+          void q.refetch();
+        },
+        onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+      },
+    );
   };
   const openCreatePicker = () => setPickerOpen(true);
   const goToRegister = (type: 'CLINIC' | 'VETERINARY_OFFICE') => {
@@ -157,6 +185,8 @@ export default function MyVeterinaryOrganizationsScreen() {
                 organization={item}
                 onPress={() => goToDashboard(item)}
                 onEnterDashboard={() => goToDashboard(item)}
+                onLeave={() => setLeaveTarget(item)}
+                leaving={leave.isPending && leave.variables?.organizationId === item.id}
               />
             </View>
           )}
@@ -200,6 +230,17 @@ export default function MyVeterinaryOrganizationsScreen() {
           }
         />
       )}
+
+      <ConfirmationDialog
+        visible={leaveTarget !== null}
+        title={t('leaveMembership.confirmTitle', { name: leaveTarget?.name ?? '' })}
+        message={t('leaveMembership.confirmBody', { name: leaveTarget?.name ?? '' })}
+        confirmLabel={t('leaveMembership.confirm')}
+        cancelLabel={t('leaveMembership.cancel')}
+        destructive
+        onConfirm={confirmLeave}
+        onCancel={() => setLeaveTarget(null)}
+      />
 
       <BottomSheet
         visible={pickerOpen}

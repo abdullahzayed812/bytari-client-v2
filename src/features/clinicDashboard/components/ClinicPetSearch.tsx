@@ -3,15 +3,19 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Button, IconButton } from '@/components/actions';
-import { Alert, EmptyState, ErrorState, Loading } from '@/components/feedback';
+import { IconButton } from '@/components/actions';
+import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { Row } from '@/components/layout';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { AnimalCard } from '@/features/animals/components/AnimalCard';
 import { AnimalCodeScannerModal } from '@/features/animals/components/AnimalCodeScannerModal';
-import { useClinicPetLookup, useOrganizationAnimalSearch } from '@/features/animals/hooks';
+import {
+  useClinicPetLookup,
+  useClinicPetLookupQuery,
+  useOrganizationAnimalSearch,
+} from '@/features/animals/hooks';
 import { petCodeFromInput } from '@/features/pets/petCode';
 import { useDebouncedValue } from '@/hooks';
 import { ApiError } from '@/services/api';
@@ -21,8 +25,9 @@ import { useTheme } from '@/theme';
  * Clinic Dashboard pet search + open-by-ID. Typing searches ONLY this clinic's
  * own pets (those it has records for — server-side, debounced). A short pet ID
  * / scanned QR opens ANY registered pet via the lookup route: nothing is
- * linked, and the clinic sees only what it records itself. An unknown code is
- * one neutral "not found" state.
+ * linked, and the clinic sees only what it records itself. A typed ID that is
+ * not one of this clinic's pets resolves straight to the pet card (tap → pet
+ * file); an unknown / inaccessible code is one neutral "not found" state.
  */
 export function ClinicPetSearch({
   organizationId,
@@ -50,7 +55,13 @@ export function ClinicPetSearch({
   const items = pending ? [] : (search.data?.items ?? []);
   const code = petCodeFromInput(trimmed);
   const busy = pending || (search.isFetching && !search.isError);
-  const lookupNotFound = lookup.error instanceof ApiError && lookup.error.status === 404;
+  // A settled ID the clinic's own pets don't match → read it by ID right away.
+  // Read-only: nothing is linked, so the pet never becomes "a clinic pet" here.
+  const byId = useClinicPetLookupQuery(organizationId, code, {
+    enabled: canOpen && !busy && search.isSuccess && items.length === 0,
+  });
+  const byIdUnavailable =
+    byId.error instanceof ApiError && (byId.error.status === 404 || byId.error.status === 403);
 
   const open = (animalId: string) =>
     router.push(Routes.organizationAnimalDetail(organizationId, animalId) as never);
@@ -60,7 +71,9 @@ export function ClinicPetSearch({
     lookup.reset();
   };
 
-  const openByCode = (value: string) =>
+  // A scanned QR opens the pet file directly; a failed scan falls back to the
+  // typed-ID state (card / not found) for the scanned value.
+  const openScanned = (value: string) =>
     lookup.mutate(
       { code: value },
       {
@@ -68,6 +81,7 @@ export function ClinicPetSearch({
           clear();
           open(pet.animalId);
         },
+        onError: () => setTerm(value),
       },
     );
 
@@ -77,10 +91,7 @@ export function ClinicPetSearch({
         <View style={{ flex: 1 }}>
           <SearchInput
             value={term}
-            onChangeText={(v) => {
-              setTerm(v);
-              lookup.reset();
-            }}
+            onChangeText={setTerm}
             onClear={clear}
             placeholder={t('search.placeholder')}
             accessibilityLabel={t('search.placeholder')}
@@ -97,13 +108,17 @@ export function ClinicPetSearch({
       </Row>
 
       {!active ? (
-        <Caption color="textMuted">{t('search.hint')}</Caption>
+        lookup.isPending ? (
+          <Loading label={t('search.searching')} />
+        ) : (
+          <Caption color="textMuted">{t('search.hint')}</Caption>
+        )
       ) : (
         <View style={{ rowGap: theme.spacing.sm }}>
           <Row justify="space-between" align="center">
             <Text variant="bodyStrong">
               {search.isSuccess && !busy
-                ? t('search.resultsCount', { count: items.length })
+                ? t('search.resultsCount', { count: items.length + (byId.data ? 1 : 0) })
                 : t('search.results')}
             </Text>
             <Text variant="label" color="primary" onPress={clear}>
@@ -120,27 +135,27 @@ export function ClinicPetSearch({
               <AnimalCard key={p.animalId} pet={p} onPress={() => open(p.animalId)} />
             ))
           ) : code && canOpen ? (
-            <>
-              {lookupNotFound ? (
-                <EmptyState
-                  icon="help-circle-outline"
-                  title={t('search.notFoundTitle')}
-                  message={t('search.notFoundBody')}
-                />
-              ) : (
-                <Caption color="textMuted">{t('search.openByIdHint')}</Caption>
-              )}
-              {lookup.isError && !lookupNotFound ? (
-                <Alert tone="danger" message={t('search.openFailed')} />
-              ) : null}
-              <Button
-                label={t('search.openById')}
-                variant="outline"
-                leftIcon="folder-open-outline"
-                loading={lookup.isPending}
-                onPress={() => openByCode(trimmed)}
+            byId.data ? (
+              <AnimalCard
+                pet={{
+                  animalId: byId.data.animalId,
+                  publicCode: byId.data.publicCode,
+                  animal: {
+                    name: byId.data.name,
+                    species: byId.data.species,
+                    breed: byId.data.breed,
+                    photoUrl: byId.data.photoUrl,
+                  },
+                }}
+                onPress={() => open(byId.data.animalId)}
               />
-            </>
+            ) : byIdUnavailable ? (
+              <EmptyState icon="help-circle-outline" title={t('search.notFound')} />
+            ) : byId.isError ? (
+              <ErrorState error={byId.error} onRetry={() => void byId.refetch()} />
+            ) : (
+              <Loading label={t('search.searching')} />
+            )
           ) : (
             <EmptyState
               icon="search-outline"
@@ -156,9 +171,7 @@ export function ClinicPetSearch({
         onClose={() => setScanning(false)}
         onScanned={(scanned) => {
           setScanning(false);
-          const value = petCodeFromInput(scanned) ?? scanned.trim();
-          setTerm(value);
-          openByCode(value);
+          openScanned(petCodeFromInput(scanned) ?? scanned.trim());
         }}
       />
     </View>

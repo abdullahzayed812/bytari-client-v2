@@ -14,6 +14,9 @@ export const orgAnimalKeys = {
   list: (organizationId: string) => [...orgAnimalKeys.forOrg(organizationId), 'list'] as const,
   search: (organizationId: string, term: string) =>
     [...orgAnimalKeys.forOrg(organizationId), 'search', term] as const,
+  /** Open-by-ID read for one normalized code (never linked, never cached as "a clinic pet"). */
+  lookup: (organizationId: string, code: string) =>
+    [...orgAnimalKeys.forOrg(organizationId), 'lookup', code] as const,
   detail: (organizationId: string, animalId: string) =>
     [...orgAnimalKeys.forOrg(organizationId), 'detail', animalId] as const,
   profile: (organizationId: string, animalId: string) =>

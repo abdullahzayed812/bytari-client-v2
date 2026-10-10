@@ -134,31 +134,53 @@ describe('ClinicPetSearch', () => {
     await waitFor(() => expect(lookup).toHaveBeenLastCalledWith('c1', MILO_ID));
   });
 
-  it('a typed short ID that is not one of the clinic’s pets offers "open pet file" via lookup', async () => {
+  it('a typed short ID that is not one of the clinic’s pets shows its card immediately — no "open pet file" step', async () => {
     list.mockResolvedValue(page([]));
     lookup.mockResolvedValue(lookupHit(STRANGER_ID));
     renderWithProviders(<ClinicPetSearch organizationId="c1" canOpen />);
     type('P9Q-2RST');
-    await waitFor(() => expect(screen.getByText('فتح ملف الحيوان')).toBeOnTheScreen());
-    expect(lookup).not.toHaveBeenCalled(); // only on explicit action
-    fireEvent.press(screen.getByText('فتح ملف الحيوان'));
-    await waitFor(() =>
-      expect(routerMock.push).toHaveBeenCalledWith(
-        `/(app)/organizations/c1/animals/${STRANGER_ID}`,
-      ),
-    );
+    await waitFor(() => expect(screen.getByText('غريب')).toBeOnTheScreen());
+    expect(lookup).toHaveBeenCalledTimes(1);
+    expect(lookup).toHaveBeenCalledWith('c1', 'P9Q2RST');
+    expect(screen.getByText('#P9Q-2RST')).toBeOnTheScreen();
+    expect(screen.queryByText('فتح ملف الحيوان')).toBeNull();
+    expect(screen.queryByText(/ليس ضمن حيوانات العيادة/)).toBeNull();
+    expect(routerMock.push).not.toHaveBeenCalled(); // shown, not auto-opened
+    fireEvent.press(screen.getByLabelText('فتح ملف غريب'));
+    expect(routerMock.push).toHaveBeenCalledWith(`/(app)/organizations/c1/animals/${STRANGER_ID}`);
   });
 
-  it('an unknown code → one neutral "not found" state, no navigation', async () => {
+  it('a typed ID that IS one of the clinic’s pets uses the clinic row, without a lookup', async () => {
+    list.mockResolvedValue(page([milo]));
+    renderWithProviders(<ClinicPetSearch organizationId="c1" canOpen />);
+    type('K7M-4QXR');
+    await waitFor(() => expect(screen.getByText('ميلو')).toBeOnTheScreen());
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it('an unknown / inaccessible code → the "دي" state, no navigation', async () => {
     list.mockResolvedValue(page([]));
     lookup.mockRejectedValue(new ApiError({ code: 'NOT_FOUND', message: 'x', status: 404 }));
     renderWithProviders(<ClinicPetSearch organizationId="c1" canOpen />);
     type('ZZZZZZZ');
-    await waitFor(() => expect(screen.getByText('فتح ملف الحيوان')).toBeOnTheScreen());
-    fireEvent.press(screen.getByText('فتح ملف الحيوان'));
-    await waitFor(() => expect(screen.getByText('الحيوان غير موجود')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('دي')).toBeOnTheScreen());
+    expect(lookup).toHaveBeenCalledTimes(1); // 404 is final, never retried
     expect(routerMock.push).not.toHaveBeenCalled();
   });
+
+  it('a network failure on the ID lookup → error state with retry (not the not-found state)', async () => {
+    list.mockResolvedValue(page([]));
+    lookup.mockRejectedValue(new ApiError({ code: 'NETWORK_ERROR', message: 'x', status: 0 }));
+    renderWithProviders(<ClinicPetSearch organizationId="c1" canOpen />);
+    type('ZZZZZZZ');
+    await waitFor(() => expect(screen.getByText('إعادة المحاولة')).toBeOnTheScreen(), {
+      timeout: 15_000,
+    });
+    expect(screen.queryByText('دي')).toBeNull();
+    lookup.mockResolvedValue(lookupHit(STRANGER_ID));
+    fireEvent.press(screen.getByText('إعادة المحاولة'));
+    await waitFor(() => expect(screen.getByText('غريب')).toBeOnTheScreen());
+  }, 20_000);
 
   it('a non-operational clinic cannot open by ID or scan', async () => {
     list.mockResolvedValue(page([]));
@@ -168,7 +190,7 @@ describe('ClinicPetSearch', () => {
     await waitFor(() =>
       expect(screen.getByText('لم يتم العثور على نتائج مطابقة')).toBeOnTheScreen(),
     );
-    expect(screen.queryByText('فتح ملف الحيوان')).toBeNull();
+    expect(lookup).not.toHaveBeenCalled();
   });
 });
 

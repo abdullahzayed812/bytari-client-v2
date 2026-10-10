@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
+import { compareIsoDates, isNotFutureIsoDate, isValidIsoDate } from '@/utils';
 
 /**
  * Medical-record & vaccination form validation. Mirrors the backend EXACTLY
@@ -12,10 +13,8 @@ import { ApiError } from '@/services/api';
  */
 export type MedicalTFn = TFunction<'medical'>;
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-const isValidDate = (v: string): boolean => DATE_RE.test(v) && !Number.isNaN(Date.parse(v));
-const isNotFuture = (v: string): boolean => new Date(v) <= new Date();
+const isValidDate = isValidIsoDate;
+const isNotFuture = (v: string): boolean => isNotFutureIsoDate(v);
 
 // --- medical record -------------------------------------------------
 
@@ -38,7 +37,7 @@ export function buildMedicalRecordSchema(t: MedicalTFn) {
     visitDate: z
       .string()
       .trim()
-      .regex(DATE_RE, t('records.errors.dateFormat'))
+      .refine(isValidDate, t('records.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('records.errors.dateFuture'))
       .optional()
       .or(z.literal('')),
@@ -84,12 +83,11 @@ export function buildVaccinationSchema(t: MedicalTFn) {
         .string()
         .trim()
         .min(1, t('vaccinations.errors.dateRequired'))
-        .regex(DATE_RE, t('vaccinations.errors.dateFormat'))
+        .refine(isValidDate, t('vaccinations.errors.dateFormat'))
         .refine((v) => isValidDate(v) && isNotFuture(v), t('vaccinations.errors.dateFuture')),
       nextDueOn: z
         .string()
         .trim()
-        .regex(DATE_RE, t('vaccinations.errors.dateFormat'))
         .refine(isValidDate, t('vaccinations.errors.dateFormat'))
         .optional()
         .or(z.literal('')),
@@ -102,7 +100,7 @@ export function buildVaccinationSchema(t: MedicalTFn) {
       /** Legacy scheduled / completed / cancelled; empty = derived by the backend. */
       status: z.enum(['', 'SCHEDULED', 'COMPLETED', 'CANCELLED']).optional(),
     })
-    .refine((v) => !v.nextDueOn || v.nextDueOn >= v.administeredOn, {
+    .refine((v) => !v.nextDueOn || compareIsoDates(v.nextDueOn, v.administeredOn) >= 0, {
       message: t('vaccinations.errors.dueBeforeAdministered'),
       path: ['nextDueOn'],
     });
@@ -135,7 +133,6 @@ export function buildReminderSchema(t: MedicalTFn) {
       .string()
       .trim()
       .min(1, t('reminders.errors.dateRequired'))
-      .regex(DATE_RE, t('reminders.errors.dateFormat'))
       .refine(isValidDate, t('reminders.errors.dateFormat')),
     reminderType: z.enum(['CHECKUP', 'VACCINATION', 'MEDICATION', 'OTHER']),
   });

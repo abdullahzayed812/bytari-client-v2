@@ -35,11 +35,8 @@ const clinicDashboard = {
     resultsCount: '{{count}} نتيجة',
     resultsCount_other: '{{count}} نتيجة',
     noResultsHint: 'جرّب كلمة أخرى أو امسح رمز QR الخاص بالحيوان.',
-    openByIdHint: 'هذا الحيوان ليس ضمن حيوانات العيادة بعد. يمكنك فتح ملفه برقم المعرف.',
-    openById: 'فتح ملف الحيوان',
-    notFoundTitle: 'الحيوان غير موجود',
-    notFoundBody: 'لم يُعثر على حيوان بهذا الرقم. تأكد من رقم المعرف أو امسح رمز QR مرة أخرى.',
-    openFailed: 'تعذّر فتح ملف الحيوان. حاول مرة أخرى.',
+    /** Unknown / inaccessible pet ID (client-specified wording). */
+    notFound: 'دي',
   },
   today: {
     title: 'إحصائيات اليوم',

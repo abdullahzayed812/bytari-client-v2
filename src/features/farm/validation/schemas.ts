@@ -1,6 +1,8 @@
 import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
+import { isNotFutureIsoDate, isValidIsoDate } from '@/utils';
+
 import { POULTRY_PRODUCTION_TYPES, IRAQ_GOVERNORATES } from '../constants';
 import { POULTRY_BIRD_TYPES } from '../types';
 
@@ -14,9 +16,8 @@ export type FarmTFn = TFunction<'farm'>;
 /** The "Add Poultry Farm" form + landing live in the `poultry` namespace. */
 export type PoultryTFn = TFunction<'poultry'>;
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const isValidDate = (v: string): boolean => DATE_RE.test(v) && !Number.isNaN(Date.parse(v));
-const isNotFuture = (v: string): boolean => new Date(v) <= new Date();
+const isValidDate = isValidIsoDate;
+const isNotFuture = (v: string): boolean => isNotFutureIsoDate(v);
 
 /**
  *   name        trim 1–120           (required)
@@ -48,7 +49,7 @@ export function buildPoultryFlockSchema(t: FarmTFn, opts: { requirePrice?: boole
       .string()
       .trim()
       .min(1, t('poultry.errors.arrivalRequired'))
-      .regex(DATE_RE, t('poultry.errors.dateFormat'))
+      .refine(isValidDate, t('poultry.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('poultry.errors.dateFuture')),
     // The server's estimated profit = current count × avg weight × THIS price − expenses.
     // Only the farm owner sees / sets it (financial data — backend-enforced); others submit none.

@@ -94,6 +94,16 @@ export function useRemoveOrganizationLicenseDocument(
   });
 }
 
+/**
+ * After leaving: drop every cached query scoped to that organization (detail,
+ * dashboards, clinic pets, chats … — any key carrying its id) so nothing the
+ * user can no longer access lingers, then refresh the membership lists.
+ */
+function forgetOrganization(qc: ReturnType<typeof useQueryClient>, organizationId: string): void {
+  qc.removeQueries({ predicate: (q) => q.queryKey.includes(organizationId) });
+  void qc.invalidateQueries({ queryKey: orgKeys.lists() });
+}
+
 export function useLeaveOrganization(
   organizationId: string,
 ): UseMutationResult<{ success: boolean }, unknown, void> {
@@ -101,10 +111,25 @@ export function useLeaveOrganization(
   return useMutation({
     mutationKey: ['organizations', 'leave', organizationId],
     mutationFn: () => organizationsApi.leave(organizationId),
-    onSuccess: () => {
-      qc.removeQueries({ queryKey: orgKeys.detail(organizationId) });
-      void qc.invalidateQueries({ queryKey: orgKeys.lists() });
-    },
+    onSuccess: () => forgetOrganization(qc, organizationId),
+  });
+}
+
+/**
+ * Leave whichever organization is passed at call time — for lists (My
+ * Veterinary Organizations) where one screen offers "leave" on many cards.
+ * The backend decides membership/ownership; the client never asserts either.
+ */
+export function useLeaveAnyOrganization(): UseMutationResult<
+  { success: boolean },
+  unknown,
+  { organizationId: string }
+> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['organizations', 'leave'],
+    mutationFn: ({ organizationId }) => organizationsApi.leave(organizationId),
+    onSuccess: (_res, { organizationId }) => forgetOrganization(qc, organizationId),
   });
 }
 

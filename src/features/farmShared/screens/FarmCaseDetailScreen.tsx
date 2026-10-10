@@ -16,7 +16,7 @@ import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, isValidIsoDate } from '@/utils';
 
 import { FarmRecordFooter } from '../components/FarmRecordFooter';
 import {
@@ -224,7 +224,7 @@ function CaseEditModal({
   const [followup, setFollowup] = useState(item.nextFollowupOn ?? '');
   const parsed = Number(count);
   const countValid = Number.isInteger(parsed) && parsed >= 1;
-  const followupValid = followup.trim() === '' || /^\d{4}-\d{2}-\d{2}$/.test(followup.trim());
+  const followupValid = followup.trim() === '' || isValidIsoDate(followup);
 
   return (
     <Modal visible onClose={onClose} title={t('records.editCase')}>

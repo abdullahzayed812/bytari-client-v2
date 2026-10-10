@@ -1,8 +1,13 @@
-import { useMutation, type UseMutationResult } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  type UseMutationResult,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 
-import type { ApiError } from '@/services/api';
+import { ApiError } from '@/services/api';
 
-import { organizationAnimalsApi } from '../api';
+import { orgAnimalKeys, organizationAnimalsApi } from '../api';
 import type { ClinicPetLookup } from '../types';
 
 /**
@@ -16,5 +21,25 @@ export function useClinicPetLookup(
   return useMutation({
     mutationKey: ['organization-animals', 'lookup', organizationId],
     mutationFn: ({ code }) => organizationAnimalsApi.lookup(organizationId, code),
+  });
+}
+
+/**
+ * The same lookup as a query, for the Clinic Dashboard search: a settled,
+ * well-formed code resolves straight to the pet card (no "open" step).
+ * `404` (unknown / listing-only) and `403` are final — never retried.
+ */
+export function useClinicPetLookupQuery(
+  organizationId: string,
+  code: string | null,
+  { enabled = true }: { enabled?: boolean } = {},
+): UseQueryResult<ClinicPetLookup, ApiError> {
+  return useQuery<ClinicPetLookup, ApiError>({
+    queryKey: orgAnimalKeys.lookup(organizationId, code ?? ''),
+    queryFn: () => organizationAnimalsApi.lookup(organizationId, code as string),
+    enabled: enabled && Boolean(organizationId) && Boolean(code),
+    staleTime: 30_000,
+    retry: (count, error) =>
+      !(error instanceof ApiError && (error.status === 403 || error.status === 404)) && count < 1,
   });
 }

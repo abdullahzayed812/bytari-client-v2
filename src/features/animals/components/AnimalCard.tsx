@@ -4,16 +4,26 @@ import { Pressable, View } from 'react-native';
 
 import { Badge, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
-import { useTheme } from '@/theme';
-
 import { formatPetCode } from '@/features/pets/petCode';
+import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { ANIMAL_STATUS_TONE, animalSpeciesIcon } from '../constants';
 import type { ClinicPet } from '../types';
 
+/**
+ * A clinic-pets list row, or a pet opened by its ID (`clinic-pets/lookup`),
+ * which carries no clinic activity / status / owner — those lines are skipped.
+ */
+export type AnimalCardPet = Pick<ClinicPet, 'animalId' | 'publicCode' | 'ownerName'> & {
+  animal: Pick<ClinicPet['animal'], 'name' | 'species' | 'breed' | 'photoUrl'> & {
+    status?: string;
+  };
+  lastActivityAt?: string | null;
+};
+
 export interface AnimalCardProps {
-  pet: ClinicPet;
+  pet: AnimalCardPet;
   onPress?: () => void;
 }
 
@@ -96,10 +106,12 @@ export function AnimalCard({ pet, onPress }: AnimalCardProps) {
             marginTop: 2,
           }}
         >
-          <Caption color="textMuted">
-            {t('card.lastActivity', { date: formatDate(pet.lastActivityAt) })}
-          </Caption>
-          {pet.animal.status !== 'ACTIVE' ? (
+          {pet.lastActivityAt ? (
+            <Caption color="textMuted">
+              {t('card.lastActivity', { date: formatDate(pet.lastActivityAt) })}
+            </Caption>
+          ) : null}
+          {pet.animal.status && pet.animal.status !== 'ACTIVE' ? (
             <Badge
               label={t(`animalStatus.${pet.animal.status}`, {
                 defaultValue: pet.animal.status,

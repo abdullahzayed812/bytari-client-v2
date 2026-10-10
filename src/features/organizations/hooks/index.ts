@@ -13,6 +13,7 @@ export {
   useRemoveOrganizationLogo,
   useRemoveOrganizationGalleryImage,
   useRemoveOrganizationLicenseDocument,
+  useLeaveAnyOrganization,
   useLeaveOrganization,
   useAddOrganizationMember,
   useUpdateOrganizationMember,

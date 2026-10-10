@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 
 import { useTheme } from '@/theme';
+import { normalizeIsoDate } from '@/utils';
 
 import type { WebDateTimeInputProps } from './WebDateTimeInput';
 
@@ -21,10 +22,13 @@ export function WebDateTimeInput({
   invalid,
 }: WebDateTimeInputProps) {
   const theme = useTheme();
+  // `<input type="date">` only understands the zero-padded form — an unpadded
+  // `2026-4-7` would render as empty, so hand it the canonical value.
+  const padded = (v: string | undefined) => (v ? (normalizeIsoDate(v) ?? v) : v);
   return createElement('input', {
     type: mode,
-    value,
-    min: mode === 'date' ? min : undefined,
+    value: mode === 'date' ? padded(value) : value,
+    min: mode === 'date' ? padded(min) : undefined,
     'aria-label': accessibilityLabel,
     'aria-invalid': invalid || undefined,
     onChange: (e: { target: { value: string } }) => {

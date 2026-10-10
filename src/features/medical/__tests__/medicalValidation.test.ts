@@ -76,6 +76,36 @@ describe('buildVaccinationSchema — mirrors the backend', () => {
   });
 });
 
+describe('date fields accept padded and unpadded dates', () => {
+  const vaccination = buildVaccinationSchema(t);
+  const record = buildMedicalRecordSchema(t);
+
+  it.each(['2026-4-7', '2026-04-7', '2026-4-07', '2026-04-07'])('accepts %s', (d) => {
+    expect(vaccination.safeParse({ vaccineName: 'Rabies', administeredOn: d }).success).toBe(true);
+    expect(record.safeParse({ visitDate: d }).success).toBe(true);
+  });
+
+  it.each(['2026-13-4', '2026-2-30', '2026-00-10', '2026-4-0'])('rejects %s', (d) => {
+    expect(vaccination.safeParse({ vaccineName: 'Rabies', administeredOn: d }).success).toBe(false);
+    expect(record.safeParse({ visitDate: d }).success).toBe(false);
+  });
+
+  it('orders nextDueOn by calendar day across mixed padding', () => {
+    const ok = vaccination.safeParse({
+      vaccineName: 'Rabies',
+      administeredOn: '2026-4-9',
+      nextDueOn: '2026-4-10',
+    });
+    expect(ok.success).toBe(true);
+    const bad = vaccination.safeParse({
+      vaccineName: 'Rabies',
+      administeredOn: '2026-4-10',
+      nextDueOn: '2026-04-9',
+    });
+    expect(bad.success).toBe(false);
+  });
+});
+
 describe('medicalErrorMessage', () => {
   it('maps ANIMAL_NOT_ACTIVE / 409 to the archived-animal message', () => {
     const msg = medicalErrorMessage(

@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
+import { isNotFutureIsoDate, isValidIsoDate } from '@/utils';
 
 import { CATTLE_PRODUCTION_TYPE_ORDER, SHEEP_PRODUCTION_TYPE_ORDER } from '../constants';
 
@@ -13,9 +14,8 @@ import { CATTLE_PRODUCTION_TYPE_ORDER, SHEEP_PRODUCTION_TYPE_ORDER } from '../co
  */
 export type LivestockTFn = TFunction<'sheepCattleFarm'>;
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const isValidDate = (v: string): boolean => DATE_RE.test(v) && !Number.isNaN(Date.parse(v));
-const isNotFuture = (v: string): boolean => new Date(v) <= new Date();
+const isValidDate = isValidIsoDate;
+const isNotFuture = (v: string): boolean => isNotFutureIsoDate(v);
 const optionalCount = z
   .string()
   .trim()
@@ -154,7 +154,7 @@ function batchSchemaShape(t: LivestockTFn, requirePrice: boolean) {
       .string()
       .trim()
       .min(1, t('batchForm.errors.arrivalRequired'))
-      .regex(DATE_RE, t('batchForm.errors.dateFormat'))
+      .refine(isValidDate, t('batchForm.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('batchForm.errors.dateFuture')),
     // The server's estimated profit = head count × avg weight × THIS price − expenses.
     // Only the farm owner sees / sets it (financial data — backend-enforced); others submit none.

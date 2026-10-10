@@ -13,6 +13,10 @@ export { isHttpUrl, normalizeLink } from './linkUrl';
 export {
   toLocalIsoDate,
   fromLocalIsoDate,
+  normalizeIsoDate,
+  isValidIsoDate,
+  isNotFutureIsoDate,
+  compareIsoDates,
   toLocalTime,
   withLocalTime,
   withLocalDate,

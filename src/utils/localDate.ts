@@ -12,12 +12,57 @@ export function toLocalIsoDate(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-/** `YYYY-MM-DD` → a Date at LOCAL midnight of that day (`null` when malformed). */
-export function fromLocalIsoDate(value: string): Date | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+const DATE_ONLY_INPUT_RE = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+
+/**
+ * THE date-only input parser (mirrors the server's `normalizeDateOnly`):
+ * accepts the month / day with or without a leading zero (`2026-4-7`,
+ * `2026-04-7`, `2026-4-07`, `2026-04-07`), checks the real calendar (no
+ * `2026-2-30`, month 13 or day 0) and returns the canonical `YYYY-MM-DD` —
+ * or `null`. Pure arithmetic: never a `Date` string parse, so neither the
+ * device timezone nor JS's day roll-over can change the calendar day.
+ */
+export function normalizeIsoDate(value: string): string | null {
+  const m = DATE_ONLY_INPUT_RE.exec(value.trim());
   if (!m) return null;
-  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  return Number.isNaN(d.getTime()) ? null : d;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (year < 1 || month < 1 || month > 12 || day < 1) return null;
+  if (day > new Date(Date.UTC(year, month, 0)).getUTCDate()) return null;
+  return `${m[1]}-${pad(month)}-${pad(day)}`;
+}
+
+/** A real calendar date in `YYYY-M-D` … `YYYY-MM-DD` form. */
+export function isValidIsoDate(value: string): boolean {
+  return normalizeIsoDate(value) !== null;
+}
+
+/** A valid date that is not after `today` (default: the device's local day). */
+export function isNotFutureIsoDate(
+  value: string,
+  today: string = toLocalIsoDate(new Date()),
+): boolean {
+  const normalized = normalizeIsoDate(value);
+  return normalized !== null && normalized <= today;
+}
+
+/**
+ * Order two date-only values regardless of zero-padding (`2026-4-10` is after
+ * `2026-4-9`). Invalid values sort first.
+ */
+export function compareIsoDates(a: string, b: string): number {
+  const x = normalizeIsoDate(a) ?? '';
+  const y = normalizeIsoDate(b) ?? '';
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+
+/** `YYYY-MM-DD` (or unpadded) → a Date at LOCAL midnight of that day (`null` when not a real date). */
+export function fromLocalIsoDate(value: string): Date | null {
+  const normalized = normalizeIsoDate(value);
+  if (!normalized) return null;
+  const [y, m, d] = normalized.split('-').map(Number) as [number, number, number];
+  return new Date(y, m - 1, d);
 }
 
 /** Local clock time of `d` as 24h `HH:MM`. */

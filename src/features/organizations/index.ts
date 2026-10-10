@@ -28,6 +28,7 @@ export {
   useUpdateOrganization,
   useRemoveOrganizationLogo,
   useOrganizationLogoPresignProvider,
+  useLeaveAnyOrganization,
   useLeaveOrganization,
   useAddOrganizationMember,
   useUpdateOrganizationMember,

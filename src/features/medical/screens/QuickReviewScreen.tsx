@@ -14,6 +14,7 @@ import { Routes } from '@/constants/routes';
 // Deep import (not the barrel) — keeps medical ↔ animals acyclic.
 import { ClinicAnimalPicker } from '@/features/animals/components/ClinicAnimalPicker';
 import { useTheme } from '@/theme';
+import { isValidIsoDate, normalizeIsoDate } from '@/utils';
 
 import { addDaysIso, todayIso } from '../constants';
 import { useCreateMedicalRecord, useCreateVaccination, useQuickReviewTemplates } from '../hooks';
@@ -30,7 +31,6 @@ const CATEGORY_ICON: Record<QuickReviewTemplateType, IconName> = {
   DIAGNOSIS: 'pulse-outline',
   GENERAL: 'heart-outline',
 };
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const PREVIEW_COUNT = 4;
 
 type Step = 'pet' | 'select' | 'detail';
@@ -100,11 +100,13 @@ export default function QuickReviewScreen() {
   const save = () => {
     setError(null);
     if (!animalId) return;
-    if (!DATE_RE.test(actionDate) || actionDate > todayIso()) {
+    const day = normalizeIsoDate(actionDate);
+    if (!day || day > todayIso()) {
       setError(t('records.errors.dateFuture'));
       return;
     }
-    if (nextDue && (!DATE_RE.test(nextDue) || nextDue < actionDate)) {
+    const due = nextDue ? normalizeIsoDate(nextDue) : null;
+    if (nextDue && (!due || due < day)) {
       setError(t('vaccinations.errors.dueBeforeAdministered'));
       return;
     }
@@ -294,7 +296,7 @@ export default function QuickReviewScreen() {
             value={actionDate}
             onChangeText={(v) => {
               setActionDate(v);
-              if (template?.intervalDays && DATE_RE.test(v)) {
+              if (template?.intervalDays && isValidIsoDate(v)) {
                 setNextDue(addDaysIso(v, template.intervalDays));
               }
             }}

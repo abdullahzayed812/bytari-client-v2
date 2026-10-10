@@ -7,7 +7,7 @@ import { Input } from '@/components/forms';
 import { Modal } from '@/components/overlays';
 import { useSubscriptionInfo } from '@/features/subscriptions';
 import { useTheme } from '@/theme';
-import { toLocalIsoDate } from '@/utils';
+import { compareIsoDates, isValidIsoDate, normalizeIsoDate, toLocalIsoDate } from '@/utils';
 
 export interface SubscriptionDatesDialogProps {
   visible: boolean;
@@ -48,10 +48,9 @@ export function SubscriptionDatesDialog({
     }
   }, [visible]);
 
-  const isoDate = /^\d{4}-\d{2}-\d{2}$/;
-  const startValid = isoDate.test(startDate);
-  const endValid = isoDate.test(endDate);
-  const rangeValid = startValid && endValid && endDate >= startDate;
+  const startValid = isValidIsoDate(startDate);
+  const endValid = isValidIsoDate(endDate);
+  const rangeValid = startValid && endValid && compareIsoDates(endDate, startDate) >= 0;
   const valid = startValid && endValid && rangeValid;
 
   const startError =
@@ -156,7 +155,12 @@ export function SubscriptionDatesDialog({
               label={confirmLabel}
               variant="primary"
               fullWidth
-              onPress={() => onConfirm({ startDate, endDate })}
+              onPress={() =>
+                onConfirm({
+                  startDate: normalizeIsoDate(startDate) ?? startDate,
+                  endDate: normalizeIsoDate(endDate) ?? endDate,
+                })
+              }
               loading={loading}
               disabled={loading || !valid}
             />
