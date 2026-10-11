@@ -10,6 +10,7 @@ export {
 } from './format';
 export { newRequestId } from './requestId';
 export { isHttpUrl, normalizeLink } from './linkUrl';
+export { telUrl, websiteUrl, openPhone, openWebsite } from './contactLinks';
 export {
   toLocalIsoDate,
   fromLocalIsoDate,

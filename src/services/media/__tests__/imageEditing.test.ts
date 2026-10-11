@@ -1,4 +1,7 @@
 import {
+  aspectRatioOf,
+  editorAspects,
+  planEditActions,
   computeCrop,
   computeResize,
   cropActionOf,
@@ -153,6 +156,64 @@ describe('drag crop geometry', () => {
       originY: 21,
       width: 100,
       height: 2979,
+    });
+  });
+});
+
+describe('custom aspects + exact output size (ad banners)', () => {
+  const AD = { width: 1200, height: 560 };
+
+  it('parses any W:H aspect and falls back to the image ratio', () => {
+    expect(aspectRatioOf('1200:560', 10, 10)).toBeCloseTo(1200 / 560);
+    expect(aspectRatioOf('16:9', 10, 10)).toBeCloseTo(16 / 9);
+    expect(aspectRatioOf('original', 400, 300)).toBeCloseTo(4 / 3);
+    expect(aspectRatioOf('free', 300, 400)).toBeCloseTo(3 / 4);
+  });
+
+  it('an outputSize locks the editor to exactly that ratio', () => {
+    expect(editorAspects({ outputSize: AD, aspects: ['1:1', '16:9'] })).toEqual(['1200:560']);
+    expect(editorAspects({ aspects: ['1:1'] })).toEqual(['1:1']);
+    expect(editorAspects({})).toContain('free');
+  });
+
+  it('crops the framed area and resizes it to exactly the output size', () => {
+    const base = { width: 4000, height: 3000 };
+    const rect = initialCropRect(base.width, base.height, '1200:560');
+    expect(rect.width / rect.height).toBeCloseTo(1200 / 560, 2);
+    const { actions, output } = planEditActions(base, rect, { maxDimension: 2048, outputSize: AD });
+    expect(actions).toEqual([
+      { crop: { originX: 0, originY: 566, width: 4000, height: 1867 } },
+      { resize: { width: 1200, height: 560 } },
+    ]);
+    expect(output).toEqual(AD);
+  });
+
+  it('keeps a moved crop box where the user put it', () => {
+    const base = { width: 3000, height: 4000 };
+    const rect = { x: 0, y: 2600, width: 3000, height: 1400 };
+    const { actions } = planEditActions(base, rect, { outputSize: AD });
+    expect(actions[0]).toEqual({ crop: { originX: 0, originY: 2600, width: 3000, height: 1400 } });
+  });
+
+  it('skips a no-op resize when the crop already is the output size', () => {
+    const base = { width: 1200, height: 560 };
+    const rect = { x: 0, y: 0, width: 1200, height: 560 };
+    expect(planEditActions(base, rect, { outputSize: AD })).toEqual({ actions: [], output: AD });
+  });
+
+  it('without an outputSize caps the longest edge and reports the real output size', () => {
+    const base = { width: 4000, height: 3000 };
+    const rect = { x: 0, y: 0, width: 3000, height: 3000 };
+    expect(planEditActions(base, rect, { maxDimension: 2048 })).toEqual({
+      actions: [
+        { crop: { originX: 0, originY: 0, width: 3000, height: 3000 } },
+        { resize: { width: 2048 } },
+      ],
+      output: { width: 2048, height: 2048 },
+    });
+    expect(planEditActions({ width: 800, height: 600 }, null, { maxDimension: 2048 })).toEqual({
+      actions: [],
+      output: { width: 800, height: 600 },
     });
   });
 });

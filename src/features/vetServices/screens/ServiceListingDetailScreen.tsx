@@ -20,6 +20,7 @@ import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { InfoGrid, ModerationStatusBadge } from '../components';
 import { formatPrice } from '../constants';
@@ -204,7 +205,7 @@ export default function ServiceListingDetailScreen() {
                   label={l.contactPhone}
                   variant="ghost"
                   leftIcon="call-outline"
-                  onPress={() => void Linking.openURL(`tel:${l.contactPhone ?? ''}`)}
+                  onPress={() => void openPhone(l.contactPhone ?? '')}
                 />
               ) : null}
               {l.contactWhatsapp ? (

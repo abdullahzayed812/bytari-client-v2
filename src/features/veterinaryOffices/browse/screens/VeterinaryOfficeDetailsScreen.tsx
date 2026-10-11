@@ -24,6 +24,7 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { PublicVeterinaryOfficeProductCard } from '../components';
 import { usePublicVeterinaryOfficeProducts } from '../hooks';
@@ -161,7 +162,7 @@ export default function VeterinaryOfficeDetailsScreen() {
   };
 
   const onCall = () => {
-    if (org.phone) void Linking.openURL(`tel:${org.phone}`);
+    if (org.phone) void openPhone(org.phone);
   };
   const onWhatsapp = () => {
     if (org.whatsapp) void Linking.openURL(`https://wa.me/${org.whatsapp.replace(/\D/g, '')}`);

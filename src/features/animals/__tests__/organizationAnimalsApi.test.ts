@@ -52,6 +52,14 @@ describe('organizationAnimalsApi — clinic pets (record-derived, no link)', () 
     expect(get).toHaveBeenCalledWith('/organizations/o1/clinic-pets/lookup', { code: 'K7M4QXR' });
   });
 
+  it('removeFromClinic → DELETE /organizations/:id/clinic-pets/:animalId', async () => {
+    const del = jest
+      .spyOn(apiClient, 'delete')
+      .mockResolvedValueOnce({ animalId: 'a1', removed: true });
+    await organizationAnimalsApi.removeFromClinic('o1', 'a1');
+    expect(del).toHaveBeenCalledWith('/organizations/o1/clinic-pets/a1');
+  });
+
   it('has no grant / revoke endpoints any more', () => {
     expect(organizationAnimalsApi).not.toHaveProperty('grant');
     expect(organizationAnimalsApi).not.toHaveProperty('revoke');

@@ -68,7 +68,8 @@ export interface MedicalRecord {
 export interface Vaccination {
   id: string;
   animalId: string;
-  organizationId: string;
+  /** `null` once the recording clinic removed the pet from its list (identity hidden). */
+  organizationId: string | null;
   recordedByUserId: string | null;
   vaccineName: string;
   /** `YYYY-MM-DD` (date-only). */
@@ -114,7 +115,8 @@ export type ReminderType = (typeof REMINDER_TYPES)[number];
 export interface AnimalReminder {
   id: string;
   animalId: string;
-  organizationId: string;
+  /** `null` once the recording clinic removed the pet from its list (identity hidden). */
+  organizationId: string | null;
   recordedByUserId: string | null;
   title: string;
   description: string | null;
@@ -234,7 +236,8 @@ export interface MedicalTimelineEntry {
   type: MedicalTimelineType;
   /** `visitDate` for a record, `administeredOn` for a vaccination (`YYYY-MM-DD`). */
   occurredOn: string;
-  organizationId: string;
+  /** `null` once the recording clinic removed the pet from its list (identity hidden). */
+  organizationId: string | null;
   recordedByUserId: string | null;
   /** ISO datetime — stable tie-break for same-day entries. */
   createdAt: string;

@@ -287,6 +287,8 @@ export type SetSupervisorDomainsInput =
 export interface AuditLogEntry {
   id: string;
   actorUserId: string | null;
+  /** Actor's display name — `null` for system events or a removed account. */
+  actorName?: string | null;
   action: string;
   entityType: string;
   entityId: string | null;
@@ -295,6 +297,14 @@ export interface AuditLogEntry {
   userAgent: string | null;
   requestId: string | null;
   createdAt: string;
+}
+
+/** `GET /admin/audit-logs/:id` — metadata already redacted server-side. */
+export interface AuditLogDetail extends AuditLogEntry {
+  actorName: string | null;
+  /** `false` when the actor's account no longer exists. */
+  actorExists: boolean;
+  organization: { id: string; name: string | null; type: string | null } | null;
 }
 
 export interface AuditListFilter {

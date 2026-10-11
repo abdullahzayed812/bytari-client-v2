@@ -9,7 +9,7 @@ import { Caption, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
-import type { AdSlide } from '../../types';
+import { AD_IMAGE_SIZE, type AdSlide } from '../../types';
 import { useAdminAdSlideMutations, useAdSlideImagePresignProvider } from '../hooks';
 
 export interface AdSlideRowProps {
@@ -47,8 +47,10 @@ export function AdSlideRow({
           value={slide.imageUrl}
           provider={imageProvider}
           shape="square"
-          size={64}
-          edit={{ defaultAspect: '16:9' }}
+          size={56}
+          aspectRatio={AD_IMAGE_SIZE.width / AD_IMAGE_SIZE.height}
+          // Crop locked to the slot's ratio and exported at its exact size.
+          edit={{ outputSize: AD_IMAGE_SIZE }}
           // A picked/replaced image is already persisted by `imageProvider`'s
           // own `finalizeUpload` (+ query invalidation) — `onChange` firing
           // with a result there is a no-op. `null` is the one case this

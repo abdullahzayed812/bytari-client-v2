@@ -11,6 +11,7 @@ import type { ClinicAnimalProfile, ClinicPet, ClinicPetLookup, Paginated } from 
  *
  *   GET /organizations/:organizationId/clinic-pets?page&pageSize&search
  *   GET /organizations/:organizationId/clinic-pets/lookup?code
+ *   DELETE /organizations/:organizationId/clinic-pets/:animalId   (remove from this clinic)
  *   GET /organizations/:organizationId/animals/:animalId   (clinic pet profile)
  *
  * There is no grant / link endpoint: opening a pet by its code creates nothing;
@@ -46,6 +47,19 @@ export const organizationAnimalsApi = {
     return apiClient.get<ClinicPetLookup>(`/organizations/${organizationId}/clinic-pets/lookup`, {
       code,
     });
+  },
+
+  /**
+   * "إزالة من العيادة" — detach THIS clinic's rows for the pet (never deletes
+   * the pet or another clinic's data); 404 when the clinic has nothing for it.
+   */
+  removeFromClinic(
+    organizationId: string,
+    animalId: string,
+  ): Promise<{ animalId: string; removed: true }> {
+    return apiClient.delete<{ animalId: string; removed: true }>(
+      `/organizations/${organizationId}/clinic-pets/${animalId}`,
+    );
   },
 
   /** Clinic-visible profile; 404 for an unknown / listing-only animal. */

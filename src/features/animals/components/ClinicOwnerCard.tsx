@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
@@ -12,6 +12,7 @@ import { Routes } from '@/constants/routes';
 import { useConversations, useSetClinicChatActive, useStartConversation } from '@/features/chat';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import type { ClinicAnimalProfile } from '../types';
 
@@ -67,7 +68,7 @@ export function ClinicOwnerCard({
           {owner.phone ? (
             <Text
               color="primary"
-              onPress={() => void Linking.openURL(`tel:${owner.phone}`)}
+              onPress={() => void openPhone(owner.phone)}
               accessibilityRole="link"
             >
               {owner.phone}

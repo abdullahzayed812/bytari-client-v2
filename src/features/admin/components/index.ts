@@ -22,3 +22,8 @@ export {
   type RenewalDecisionDialogProps,
 } from './RenewalDecisionDialogs';
 export { AdminAnimalEditSheet } from './AdminAnimalEditSheet';
+export {
+  DeleteUserDialog,
+  deleteBlockedReason,
+  type DeleteUserDialogProps,
+} from './DeleteUserDialog';

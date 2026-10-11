@@ -15,7 +15,7 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { EngagementStatusBadge, ServiceRequestCard } from '../components';
-import { formatVetServiceDate } from '../constants';
+import { formatVetServiceDate, REQUEST_GRID_MAX_WIDTH, requestGridColumns } from '../constants';
 import {
   useMyListingRequests,
   useMyServiceRequests,
@@ -24,11 +24,6 @@ import {
 import type { ListingRequest } from '../types';
 
 type Tab = 'sent' | 'posted';
-
-/** Two cards per row from this content width up; a single column on very narrow phones. */
-const TWO_COLUMN_MIN_WIDTH = 340;
-/** On wide (web/tablet) screens the grid is capped so the two cards stay card-sized. */
-const MAX_GRID_WIDTH = 960;
 
 /**
  * Route `/(app)/vet-services/my-requests` — the PET OWNER's "طلباتي":
@@ -47,7 +42,7 @@ export default function MyServiceRequestsScreen() {
   const toast = useToast();
   const [tab, setTab] = useState<Tab>('sent');
   const { width } = useWindowDimensions();
-  const columns = width >= TWO_COLUMN_MIN_WIDTH ? 2 : 1;
+  const columns = requestGridColumns(width);
 
   const sentQ = useMyListingRequests(undefined, { enabled: tab === 'sent' });
   const postedQ = useMyServiceRequests(undefined, { enabled: tab === 'posted' });
@@ -138,7 +133,7 @@ export default function MyServiceRequestsScreen() {
     paddingBottom: theme.spacing.huge,
     flexGrow: 1,
     width: '100%',
-    maxWidth: MAX_GRID_WIDTH,
+    maxWidth: REQUEST_GRID_MAX_WIDTH,
     alignSelf: 'center',
   } as const;
   const grid = {

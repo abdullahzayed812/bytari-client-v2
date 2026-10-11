@@ -11,9 +11,9 @@ import { isRTL } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { useAds } from '../hooks';
-import type { AdPlacement, AdSlide } from '../types';
+import { AD_IMAGE_SIZE, type AdPlacement, type AdSlide } from '../types';
 
-const CARD_ASPECT_RATIO = 1200 / 560;
+const CARD_ASPECT_RATIO = AD_IMAGE_SIZE.width / AD_IMAGE_SIZE.height;
 const AUTO_SLIDE_INTERVAL_MS = 5000;
 
 interface AdvertisementProps {

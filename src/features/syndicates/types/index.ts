@@ -166,6 +166,8 @@ export interface SyndicateAnnouncement {
   title: string;
   body: string;
   imageUrl: string | null;
+  /** Optional external http(s) link (server-validated). */
+  linkUrl: string | null;
   publishedAt: string;
 }
 
@@ -174,6 +176,8 @@ export interface CreateAnnouncementInput {
   title: string;
   body: string;
   imageStorageKey?: string | null;
+  /** http(s) only; `null` clears it on update. */
+  linkUrl?: string | null;
 }
 
 export type UpdateAnnouncementInput = Partial<CreateAnnouncementInput>;

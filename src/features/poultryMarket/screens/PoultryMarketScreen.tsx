@@ -5,7 +5,13 @@ import { FlatList, Linking, RefreshControl, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Chip } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SafeAreaScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
@@ -14,6 +20,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { GovernorateFilterRow, MarketOfferCard } from '../components';
 import { BIRD_TYPE_ORDER } from '../constants';
@@ -61,11 +68,7 @@ export default function PoultryMarketScreen() {
             paddingHorizontal: theme.screenPadding,
           }}
         >
-          <Chip
-            label={t('scope.all')}
-            selected={scope === 'all'}
-            onPress={() => setScope('all')}
-          />
+          <Chip label={t('scope.all')} selected={scope === 'all'} onPress={() => setScope('all')} />
           <Chip
             label={t('scope.mineOffers')}
             selected={scope === 'mine'}
@@ -137,23 +140,33 @@ export default function PoultryMarketScreen() {
               fallbackIcon="egg-outline"
               imageUrl={item.imageUrls[0] ?? null}
               lines={[
-                { label: t('poultryMarket.quantityLabel'), value: `${item.quantity} ${t('poultryMarket.unitBird')}` },
+                {
+                  label: t('poultryMarket.quantityLabel'),
+                  value: `${item.quantity} ${t('poultryMarket.unitBird')}`,
+                },
                 {
                   label: t('poultryMarket.unitPriceLabel'),
                   value: `${item.price} ${t('poultryMarket.currency')}`,
                   accent: true,
                 },
                 ...(item.ageWeeks != null
-                  ? [{ label: t('poultryMarket.ageLabel'), value: `${item.ageWeeks} ${t('poultryMarket.unitWeek')}` }]
+                  ? [
+                      {
+                        label: t('poultryMarket.ageLabel'),
+                        value: `${item.ageWeeks} ${t('poultryMarket.unitWeek')}`,
+                      },
+                    ]
                   : []),
               ]}
               locationLabel={[item.governorate, item.district].filter(Boolean).join(' - ')}
               createdAt={item.createdAt}
               canDelete={canManage(item)}
               onPressDetails={() => router.push(Routes.poultryMarketOffer(item.id))}
-              onPressCall={() => void Linking.openURL(`tel:${item.phone}`)}
+              onPressCall={() => void openPhone(item.phone)}
               onPressWhatsapp={() =>
-                void Linking.openURL(`https://wa.me/${(item.whatsapp ?? item.phone).replace(/\D/g, '')}`)
+                void Linking.openURL(
+                  `https://wa.me/${(item.whatsapp ?? item.phone).replace(/\D/g, '')}`,
+                )
               }
               onPressDelete={() => setPendingDelete(item.id)}
             />

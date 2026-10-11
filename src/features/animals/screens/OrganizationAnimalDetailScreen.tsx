@@ -3,8 +3,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { Button } from '@/components/actions';
 import { Badge, Card, Divider, Icon, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, SkeletonText } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  SkeletonText,
+  useToast,
+} from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { ImageViewer, QrCode } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -16,13 +23,14 @@ import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { PetImage, petAge } from '@/features/pets';
 import { formatPetCode } from '@/features/pets/petCode';
 import { useCapabilities } from '@/hooks';
+import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { ClinicOwnerCard } from '../components/ClinicOwnerCard';
 import { ANIMAL_STATUS_TONE } from '../constants';
-import { useClinicAnimalProfile } from '../hooks';
+import { useClinicAnimalProfile, useRemoveClinicPet } from '../hooks';
 import type { ClinicAnimalProfile } from '../types';
 
 /**
@@ -56,6 +64,8 @@ export default function OrganizationAnimalDetailScreen() {
     createVaccination: perms ? perms.canCreateVaccinations : caps.canManageOrganizationMedical,
     viewAppointments: perms?.canViewAppointments ?? false,
     manageAppointments: perms?.canManageAppointments ?? false,
+    // owner / supervisor only (`animal.veterinary.access.manage`) — re-checked server-side
+    removePet: perms ? perms.canManageAnimalAccess : caps.canManageOrganizationAnimalAccess,
   };
   const createRecord = (type?: 'FULL_EXAM' | 'LAB' | 'FILE') => {
     const path = Routes.orgAnimalMedicalRecordCreate(orgId, animalId ?? '');
@@ -70,6 +80,24 @@ export default function OrganizationAnimalDetailScreen() {
 
   const q = useClinicAnimalProfile(orgId, animalId);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const removePet = useRemoveClinicPet(orgId);
+  const toast = useToast();
+  const onRemove = () =>
+    removePet.mutate(
+      { animalId: animalId ?? '' },
+      {
+        onSuccess: () => {
+          setConfirmRemove(false);
+          toast.show({ message: t('remove.success'), tone: 'success' });
+          router.replace(Routes.organizationAnimals(orgId));
+        },
+        onError: (e) => {
+          setConfirmRemove(false);
+          toast.show({ message: apiErrorMessage(e), tone: 'danger' });
+        },
+      },
+    );
 
   const status = q.error instanceof ApiError ? q.error.status : undefined;
 
@@ -369,10 +397,33 @@ export default function OrganizationAnimalDetailScreen() {
             </Section>
           ) : null}
 
+          {can.removePet && animal.relationship ? (
+            <Section spacing="xl">
+              <Button
+                label={t('remove.cta')}
+                variant="outline"
+                leftIcon="remove-circle-outline"
+                fullWidth
+                onPress={() => setConfirmRemove(true)}
+              />
+            </Section>
+          ) : null}
+
           <ImageViewer
             visible={viewerOpen}
             images={animal.galleryUrls}
             onClose={() => setViewerOpen(false)}
+          />
+          <ConfirmationDialog
+            visible={confirmRemove}
+            title={t('remove.title', { name: animal.name })}
+            message={t('remove.body')}
+            confirmLabel={t('remove.confirm')}
+            cancelLabel={t('remove.cancel')}
+            destructive
+            loading={removePet.isPending}
+            onConfirm={onRemove}
+            onCancel={() => setConfirmRemove(false)}
           />
         </>
       )}

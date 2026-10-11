@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Linking, RefreshControl, ScrollView, View } from 'react-native';
+import { FlatList, RefreshControl, ScrollView, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Badge, Card, Chip, Icon } from '@/components/content';
@@ -13,6 +13,7 @@ import { Routes } from '@/constants/routes';
 // Deep import (not the barrel) — keeps medical ↔ clinicDashboard acyclic.
 import { useClinicPermissions } from '@/features/clinicDashboard/hooks';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { ReminderActions } from '../components/ReminderActions';
 import { VaccinationActions } from '../components/VaccinationActions';
@@ -85,7 +86,7 @@ function AnimalOwnerLine({
         <TextButton
           label={t('clinicLists.call')}
           icon="call-outline"
-          onPress={() => void Linking.openURL(`tel:${owner.phone}`)}
+          onPress={() => void openPhone(owner.phone)}
         />
       ) : null}
       <TextButton

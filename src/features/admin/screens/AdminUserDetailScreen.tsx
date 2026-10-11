@@ -19,9 +19,10 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { ReasonPromptDialog } from '../components';
+import { DeleteUserDialog, ReasonPromptDialog } from '../components';
 import {
   useAdminUser,
+  useDeleteUserMutation,
   useMessageUserMutation,
   useUserPasswordMutations,
   useUserRoleMutation,
@@ -59,6 +60,8 @@ export default function AdminUserDetailScreen() {
   const roleMut = useUserRoleMutation(userId);
 
   const messageMut = useMessageUserMutation(userId);
+  const deleteMut = useDeleteUserMutation(userId);
+  const [deleting, setDeleting] = useState(false);
   const { setPassword, sendReset } = useUserPasswordMutations(userId);
   const [messaging, setMessaging] = useState(false);
   const [settingPassword, setSettingPassword] = useState(false);
@@ -435,6 +438,27 @@ export default function AdminUserDetailScreen() {
               </View>
             )}
           </Section>
+
+          {!isSelf ? (
+            <Section spacing="lg">
+              <Card variant="outlined" padding="md">
+                <View style={{ rowGap: theme.spacing.sm }}>
+                  <Label>{t('users.delete.sectionTitle')}</Label>
+                  <Caption>{t('users.delete.sectionHint')}</Caption>
+                  <Button
+                    label={t('users.delete.cta')}
+                    variant="danger"
+                    leftIcon="trash-outline"
+                    fullWidth
+                    onPress={() => {
+                      deleteMut.reset();
+                      setDeleting(true);
+                    }}
+                  />
+                </View>
+              </Card>
+            </Section>
+          ) : null}
         </>
       )}
 
@@ -470,6 +494,27 @@ export default function AdminUserDetailScreen() {
         onConfirm={(reason) => runStatus(reason || undefined)}
         onCancel={() => setPendingAction(null)}
       />
+
+      {q.data ? (
+        <DeleteUserDialog
+          visible={deleting}
+          name={`${q.data.firstName} ${q.data.lastName}`.trim() || q.data.email}
+          email={q.data.email}
+          loading={deleteMut.isPending}
+          error={deleteMut.error}
+          onCancel={() => setDeleting(false)}
+          onConfirm={() =>
+            deleteMut.mutate(undefined, {
+              onSuccess: () => {
+                setDeleting(false);
+                toast.show({ message: t('users.delete.success'), tone: 'success' });
+                if (router.canGoBack()) router.back();
+                else router.replace(Routes.adminUsers);
+              },
+            })
+          }
+        />
+      ) : null}
 
       <ReasonPromptDialog
         visible={messaging}

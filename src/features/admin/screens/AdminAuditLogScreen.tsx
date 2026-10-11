@@ -1,7 +1,9 @@
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Skeleton } from '@/components/feedback';
+import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 import { formatDateTime } from '@/utils';
 
@@ -37,8 +39,9 @@ export default function AdminAuditLogScreen() {
             e.entityId ? ` · ${e.entityId.slice(0, 8)}` : ''
           }`}
           meta={`${formatDateTime(e.createdAt)} · ${
-            e.actorUserId ? e.actorUserId.slice(0, 8) : t('audit.systemActor')
+            e.actorUserId ? (e.actorName ?? e.actorUserId.slice(0, 8)) : t('audit.systemActor')
           }`}
+          onPress={() => router.push(Routes.adminAuditLog(e.id))}
         />
       )}
     />

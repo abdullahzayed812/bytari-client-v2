@@ -15,9 +15,10 @@ import type { LocalFile } from '@/services/files/types';
 
 /**
  * `free` = manual drag-crop with no ratio lock (the default); `original` keeps
- * the image's own ratio; the rest lock the crop box to that ratio.
+ * the image's own ratio; `W:H` locks the crop box to that ratio (any positive
+ * integers, e.g. the ad banner's `15:7`).
  */
-export type CropAspect = 'free' | 'original' | '1:1' | '4:3' | '3:4' | '16:9';
+export type CropAspect = 'free' | 'original' | `${number}:${number}`;
 export const CROP_ASPECTS: CropAspect[] = ['free', 'original', '1:1', '4:3', '3:4', '16:9'];
 
 /** Longest-edge caps offered by the "size" control. `null` = keep original. */
@@ -33,6 +34,12 @@ export interface ImageEditOptions {
   defaultAspect?: CropAspect;
   /** Default longest-edge cap. */
   defaultMaxDimension?: ResizeOption;
+  /**
+   * Exact output size in pixels. Locks the crop to `width:height` (overrides
+   * `aspects`) and resizes the cropped area to exactly this size, so a slot
+   * that renders at a fixed ratio (ad banners) shows precisely what was framed.
+   */
+  outputSize?: { width: number; height: number };
 }
 
 export type EditOutcome = LocalFile | null | 'keep-rest';
@@ -71,18 +78,24 @@ export async function editImage(
 }
 
 export function aspectRatioOf(aspect: CropAspect, width: number, height: number): number {
-  switch (aspect) {
-    case '1:1':
-      return 1;
-    case '4:3':
-      return 4 / 3;
-    case '3:4':
-      return 3 / 4;
-    case '16:9':
-      return 16 / 9;
-    default:
-      return width / height;
+  const m = /^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)$/.exec(aspect);
+  if (m) {
+    const w = Number(m[1]);
+    const h = Number(m[2]);
+    if (w > 0 && h > 0) return w / h;
   }
+  return width / height;
+}
+
+/** The `W:H` aspect an exact output size locks the crop to. */
+export function aspectOfSize(size: { width: number; height: number }): CropAspect {
+  return `${size.width}:${size.height}`;
+}
+
+/** Aspect choices the editor offers for `options` (an `outputSize` locks one). */
+export function editorAspects(options: ImageEditOptions): CropAspect[] {
+  if (options.outputSize) return [aspectOfSize(options.outputSize)];
+  return options.aspects ?? CROP_ASPECTS;
 }
 
 /**
@@ -212,4 +225,57 @@ export function cropActionOf(
     width: clamp(Math.round(rect.width), 1, bounds.width - originX),
     height: clamp(Math.round(rect.height), 1, bounds.height - originY),
   };
+}
+
+export type ManipulatorAction =
+  | { crop: { originX: number; originY: number; width: number; height: number } }
+  | { resize: { width?: number; height?: number } };
+
+/**
+ * The manipulator actions that turn the (orientation-normalised) working image
+ * of size `base` into the final output, plus the output size they produce.
+ * Pure — the editor runs exactly these, and tests assert them.
+ *
+ * - `rect` covering the whole image → no crop.
+ * - `outputSize` → the crop is resized to EXACTLY that size (both edges, so a
+ *   1px rounding difference in the locked ratio can never leave the output
+ *   off-size).
+ * - otherwise the longest edge is capped at `maxDimension`.
+ */
+export function planEditActions(
+  base: { width: number; height: number },
+  rect: CropRect | null,
+  options: { maxDimension?: ResizeOption; outputSize?: { width: number; height: number } },
+): { actions: ManipulatorAction[]; output: { width: number; height: number } } {
+  const actions: ManipulatorAction[] = [];
+  let out = { width: base.width, height: base.height };
+  if (rect) {
+    const crop = cropActionOf(rect, base);
+    const whole =
+      crop.originX === 0 &&
+      crop.originY === 0 &&
+      crop.width === base.width &&
+      crop.height === base.height;
+    if (!whole) {
+      actions.push({ crop });
+      out = { width: crop.width, height: crop.height };
+    }
+  }
+  const target = options.outputSize;
+  if (target) {
+    if (out.width !== target.width || out.height !== target.height) {
+      actions.push({ resize: { width: target.width, height: target.height } });
+      out = { width: target.width, height: target.height };
+    }
+    return { actions, output: out };
+  }
+  const resize = computeResize(out.width, out.height, options.maxDimension ?? null);
+  if (resize) {
+    actions.push({ resize });
+    out =
+      'width' in resize
+        ? { width: resize.width, height: Math.round((out.height * resize.width) / out.width) }
+        : { width: Math.round((out.width * resize.height) / out.height), height: resize.height };
+  }
+  return { actions, output: out };
 }

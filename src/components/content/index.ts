@@ -6,3 +6,4 @@ export { Badge, type BadgeProps, type BadgeTone } from './Badge';
 export { Chip, type ChipProps } from './Chip';
 export { Divider, type DividerProps } from './Divider';
 export { Banner, type BannerProps } from './Banner';
+export { ContactActionRow, type ContactActionRowProps, type ContactKind } from './ContactActionRow';

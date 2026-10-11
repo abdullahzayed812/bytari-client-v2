@@ -27,6 +27,12 @@ export const en: TranslationResources = {
       sendInfo: 'Send subscription information',
       sent: 'Subscription information sent to the administration — the reply arrives in the conversation',
     },
+    contactAction: {
+      phoneA11y: 'Call {{value}}',
+      websiteA11y: 'Open the website {{value}}',
+      emailA11y: 'Email {{value}}',
+      failed: 'This link cannot be opened on this device',
+    },
     share: {
       copied: 'Copied to clipboard',
       unavailable: 'Sharing is not supported in this browser',
@@ -1819,6 +1825,9 @@ export const en: TranslationResources = {
       viewDetails: 'View details',
       notFound: 'This announcement is unavailable',
       detailsTitle: 'Announcement details',
+      openLink: 'Open link',
+      openLinkA11y: 'Open {{url}} in the browser',
+      linkFailed: 'Could not open the link',
       addAnnouncement: 'Add announcement',
       editAnnouncement: 'Edit announcement',
       deleteAnnouncement: 'Delete announcement',
@@ -1832,6 +1841,8 @@ export const en: TranslationResources = {
         bodyPlaceholder: 'Write the announcement details',
         image: 'Announcement image (optional)',
         imageHint: 'JPG or PNG, max 8MB',
+        link: 'Link (optional)',
+        linkHint: 'A website users can open, starting with https://',
         submit: 'Publish announcement',
         save: 'Save changes',
         submitting: 'Publishing…',
@@ -1840,6 +1851,7 @@ export const en: TranslationResources = {
         errors: {
           title: 'Please enter the announcement title.',
           body: 'Please enter the announcement body.',
+          link: 'Enter a valid link starting with http:// or https://',
         },
       },
     },
@@ -2983,6 +2995,14 @@ export const en: TranslationResources = {
         'Open a pet by its short ID or QR code; it appears here after the clinic’s first entry (record, vaccination or reminder).',
       noFilterMatch: 'No animal found',
       loadingMore: 'Loading…',
+    },
+    remove: {
+      cta: 'Remove pet from this clinic',
+      title: 'Remove “{{name}}” from this clinic’s list?',
+      body: "The pet leaves this clinic's Recent and All Pets lists, and the clinic's private medical records are archived and no longer shown. The pet stays registered with its owner, and its vaccinations and reminders remain visible to the owner without this clinic's or the veterinarian's name. You can find the pet again later by its ID and add new information.",
+      confirm: 'Remove',
+      cancel: 'Cancel',
+      success: 'Pet removed from this clinic',
     },
     detail: {
       title: 'Pet file',
@@ -6580,6 +6600,25 @@ export const en: TranslationResources = {
         APPROVED: 'Approved',
         REJECTED: 'Rejected',
       },
+      delete: {
+        sectionTitle: 'Delete user permanently',
+        sectionHint:
+          "Permanently removes the account, its sessions and personal data. This can't be undone.",
+        cta: 'Delete user',
+        title: 'Delete user permanently',
+        warning: 'This action is permanent and cannot be undone.',
+        explanation:
+          "The account, sign-ins, devices, roles, memberships, chats and personal content are removed. Pets and their clinic medical records, store orders, appointments and syndicate announcements are kept, no longer linked to this user's identity.",
+        confirmLabel: "To confirm, type the account's e-mail",
+        confirmCta: 'Delete permanently',
+        success: 'User deleted permanently',
+        blocked: {
+          ownsOrganizations:
+            'This user owns one or more organizations. Transfer or delete them first. ({{details}})',
+          admin: 'Administrator accounts are protected. Remove the ADMIN role first, then retry.',
+          protected: 'This is a protected system account and cannot be deleted.',
+        },
+      },
       detail: {
         title: 'User profile',
         accountSection: 'Account',
@@ -7541,6 +7580,22 @@ export const en: TranslationResources = {
       filter: { allActions: 'All actions', allEntities: 'All entities' },
       systemActor: 'System',
       actorLabel: 'Actor',
+      detail: {
+        title: 'Activity details',
+        openHint: 'Opens the details of this activity',
+        eventSection: 'Event',
+        time: 'Time',
+        actorId: 'Actor ID',
+        removedActor: 'Deleted account',
+        entityType: 'Entity type',
+        entityId: 'Entity ID',
+        organization: 'Organization',
+        requestId: 'Request ID',
+        ip: 'IP address',
+        userAgent: 'Device / browser',
+        metadataSection: 'Additional data',
+        noMetadata: 'This event has no additional data.',
+      },
       entityTypes: {
         USER: 'User',
         ROLE: 'Role',

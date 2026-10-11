@@ -29,6 +29,8 @@ export interface ImageUploaderProps {
   onChange: (result: UploadResult | null) => void;
   size?: number;
   shape?: 'circle' | 'square';
+  /** width / height of a square-shaped preview (default 1). */
+  aspectRatio?: number;
   label?: string;
   disabled?: boolean;
   /** Empty-state glyph. Defaults to a camera (photo picker); pass e.g. `arrow-up-outline` for document uploads. */
@@ -62,6 +64,7 @@ export function ImageUploader({
   onChange,
   size = 96,
   shape = 'square',
+  aspectRatio,
   label,
   disabled,
   icon = 'camera-outline',
@@ -155,6 +158,7 @@ export function ImageUploader({
               uri={previewUri}
               size={size}
               shape={shape}
+              aspectRatio={aspectRatio}
               uploading={uploading}
               progress={up.progress}
               error={up.status === 'error'}
@@ -185,7 +189,7 @@ export function ImageUploader({
           disabled={disabled}
           onPress={() => setSheet(true)}
           style={{
-            width: size,
+            width: shape === 'square' && aspectRatio ? Math.round(size * aspectRatio) : size,
             height: size,
             borderRadius,
             borderWidth: 1.5,

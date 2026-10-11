@@ -24,6 +24,7 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 interface InfoRowProps {
   icon: IconName;
@@ -367,7 +368,7 @@ export default function ClinicDetailsScreen() {
                     icon="call"
                     value={org.phone}
                     accessibilityLabel={t('clinicDetail.callA11y', { phone: org.phone })}
-                    onPress={() => void Linking.openURL(`tel:${org.phone}`)}
+                    onPress={() => void openPhone(org.phone)}
                   />
                 ) : null}
                 {org.whatsapp ? (
@@ -445,7 +446,7 @@ export default function ClinicDetailsScreen() {
               label={t('clinicDetail.call')}
               leftIcon="call"
               fullWidth
-              onPress={() => void Linking.openURL(`tel:${org.phone}`)}
+              onPress={() => void openPhone(org.phone)}
             />
           </Section>
         ) : null}

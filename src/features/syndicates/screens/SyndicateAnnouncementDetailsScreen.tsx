@@ -4,14 +4,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
 
+import { TextButton } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { EmptyState, Loading } from '@/components/feedback';
+import { EmptyState, Loading, useToast } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, openWebsite, websiteUrl } from '@/utils';
 
 import { SyndicateAnnouncementTypeBadge } from '../components';
 import { useSyndicateAnnouncement } from '../hooks';
@@ -24,6 +25,9 @@ export default function SyndicateAnnouncementDetailsScreen() {
   const q = useSyndicateAnnouncement(id);
   const announcement = q.data;
   const [viewerOpen, setViewerOpen] = useState(false);
+  const toast = useToast();
+  // Only a re-validated http(s) URL is ever rendered as a link (never raw HTML).
+  const link = websiteUrl(announcement?.linkUrl);
 
   return (
     <SafeAreaScreen>
@@ -72,6 +76,24 @@ export default function SyndicateAnnouncementDetailsScreen() {
             <Text variant="body" color="textSecondary">
               {announcement.body}
             </Text>
+            {link ? (
+              <View style={{ alignItems: 'flex-start', rowGap: theme.spacing.xs }}>
+                <TextButton
+                  label={t('announcements.openLink')}
+                  icon="open-outline"
+                  accessibilityLabel={t('announcements.openLinkA11y', { url: link })}
+                  onPress={() =>
+                    void openWebsite(link).then((ok) => {
+                      if (!ok)
+                        toast.show({ message: t('announcements.linkFailed'), tone: 'danger' });
+                    })
+                  }
+                />
+                <Caption numberOfLines={1} selectable style={{ writingDirection: 'ltr' }}>
+                  {link}
+                </Caption>
+              </View>
+            ) : null}
           </View>
 
           <ImageViewer

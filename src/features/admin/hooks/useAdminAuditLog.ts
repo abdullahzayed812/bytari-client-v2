@@ -1,11 +1,11 @@
-import { useInfiniteQuery, type InfiniteData } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, type InfiniteData } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
 import { adminApi, adminKeys } from '../api';
-import type { AuditLogEntry, Paginated } from '../types';
+import type { AuditLogDetail, AuditLogEntry, Paginated } from '../types';
 
 export function useAdminAuditLog(
   params: {
@@ -41,4 +41,14 @@ export function useAdminAuditLog(
 
   const entries = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
   return { ...query, entries, total: query.data?.pages[0]?.meta.total ?? 0 };
+}
+
+/** One entry for the details screen (read-only — opening it never mutates anything). */
+export function useAdminAuditEntry(id: string | undefined) {
+  return useQuery<AuditLogDetail, ApiError>({
+    queryKey: adminKeys.audit.detail(id ?? ''),
+    queryFn: () => adminApi.getAuditLog(id as string),
+    enabled: Boolean(id),
+    staleTime: 60_000,
+  });
 }

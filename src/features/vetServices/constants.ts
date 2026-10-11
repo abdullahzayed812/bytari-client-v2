@@ -91,3 +91,12 @@ export function formatPrice(amount: string | null, locale = 'ar'): string {
   if (Number.isNaN(n)) return `${amount} د.ع`;
   return `${new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB').format(n)} د.ع`;
 }
+
+/** Request grids: two cards per row from this window width up; one column on very narrow phones. */
+export const REQUEST_GRID_TWO_COLUMN_MIN_WIDTH = 340;
+/** On wide (web/tablet) screens a request grid is capped so two cards stay card-sized. */
+export const REQUEST_GRID_MAX_WIDTH = 960;
+
+export function requestGridColumns(windowWidth: number): 1 | 2 {
+  return windowWidth >= REQUEST_GRID_TWO_COLUMN_MIN_WIDTH ? 2 : 1;
+}

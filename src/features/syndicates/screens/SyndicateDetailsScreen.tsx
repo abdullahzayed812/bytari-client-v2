@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
-import { Badge, Card, Icon, type IconName } from '@/components/content';
+import { Badge, Card, ContactActionRow, Icon, type IconName } from '@/components/content';
 import { ConfirmationDialog, EmptyState, Loading, useToast } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -400,29 +400,10 @@ export default function SyndicateDetailsScreen() {
         <View style={{ rowGap: theme.spacing.sm }}>
           <Text variant="bodyStrong">{t('home.contactInfo')}</Text>
           <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>
-            {syndicate.phone ? (
-              <View
-                style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
-              >
-                <Icon name="call-outline" size="iconSm" color="primary" />
-                <Text variant="body">{syndicate.phone}</Text>
-              </View>
-            ) : null}
-            {syndicate.email ? (
-              <View
-                style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
-              >
-                <Icon name="mail-outline" size="iconSm" color="primary" />
-                <Text variant="body">{syndicate.email}</Text>
-              </View>
-            ) : null}
+            {syndicate.phone ? <ContactActionRow kind="phone" value={syndicate.phone} /> : null}
+            {syndicate.email ? <ContactActionRow kind="email" value={syndicate.email} /> : null}
             {syndicate.website ? (
-              <View
-                style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}
-              >
-                <Icon name="globe-outline" size="iconSm" color="primary" />
-                <Text variant="body">{syndicate.website}</Text>
-              </View>
+              <ContactActionRow kind="website" value={syndicate.website} />
             ) : null}
             {syndicate.address ? (
               <View

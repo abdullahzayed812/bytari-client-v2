@@ -7,8 +7,11 @@ import { useTheme } from '@/theme';
 
 export interface ImagePreviewProps {
   uri: string;
+  /** Height (and width, unless `aspectRatio` is set). */
   size?: number;
   shape?: 'circle' | 'square';
+  /** width / height of a square-shaped preview — e.g. a banner thumbnail. */
+  aspectRatio?: number;
   /** 0–1 while uploading. */
   progress?: number;
   uploading?: boolean;
@@ -22,6 +25,7 @@ export function ImagePreview({
   uri,
   size = 96,
   shape = 'square',
+  aspectRatio,
   progress,
   uploading,
   error,
@@ -30,12 +34,13 @@ export function ImagePreview({
 }: ImagePreviewProps) {
   const theme = useTheme();
   const radius = shape === 'circle' ? size / 2 : theme.radius.lg;
+  const width = shape === 'square' && aspectRatio ? Math.round(size * aspectRatio) : size;
 
   return (
-    <View style={{ width: size, height: size }}>
+    <View style={{ width, height: size }}>
       <Image
         source={{ uri }}
-        style={{ width: size, height: size, borderRadius: radius }}
+        style={{ width, height: size, borderRadius: radius }}
         contentFit="cover"
         transition={150}
         accessibilityIgnoresInvertColors

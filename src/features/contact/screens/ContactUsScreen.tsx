@@ -15,7 +15,7 @@ import { useCreateThread } from '@/features/support';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { fullName } from '@/utils';
+import { fullName, openPhone } from '@/utils';
 
 import { CONTACT_INFO, phoneDigits } from '../constants';
 
@@ -92,7 +92,7 @@ export default function ContactUsScreen() {
               icon="call-outline"
               label={t('info.phone')}
               value={CONTACT_INFO.phone}
-              onPress={() => void Linking.openURL(`tel:${phoneDigits(CONTACT_INFO.phone)}`)}
+              onPress={() => void openPhone(phoneDigits(CONTACT_INFO.phone))}
             />
             <Divider spacing="md" />
             <ContactRow

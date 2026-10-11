@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/actions';
-import { Avatar, Badge, Card, Icon, type IconName } from '@/components/content';
+import { Avatar, Badge, Card, ContactActionRow, Icon, type IconName } from '@/components/content';
 import { ConfirmationDialog, EmptyState, Loading, useToast } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -105,9 +105,9 @@ export default function SyndicateMemberDetailsScreen() {
         </Card>
 
         <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.md }}>
-          <InfoRow icon="mail-outline" label={t('members.email')} value={member.email} />
+          <ContactActionRow kind="email" label={t('members.email')} value={member.email} />
           {member.phone ? (
-            <InfoRow icon="call-outline" label={t('members.phone')} value={member.phone} />
+            <ContactActionRow kind="phone" label={t('members.phone')} value={member.phone} />
           ) : null}
           {location ? (
             <InfoRow icon="location-outline" label={t('members.location')} value={location} />

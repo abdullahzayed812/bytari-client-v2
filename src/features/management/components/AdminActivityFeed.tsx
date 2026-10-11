@@ -1,8 +1,10 @@
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { EmptyState } from '@/components/feedback';
 import { Caption, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import type { AdminActivityItem } from '@/features/admin/types';
 import { useTheme } from '@/theme';
 import { formatTime } from '@/utils';
@@ -15,7 +17,11 @@ type ActionTone = 'success' | 'danger' | 'info' | 'neutral';
  * suffix avoids hand-maintaining a per-action colour map for ~150 values.
  */
 function actionTone(action: string): ActionTone {
-  if (/_(APPROVED|CREATED|ACTIVATED|PUBLISHED|ASSIGNED|PLACED|SENT|RESTORED|JOINED|GRANTED)$/.test(action)) {
+  if (
+    /_(APPROVED|CREATED|ACTIVATED|PUBLISHED|ASSIGNED|PLACED|SENT|RESTORED|JOINED|GRANTED)$/.test(
+      action,
+    )
+  ) {
     return 'success';
   }
   if (
@@ -57,18 +63,21 @@ export function AdminActivityFeed({ items }: Props) {
                 : theme.colors.textMuted;
 
         return (
-          <View
+          // Opens the read-only details screen — tapping never runs the action itself.
+          <Pressable
             key={item.id}
-            style={{
+            accessibilityRole="button"
+            accessibilityHint={t('audit.detail.openHint')}
+            onPress={() => router.push(Routes.adminAuditLog(item.id))}
+            style={({ pressed }) => ({
               flexDirection: 'row',
               alignItems: 'center',
               columnGap: theme.spacing.sm,
               paddingVertical: theme.spacing.xs,
-            }}
+              opacity: pressed ? 0.6 : 1,
+            })}
           >
-            <View
-              style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor }}
-            />
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor }} />
             <View style={{ flex: 1, minWidth: 0, rowGap: 2 }}>
               <Text variant="bodyMedium" numberOfLines={2}>
                 {t(`activityActions.${item.action}`, { defaultValue: item.action })}
@@ -78,7 +87,7 @@ export function AdminActivityFeed({ items }: Props) {
               </Caption>
             </View>
             <Caption style={{ flexShrink: 0 }}>{formatTime(item.createdAt)}</Caption>
-          </View>
+          </Pressable>
         );
       })}
     </View>

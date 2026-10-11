@@ -19,6 +19,7 @@ import type {
   ApproveFarmRenewalInput,
   AssignSupervisorInput,
   AuditListFilter,
+  AuditLogDetail,
   AuditLogEntry,
   Organization,
   OrganizationType,
@@ -122,6 +123,11 @@ export const adminApi = {
 
   changeUserStatus(userId: string, action: UserStatusAction, reason?: string): Promise<AdminUser> {
     return apiClient.post<AdminUser>(`/admin/users/${userId}/${action}`, reason ? { reason } : {});
+  },
+
+  /** Permanent deletion (ADMIN only). */
+  deleteUser(userId: string): Promise<{ id: string; deleted: true }> {
+    return apiClient.delete<{ id: string; deleted: true }>(`/admin/users/${userId}`);
   },
 
   addUserRole(userId: string, roleKey: RoleKey): Promise<UserRolesResult> {
@@ -321,6 +327,10 @@ export const adminApi = {
       entityId: f.entityId,
       actorUserId: f.actorUserId,
     });
+  },
+
+  getAuditLog(id: string): Promise<AuditLogDetail> {
+    return apiClient.get<AuditLogDetail>(`/admin/audit-logs/${id}`);
   },
 
   // --- admin broadcast (platform-wide "إرسال رسالة") -----

@@ -5,7 +5,13 @@ import { FlatList, Linking, RefreshControl, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Chip } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SafeAreaScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
@@ -14,6 +20,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { GovernorateFilterRow, MarketOfferCard } from '../components';
 import { EGG_TYPE_ORDER } from '../constants';
@@ -43,8 +50,7 @@ export default function EggMarketScreen() {
   const canManage = (offer: EggOffer): boolean =>
     offer.traderUserId === user?.id || isAdmin || isSupervisorOf('MARKET');
 
-  const unitLabel = (offer: EggOffer): string =>
-    t(`eggMarket.sellUnit.${offer.sellUnit}`);
+  const unitLabel = (offer: EggOffer): string => t(`eggMarket.sellUnit.${offer.sellUnit}`);
 
   const header = (
     <View style={{ rowGap: theme.spacing.md, paddingBottom: theme.spacing.md }}>
@@ -130,7 +136,10 @@ export default function EggMarketScreen() {
               fallbackIcon="egg-outline"
               imageUrl={item.imageUrls[0] ?? null}
               lines={[
-                { label: t('eggMarket.quantityLabel'), value: `${item.quantity} ${unitLabel(item)}` },
+                {
+                  label: t('eggMarket.quantityLabel'),
+                  value: `${item.quantity} ${unitLabel(item)}`,
+                },
                 {
                   label: t('eggMarket.unitPriceLabel'),
                   value: `${item.pricePerUnit} ${t('eggMarket.currency')}`,
@@ -141,9 +150,11 @@ export default function EggMarketScreen() {
               createdAt={item.createdAt}
               canDelete={canManage(item)}
               onPressDetails={() => router.push(Routes.eggMarketOffer(item.id))}
-              onPressCall={() => void Linking.openURL(`tel:${item.phone}`)}
+              onPressCall={() => void openPhone(item.phone)}
               onPressWhatsapp={() =>
-                void Linking.openURL(`https://wa.me/${(item.whatsapp ?? item.phone).replace(/\D/g, '')}`)
+                void Linking.openURL(
+                  `https://wa.me/${(item.whatsapp ?? item.phone).replace(/\D/g, '')}`,
+                )
               }
               onPressDelete={() => setPendingDelete(item.id)}
             />

@@ -12,6 +12,7 @@ import { useStartConversation } from '@/features/chat';
 import { ImageCarousel, usePublicOrganization } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { veterinaryOfficeProductTypeIcon } from '../../constants';
 import type { VeterinaryOfficeProduct } from '../../types';
@@ -84,7 +85,7 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
   const officeWhatsapp = office.data?.whatsapp ?? null;
 
   const onCall = () => {
-    if (officePhone) void Linking.openURL(`tel:${officePhone}`);
+    if (officePhone) void openPhone(officePhone);
   };
   const onWhatsapp = () => {
     if (officeWhatsapp) void Linking.openURL(`https://wa.me/${officeWhatsapp.replace(/\D/g, '')}`);

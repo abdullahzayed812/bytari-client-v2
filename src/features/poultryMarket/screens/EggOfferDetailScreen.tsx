@@ -6,7 +6,13 @@ import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Divider } from '@/components/content';
-import { ConfirmationDialog, EmptyState, ErrorState, SkeletonText, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  SkeletonText,
+  useToast,
+} from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
@@ -16,6 +22,7 @@ import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { useDeleteEggOffer, useEggOffer } from '../hooks';
 import type { EggOffer } from '../types';
@@ -45,7 +52,8 @@ export default function EggOfferDetailScreen() {
   const del = useDeleteEggOffer();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const notFound = q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
+  const notFound =
+    q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);
   if (notFound) {
     return (
       <ScrollScreen>
@@ -64,7 +72,8 @@ export default function EggOfferDetailScreen() {
   }
 
   const offer: EggOffer | undefined = q.data;
-  const canManage = Boolean(offer) && (offer!.traderUserId === user?.id || isAdmin || isSupervisorOf('MARKET'));
+  const canManage =
+    Boolean(offer) && (offer!.traderUserId === user?.id || isAdmin || isSupervisorOf('MARKET'));
 
   return (
     <ScrollScreen>
@@ -143,7 +152,7 @@ export default function EggOfferDetailScreen() {
                   variant="primary"
                   fullWidth
                   leftIcon="call-outline"
-                  onPress={() => void Linking.openURL(`tel:${offer.phone}`)}
+                  onPress={() => void openPhone(offer.phone)}
                 />
               </View>
               <View style={{ flex: 1 }}>
@@ -153,7 +162,9 @@ export default function EggOfferDetailScreen() {
                   fullWidth
                   leftIcon="logo-whatsapp"
                   onPress={() =>
-                    void Linking.openURL(`https://wa.me/${(offer.whatsapp ?? offer.phone).replace(/\D/g, '')}`)
+                    void Linking.openURL(
+                      `https://wa.me/${(offer.whatsapp ?? offer.phone).replace(/\D/g, '')}`,
+                    )
                   }
                 />
               </View>
@@ -188,7 +199,8 @@ export default function EggOfferDetailScreen() {
                     toast.show({ tone: 'success', message: t('eggMarket.deleteSuccess') });
                     router.replace(Routes.eggMarket);
                   },
-                  onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
+                  onError: (error) =>
+                    toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
                 },
               );
             }}

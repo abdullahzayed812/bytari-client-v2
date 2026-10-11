@@ -6,6 +6,13 @@
  * server-resolved — the client never builds it.
  */
 
+/**
+ * Pixel size of an ad slide image. The slot renders at exactly this ratio
+ * (`Advertisement`), and the admin editor crops + exports to exactly this size,
+ * so what the admin frames is what users see — no second, hidden `cover` crop.
+ */
+export const AD_IMAGE_SIZE = { width: 1200, height: 560 } as const;
+
 export const AD_PLACEMENTS = [
   'HOME',
   'PETS',

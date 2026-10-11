@@ -13,7 +13,7 @@ import { useLogoutMutation } from '@/features/auth';
 import { useAppMode, useAuth, useCapabilities, useInterfaceSwitch } from '@/hooks';
 import { pickImage } from '@/services/media';
 import { useTheme } from '@/theme';
-import { fullName } from '@/utils';
+import { fullName, openPhone } from '@/utils';
 
 import { useUploadMyAvatar } from '../hooks/useMyProfile';
 
@@ -280,9 +280,7 @@ export default function AccountScreen() {
               label={t('contact.phone')}
               value={user?.phone ?? null}
               icon="call-outline"
-              onPress={
-                user?.phone ? () => void Linking.openURL(`tel:${user.phone ?? ''}`) : undefined
-              }
+              onPress={user?.phone ? () => void openPhone(user.phone ?? '') : undefined}
             />
             <ContactCell
               label={t('contact.email')}

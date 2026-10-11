@@ -3,6 +3,7 @@ export {
   useAdminUser,
   useUserStatusMutation,
   useUserRoleMutation,
+  useDeleteUserMutation,
   useUpdateUserMutation,
   useUserPasswordMutations,
   useMessageUserMutation,
@@ -23,7 +24,7 @@ export {
   useSetSupervisorDomainsMutation,
   useSupervisorDomainCatalogue,
 } from './useAdminSupervisors';
-export { useAdminAuditLog } from './useAdminAuditLog';
+export { useAdminAuditEntry, useAdminAuditLog } from './useAdminAuditLog';
 export {
   useAdminFarms,
   useAdminFarmRenewals,

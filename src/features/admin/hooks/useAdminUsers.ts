@@ -89,6 +89,22 @@ export function useUserStatusMutation(
   });
 }
 
+/** `DELETE /admin/users/:id` — permanent. Refreshes the user list + dashboard counters. */
+export function useDeleteUserMutation(
+  userId: string,
+): UseMutationResult<{ id: string; deleted: true }, unknown, void> {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ['admin', 'users', userId, 'delete'],
+    mutationFn: () => adminApi.deleteUser(userId),
+    onSuccess: () => {
+      qc.removeQueries({ queryKey: adminKeys.users.detail(userId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.users.all });
+      void qc.invalidateQueries({ queryKey: adminKeys.dashboard.all });
+    },
+  });
+}
+
 export function useUserRoleMutation(
   userId: string,
 ): UseMutationResult<unknown, unknown, { roleKey: RoleKey; op: 'add' | 'remove' }> {

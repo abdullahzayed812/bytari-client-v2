@@ -493,6 +493,7 @@ export const Routes = {
   adminFarm: (organizationId: string) => `/(app)/admin/farms/${organizationId}` as const,
   adminSupervisors: '/(app)/admin/supervisors',
   adminAuditLogs: '/(app)/admin/audit-logs',
+  adminAuditLog: (id: string) => `/(app)/admin/audit-logs/${id}` as const,
   /** Lost / Adoption / Mating moderation queue (approve / reject requests). */
   adminAnimalPublications: '/(app)/admin/animal-publications',
   /** Oversight of user pets — list all, soft-delete. */

@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, useWindowDimensions, View } from 'react-native';
 
 import { IconButton } from '@/components/actions';
 import { Chip } from '@/components/content';
@@ -15,7 +15,7 @@ import { useAuth, useCapabilities, useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { ServiceFiltersBar, ServiceRequestCard } from '../components';
-import { IRAQ_GOVERNORATES } from '../constants';
+import { IRAQ_GOVERNORATES, REQUEST_GRID_MAX_WIDTH, requestGridColumns } from '../constants';
 import { useMyServiceRequests, useServiceRequests } from '../hooks';
 import {
   VET_SERVICE_ANIMAL_TYPES,
@@ -25,12 +25,18 @@ import {
   type RequestBrowseFilter,
 } from '../types';
 
-/** Route `/(app)/vet-services/requests` — "طلبات أصحاب الحيوانات" (screenshot 3A). */
+/**
+ * Route `/(app)/vet-services/requests` — "طلبات أصحاب الحيوانات" (screenshot 3A).
+ * A grid: two request cards per row where the window allows (one column only
+ * on very narrow phones), capped in width on large web screens.
+ */
 export default function ServiceRequestsBrowseScreen() {
   const theme = useTheme();
   const { t } = useTranslation('vetServices');
   const { user } = useAuth();
   const caps = useCapabilities();
+  const { width } = useWindowDimensions();
+  const columns = requestGridColumns(width);
 
   const [scope, setScope] = useState<MineScope>('all');
   const [rawSearch, setRawSearch] = useState('');
@@ -102,7 +108,11 @@ export default function ServiceRequestsBrowseScreen() {
         }}
       >
         <Chip label={t('scope.all')} selected={scope === 'all'} onPress={() => setScope('all')} />
-        <Chip label={t('scope.mine')} selected={scope === 'mine'} onPress={() => setScope('mine')} />
+        <Chip
+          label={t('scope.mine')}
+          selected={scope === 'mine'}
+          onPress={() => setScope('mine')}
+        />
       </View>
 
       {scope === 'all' ? (
@@ -134,6 +144,10 @@ export default function ServiceRequestsBrowseScreen() {
         <FlatList
           data={q.requests}
           keyExtractor={(r) => r.id}
+          numColumns={columns}
+          // FlatList cannot change `numColumns` on the fly — remount on a breakpoint flip.
+          key={`requests-${columns}`}
+          columnWrapperStyle={columns > 1 ? { columnGap: theme.spacing.md } : undefined}
           renderItem={({ item }) => {
             const canOffer =
               scope === 'all' &&
@@ -141,13 +155,18 @@ export default function ServiceRequestsBrowseScreen() {
               item.petOwnerUserId !== user?.id &&
               item.status === 'APPROVED';
             return (
-              <ServiceRequestCard
-                request={item}
-                showStatus={scope === 'mine'}
-                onPress={() => router.push(Routes.vetServiceRequest(item.id))}
-                onPrimary={canOffer ? () => router.push(Routes.vetServiceOfferNew(item.id)) : undefined}
-                primaryLabel={t('actions.submitOffer')}
-              />
+              <View style={{ flex: 1 / columns }}>
+                <ServiceRequestCard
+                  request={item}
+                  rectangular={columns > 1}
+                  showStatus={scope === 'mine'}
+                  onPress={() => router.push(Routes.vetServiceRequest(item.id))}
+                  onPrimary={
+                    canOffer ? () => router.push(Routes.vetServiceOfferNew(item.id)) : undefined
+                  }
+                  primaryLabel={t('actions.submitOffer')}
+                />
+              </View>
             );
           }}
           ListEmptyComponent={
@@ -157,12 +176,17 @@ export default function ServiceRequestsBrowseScreen() {
               message={scope === 'mine' ? t('requests.mineEmptyHint') : t('requests.emptyHint')}
             />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null
+          }
           contentContainerStyle={{
             padding: theme.screenPadding,
             paddingBottom: theme.spacing.huge,
             rowGap: theme.spacing.md,
             flexGrow: 1,
+            width: '100%',
+            maxWidth: REQUEST_GRID_MAX_WIDTH,
+            alignSelf: 'center',
           }}
           onEndReachedThreshold={0.4}
           onEndReached={() => {

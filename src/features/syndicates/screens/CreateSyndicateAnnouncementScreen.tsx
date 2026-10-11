@@ -16,6 +16,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { isHttpUrl, normalizeLink } from '@/utils';
 
 import { useCreateSyndicateAnnouncement, useSyndicateMediaProvider } from '../hooks';
 import { SYNDICATE_ANNOUNCEMENT_TYPES, type SyndicateAnnouncementType } from '../types';
@@ -24,6 +25,7 @@ interface FormValues {
   type: SyndicateAnnouncementType;
   title: string;
   body: string;
+  linkUrl: string;
 }
 
 /** Route `/(app)/syndicates/[organizationId]/announcements/new` — "إضافة إعلان" (supervisor/admin only). */
@@ -42,6 +44,11 @@ export default function CreateSyndicateAnnouncementScreen() {
         type: z.enum(SYNDICATE_ANNOUNCEMENT_TYPES),
         title: z.string().trim().min(3, t('announcements.form.errors.title')),
         body: z.string().trim().min(3, t('announcements.form.errors.body')),
+        linkUrl: z
+          .string()
+          .trim()
+          .max(1000)
+          .refine((v) => v.length === 0 || isHttpUrl(v), t('announcements.form.errors.link')),
       }),
     [t],
   );
@@ -52,13 +59,14 @@ export default function CreateSyndicateAnnouncementScreen() {
       type: 'ANNOUNCEMENT',
       title: 'اجتماع الهيئة العامة العادي',
       body: 'ندعو الأعضاء الكرام لحضور الاجتماع العام في الموعد المحدد لمناقشة جدول الأعمال.',
+      linkUrl: '',
     },
     mode: 'onTouched',
   });
 
   const onSubmit = (values: FormValues): void => {
     create.mutate(
-      { ...values, imageStorageKey },
+      { ...values, linkUrl: normalizeLink(values.linkUrl), imageStorageKey },
       {
         onSuccess: () => {
           toast.show({ message: t('announcements.form.created'), tone: 'success' });
@@ -103,6 +111,16 @@ export default function CreateSyndicateAnnouncementScreen() {
           placeholder={t('announcements.form.bodyPlaceholder')}
           multiline
           numberOfLines={5}
+        />
+        <FormField
+          control={control}
+          name="linkUrl"
+          label={t('announcements.form.link')}
+          placeholder="https://"
+          keyboardType="url"
+          autoCapitalize="none"
+          autoCorrect={false}
+          hint={t('announcements.form.linkHint')}
         />
 
         <View style={{ rowGap: theme.spacing.xs }}>

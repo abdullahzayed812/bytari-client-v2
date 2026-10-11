@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Linking, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { Card, Icon, type IconName } from '@/components/content';
 import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
@@ -13,7 +13,7 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import type { ColorTokens } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, openPhone } from '@/utils';
 
 import { PublicationOwnerPanel } from '../components';
 import { KIND_INTERACTION, PUBLICATION_KIND_META, publicationKindFromSlug } from '../constants';
@@ -295,7 +295,7 @@ export default function PublicationDetailScreen() {
   const rows = buildInfoRows(pub, kind, t);
   const interactionType = KIND_INTERACTION[kind];
 
-  const onContactOwner = () => void Linking.openURL(`tel:${pub.contactPhone}`);
+  const onContactOwner = () => void openPhone(pub.contactPhone);
   const onInteract = () => {
     if (!interactionType) return;
     interact.mutate(

@@ -11,6 +11,7 @@ import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 import { AppointmentStatusBadge } from '../components';
 import { formatAppointmentDateTime, HISTORY_KIND_ICON, VISIT_TYPE_ICON } from '../constants';
@@ -169,7 +170,7 @@ export default function PetOwnerAppointmentDetailsScreen() {
                   <ContactRow
                     icon="call-outline"
                     value={a.organization.phone}
-                    onPress={() => void Linking.openURL(`tel:${a.organization.phone}`)}
+                    onPress={() => void openPhone(a.organization.phone)}
                   />
                 ) : null}
                 {a.organization.address ? (

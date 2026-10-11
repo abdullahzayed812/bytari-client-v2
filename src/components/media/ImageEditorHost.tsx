@@ -21,11 +21,11 @@ import { Text } from '@/components/typography';
 import { createLogger } from '@/lib/logger';
 import {
   computeResize,
-  cropActionOf,
-  CROP_ASPECTS,
+  editorAspects,
   initialCropRect,
   lockedRatio,
   moveCropRect,
+  planEditActions,
   registerImageEditor,
   resizeCropRect,
   type CropAspect,
@@ -39,11 +39,12 @@ import {
 import { useTheme } from '@/theme';
 
 const log = createLogger('image-editor');
-const PREVIEW_MAX = 1200;
 /** Smallest crop box, in on-screen points. */
 const MIN_BOX = 48;
 const HANDLE = 28;
 const CORNERS: CropCorner[] = ['tl', 'tr', 'bl', 'br'];
+/** JPEG quality of the orientation-normalised working copy (re-encoded once more on save). */
+const WORKING_QUALITY = 0.95;
 
 /**
  * Web: stop the browser from scrolling / text-selecting / image-dragging while
@@ -64,28 +65,22 @@ interface Size {
   height: number;
 }
 
+/**
+ * The image every crop coordinate refers to: the picked file re-encoded once
+ * by the manipulator, which bakes in its EXIF orientation. Its `width/height`
+ * are therefore the real, upright pixel size — the picker's reported size is
+ * NOT trusted (on Android it can be the un-rotated sensor size, which put the
+ * crop box on the wrong pixels). `downscaled` = smaller than the original.
+ */
+interface Working extends Size {
+  uri: string;
+  downscaled: boolean;
+}
+
 function getSize(uri: string): Promise<Size> {
   return new Promise((resolve, reject) =>
     RNImage.getSize(uri, (width, height) => resolve({ width, height }), reject),
   );
-}
-
-function isWholeImage(rect: CropRect, base: Size): boolean {
-  const c = cropActionOf(rect, base);
-  return c.originX === 0 && c.originY === 0 && c.width === base.width && c.height === base.height;
-}
-
-function buildActions(base: Size, rect: CropRect | null, maxDimension: ResizeOption): Action[] {
-  const actions: Action[] = [];
-  let out = base;
-  if (rect && !isWholeImage(rect, base)) {
-    const crop = cropActionOf(rect, base);
-    actions.push({ crop });
-    out = { width: crop.width, height: crop.height };
-  }
-  const resize = computeResize(out.width, out.height, maxDimension);
-  if (resize) actions.push({ resize });
-  return actions;
 }
 
 /**
@@ -106,15 +101,17 @@ export function ImageEditorHost() {
   const queue = useRef<Job[]>([]);
   const active = useRef(false);
   const [job, setJob] = useState<Job | null>(null);
-  const [size, setSize] = useState<Size | null>(null);
+  const [working, setWorking] = useState<Working | null>(null);
   const [aspect, setAspect] = useState<CropAspect>('free');
   const [maxDimension, setMaxDimension] = useState<ResizeOption>(null);
-  const [preview, setPreview] = useState<string | null>(null);
   const [rect, setRect] = useState<CropRect | null>(null);
   const [stage, setStage] = useState<Size | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const base = size;
+  const base: Size | null = useMemo(
+    () => (working ? { width: working.width, height: working.height } : null),
+    [working],
+  );
   const ratio = base ? lockedRatio(aspect, base.width, base.height) : null;
   // source px → on-screen points, fitting the rotated image inside the stage
   const scale = base && stage ? Math.min(stage.width / base.width, stage.height / base.height) : 0;
@@ -128,16 +125,12 @@ export function ImageEditorHost() {
     active.current = upcoming !== null;
     setJob(upcoming);
     if (!upcoming) return;
-    const aspects = upcoming.options.aspects ?? CROP_ASPECTS;
-    setAspect(upcoming.options.defaultAspect ?? aspects[0] ?? 'free');
+    const aspects = editorAspects(upcoming.options);
+    const preferred = upcoming.options.defaultAspect;
+    setAspect(preferred && aspects.includes(preferred) ? preferred : (aspects[0] ?? 'free'));
     setMaxDimension(upcoming.options.defaultMaxDimension ?? 2048);
-    setPreview(null);
+    setWorking(null);
     setRect(null);
-    setSize(
-      upcoming.file.width && upcoming.file.height
-        ? { width: upcoming.file.width, height: upcoming.file.height }
-        : null,
-    );
   }, []);
 
   useEffect(
@@ -152,37 +145,48 @@ export function ImageEditorHost() {
     [next],
   );
 
-  // Resolve the source dimensions when the picker didn't report them.
+  // Build the working copy: orientation baked in, capped at the output's
+  // longest edge (anything larger would be thrown away on save anyway).
   useEffect(() => {
-    if (!job || size) return;
-    getSize(job.file.uri)
-      .then(setSize)
-      .catch((error: unknown) => {
-        log.warn('could not read image size — passing the original through', { error });
-        job.resolve(job.file);
-        next();
-      });
-  }, [job, size, next]);
-
-  // Down-scaled (uncropped) image the crop frame is drawn over.
-  useEffect(() => {
-    if (!job || !size) return;
+    if (!job) return;
     let cancelled = false;
-    const actions: Action[] = [];
-    const resize = computeResize(size.width, size.height, PREVIEW_MAX);
-    if (resize) actions.push({ resize });
-    manipulateAsync(job.file.uri, actions, { compress: 0.7, format: SaveFormat.JPEG })
+    const { file, options } = job;
+    const cap = options.outputSize
+      ? null
+      : options.defaultMaxDimension === undefined
+        ? 2048
+        : options.defaultMaxDimension;
+    const resize = file.width && file.height ? computeResize(file.width, file.height, cap) : null;
+    const actions: Action[] = resize ? [{ resize }] : [];
+    manipulateAsync(file.uri, actions, { compress: WORKING_QUALITY, format: SaveFormat.JPEG })
       .then((out) => {
-        if (!cancelled) setPreview(out.uri);
+        if (cancelled) return;
+        setWorking({
+          uri: out.uri,
+          width: out.width,
+          height: out.height,
+          downscaled: resize !== null,
+        });
       })
-      .catch((error: unknown) => {
-        log.warn('preview failed — showing the original', { error });
-        if (!cancelled) setPreview(job.file.uri);
+      .catch(async (error: unknown) => {
+        log.warn('could not normalise the image — editing the original', { error });
+        try {
+          const s = await getSize(file.uri);
+          if (!cancelled) setWorking({ uri: file.uri, ...s, downscaled: false });
+        } catch (sizeError) {
+          log.warn('could not read image size — passing the original through', {
+            error: sizeError,
+          });
+          if (!cancelled) {
+            job.resolve(file);
+            next();
+          }
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [job, size]);
+  }, [job, next]);
 
   // A new image or aspect starts from that aspect's largest centred frame.
   useEffect(() => {
@@ -233,18 +237,25 @@ export function ImageEditorHost() {
   };
 
   const apply = async () => {
-    if (!job || !base) return;
+    if (!job || !working || !base) return;
     setBusy(true);
     try {
-      const actions = buildActions(base, rect, maxDimension);
-      if (actions.length === 0) {
+      const { actions } = planEditActions(base, rect, {
+        maxDimension,
+        outputSize: job.options.outputSize,
+      });
+      // Untouched and not downscaled → keep the original bytes (best quality).
+      if (actions.length === 0 && !working.downscaled) {
         finish(job.file);
         return;
       }
-      const r = await manipulateAsync(job.file.uri, actions, {
-        compress: 0.85,
-        format: SaveFormat.JPEG,
-      });
+      const r =
+        actions.length === 0
+          ? { uri: working.uri, width: working.width, height: working.height }
+          : await manipulateAsync(working.uri, actions as Action[], {
+              compress: 0.85,
+              format: SaveFormat.JPEG,
+            });
       const name = job.file.name.replace(/\.[^.]+$/, '') || `image-${Date.now()}`;
       // The re-encoded file's byte size — every presign endpoint requires it.
       const outputBytes = await fetch(r.uri)
@@ -275,7 +286,7 @@ export function ImageEditorHost() {
   };
 
   if (!job) return null;
-  const aspects = job.options.aspects ?? CROP_ASPECTS;
+  const aspects = editorAspects(job.options);
   const dispW = base ? base.width * scale : 0;
   const dispH = base ? base.height * scale : 0;
   const box = rect
@@ -335,11 +346,11 @@ export function ImageEditorHost() {
             overflow: 'hidden',
           }}
         >
-          {preview && base && scale > 0 && box ? (
+          {working && base && scale > 0 && box ? (
             // Geometry is in physical pixels: pin LTR so RTL never mirrors `left`.
             <View style={{ width: dispW, height: dispH, direction: 'ltr' }}>
               <Image
-                source={{ uri: preview }}
+                source={{ uri: working.uri }}
                 style={{ width: dispW, height: dispH }}
                 contentFit="fill"
                 pointerEvents="none"

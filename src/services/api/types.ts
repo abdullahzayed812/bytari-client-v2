@@ -60,6 +60,8 @@ export const ApiErrorCode = {
   PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
   /** 400 — ad campaign activation refused (deleted, or no slide has an image). `details[0].rule` says which. */
   AD_CAMPAIGN_NOT_ACTIVATABLE: 'AD_CAMPAIGN_NOT_ACTIVATABLE',
+  /** 409 — `DELETE /admin/users/:id` refused; `details[0].rule` = PROTECTED_ACCOUNT | ADMIN_ACCOUNT | OWNS_ORGANIZATIONS. */
+  USER_DELETE_BLOCKED: 'USER_DELETE_BLOCKED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   // client-synthesised

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Linking, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Divider, Icon } from '@/components/content';
@@ -7,6 +7,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
+import { openPhone } from '@/utils';
 
 /** Contact number shown on the reference "الدعم القانوني" screen. */
 const LEGAL_UNIT_PHONE = '+9642001234503';
@@ -75,7 +76,7 @@ export default function SyndicateLegalSupportScreen() {
           <Button
             label={t('legalSupport.callUs')}
             leftIcon="call-outline"
-            onPress={() => void Linking.openURL(`tel:${LEGAL_UNIT_PHONE}`)}
+            onPress={() => void openPhone(LEGAL_UNIT_PHONE)}
           />
         </Card>
       </ScrollView>
