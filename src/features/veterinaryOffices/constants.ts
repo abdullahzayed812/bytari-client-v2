@@ -1,7 +1,11 @@
 import type { BadgeTone, IconName } from '@/components/content';
 import type { OrganizationType } from '@/features/organizations/types';
 
-import type { VeterinaryOfficeProductSort, VeterinaryOfficeProductStatus, VeterinaryOfficeProductType } from './types';
+import type {
+  VeterinaryOfficeProductSort,
+  VeterinaryOfficeProductStatus,
+  VeterinaryOfficeProductType,
+} from './types';
 
 /**
  * Only a VETERINARY_OFFICE organization owns Veterinary Office products.
@@ -36,7 +40,10 @@ export const VETERINARY_OFFICE_PRODUCT_TYPE_ORDER: readonly VeterinaryOfficeProd
 ];
 
 /** Product lifecycle → badge tone. `INACTIVE` is the soft-delete state. */
-export const VETERINARY_OFFICE_PRODUCT_STATUS_TONE: Record<VeterinaryOfficeProductStatus, BadgeTone> = {
+export const VETERINARY_OFFICE_PRODUCT_STATUS_TONE: Record<
+  VeterinaryOfficeProductStatus,
+  BadgeTone
+> = {
   ACTIVE: 'success',
   INACTIVE: 'neutral',
 };

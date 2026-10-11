@@ -38,7 +38,8 @@ export default function VeterinaryOfficeProductsScreen() {
 
   const q = useVeterinaryOfficeProducts(orgId, { search, productType: type });
 
-  const goToDetail = (p: VeterinaryOfficeProduct) => router.push(Routes.organizationOfficeProduct(orgId, p.id));
+  const goToDetail = (p: VeterinaryOfficeProduct) =>
+    router.push(Routes.organizationOfficeProduct(orgId, p.id));
   const goToCreate = () => router.push(Routes.organizationOfficeProductCreate(orgId));
 
   const header = (

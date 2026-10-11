@@ -27,24 +27,83 @@ export interface PetClinic {
   remindersCount: number;
 }
 
+/** `GET /animals/:petId/clinics` — current owner (or ADMIN) only, enforced by the backend. */
+export function usePetClinics(petId: string | undefined, enabled = true) {
+  return useQuery<PetClinic[], ApiError>({
+    queryKey: ['pets', petId, 'clinics'],
+    queryFn: () => apiClient.get<PetClinic[]>(`/animals/${petId}/clinics`),
+    enabled: Boolean(petId) && enabled,
+  });
+}
+
+/** One clinic that added vaccinations / reminders for the pet — profile + chat. */
+export function PetClinicCard({ clinic }: { clinic: PetClinic }) {
+  const theme = useTheme();
+  const { t } = useTranslation('pets');
+  const toast = useToast();
+  const start = useStartConversation();
+  return (
+    <Card
+      variant="outlined"
+      padding="md"
+      onPress={() => router.push(Routes.organizationDiscoverDetail(clinic.organizationId))}
+      accessibilityLabel={clinic.name}
+    >
+      <Row gap="md">
+        {clinic.logoUrl ? (
+          <Image
+            source={{ uri: clinic.logoUrl }}
+            style={{ width: 40, height: 40, borderRadius: theme.radius.pill }}
+          />
+        ) : (
+          <Icon name="medkit-outline" size="iconLg" color="primary" />
+        )}
+        <View style={{ flex: 1, rowGap: 2 }}>
+          <Text variant="bodyStrong" numberOfLines={1}>
+            {clinic.name}
+          </Text>
+          <Caption>
+            {t('clinics.counts', {
+              vaccinations: clinic.vaccinationsCount,
+              reminders: clinic.remindersCount,
+            })}
+          </Caption>
+        </View>
+      </Row>
+      <View style={{ marginTop: theme.spacing.sm }}>
+        <Button
+          label={t('clinics.chat')}
+          size="sm"
+          variant="outline"
+          leftIcon="chatbubble-ellipses-outline"
+          disabled={start.isPending}
+          onPress={() =>
+            start.mutate(
+              { organizationId: clinic.organizationId },
+              {
+                onSuccess: (c) => router.push(Routes.chatThread(c.id)),
+                onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+              },
+            )
+          }
+        />
+      </View>
+    </Card>
+  );
+}
+
 /**
  * Route `/pets/[petId]/clinics` — legacy owner tab "العيادات التي زارها الحيوان":
  * the clinics that added vaccinations / reminders for the pet (the only
  * owner-visible clinic additions), with those counts, its profile, and a chat
- * with the clinic.
+ * with the clinic. Pet Details shows the same list inline in its "العيادات" tab.
  * Current owner (or ADMIN) only — enforced by the backend.
  */
 export default function PetClinicsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('pets');
-  const toast = useToast();
   const { petId } = useLocalSearchParams<{ petId: string }>();
-  const q = useQuery<PetClinic[], ApiError>({
-    queryKey: ['pets', petId, 'clinics'],
-    queryFn: () => apiClient.get<PetClinic[]>(`/animals/${petId}/clinics`),
-    enabled: Boolean(petId),
-  });
-  const start = useStartConversation();
+  const q = usePetClinics(petId);
 
   return (
     <SafeAreaScreen>
@@ -73,54 +132,7 @@ export default function PetClinicsScreen() {
             />
           }
           ListEmptyComponent={<EmptyState icon="medkit-outline" title={t('clinics.empty')} />}
-          renderItem={({ item }) => (
-            <Card
-              variant="outlined"
-              padding="md"
-              onPress={() => router.push(Routes.organizationDiscoverDetail(item.organizationId))}
-              accessibilityLabel={item.name}
-            >
-              <Row gap="md">
-                {item.logoUrl ? (
-                  <Image
-                    source={{ uri: item.logoUrl }}
-                    style={{ width: 40, height: 40, borderRadius: theme.radius.pill }}
-                  />
-                ) : (
-                  <Icon name="medkit-outline" size="iconLg" color="primary" />
-                )}
-                <View style={{ flex: 1, rowGap: 2 }}>
-                  <Text variant="bodyStrong" numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Caption>
-                    {t('clinics.counts', {
-                      vaccinations: item.vaccinationsCount,
-                      reminders: item.remindersCount,
-                    })}
-                  </Caption>
-                </View>
-              </Row>
-              <View style={{ marginTop: theme.spacing.sm }}>
-                <Button
-                  label={t('clinics.chat')}
-                  size="sm"
-                  variant="outline"
-                  leftIcon="chatbubble-ellipses-outline"
-                  disabled={start.isPending}
-                  onPress={() =>
-                    start.mutate(
-                      { organizationId: item.organizationId },
-                      {
-                        onSuccess: (c) => router.push(Routes.chatThread(c.id)),
-                        onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
-                      },
-                    )
-                  }
-                />
-              </View>
-            </Card>
-          )}
+          renderItem={({ item }) => <PetClinicCard clinic={item} />}
         />
       )}
     </SafeAreaScreen>

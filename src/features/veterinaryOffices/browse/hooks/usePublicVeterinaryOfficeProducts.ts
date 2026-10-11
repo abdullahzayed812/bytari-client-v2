@@ -35,6 +35,15 @@ export function usePublicVeterinaryOfficeProductFacets(organizationId: string | 
   });
 }
 
+/** Brand / country-of-origin values across every public office — the offices list filter. */
+export function useOfficeProductFacetsAll() {
+  return useQuery({
+    queryKey: publicVeterinaryOfficeProductKeys.facetsAll(),
+    queryFn: () => publicVeterinaryOfficeProductsApi.facetsAll(),
+    staleTime: 60_000,
+  });
+}
+
 /**
  * A veterinary office's public product catalog — any authenticated user,
  * ACTIVE organization + ACTIVE products only. Paginated with the backend's

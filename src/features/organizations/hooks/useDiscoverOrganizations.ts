@@ -47,6 +47,8 @@ export function useDiscoverOrganizations(
     country: params.filters?.country,
     minRating: params.filters?.minRating,
     service: params.filters?.service,
+    productBrand: params.filters?.productBrand,
+    productCountry: params.filters?.productCountry,
   };
 
   const query = useInfiniteQuery<
@@ -69,6 +71,8 @@ export function useDiscoverOrganizations(
         country: filter.country,
         minRating: filter.minRating,
         service: filter.service,
+        productBrand: filter.productBrand,
+        productCountry: filter.productCountry,
       }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,

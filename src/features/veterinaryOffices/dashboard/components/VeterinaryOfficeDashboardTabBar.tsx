@@ -8,14 +8,11 @@ import { Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 
-export type VeterinaryOfficeDashboardTab = 'profile' | 'notifications' | 'home' | 'orders' | 'reports';
+export type VeterinaryOfficeDashboardTab =
+  'profile' | 'notifications' | 'home' | 'orders' | 'reports';
 
 type TabLabelKey =
-  | 'tabBar.profile'
-  | 'tabBar.notifications'
-  | 'tabBar.home'
-  | 'tabBar.orders'
-  | 'tabBar.reports';
+  'tabBar.profile' | 'tabBar.notifications' | 'tabBar.home' | 'tabBar.orders' | 'tabBar.reports';
 
 interface TabDef {
   key: VeterinaryOfficeDashboardTab;
@@ -25,11 +22,36 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { key: 'profile', icon: 'person-outline', labelKey: 'tabBar.profile', routeFor: (id) => Routes.organizationDetail(id) },
-  { key: 'notifications', icon: 'notifications-outline', labelKey: 'tabBar.notifications', routeFor: () => Routes.notifications },
-  { key: 'home', icon: 'home-outline', labelKey: 'tabBar.home', routeFor: (id) => Routes.vetOfficeDashboard(id) },
-  { key: 'orders', icon: 'receipt-outline', labelKey: 'tabBar.orders', routeFor: (id) => Routes.vetOfficeDashboardOrders(id) },
-  { key: 'reports', icon: 'bar-chart-outline', labelKey: 'tabBar.reports', routeFor: (id) => Routes.vetOfficeDashboardReports(id) },
+  {
+    key: 'profile',
+    icon: 'person-outline',
+    labelKey: 'tabBar.profile',
+    routeFor: (id) => Routes.organizationDetail(id),
+  },
+  {
+    key: 'notifications',
+    icon: 'notifications-outline',
+    labelKey: 'tabBar.notifications',
+    routeFor: () => Routes.notifications,
+  },
+  {
+    key: 'home',
+    icon: 'home-outline',
+    labelKey: 'tabBar.home',
+    routeFor: (id) => Routes.vetOfficeDashboard(id),
+  },
+  {
+    key: 'orders',
+    icon: 'receipt-outline',
+    labelKey: 'tabBar.orders',
+    routeFor: (id) => Routes.vetOfficeDashboardOrders(id),
+  },
+  {
+    key: 'reports',
+    icon: 'bar-chart-outline',
+    labelKey: 'tabBar.reports',
+    routeFor: (id) => Routes.vetOfficeDashboardReports(id),
+  },
 ];
 
 export interface VeterinaryOfficeDashboardTabBarProps {
@@ -80,11 +102,7 @@ export function VeterinaryOfficeDashboardTabBar({
               ]}
             >
               <Icon name={tab.icon} size="iconMd" color={focused ? 'primary' : 'textMuted'} />
-              <Text
-                variant="overline"
-                color={focused ? 'primary' : 'textMuted'}
-                numberOfLines={1}
-              >
+              <Text variant="overline" color={focused ? 'primary' : 'textMuted'} numberOfLines={1}>
                 {t(tab.labelKey)}
               </Text>
             </Pressable>

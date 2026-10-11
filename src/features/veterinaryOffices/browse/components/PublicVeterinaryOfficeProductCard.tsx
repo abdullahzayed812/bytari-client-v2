@@ -16,7 +16,11 @@ export interface PublicVeterinaryOfficeProductCardProps {
 }
 
 /** Grid card for a veterinary office/store's public product catalog. */
-export function PublicVeterinaryOfficeProductCard({ product, width, onPress }: PublicVeterinaryOfficeProductCardProps) {
+export function PublicVeterinaryOfficeProductCard({
+  product,
+  width,
+  onPress,
+}: PublicVeterinaryOfficeProductCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
 
@@ -61,9 +65,7 @@ export function PublicVeterinaryOfficeProductCard({ product, width, onPress }: P
         <Text variant="bodyMedium" numberOfLines={1}>
           {product.name}
         </Text>
-        {product.description ? (
-          <Caption numberOfLines={1}>{product.description}</Caption>
-        ) : null}
+        {product.description ? <Caption numberOfLines={1}>{product.description}</Caption> : null}
         <Text variant="bodyStrong" color="primary">
           {product.price != null
             ? t('product.price', { value: formatProductPrice(product.price) })

@@ -19,7 +19,10 @@ export interface VeterinaryOfficeProductCardProps {
 }
 
 /** Presentation-only product row for the management list. Renders only backend DTO fields. */
-export function VeterinaryOfficeProductCard({ product, onPress }: VeterinaryOfficeProductCardProps) {
+export function VeterinaryOfficeProductCard({
+  product,
+  onPress,
+}: VeterinaryOfficeProductCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
   const lowStock = product.stockQuantity <= VETERINARY_OFFICE_LOW_STOCK_THRESHOLD;
@@ -62,7 +65,11 @@ export function VeterinaryOfficeProductCard({ product, onPress }: VeterinaryOffi
             contentFit="cover"
           />
         ) : (
-          <Icon name={veterinaryOfficeProductTypeIcon(product.productType)} size="iconMd" color="primary" />
+          <Icon
+            name={veterinaryOfficeProductTypeIcon(product.productType)}
+            size="iconMd"
+            color="primary"
+          />
         )}
       </View>
 
@@ -73,7 +80,9 @@ export function VeterinaryOfficeProductCard({ product, onPress }: VeterinaryOffi
         <Caption numberOfLines={1}>
           {t(`productType.${product.productType}`, { defaultValue: product.productType })}
           {' · '}
-          {product.price != null ? t('manage.card.price', { value: product.price }) : t('manage.card.noPrice')}
+          {product.price != null
+            ? t('manage.card.price', { value: product.price })
+            : t('manage.card.noPrice')}
         </Caption>
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
           <Badge

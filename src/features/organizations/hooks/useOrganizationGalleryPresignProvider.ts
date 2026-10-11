@@ -21,7 +21,10 @@ export function useOrganizationGalleryPresignProvider(organizationId: string): P
           size: file.size ?? 0,
         }),
       finalizeUpload: async (storageKey, file) => {
-        await organizationsApi.addGalleryImage(organizationId, { storageKey, mimeType: file.mimeType });
+        await organizationsApi.addGalleryImage(organizationId, {
+          storageKey,
+          mimeType: file.mimeType,
+        });
         void qc.invalidateQueries({ queryKey: orgKeys.detail(organizationId) });
         void qc.invalidateQueries({ queryKey: orgKeys.lists() });
       },

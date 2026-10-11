@@ -3,6 +3,7 @@ import type { PublicOrganization } from '@/features/organizations';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
+import { publicVeterinaryOfficeProductsApi } from '../browse/api/publicVeterinaryOfficeProductsApi';
 import VeterinaryOfficesScreen from '../browse/screens/VeterinaryOfficesScreen';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
@@ -39,10 +40,14 @@ const page = (items: PublicOrganization[]) => ({
 
 describe('VeterinaryOfficesScreen', () => {
   const discover = jest.spyOn(organizationsApi, 'discover');
+  const facetsAll = jest.spyOn(publicVeterinaryOfficeProductsApi, 'facetsAll');
 
   beforeEach(() => {
     resetRouterMock();
     discover.mockReset().mockResolvedValue(page([]));
+    facetsAll
+      .mockReset()
+      .mockResolvedValue({ brands: ['Bayer', 'Zoetis'], countries: ['ألمانيا'] });
   });
   afterAll(() => jest.restoreAllMocks());
 
@@ -74,13 +79,32 @@ describe('VeterinaryOfficesScreen', () => {
   it('searching sends the term to the backend (server-side search)', async () => {
     discover.mockResolvedValue(page([]));
     renderWithProviders(<VeterinaryOfficesScreen />);
-    fireEvent.changeText(
-      screen.getByPlaceholderText('بحث عن مكتب بيطري...'),
-      'الرحمة',
-    );
+    fireEvent.changeText(screen.getByPlaceholderText('بحث عن مكتب بيطري...'), 'الرحمة');
     await waitFor(
       () => expect(discover).toHaveBeenCalledWith(expect.objectContaining({ search: 'الرحمة' })),
       { timeout: 5000, interval: 60 },
     );
+  });
+
+  it('filters offices by product brand / country of origin (server-side)', async () => {
+    renderWithProviders(<VeterinaryOfficesScreen />);
+    await waitFor(() => expect(facetsAll).toHaveBeenCalled());
+    fireEvent.press(screen.getByRole('button', { name: 'تصفية' }));
+    await waitFor(() => expect(screen.getByText('Bayer')).toBeOnTheScreen());
+    expect(screen.getByText('العلامة التجارية للمنتجات')).toBeOnTheScreen();
+    expect(screen.getByText('بلد منشأ المنتجات')).toBeOnTheScreen();
+    fireEvent.press(screen.getByText('Bayer'));
+    fireEvent.press(screen.getByText('ألمانيا'));
+    fireEvent.press(screen.getByText('تطبيق'));
+    await waitFor(() =>
+      expect(discover).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          type: 'VETERINARY_OFFICE',
+          productBrand: 'Bayer',
+          productCountry: 'ألمانيا',
+        }),
+      ),
+    );
+    expect(screen.getByRole('button', { name: 'تصفية (2)' })).toBeOnTheScreen();
   });
 });

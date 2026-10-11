@@ -91,9 +91,7 @@ describe('PublicVeterinaryOfficeProductDetailsScreen', () => {
       new ApiError({ code: 'NOT_FOUND', message: 'not found', status: 404 }),
     );
     renderWithProviders(<PublicVeterinaryOfficeProductDetailsScreen />);
-    await waitFor(() =>
-      expect(screen.getByText('هذا المنتج غير متاح حالياً.')).toBeOnTheScreen(),
-    );
+    await waitFor(() => expect(screen.getByText('هذا المنتج غير متاح حالياً.')).toBeOnTheScreen());
   });
 
   it('shows contact-the-office actions from the office’s own profile', async () => {

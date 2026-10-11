@@ -34,7 +34,10 @@ import {
   useRemoveVeterinaryOfficeProductImage,
   useUpdateVeterinaryOfficeProduct,
 } from '../hooks';
-import { veterinaryOfficeErrorMessage, type AdjustVeterinaryOfficeStockFormValues } from '../../validation/schemas';
+import {
+  veterinaryOfficeErrorMessage,
+  type AdjustVeterinaryOfficeStockFormValues,
+} from '../../validation/schemas';
 
 const MAX_PRODUCT_IMAGES = 6;
 
@@ -222,7 +225,14 @@ export default function VeterinaryOfficeProductDetailScreen() {
 
           <Section spacing="xl">
             <Label>{t('manage.detail.images')}</Label>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: theme.spacing.sm,
+                marginTop: theme.spacing.sm,
+              }}
+            >
               {product.images.map((img) => (
                 <ImagePreview
                   key={img.id}
@@ -271,7 +281,10 @@ export default function VeterinaryOfficeProductDetailScreen() {
             <Card variant="outlined" padding="md">
               <Field label={t('manage.common.recordedAt')} value={formatDate(product.createdAt)} />
               <Divider spacing="sm" />
-              <Field label={t('manage.detail.fieldUpdatedAt')} value={formatDate(product.updatedAt)} />
+              <Field
+                label={t('manage.detail.fieldUpdatedAt')}
+                value={formatDate(product.updatedAt)}
+              />
             </Card>
           </Section>
 

@@ -114,7 +114,9 @@ export function ClinicCard({ organization, width, onPress }: ClinicCardProps) {
               {organization.rating}
             </Text>
             <RatingStars value={organization.rating} size="sm" />
-            <Caption>{t('discover.reviewsCountShort', { count: organization.reviewsCount })}</Caption>
+            <Caption>
+              {t('discover.reviewsCountShort', { count: organization.reviewsCount })}
+            </Caption>
           </View>
         ) : null}
       </View>

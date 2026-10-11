@@ -85,10 +85,10 @@ describe('Phase 8 navigation (§30) + Pet Owner coexistence', () => {
     renderWithProviders(<PetDetailsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
-    fireEvent.press(screen.getByLabelText('نشر للتبني'));
+    fireEvent.press(screen.getByLabelText('عرض للتبني'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/publish/adoption');
 
-    fireEvent.press(screen.getByLabelText('الإبلاغ عن فقدانه'));
+    fireEvent.press(screen.getByLabelText('إبلاغ عن فقدان'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/publish/lost');
   });
 
@@ -98,7 +98,7 @@ describe('Phase 8 navigation (§30) + Pet Owner coexistence', () => {
     getPet.mockResolvedValue(petFor('owner1'));
     renderWithProviders(<PetDetailsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
-    expect(screen.queryByLabelText('نشر للتبني')).toBeNull();
+    expect(screen.queryByLabelText('عرض للتبني')).toBeNull();
     expect(listForAnimal).not.toHaveBeenCalled();
   });
 

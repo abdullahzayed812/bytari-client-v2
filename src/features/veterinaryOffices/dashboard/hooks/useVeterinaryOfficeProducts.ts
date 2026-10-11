@@ -90,7 +90,10 @@ export function useVeterinaryOfficeProduct(
   options: { enabled?: boolean } = {},
 ) {
   return useQuery<VeterinaryOfficeProduct, ApiError>({
-    queryKey: veterinaryOfficeProductKeys.detail(organizationId ?? 'unknown', productId ?? 'unknown'),
+    queryKey: veterinaryOfficeProductKeys.detail(
+      organizationId ?? 'unknown',
+      productId ?? 'unknown',
+    ),
     queryFn: () => veterinaryOfficeProductsApi.get(organizationId as string, productId as string),
     enabled: Boolean(organizationId) && Boolean(productId) && (options.enabled ?? true),
     retry: (count, error) =>

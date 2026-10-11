@@ -115,7 +115,11 @@ export function VeterinaryOfficeStatusCard({
   // NOT_STARTED (or subscription info not applicable/loaded yet) — the office is
   // approved but admin hasn't set a subscription period yet.
   return (
-    <StatusBody icon="information-circle-outline" tone="primary" title={t('status.notStartedTitle')}>
+    <StatusBody
+      icon="information-circle-outline"
+      tone="primary"
+      title={t('status.notStartedTitle')}
+    >
       <Caption>{t('status.notStartedBody')}</Caption>
     </StatusBody>
   );

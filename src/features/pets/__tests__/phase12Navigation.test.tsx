@@ -89,7 +89,7 @@ describe('Phase 12 navigation', () => {
     fireEvent.press(screen.getByLabelText('سجل الملكية'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/ownership');
 
-    fireEvent.press(screen.getByRole('button', { name: 'نقل الملكية' }));
+    fireEvent.press(screen.getByRole('button', { name: 'تحويل الملكية' }));
     expect(routerMock.push).toHaveBeenCalledWith({
       pathname: '/(app)/pets/transfer-requests',
       params: { petId: 'p1' },
@@ -102,6 +102,6 @@ describe('Phase 12 navigation', () => {
     (petsApi.get as jest.Mock).mockResolvedValue(petFor('someone-else'));
     renderWithProviders(<PetDetailsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
-    expect(screen.queryByRole('button', { name: 'نقل الملكية' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'تحويل الملكية' })).toBeNull();
   });
 });

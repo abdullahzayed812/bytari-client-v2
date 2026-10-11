@@ -26,6 +26,8 @@ export default {
       service: 'الخدمة',
       servicePlaceholder: 'مثال: تطعيم، جراحة',
       apply: 'تطبيق',
+      productBrand: 'العلامة التجارية للمنتجات',
+      productCountry: 'بلد منشأ المنتجات',
       reset: 'إعادة ضبط',
     },
     nearest: 'الأقرب',

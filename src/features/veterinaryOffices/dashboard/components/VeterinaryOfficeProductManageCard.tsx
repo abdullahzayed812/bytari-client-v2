@@ -120,7 +120,11 @@ export function VeterinaryOfficeProductManageCard({
 
         <View style={{ padding: theme.spacing.md, rowGap: 4 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
-            <Icon name={veterinaryOfficeProductTypeIcon(product.productType)} size="iconXs" color="textMuted" />
+            <Icon
+              name={veterinaryOfficeProductTypeIcon(product.productType)}
+              size="iconXs"
+              color="textMuted"
+            />
             <Caption numberOfLines={1} style={{ flex: 1 }}>
               {tOffice(`productType.${product.productType}`, { defaultValue: product.productType })}
             </Caption>
@@ -134,7 +138,9 @@ export function VeterinaryOfficeProductManageCard({
               : tOffice('product.noPrice')}
           </Text>
           <Caption style={{ color: stockColor }}>
-            {outOfStock ? t('card.outOfStock') : tOffice('manage.card.stock', { count: product.stockQuantity })}
+            {outOfStock
+              ? t('card.outOfStock')
+              : tOffice('manage.card.stock', { count: product.stockQuantity })}
           </Caption>
         </View>
       </Pressable>
@@ -151,14 +157,24 @@ export function VeterinaryOfficeProductManageCard({
             borderTopColor: theme.colors.divider,
           }}
         >
-          <TextButton label={t('card.delete')} icon="trash-outline" tone="danger" onPress={onDelete} />
+          <TextButton
+            label={t('card.delete')}
+            icon="trash-outline"
+            tone="danger"
+            onPress={onDelete}
+          />
           <TextButton
             label={t(product.isHidden ? 'card.show' : 'card.hide')}
             icon={product.isHidden ? 'eye-outline' : 'eye-off-outline'}
             tone="muted"
             onPress={onToggleHidden}
           />
-          <TextButton label={t('card.edit')} icon="create-outline" tone="primary" onPress={onEdit} />
+          <TextButton
+            label={t('card.edit')}
+            icon="create-outline"
+            tone="primary"
+            onPress={onEdit}
+          />
         </View>
       )}
     </View>

@@ -12,7 +12,10 @@ import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
 import { devAdjustStockDefaults } from '../../data/devDefaults';
-import { buildAdjustVeterinaryOfficeStockSchema, type AdjustVeterinaryOfficeStockFormValues } from '../../validation/schemas';
+import {
+  buildAdjustVeterinaryOfficeStockSchema,
+  type AdjustVeterinaryOfficeStockFormValues,
+} from '../../validation/schemas';
 
 export interface AdjustVeterinaryOfficeStockFormProps {
   currentStock: number;

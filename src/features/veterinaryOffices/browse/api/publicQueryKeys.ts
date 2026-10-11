@@ -20,6 +20,8 @@ export const publicVeterinaryOfficeProductKeys = {
   ) => [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'list', filter] as const,
   facets: (organizationId: string) =>
     [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'facets'] as const,
+  /** Brands / countries across every public office (`/office-products/facets`). */
+  facetsAll: () => [...publicVeterinaryOfficeProductKeys.all, 'facets-all'] as const,
   /** Cross-office product search (`/office-products/search`). */
   searchAll: (filter: { search?: string; productType?: string }) =>
     [...publicVeterinaryOfficeProductKeys.all, 'search-all', filter] as const,

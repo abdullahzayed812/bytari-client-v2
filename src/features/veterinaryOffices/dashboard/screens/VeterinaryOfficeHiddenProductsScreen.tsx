@@ -3,7 +3,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, useWindowDimensions, View } from 'react-native';
 
-import { Alert, ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  Alert,
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
@@ -77,7 +84,13 @@ export default function VeterinaryOfficeHiddenProductsScreen() {
     <VeterinaryOfficeDashboardShell organizationId={orgId} active="home">
       <AppHeader title={t('hiddenProducts.title')} showBack />
 
-      <View style={{ paddingHorizontal: theme.screenPadding, paddingBottom: theme.spacing.md, rowGap: theme.spacing.md }}>
+      <View
+        style={{
+          paddingHorizontal: theme.screenPadding,
+          paddingBottom: theme.spacing.md,
+          rowGap: theme.spacing.md,
+        }}
+      >
         {canOperate ? null : <Alert tone="warning" message={t('status.actionsDisabledNotice')} />}
         <SearchInput
           value={rawSearch}
@@ -122,7 +135,9 @@ export default function VeterinaryOfficeHiddenProductsScreen() {
               message={t('hiddenProducts.emptyHint')}
             />
           }
-          ListFooterComponent={q.isFetchingNextPage ? <Loading label={t('products.loadingMore')} /> : null}
+          ListFooterComponent={
+            q.isFetchingNextPage ? <Loading label={t('products.loadingMore')} /> : null
+          }
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();

@@ -100,14 +100,17 @@ describe('Pet Details "new" badges', () => {
     setSearchParams({ petId: 'p1' });
     renderWithProviders(<PetDetailsScreen />);
 
-    await waitFor(() => expect(screen.getByText('2 جديد')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByLabelText('التطعيمات، 2 جديد')).toBeOnTheScreen());
     expect(unseen).toHaveBeenCalledWith('p1');
     expect(screen.getByLabelText('التطعيمات، 2 جديد')).toBeOnTheScreen();
     expect(screen.getByLabelText('التذكيرات')).toBeOnTheScreen(); // no badge
     // No clinic-private medical-records row for the owner.
     expect(screen.queryByLabelText(/^السجل الطبي/)).toBeNull();
+    // The tab opens inline (no navigation) and clears only that section's badge.
     fireEvent.press(screen.getByLabelText('التطعيمات، 2 جديد'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/vaccinations');
+    await waitFor(() => expect(seen).toHaveBeenCalledWith('p1', 'vaccinations'));
+    expect(seen).not.toHaveBeenCalledWith('p1', 'reminders');
+    expect(routerMock.push).not.toHaveBeenCalled();
   });
 
   it('a non-owner viewing a pet never asks for counters', async () => {

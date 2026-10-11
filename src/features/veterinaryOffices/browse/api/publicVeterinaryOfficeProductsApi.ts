@@ -77,6 +77,11 @@ export const publicVeterinaryOfficeProductsApi = {
     };
   },
 
+  /** Distinct brands / countries across every public office (offices list filter). */
+  facetsAll(): Promise<VeterinaryOfficeProductFacets> {
+    return apiClient.get<VeterinaryOfficeProductFacets>('/office-products/facets');
+  },
+
   /** Distinct brands / countries of the office's visible products (filter chips). */
   facets(organizationId: string): Promise<VeterinaryOfficeProductFacets> {
     return apiClient.get<VeterinaryOfficeProductFacets>(

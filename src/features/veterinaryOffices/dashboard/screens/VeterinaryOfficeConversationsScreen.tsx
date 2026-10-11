@@ -41,7 +41,13 @@ export default function VeterinaryOfficeConversationsScreen() {
     <VeterinaryOfficeDashboardShell organizationId={orgId} active="home">
       <AppHeader title={t('conversations.title')} showBack />
 
-      <View style={{ paddingHorizontal: theme.screenPadding, paddingBottom: theme.spacing.md, rowGap: theme.spacing.sm }}>
+      <View
+        style={{
+          paddingHorizontal: theme.screenPadding,
+          paddingBottom: theme.spacing.md,
+          rowGap: theme.spacing.sm,
+        }}
+      >
         <SearchInput
           value={rawSearch}
           onChangeText={setRawSearch}
@@ -76,7 +82,10 @@ export default function VeterinaryOfficeConversationsScreen() {
           data={items}
           keyExtractor={(c) => c.id}
           renderItem={({ item }) => (
-            <ConversationCard conversation={item} onPress={() => router.push(Routes.chatThread(item.id))} />
+            <ConversationCard
+              conversation={item}
+              onPress={() => router.push(Routes.chatThread(item.id))}
+            />
           )}
           ListEmptyComponent={
             <EmptyState

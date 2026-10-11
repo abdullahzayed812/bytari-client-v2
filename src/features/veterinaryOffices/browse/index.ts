@@ -13,6 +13,7 @@ export {
   usePublicVeterinaryOfficeProducts,
   usePublicVeterinaryOfficeProduct,
   useOfficeProductSearch,
+  useOfficeProductFacetsAll,
   type UsePublicVeterinaryOfficeProductsParams,
 } from './hooks';
 export {

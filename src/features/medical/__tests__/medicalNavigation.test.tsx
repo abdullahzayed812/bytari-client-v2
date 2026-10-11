@@ -153,11 +153,10 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
 
     expect(screen.queryByLabelText('السجل الطبي')).toBeNull();
     expect(screen.queryByLabelText('السجل الطبي الكامل')).toBeNull();
-    fireEvent.press(screen.getByLabelText('التطعيمات'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/vaccinations');
-    fireEvent.press(screen.getByLabelText('التذكيرات'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/reminders');
-    expect(screen.getByText('K7M-4QXR')).toBeOnTheScreen();
+    // Vaccinations / reminders are inline tabs on Pet Details (no navigation).
+    expect(screen.getByRole('tab', { name: 'التطعيمات' })).toBeOnTheScreen();
+    expect(screen.getByRole('tab', { name: 'التذكيرات' })).toBeOnTheScreen();
+    expect(screen.getAllByText('K7M-4QXR').length).toBeGreaterThan(0);
     expect(screen.queryByText('p1')).toBeNull(); // never the internal id
   });
 

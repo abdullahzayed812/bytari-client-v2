@@ -15,6 +15,12 @@ import type { DiscoverFilters, DiscoverSort } from '../types';
 const ANY = '';
 const RATING_OPTIONS = [0, 3, 4, 5] as const;
 
+/** Brand / country-of-origin values offered as chips (veterinary offices only). */
+export interface DiscoverProductFacets {
+  brands: string[];
+  countries: string[];
+}
+
 export interface DiscoverFilterSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -22,6 +28,12 @@ export interface DiscoverFilterSheetProps {
   sort: DiscoverSort;
   /** Applied together — the list re-queries the backend with these params. */
   onApply: (filters: DiscoverFilters, sort: DiscoverSort) => void;
+  /**
+   * When given, adds "العلامة التجارية" / "بلد المنشأ" chip sections that keep
+   * only organizations selling a matching product (`productBrand` /
+   * `productCountry`).
+   */
+  productFacets?: DiscoverProductFacets;
 }
 
 /**
@@ -35,6 +47,7 @@ export function DiscoverFilterSheet({
   filters,
   sort,
   onApply,
+  productFacets,
 }: DiscoverFilterSheetProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
@@ -42,6 +55,8 @@ export function DiscoverFilterSheet({
   const [minRating, setMinRating] = useState(filters.minRating ?? 0);
   const [service, setService] = useState(filters.service ?? '');
   const [topRated, setTopRated] = useState(sort === 'top_rated');
+  const [productBrand, setProductBrand] = useState(filters.productBrand);
+  const [productCountry, setProductCountry] = useState(filters.productCountry);
 
   // Organization profiles store the country as the Arabic name picked at
   // registration (`COUNTRIES_AR`), so the filter uses the same values.
@@ -52,6 +67,8 @@ export function DiscoverFilterSheet({
     setMinRating(filters.minRating ?? 0);
     setService(filters.service ?? '');
     setTopRated(sort === 'top_rated');
+    setProductBrand(filters.productBrand);
+    setProductCountry(filters.productCountry);
   }, [visible, filters, sort]);
 
   const countryOptions = useMemo<SelectOption<string>[]>(
@@ -69,6 +86,8 @@ export function DiscoverFilterSheet({
         country: country || undefined,
         minRating: minRating > 0 ? minRating : undefined,
         service: trimmed || undefined,
+        productBrand: productFacets ? productBrand : undefined,
+        productCountry: productFacets ? productCountry : undefined,
       },
       topRated ? 'top_rated' : sort === 'top_rated' ? 'default' : sort,
     );
@@ -133,6 +152,34 @@ export function DiscoverFilterSheet({
           maxLength={100}
         />
 
+        {productFacets
+          ? (
+              [
+                ['productBrand', productFacets.brands, productBrand, setProductBrand],
+                ['productCountry', productFacets.countries, productCountry, setProductCountry],
+              ] as const
+            ).map(([key, values, current, set]) =>
+              values.length === 0 ? null : (
+                <View key={key} style={{ rowGap: theme.spacing.xs }}>
+                  <Label>{t(`discover.filters.${key}`)}</Label>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                    {values.map((v) => {
+                      const selected = current?.toLowerCase() === v.toLowerCase();
+                      return (
+                        <Chip
+                          key={v}
+                          label={v}
+                          selected={selected}
+                          onPress={() => set(selected ? undefined : v)}
+                        />
+                      );
+                    })}
+                  </View>
+                </View>
+              ),
+            )
+          : null}
+
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Button label={t('discover.filters.apply')} fullWidth onPress={apply} />
@@ -157,6 +204,8 @@ export function activeFilterCount(filters: DiscoverFilters, sort: DiscoverSort):
     (filters.country ? 1 : 0) +
     (filters.minRating ? 1 : 0) +
     (filters.service ? 1 : 0) +
+    (filters.productBrand ? 1 : 0) +
+    (filters.productCountry ? 1 : 0) +
     (sort === 'top_rated' ? 1 : 0)
   );
 }

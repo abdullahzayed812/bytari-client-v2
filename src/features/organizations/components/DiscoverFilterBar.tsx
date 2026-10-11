@@ -11,7 +11,11 @@ import { useTheme } from '@/theme';
 
 import type { DiscoverFilters, DiscoverSort } from '../types';
 
-import { DiscoverFilterSheet, activeFilterCount } from './DiscoverFilterSheet';
+import {
+  DiscoverFilterSheet,
+  activeFilterCount,
+  type DiscoverProductFacets,
+} from './DiscoverFilterSheet';
 
 interface FilterButtonProps {
   icon?: IconName;
@@ -78,6 +82,8 @@ export interface DiscoverFilterBarProps {
    */
   filters?: DiscoverFilters;
   onFiltersChange?: (filters: DiscoverFilters) => void;
+  /** Extra "product" chip sections in the sheet (veterinary offices list). */
+  productFacets?: DiscoverProductFacets;
   /** Custom handler — overrides the sheet (legacy callers). */
   onFilterPress?: () => void;
 }
@@ -97,6 +103,7 @@ export function DiscoverFilterBar({
   filters,
   onFiltersChange,
   onFilterPress,
+  productFacets,
 }: DiscoverFilterBarProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
@@ -170,6 +177,7 @@ export function DiscoverFilterBar({
           onClose={() => setSheetOpen(false)}
           filters={filters}
           sort={sort}
+          productFacets={productFacets}
           onApply={(next, nextSort) => {
             onFiltersChange(next);
             if (nextSort !== sort) onSortChange(nextSort);
