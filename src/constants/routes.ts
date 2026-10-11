@@ -348,6 +348,8 @@ export const Routes = {
   // Veterinary Offices — public browse (Veterinarian Home → "المكاتب البيطرية").
   veterinaryOffices: '/(app)/veterinary-offices',
   veterinaryOfficeDetail: (officeId: string) => `/(app)/veterinary-offices/${officeId}` as const,
+  /** Product search across every veterinary office. */
+  veterinaryOfficeProductSearch: '/(app)/veterinary-offices/products-search',
   /** Ratings & reviews of a clinic / veterinary office (any reviewable organization). */
   organizationReviews: (organizationId: string) =>
     `/(app)/organization-reviews/${organizationId}` as const,

@@ -8137,6 +8137,23 @@ export const en: TranslationResources = {
       SUPPLEMENT: 'Supplements',
       CARE: 'Care',
     },
+    productSearch: {
+      entry: 'Search products in all offices',
+      entryA11y: 'Search products across every veterinary office',
+      title: 'Product search',
+      placeholder: 'Product name, brand, country of origin...',
+      allTypes: 'All',
+      count_one: '{{count}} result',
+      count_other: '{{count}} results',
+      hintTitle: 'Search every office’s products',
+      hintBody:
+        'Type at least two letters or pick a product type to see products and the office selling them.',
+      emptyTitle: 'No matching products',
+      emptyBody: 'Try another word or product type.',
+      soldBy: 'Available at',
+      openProductA11y: 'Open {{product}} from {{office}}',
+      openOfficeA11y: 'Open {{office}}',
+    },
     list: {
       title: 'Veterinary Offices',
       subtitle: 'Browse every available veterinary office',

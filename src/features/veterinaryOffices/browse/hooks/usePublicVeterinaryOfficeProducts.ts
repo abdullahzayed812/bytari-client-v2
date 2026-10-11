@@ -5,6 +5,7 @@ import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
 
 import type {
+  OfficeProductSearchHit,
   Paginated,
   VeterinaryOfficeProduct,
   VeterinaryOfficeProductSort,
@@ -99,4 +100,43 @@ export function usePublicVeterinaryOfficeProduct(
     enabled: Boolean(organizationId) && Boolean(productId) && (options.enabled ?? true),
     retry: (count, error) => !(error instanceof ApiError && error.status === 404) && count < 2,
   });
+}
+
+/**
+ * Product search across every public veterinary office. Runs only once there
+ * is a search term (≥ 2 characters) or a product type — an empty screen never
+ * pages through the whole market.
+ */
+export function useOfficeProductSearch(params: {
+  search?: string;
+  productType?: VeterinaryOfficeProductType;
+  pageSize?: number;
+}) {
+  const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+  const search = params.search?.trim() ?? '';
+  const filter = { search: search || undefined, productType: params.productType };
+  const enabled = search.length >= 2 || Boolean(params.productType);
+
+  const query = useInfiniteQuery<
+    Paginated<OfficeProductSearchHit>,
+    ApiError,
+    InfiniteData<Paginated<OfficeProductSearchHit>>,
+    ReturnType<typeof publicVeterinaryOfficeProductKeys.searchAll>,
+    number
+  >({
+    queryKey: publicVeterinaryOfficeProductKeys.searchAll(filter),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      publicVeterinaryOfficeProductsApi.searchAll({ ...filter, page: pageParam, pageSize }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
+    enabled,
+    staleTime: 15_000,
+  });
+
+  const hits = useMemo<OfficeProductSearchHit[]>(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
+  );
+  return { ...query, hits, total: query.data?.pages[0]?.meta.total ?? 0, enabled };
 }

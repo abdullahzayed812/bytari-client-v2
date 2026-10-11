@@ -12,6 +12,7 @@ export {
 export {
   usePublicVeterinaryOfficeProducts,
   usePublicVeterinaryOfficeProduct,
+  useOfficeProductSearch,
   type UsePublicVeterinaryOfficeProductsParams,
 } from './hooks';
 export {
@@ -20,6 +21,7 @@ export {
 } from './components';
 export {
   VeterinaryOfficesScreen,
+  OfficeProductSearchScreen,
   VeterinaryOfficeDetailsScreen,
   PublicVeterinaryOfficeProductsScreen,
   PublicVeterinaryOfficeProductDetailsScreen,

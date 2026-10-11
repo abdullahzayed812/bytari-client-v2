@@ -154,3 +154,15 @@ export interface VeterinaryOfficeProductFacets {
   brands: string[];
   countries: string[];
 }
+
+/** One hit of `GET /office-products/search` — a product and the office that sells it. */
+export interface OfficeProductSearchHit {
+  product: VeterinaryOfficeProduct;
+  office: {
+    id: string;
+    name: string;
+    logoUrl: string | null;
+    address: string | null;
+    phone: string | null;
+  };
+}

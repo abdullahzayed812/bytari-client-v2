@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
-import { Button } from '@/components/actions';
+import { Button, IconButton } from '@/components/actions';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -63,7 +63,30 @@ export default function VeterinaryOfficesScreen() {
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('list.title')} subtitle={t('list.subtitle')} showBack backAlign="left" />
+      <AppHeader
+        title={t('list.title')}
+        subtitle={t('list.subtitle')}
+        showBack
+        backAlign="left"
+        right={
+          <IconButton
+            icon="cube-outline"
+            variant="soft"
+            accessibilityLabel={t('productSearch.entryA11y')}
+            onPress={() => router.push(Routes.veterinaryOfficeProductSearch)}
+          />
+        }
+      />
+      <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.sm }}>
+        <Button
+          label={t('productSearch.entry')}
+          variant="outline"
+          size="sm"
+          leftIcon="search-outline"
+          fullWidth
+          onPress={() => router.push(Routes.veterinaryOfficeProductSearch)}
+        />
+      </View>
 
       <DiscoverFilterBar
         search={rawSearch}
