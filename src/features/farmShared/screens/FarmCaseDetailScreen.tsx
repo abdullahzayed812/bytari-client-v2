@@ -243,7 +243,7 @@ function CaseEditModal({
         <Input label={t('records.treatment')} value={treatment} onChangeText={setTreatment} />
         <Input
           label={t('records.nextFollowup')}
-          placeholder="YYYY-MM-DD"
+          placeholder="YYYY-M-D"
           value={followup}
           onChangeText={setFollowup}
         />

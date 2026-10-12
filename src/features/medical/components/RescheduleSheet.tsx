@@ -55,7 +55,7 @@ export function RescheduleSheet({
         <Input
           value={value}
           onChangeText={setValue}
-          placeholder="YYYY-MM-DD"
+          placeholder="YYYY-M-D"
           keyboardType="numbers-and-punctuation"
           autoCorrect={false}
           error={error}

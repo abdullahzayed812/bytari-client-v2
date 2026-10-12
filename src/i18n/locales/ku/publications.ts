@@ -239,7 +239,7 @@ const publications: KuNamespace<'publications'> = {
 
     lostDateLabel: 'بەرواری ونبوون',
     lostDatePlaceholder: 'بەروار هەڵبژێرە',
-    dateHint: 'YYYY-MM-DD',
+    dateHint: 'YYYY-M-D',
     lostTimeLabel: 'کاتی ونبوون (نزیکەیی)',
     lostTimePlaceholder: 'کات هەڵبژێرە',
     governorateLabel: 'پارێزگا',

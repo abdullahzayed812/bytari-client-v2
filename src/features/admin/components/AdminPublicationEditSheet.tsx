@@ -126,7 +126,7 @@ export function AdminPublicationEditSheet({
             onChangeText={(v) => setText((prev) => ({ ...prev, [k]: v }))}
             multiline={MULTILINE.includes(k)}
             keyboardType={k === 'contactPhone' ? 'phone-pad' : 'default'}
-            placeholder={k === 'lostDate' ? 'YYYY-MM-DD' : k === 'lostTime' ? 'HH:MM' : undefined}
+            placeholder={k === 'lostDate' ? 'YYYY-M-D' : k === 'lostTime' ? 'HH:MM' : undefined}
           />
         ))}
 

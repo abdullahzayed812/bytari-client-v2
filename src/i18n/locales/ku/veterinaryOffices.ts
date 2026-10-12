@@ -169,6 +169,11 @@ const veterinaryOffices: KuNamespace<'veterinaryOffices'> = {
       submitSave: 'پاشەکەوتکردنی گۆڕانکارییەکان',
       createSuccess: 'بەرهەمەکە زیاد کرا.',
       editSuccess: 'گۆڕانکارییەکان پاشەکەوت کران.',
+      fieldImage: 'وێنەی بەرهەم',
+      imageHint: 'ئارەزوومەندانە — دەتوانیت پێش پاشەکەوتکردن وێنەکە بگۆڕیت.',
+      imageReplaceHint: 'لە وێنەکە بدە بۆ گۆڕینی. ئەگەر بارکردن سەرنەکەوت وێنەی ئێستا دەمێنێتەوە.',
+      imageReplaced: 'وێنەکە گۆڕدرا.',
+      imageUploading: 'وێنەکە بار دەکرێت… چاوەڕێ بکە تا تەواو دەبێت پێش پاشەکەوتکردن.',
       errors: {
         nameRequired: 'ناوی بەرهەم پێویستە.',
         tooLong: 'نرخی نووسراو زۆر درێژە.',

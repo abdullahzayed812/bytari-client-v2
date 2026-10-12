@@ -154,7 +154,7 @@ describe('VaccinationFormScreen', () => {
   it('rejects a next-due date earlier than the administered date', async () => {
     renderWithProviders(<VaccinationFormScreen />);
     fireEvent.changeText(screen.getByPlaceholderText('مثال: لقاح داء الكلب'), 'Rabies');
-    const dates = screen.getAllByPlaceholderText('YYYY-MM-DD');
+    const dates = screen.getAllByPlaceholderText('YYYY-M-D');
     fireEvent.changeText(dates[0]!, '2026-02-10');
     fireEvent.changeText(dates[1]!, '2026-02-01');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ التطعيم' }));
@@ -166,11 +166,30 @@ describe('VaccinationFormScreen', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
+  it('accepts unpadded YYYY-M-D dates and compares them as dates, not strings', async () => {
+    create.mockResolvedValueOnce(vax());
+    renderWithProviders(<VaccinationFormScreen />);
+    fireEvent.changeText(screen.getByPlaceholderText('مثال: لقاح داء الكلب'), 'Rabies');
+    const dates = screen.getAllByPlaceholderText('YYYY-M-D');
+    // As strings '2026-2-10' < '2026-2-9' — as dates the next dose is one day later.
+    fireEvent.changeText(dates[0]!, '2026-2-9');
+    fireEvent.changeText(dates[1]!, '2026-2-10');
+    fireEvent.press(screen.getByRole('button', { name: 'حفظ التطعيم' }));
+    await waitFor(() =>
+      expect(create).toHaveBeenCalledWith(
+        'o1',
+        'a1',
+        expect.objectContaining({ administeredOn: '2026-2-9', nextDueOn: '2026-2-10' }),
+      ),
+    );
+    expect(screen.queryByText('موعد الجرعة القادمة لا يمكن أن يسبق تاريخ الإعطاء.')).toBeNull();
+  });
+
   it('creates a vaccination with the route animal id', async () => {
     create.mockResolvedValueOnce(vax());
     renderWithProviders(<VaccinationFormScreen />);
     fireEvent.changeText(screen.getByPlaceholderText('مثال: لقاح داء الكلب'), 'Rabies');
-    const dates = screen.getAllByPlaceholderText('YYYY-MM-DD');
+    const dates = screen.getAllByPlaceholderText('YYYY-M-D');
     fireEvent.changeText(dates[0]!, '2026-01-02');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ التطعيم' }));
     await waitFor(() =>

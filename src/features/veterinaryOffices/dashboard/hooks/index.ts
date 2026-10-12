@@ -10,6 +10,11 @@ export {
   useAdjustVeterinaryOfficeStock,
   useRemoveVeterinaryOfficeProductImage,
 } from './useVeterinaryOfficeProductMutations';
-export { useVeterinaryOfficeProductImagePresignProvider } from './useVeterinaryOfficeProductImagePresignProvider';
+export {
+  useVeterinaryOfficeProductImagePresignProvider,
+  useNewVeterinaryOfficeProductImagePresignProvider,
+  useReplaceVeterinaryOfficeProductImagePresignProvider,
+  type PendingProductImage,
+} from './useVeterinaryOfficeProductImagePresignProvider';
 export { useVeterinaryOfficeDashboard } from './useVeterinaryOfficeDashboard';
 export { useSendFollowerBroadcast, useBroadcastImageProvider } from './useSendFollowerBroadcast';

@@ -23,7 +23,7 @@ export function DateFieldInput({
   label,
   value,
   onChangeText,
-  placeholder = '2026-09-01',
+  placeholder = '2026-9-1',
   required,
 }: DateFieldInputProps) {
   const { t } = useTranslation('poultry');

@@ -81,7 +81,7 @@ export function AdminAnimalEditSheet({
         <Input label={t('adminAnimals.details.color')} value={color} onChangeText={setColor} />
         <Input
           label={t('adminAnimals.details.dateOfBirth')}
-          placeholder="2024-01-31"
+          placeholder="2024-1-31"
           value={dateOfBirth}
           onChangeText={setDateOfBirth}
           error={dobError}

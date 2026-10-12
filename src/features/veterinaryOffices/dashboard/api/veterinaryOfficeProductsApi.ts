@@ -120,6 +120,46 @@ export const veterinaryOfficeProductsApi = {
     );
   },
 
+  /** Presign for the "add product" form — the product does not exist yet. */
+  requestNewProductImageUploadUrl(
+    organizationId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/organizations/${organizationId}/office-products/images/upload-url`,
+      input,
+    );
+  },
+
+  /** Presign for replacing one image (not counted against the 6-image cap). */
+  requestReplaceImageUploadUrl(
+    organizationId: string,
+    productId: string,
+    imageId: string,
+    input: { filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/organizations/${organizationId}/office-products/${productId}/images/${imageId}/upload-url`,
+      input,
+    );
+  },
+
+  /**
+   * Swap an image for an already-uploaded object. The server validates the
+   * new object first and deletes the old one only after the swap commits.
+   */
+  replaceImage(
+    organizationId: string,
+    productId: string,
+    imageId: string,
+    input: { storageKey: string; mimeType: string },
+  ): Promise<VeterinaryOfficeProduct> {
+    return apiClient.put<VeterinaryOfficeProduct>(
+      `/organizations/${organizationId}/office-products/${productId}/images/${imageId}`,
+      input,
+    );
+  },
+
   addImage(
     organizationId: string,
     productId: string,

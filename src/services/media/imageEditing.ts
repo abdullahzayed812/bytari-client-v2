@@ -212,6 +212,74 @@ export function resizeCropRect(
   return { x: left ? ax - w : ax, y: top ? ay - h : ay, width: w, height: h };
 }
 
+export type CropEdge = 't' | 'b' | 'l' | 'r';
+/** Anything the user can drag to resize the box: a corner or a side. */
+export type CropHandle = CropCorner | CropEdge;
+
+/**
+ * Drag one SIDE by (dx, dy) source pixels — only that side moves (free crop),
+ * so width and height can be adjusted independently in every direction. The
+ * opposite side stays put; never flips, never leaves the image, never below
+ * `minSize`. With a locked `ratio` the other dimension follows, centred on
+ * the box's middle and clamped inside the image.
+ */
+export function resizeCropEdge(
+  rect: CropRect,
+  edge: CropEdge,
+  dx: number,
+  dy: number,
+  bounds: { width: number; height: number },
+  ratio: number | null,
+  minSize: number,
+): CropRect {
+  const horizontal = edge === 'l' || edge === 'r';
+  if (horizontal) {
+    const ax = edge === 'l' ? rect.x + rect.width : rect.x;
+    const maxW = edge === 'l' ? ax : bounds.width - ax;
+    let w = clamp(rect.width + (edge === 'l' ? -dx : dx), Math.min(minSize, maxW), maxW);
+    let h = rect.height;
+    let y = rect.y;
+    if (ratio) {
+      h = w / ratio;
+      if (h > bounds.height) {
+        h = bounds.height;
+        w = h * ratio;
+      }
+      y = clamp(rect.y + rect.height / 2 - h / 2, 0, bounds.height - h);
+    }
+    return { x: edge === 'l' ? ax - w : ax, y, width: w, height: h };
+  }
+  const ay = edge === 't' ? rect.y + rect.height : rect.y;
+  const maxH = edge === 't' ? ay : bounds.height - ay;
+  let h = clamp(rect.height + (edge === 't' ? -dy : dy), Math.min(minSize, maxH), maxH);
+  let w = rect.width;
+  let x = rect.x;
+  if (ratio) {
+    w = h * ratio;
+    if (w > bounds.width) {
+      w = bounds.width;
+      h = w / ratio;
+    }
+    x = clamp(rect.x + rect.width / 2 - w / 2, 0, bounds.width - w);
+  }
+  return { x, y: edge === 't' ? ay - h : ay, width: w, height: h };
+}
+
+/** Resize from any handle — corners move two sides, edges one. */
+export function resizeCropFromHandle(
+  rect: CropRect,
+  handle: CropHandle,
+  dx: number,
+  dy: number,
+  bounds: { width: number; height: number },
+  ratio: number | null,
+  minSize: number,
+): CropRect {
+  return handle === 't' || handle === 'b' || handle === 'l' || handle === 'r'
+    ? resizeCropEdge(rect, handle, dx, dy, bounds, ratio, minSize)
+    : resizeCropRect(rect, handle, dx, dy, bounds, ratio, minSize);
+}
+
 /** Integer crop action for the manipulator — rounded and clamped to the image. */
 export function cropActionOf(
   rect: CropRect,

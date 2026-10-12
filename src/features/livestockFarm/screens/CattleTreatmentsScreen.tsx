@@ -146,7 +146,7 @@ export default function CattleTreatmentsScreen() {
           <Input label={t('health.nameLabel')} value={name} onChangeText={setName} />
           <Input
             label={t('health.dateLabel')}
-            placeholder="YYYY-MM-DD"
+            placeholder="YYYY-M-D"
             value={eventDate}
             onChangeText={setEventDate}
           />

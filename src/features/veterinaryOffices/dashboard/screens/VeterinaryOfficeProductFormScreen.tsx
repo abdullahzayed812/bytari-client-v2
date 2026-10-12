@@ -1,8 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { View } from 'react-native';
 
 import { ErrorState, Loading, useToast } from '@/components/feedback';
+import { ImageUploader } from '@/components/media';
+import { Caption, Label } from '@/components/typography';
 import { OrgFormLayout } from '@/features/organizations';
 import { fieldErrors } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
@@ -20,8 +23,13 @@ import {
 import { VeterinaryOfficeProductForm } from '../components';
 import {
   useCreateVeterinaryOfficeProduct,
+  useNewVeterinaryOfficeProductImagePresignProvider,
+  useRemoveVeterinaryOfficeProductImage,
+  useReplaceVeterinaryOfficeProductImagePresignProvider,
   useVeterinaryOfficeProduct,
+  useVeterinaryOfficeProductImagePresignProvider,
   useUpdateVeterinaryOfficeProduct,
+  type PendingProductImage,
 } from '../hooks';
 
 /**
@@ -29,6 +37,12 @@ import {
  * `createdByUserId` / `status` are set by the backend. `productId` present ⇒
  * edit mode. Stock is NOT edited here — it changes only through the stock-adjust
  * action on the detail screen.
+ *
+ * Image: on create the cover is uploaded right away (before the product
+ * exists) and attached by the create call itself; on edit the cover can be
+ * replaced in place — upload first, then an atomic server-side swap, so a
+ * failed upload never loses the current image. Save is blocked while an
+ * upload is in flight.
  */
 export default function VeterinaryOfficeProductFormScreen() {
   const { t } = useTranslation('veterinaryOffices');
@@ -47,7 +61,22 @@ export default function VeterinaryOfficeProductFormScreen() {
   const inFlight = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
+  const [pendingImage, setPendingImage] = useState<PendingProductImage | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const busy = create.isPending || update.isPending;
+
+  const cover = existing.data?.images.find((i) => i.isPrimary) ?? existing.data?.images[0];
+  const newImageProvider = useNewVeterinaryOfficeProductImagePresignProvider(
+    orgId,
+    setPendingImage,
+  );
+  const replaceProvider = useReplaceVeterinaryOfficeProductImagePresignProvider(
+    orgId,
+    productId,
+    cover?.id,
+  );
+  const addProvider = useVeterinaryOfficeProductImagePresignProvider(orgId, productId);
+  const removeImage = useRemoveVeterinaryOfficeProductImage(orgId);
 
   if (isEdit && existing.isLoading) {
     return (
@@ -88,6 +117,10 @@ export default function VeterinaryOfficeProductFormScreen() {
 
   const onSubmit = (values: VeterinaryOfficeProductFormValues) => {
     if (inFlight.current || busy) return;
+    if (imageUploading) {
+      setFormError(t('manage.form.imageUploading'));
+      return;
+    }
     inFlight.current = true;
     setFormError(null);
     setServerFields({});
@@ -142,6 +175,7 @@ export default function VeterinaryOfficeProductFormScreen() {
         description,
         ...catalogFields,
         stockQuantity: values.stockQuantity?.trim() ? Number(values.stockQuantity) : undefined,
+        ...(pendingImage ? { image: pendingImage } : {}),
       };
       create.mutate(body, {
         onSuccess: () => {
@@ -156,10 +190,55 @@ export default function VeterinaryOfficeProductFormScreen() {
 
   return (
     <OrgFormLayout title={isEdit ? t('manage.form.editTitle') : t('manage.form.addTitle')}>
+      <View style={{ rowGap: 4 }}>
+        <Label>{t('manage.form.fieldImage')}</Label>
+        {isEdit && product ? (
+          <ImageUploader
+            // Remount on a different cover so the preview follows the server.
+            key={cover?.id ?? 'none'}
+            value={cover?.url ?? null}
+            provider={cover ? replaceProvider : addProvider}
+            replaceable
+            disabled={busy}
+            onBusyChange={setImageUploading}
+            onRemove={
+              cover
+                ? () =>
+                    removeImage.mutate(
+                      { productId: product.id, imageId: cover.id },
+                      {
+                        onError: (error) =>
+                          toast.show({
+                            tone: 'danger',
+                            message: veterinaryOfficeErrorMessage(error, t),
+                          }),
+                      },
+                    )
+                : undefined
+            }
+            onChange={(result) => {
+              if (result) toast.show({ tone: 'success', message: t('manage.form.imageReplaced') });
+            }}
+          />
+        ) : (
+          <ImageUploader
+            value={null}
+            provider={newImageProvider}
+            replaceable
+            disabled={busy}
+            onBusyChange={setImageUploading}
+            // `onUploaded` already recorded the key; only removal clears it.
+            onChange={(result) => {
+              if (!result) setPendingImage(null);
+            }}
+          />
+        )}
+        <Caption>{isEdit ? t('manage.form.imageReplaceHint') : t('manage.form.imageHint')}</Caption>
+      </View>
       <VeterinaryOfficeProductForm
         mode={isEdit ? 'edit' : 'create'}
         defaultValues={defaults}
-        submitting={busy}
+        submitting={busy || imageUploading}
         formError={formError}
         serverFields={serverFields}
         onSubmit={onSubmit}

@@ -300,7 +300,7 @@ export default function QuickReviewScreen() {
                 setNextDue(addDaysIso(v, template.intervalDays));
               }
             }}
-            placeholder="YYYY-MM-DD"
+            placeholder="YYYY-M-D"
             keyboardType="numbers-and-punctuation"
           />
           {actionCategory === 'VACCINE' || actionCategory === 'TREATMENT' ? (
@@ -308,7 +308,7 @@ export default function QuickReviewScreen() {
               label={t('quickReview.fieldNextDue')}
               value={nextDue}
               onChangeText={setNextDue}
-              placeholder="YYYY-MM-DD"
+              placeholder="YYYY-M-D"
               keyboardType="numbers-and-punctuation"
             />
           ) : null}

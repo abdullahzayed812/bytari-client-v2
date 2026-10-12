@@ -116,7 +116,7 @@ export function SubscriptionDatesDialog({
         </View>
         <Input
           label={t('farms.detail.startDateLabel')}
-          placeholder="2026-09-01"
+          placeholder="2026-9-1"
           hint={t('farms.detail.dateFormatHint')}
           error={startError}
           value={startDate}
@@ -129,7 +129,7 @@ export function SubscriptionDatesDialog({
         />
         <Input
           label={t('farms.detail.endDateLabel')}
-          placeholder="2026-12-01"
+          placeholder="2026-12-1"
           hint={t('farms.detail.dateFormatHint')}
           error={endError}
           value={endDate}

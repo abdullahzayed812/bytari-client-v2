@@ -9,6 +9,8 @@ import {
   lockedRatio,
   moveCropRect,
   resizeCropRect,
+  resizeCropEdge,
+  resizeCropFromHandle,
   editImage,
   registerImageEditor,
   type LocalFile,
@@ -148,6 +150,72 @@ describe('drag crop geometry', () => {
     expect(wide.width / wide.height).toBeCloseTo(16 / 9);
     expect(wide.width).toBeLessThanOrEqual(4000);
     expect(wide.height).toBeLessThanOrEqual(3000);
+  });
+
+  it('free-resizes ONE side at a time, in every direction', () => {
+    const r = { x: 1000, y: 1000, width: 1000, height: 1000 };
+    // right edge out: only the width grows, left / top / height untouched
+    expect(resizeCropEdge(r, 'r', 700, 999, bounds, null, 50)).toEqual({
+      x: 1000,
+      y: 1000,
+      width: 1700,
+      height: 1000,
+    });
+    // left edge out: the right side (2000) stays put
+    expect(resizeCropEdge(r, 'l', -400, 0, bounds, null, 50)).toEqual({
+      x: 600,
+      y: 1000,
+      width: 1400,
+      height: 1000,
+    });
+    // top edge in, bottom edge out
+    expect(resizeCropEdge(r, 't', 0, 250, bounds, null, 50)).toEqual({
+      x: 1000,
+      y: 1250,
+      width: 1000,
+      height: 750,
+    });
+    expect(resizeCropEdge(r, 'b', 0, 300, bounds, null, 50)).toEqual({
+      x: 1000,
+      y: 1000,
+      width: 1000,
+      height: 1300,
+    });
+  });
+
+  it('a side never passes the image edge, the opposite side, or the minimum', () => {
+    const r = { x: 1000, y: 1000, width: 1000, height: 1000 };
+    expect(resizeCropEdge(r, 'r', 99999, 0, bounds, null, 50)).toMatchObject({ width: 3000 });
+    expect(resizeCropEdge(r, 'l', -99999, 0, bounds, null, 50)).toMatchObject({
+      x: 0,
+      width: 2000,
+    });
+    expect(resizeCropEdge(r, 't', 0, 99999, bounds, null, 50)).toMatchObject({
+      y: 1950,
+      height: 50,
+    });
+    expect(resizeCropEdge(r, 'b', 0, 99999, bounds, null, 50)).toMatchObject({ height: 2000 });
+  });
+
+  it('a side drag keeps a LOCKED ratio, centred and inside the image', () => {
+    const r = { x: 1000, y: 1000, width: 1000, height: 1000 };
+    const sq = resizeCropEdge(r, 'r', 500, 0, bounds, 1, 50);
+    expect(sq).toEqual({ x: 1000, y: 750, width: 1500, height: 1500 });
+    const capped = resizeCropEdge(r, 'r', 99999, 0, bounds, 1, 50);
+    expect(capped.width).toBeCloseTo(capped.height);
+    expect(capped.y).toBeGreaterThanOrEqual(0);
+    expect(capped.y + capped.height).toBeLessThanOrEqual(3000);
+    expect(capped.x + capped.width).toBeLessThanOrEqual(4000);
+  });
+
+  it('resizeCropFromHandle dispatches corners and sides', () => {
+    const r = { x: 1000, y: 1000, width: 1000, height: 1000 };
+    expect(resizeCropFromHandle(r, 'br', 100, 100, bounds, null, 50)).toEqual(
+      resizeCropRect(r, 'br', 100, 100, bounds, null, 50),
+    );
+    expect(resizeCropFromHandle(r, 'b', 100, 100, bounds, null, 50)).toEqual(
+      resizeCropEdge(r, 'b', 100, 100, bounds, null, 50),
+    );
   });
 
   it('rounds to an integer crop action inside the image', () => {

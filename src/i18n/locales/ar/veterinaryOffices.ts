@@ -166,6 +166,11 @@ export default {
       submitSave: 'حفظ التغييرات',
       createSuccess: 'تمت إضافة المنتج.',
       editSuccess: 'تم حفظ التغييرات.',
+      fieldImage: 'صورة المنتج',
+      imageHint: 'اختياري — يمكنك تغيير الصورة قبل الحفظ.',
+      imageReplaceHint: 'اضغط على الصورة لاستبدالها. تبقى الصورة الحالية إذا فشل الرفع.',
+      imageReplaced: 'تم استبدال الصورة.',
+      imageUploading: 'جارٍ رفع الصورة… انتظر حتى يكتمل قبل الحفظ.',
       errors: {
         nameRequired: 'اسم المنتج مطلوب.',
         tooLong: 'القيمة المُدخلة طويلة جدًا.',

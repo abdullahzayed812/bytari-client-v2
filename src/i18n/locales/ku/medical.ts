@@ -57,7 +57,7 @@ const medical: KuNamespace<'medical'> = {
     deleteConfirmBody: 'دڵنیایت لە سڕینەوەی ئەم تۆمارە پزیشکییە؟ ئەم کردارە ناگەڕێندرێتەوە.',
     errors: {
       tooLong: 'نرخی نووسراو زۆر درێژە.',
-      dateFormat: 'شێوازی YYYY-MM-DD بەکاربهێنە.',
+      dateFormat: 'شێوازی YYYY-M-D بەکاربهێنە (نموونە 2026-9-1).',
       dateFuture: 'بەروار ناتوانێت لە داهاتوودا بێت.',
       atLeastOne:
         'لانیکەم یەکێک لەمانە بنووسە: هۆکاری سەردان یان دەستنیشانکردن یان چارەسەر یان تێبینییەکان.',
@@ -104,7 +104,7 @@ const medical: KuNamespace<'medical'> = {
       nameRequired: 'ناوی ڤاکسین پێویستە.',
       tooLong: 'نرخی نووسراو زۆر درێژە.',
       dateRequired: 'بەرواری پێدان پێویستە.',
-      dateFormat: 'شێوازی YYYY-MM-DD بەکاربهێنە.',
+      dateFormat: 'شێوازی YYYY-M-D بەکاربهێنە (نموونە 2026-9-1).',
       dateFuture: 'بەرواری پێدان ناتوانێت لە داهاتوودا بێت.',
       dueBeforeAdministered: 'کاتی ژەمی داهاتوو ناتوانێت پێش بەرواری پێدان بێت.',
     },

@@ -83,4 +83,50 @@ describe('ImageEditorHost', () => {
     await waitFor(() => expect(mockManipulate).toHaveBeenCalledTimes(1));
     expect(mockManipulate.mock.calls[0]![1]).toEqual([{ resize: { width: 2048 } }]);
   });
+
+  it('offers 8 resize handles (corners + sides), each fully inside its touchable parent', async () => {
+    mockManipulate.mockResolvedValueOnce({ uri: 'file:///working.jpg', width: 2000, height: 1000 });
+    renderWithProviders(<ImageEditorHost />);
+    await act(async () => {
+      void editImage(PICKED, {});
+    });
+    await waitFor(() => expect(mockManipulate).toHaveBeenCalledTimes(1));
+    fireEvent(screen.getByTestId('image-editor-stage'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 400, height: 600 } },
+    });
+
+    const canvas = await screen.findByTestId('image-editor-canvas');
+    const flat = (style: unknown) =>
+      Object.assign({}, ...[style].flat(Infinity).filter(Boolean)) as {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+      };
+    const { width: cw, height: ch } = flat(canvas.props.style);
+    for (const h of ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r']) {
+      const s = flat(screen.getByTestId(`crop-handle-${h}`).props.style);
+      // Android only hit-tests inside the parent's bounds — no part may stick out.
+      expect(s.left).toBeGreaterThanOrEqual(0);
+      expect(s.top).toBeGreaterThanOrEqual(0);
+      expect(s.left + s.width).toBeLessThanOrEqual(cw + 0.001);
+      expect(s.top + s.height).toBeLessThanOrEqual(ch + 0.001);
+    }
+  });
+
+  it('a free crop is not ratio-locked: the full image is offered and exported untouched', async () => {
+    mockManipulate.mockResolvedValueOnce({ uri: 'file:///working.jpg', width: 2000, height: 1000 });
+    renderWithProviders(<ImageEditorHost />);
+    let pending: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      pending = editImage({ ...PICKED, width: 2000, height: 1000 }, {});
+    });
+    await waitFor(() => expect(mockManipulate).toHaveBeenCalledTimes(1));
+    const save = await screen.findByRole('button', { name: SAVE });
+    await waitFor(() => expect(save).not.toBeDisabled());
+    fireEvent.press(save);
+    // whole-image free crop, nothing downscaled → the original file, no re-encode
+    expect(await pending).toEqual({ ...PICKED, width: 2000, height: 1000 });
+    expect(mockManipulate).toHaveBeenCalledTimes(1);
+  });
 });

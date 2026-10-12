@@ -174,7 +174,7 @@ function ReminderForm({
         control={control}
         name="reminderDate"
         label={t('reminders.fieldDate')}
-        placeholder="YYYY-MM-DD"
+        placeholder="YYYY-M-D"
         keyboardType="numbers-and-punctuation"
         autoCorrect={false}
         serverError={serverFields.reminderDate}

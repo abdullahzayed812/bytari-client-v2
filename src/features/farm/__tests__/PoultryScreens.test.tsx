@@ -170,7 +170,8 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     );
     fireEvent.changeText(screen.getByPlaceholderText('0'), '500');
     fireEvent.changeText(screen.getByPlaceholderText('0.00'), '2500');
-    fireEvent.changeText(screen.getByPlaceholderText('YYYY-MM-DD'), '2026-01-02');
+    // unpadded month / day is accepted (the server normalizes it)
+    fireEvent.changeText(screen.getByPlaceholderText('YYYY-M-D'), '2026-1-2');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
     await waitFor(() =>
       expect(create).toHaveBeenCalledWith(
@@ -178,7 +179,7 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
         expect.objectContaining({
           name: 'قطيع الشمال',
           birdCount: 500,
-          arrivalDate: '2026-01-02',
+          arrivalDate: '2026-1-2',
           targetPricePerKg: 2500,
         }),
       ),
@@ -189,7 +190,7 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     renderWithProviders(<PoultryFlockFormScreen />);
     fireEvent.changeText(await screen.findByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'x');
     fireEvent.changeText(screen.getByPlaceholderText('0'), '10');
-    fireEvent.changeText(screen.getByPlaceholderText('YYYY-MM-DD'), '2026-01-02');
+    fireEvent.changeText(screen.getByPlaceholderText('YYYY-M-D'), '2026-01-02');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
     await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeOnTheScreen());
     await new Promise((r) => setTimeout(r, 50));
@@ -241,7 +242,7 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     fireEvent.changeText(await screen.findByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'x');
     fireEvent.changeText(screen.getByPlaceholderText('0'), '1');
     fireEvent.changeText(screen.getByPlaceholderText('0.00'), '100');
-    fireEvent.changeText(screen.getByPlaceholderText('YYYY-MM-DD'), '2026-01-02');
+    fireEvent.changeText(screen.getByPlaceholderText('YYYY-M-D'), '2026-01-02');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
     await waitFor(() =>
       expect(screen.getByText('هذا القطيع مغلق ولا يمكن تعديل بياناته.')).toBeOnTheScreen(),

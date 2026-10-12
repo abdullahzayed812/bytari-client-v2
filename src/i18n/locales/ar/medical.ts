@@ -112,7 +112,7 @@ export default {
     },
     errors: {
       tooLong: 'القيمة المُدخلة طويلة جداً.',
-      dateFormat: 'استخدم الصيغة YYYY-MM-DD.',
+      dateFormat: 'استخدم الصيغة YYYY-M-D (مثال 2026-9-1).',
       dateFuture: 'لا يمكن أن يكون التاريخ في المستقبل.',
       atLeastOne: 'أدخل واحداً على الأقل من: سبب الزيارة أو التشخيص أو العلاج أو الملاحظات.',
     },
@@ -171,7 +171,7 @@ export default {
       nameRequired: 'اسم اللقاح مطلوب.',
       tooLong: 'القيمة المُدخلة طويلة جداً.',
       dateRequired: 'تاريخ الإعطاء مطلوب.',
-      dateFormat: 'استخدم الصيغة YYYY-MM-DD.',
+      dateFormat: 'استخدم الصيغة YYYY-M-D (مثال 2026-9-1).',
       dateFuture: 'لا يمكن أن يكون تاريخ الإعطاء في المستقبل.',
       dueBeforeAdministered: 'موعد الجرعة القادمة لا يمكن أن يسبق تاريخ الإعطاء.',
     },
@@ -230,7 +230,7 @@ export default {
     errors: {
       titleRequired: 'عنوان التذكير مطلوب.',
       dateRequired: 'تاريخ التذكير مطلوب.',
-      dateFormat: 'استخدم الصيغة YYYY-MM-DD.',
+      dateFormat: 'استخدم الصيغة YYYY-M-D (مثال 2026-9-1).',
       tooLong: 'القيمة المُدخلة طويلة جداً.',
     },
   },

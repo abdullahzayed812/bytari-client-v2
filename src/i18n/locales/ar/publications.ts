@@ -236,7 +236,7 @@ export default {
 
     lostDateLabel: 'تاريخ الاختفاء',
     lostDatePlaceholder: 'اختر التاريخ',
-    dateHint: 'YYYY-MM-DD',
+    dateHint: 'YYYY-M-D',
     lostTimeLabel: 'وقت الاختفاء (تقريبي)',
     lostTimePlaceholder: 'اختر الوقت',
     governorateLabel: 'المحافظة',

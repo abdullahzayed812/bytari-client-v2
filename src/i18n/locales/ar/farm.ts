@@ -203,7 +203,7 @@ export default {
       priceRequired: 'سعر البيع مطلوب لحساب الربح المتوقع.',
       priceInvalid: 'أدخل سعراً صحيحاً (حتى منزلتين عشريتين).',
       arrivalRequired: 'تاريخ الوصول مطلوب.',
-      dateFormat: 'استخدم الصيغة YYYY-MM-DD.',
+      dateFormat: 'استخدم الصيغة YYYY-M-D (مثال 2026-9-1).',
       dateFuture: 'لا يمكن أن يكون تاريخ الوصول في المستقبل.',
       flockClosed: 'هذا القطيع مغلق ولا يمكن تعديل بياناته.',
     },

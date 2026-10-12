@@ -198,7 +198,7 @@ export function MedicalRecordForm({
         control={control}
         name="visitDate"
         label={t('records.fieldVisitDate')}
-        placeholder="YYYY-MM-DD"
+        placeholder="YYYY-M-D"
         hint={t('records.visitDateHint')}
         keyboardType="numbers-and-punctuation"
         autoCorrect={false}

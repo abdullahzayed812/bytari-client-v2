@@ -9,7 +9,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Text } from '@/components/typography';
 import { useTheme } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, toLocalIsoDate } from '@/utils';
 
 import { LivestockWeeklySummaryCard } from '../components';
 import { useSheepBatches, useSheepWeeklySummary } from '../hooks';
@@ -30,21 +30,54 @@ export default function SheepWeeklyReportScreen() {
   const activeBatches = useSheepBatches(orgId, { status: 'ACTIVE', pageSize: 1 });
   const batch = activeBatches.batches[0];
 
-  const [weekOf, setWeekOf] = useState(() => new Date().toISOString().slice(0, 10));
+  const [weekOf, setWeekOf] = useState(() => toLocalIsoDate(new Date()));
   const weekly = useSheepWeeklySummary(orgId, batch?.id, weekOf, { enabled: Boolean(batch) });
 
   return (
     <SafeAreaScreen>
       <AppHeader title={t('weekly.title')} showBack />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: theme.screenPadding, paddingBottom: theme.spacing.huge, rowGap: theme.spacing.lg }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          padding: theme.screenPadding,
+          paddingBottom: theme.spacing.huge,
+          rowGap: theme.spacing.lg,
+        }}
+      >
         {!batch ? (
-          <EmptyState icon="stats-chart-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="stats-chart-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : (
           <>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <IconButton icon="chevron-back" variant="soft" directional accessibilityLabel={t('weekly.previousWeek')} onPress={() => setWeekOf((w) => shiftIsoDate(w, -7))} />
-              <Text variant="bodyMedium">{weekly.data ? `${formatDate(weekly.data.weekStart)} – ${formatDate(weekly.data.weekEnd)}` : t('common.loading')}</Text>
-              <IconButton icon="chevron-forward" variant="soft" directional accessibilityLabel={t('weekly.nextWeek')} onPress={() => setWeekOf((w) => shiftIsoDate(w, 7))} />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <IconButton
+                icon="chevron-back"
+                variant="soft"
+                directional
+                accessibilityLabel={t('weekly.previousWeek')}
+                onPress={() => setWeekOf((w) => shiftIsoDate(w, -7))}
+              />
+              <Text variant="bodyMedium">
+                {weekly.data
+                  ? `${formatDate(weekly.data.weekStart)} – ${formatDate(weekly.data.weekEnd)}`
+                  : t('common.loading')}
+              </Text>
+              <IconButton
+                icon="chevron-forward"
+                variant="soft"
+                directional
+                accessibilityLabel={t('weekly.nextWeek')}
+                onPress={() => setWeekOf((w) => shiftIsoDate(w, 7))}
+              />
             </View>
 
             {weekly.isLoading ? (

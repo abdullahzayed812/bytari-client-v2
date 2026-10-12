@@ -27,9 +27,9 @@ import {
   moveCropRect,
   planEditActions,
   registerImageEditor,
-  resizeCropRect,
+  resizeCropFromHandle,
   type CropAspect,
-  type CropCorner,
+  type CropHandle,
   type CropRect,
   type EditOutcome,
   type ImageEditOptions,
@@ -41,8 +41,17 @@ import { useTheme } from '@/theme';
 const log = createLogger('image-editor');
 /** Smallest crop box, in on-screen points. */
 const MIN_BOX = 48;
-const HANDLE = 28;
-const CORNERS: CropCorner[] = ['tl', 'tr', 'bl', 'br'];
+/** Touch target of a resize handle, in points. */
+const HANDLE = 32;
+/**
+ * Inset around the image so every handle — which straddles the crop frame's
+ * edge — lies fully INSIDE its parent view. Android never delivers touches to
+ * the part of a child outside its parent's bounds (and `hitSlop` cannot reach
+ * past them), and the stage clips with `overflow: hidden`; handles used to be
+ * children of the frame itself, so only their inner quarter was grabbable and
+ * the frame felt stuck.
+ */
+const PAD = HANDLE / 2;
 /** JPEG quality of the orientation-normalised working copy (re-encoded once more on save). */
 const WORKING_QUALITY = 0.95;
 
@@ -53,6 +62,36 @@ const WORKING_QUALITY = 0.95;
 const WEB_NO_TOUCH_SCROLL = (
   Platform.OS === 'web' ? { touchAction: 'none', userSelect: 'none', cursor: 'move' } : {}
 ) as ViewStyle;
+
+const HANDLE_RENDER_ORDER: CropHandle[] = ['t', 'b', 'l', 'r', 'tl', 'tr', 'bl', 'br'];
+const HANDLE_CURSOR: Record<CropHandle, string> = {
+  tl: 'nwse-resize',
+  br: 'nwse-resize',
+  tr: 'nesw-resize',
+  bl: 'nesw-resize',
+  t: 'ns-resize',
+  b: 'ns-resize',
+  l: 'ew-resize',
+  r: 'ew-resize',
+};
+
+/** Centre of a handle on the frame, in on-screen points relative to the image. */
+function handleCenter(
+  h: CropHandle,
+  box: { left: number; top: number; width: number; height: number },
+): { x: number; y: number } {
+  const x = h.includes('l')
+    ? box.left
+    : h.includes('r')
+      ? box.left + box.width
+      : box.left + box.width / 2;
+  const y = h.includes('t')
+    ? box.top
+    : h.includes('b')
+      ? box.top + box.height
+      : box.top + box.height / 2;
+  return { x, y };
+}
 
 interface Job {
   file: LocalFile;
@@ -114,7 +153,13 @@ export function ImageEditorHost() {
   );
   const ratio = base ? lockedRatio(aspect, base.width, base.height) : null;
   // source px → on-screen points, fitting the rotated image inside the stage
-  const scale = base && stage ? Math.min(stage.width / base.width, stage.height / base.height) : 0;
+  const scale =
+    base && stage
+      ? Math.max(
+          0,
+          Math.min((stage.width - 2 * PAD) / base.width, (stage.height - 2 * PAD) / base.height),
+        )
+      : 0;
 
   // Gesture handlers read the latest values through a ref (they are created once).
   const live = useRef({ rect, base, ratio, scale });
@@ -194,7 +239,7 @@ export function ImageEditorHost() {
   }, [base, aspect]);
 
   const responders = useMemo(() => {
-    const make = (kind: 'move' | CropCorner): PanResponderInstance => {
+    const make = (kind: 'move' | CropHandle): PanResponderInstance => {
       let start: CropRect | null = null;
       return PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -211,7 +256,7 @@ export function ImageEditorHost() {
           setRect(
             kind === 'move'
               ? moveCropRect(start, dx, dy, b)
-              : resizeCropRect(start, kind, dx, dy, b, lock, MIN_BOX / s),
+              : resizeCropFromHandle(start, kind, dx, dy, b, lock, MIN_BOX / s),
           );
         },
         onPanResponderRelease: () => {
@@ -224,10 +269,10 @@ export function ImageEditorHost() {
     };
     return {
       move: make('move'),
-      tl: make('tl'),
-      tr: make('tr'),
-      bl: make('bl'),
-      br: make('br'),
+      ...(Object.fromEntries(HANDLE_RENDER_ORDER.map((h) => [h, make(h)])) as Record<
+        CropHandle,
+        PanResponderInstance
+      >),
     };
   }, []);
 
@@ -335,6 +380,7 @@ export function ImageEditorHost() {
         </View>
 
         <View
+          testID="image-editor-stage"
           onLayout={onStageLayout}
           style={{
             flex: 1,
@@ -348,136 +394,160 @@ export function ImageEditorHost() {
         >
           {working && base && scale > 0 && box ? (
             // Geometry is in physical pixels: pin LTR so RTL never mirrors `left`.
-            <View style={{ width: dispW, height: dispH, direction: 'ltr' }}>
-              <Image
-                source={{ uri: working.uri }}
-                style={{ width: dispW, height: dispH }}
-                contentFit="fill"
-                pointerEvents="none"
-                accessibilityLabel={t('media.editor.preview')}
-              />
-              {/* dim everything outside the crop frame */}
+            // The outer view is the image plus a PAD inset on every side, so the
+            // resize handles (siblings of the frame, on top of it) stay inside it.
+            <View
+              testID="image-editor-canvas"
+              style={{ width: dispW + 2 * PAD, height: dispH + 2 * PAD, direction: 'ltr' }}
+            >
               <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  width: dispW,
-                  height: box.top,
-                  backgroundColor: shade,
-                }}
-              />
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: box.top + box.height,
-                  width: dispW,
-                  height: dispH - box.top - box.height,
-                  backgroundColor: shade,
-                }}
-              />
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: box.top,
-                  width: box.left,
-                  height: box.height,
-                  backgroundColor: shade,
-                }}
-              />
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: box.left + box.width,
-                  top: box.top,
-                  width: dispW - box.left - box.width,
-                  height: box.height,
-                  backgroundColor: shade,
-                }}
-              />
-
-              {/* the draggable frame */}
-              <View
-                {...responders.move.panHandlers}
-                accessible
-                accessibilityLabel={t('media.editor.cropArea')}
-                style={[
-                  {
-                    position: 'absolute',
-                    left: box.left,
-                    top: box.top,
-                    width: box.width,
-                    height: box.height,
-                    borderWidth: 2,
-                    borderColor: '#ffffff',
-                  },
-                  WEB_NO_TOUCH_SCROLL,
-                ]}
+                style={{ position: 'absolute', left: PAD, top: PAD, width: dispW, height: dispH }}
               >
-                {/* rule-of-thirds guides */}
-                {[1, 2].map((i) => (
-                  <View
-                    key={`v${i}`}
-                    pointerEvents="none"
-                    style={{
+                <Image
+                  source={{ uri: working.uri }}
+                  style={{ width: dispW, height: dispH }}
+                  contentFit="fill"
+                  pointerEvents="none"
+                  accessibilityLabel={t('media.editor.preview')}
+                />
+                {/* dim everything outside the crop frame */}
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    width: dispW,
+                    height: box.top,
+                    backgroundColor: shade,
+                  }}
+                />
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: box.top + box.height,
+                    width: dispW,
+                    height: dispH - box.top - box.height,
+                    backgroundColor: shade,
+                  }}
+                />
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: box.top,
+                    width: box.left,
+                    height: box.height,
+                    backgroundColor: shade,
+                  }}
+                />
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    left: box.left + box.width,
+                    top: box.top,
+                    width: dispW - box.left - box.width,
+                    height: box.height,
+                    backgroundColor: shade,
+                  }}
+                />
+
+                {/* the draggable frame */}
+                <View
+                  {...responders.move.panHandlers}
+                  accessible
+                  accessibilityLabel={t('media.editor.cropArea')}
+                  style={[
+                    {
                       position: 'absolute',
-                      left: (box.width * i) / 3,
-                      top: 0,
-                      bottom: 0,
-                      width: 1,
-                      backgroundColor: 'rgba(255,255,255,0.45)',
-                    }}
-                  />
-                ))}
-                {[1, 2].map((i) => (
+                      left: box.left,
+                      top: box.top,
+                      width: box.width,
+                      height: box.height,
+                      borderWidth: 2,
+                      borderColor: '#ffffff',
+                    },
+                    WEB_NO_TOUCH_SCROLL,
+                  ]}
+                >
+                  {/* rule-of-thirds guides */}
+                  {[1, 2].map((i) => (
+                    <View
+                      key={`v${i}`}
+                      pointerEvents="none"
+                      style={{
+                        position: 'absolute',
+                        left: (box.width * i) / 3,
+                        top: 0,
+                        bottom: 0,
+                        width: 1,
+                        backgroundColor: 'rgba(255,255,255,0.45)',
+                      }}
+                    />
+                  ))}
+                  {[1, 2].map((i) => (
+                    <View
+                      key={`h${i}`}
+                      pointerEvents="none"
+                      style={{
+                        position: 'absolute',
+                        top: (box.height * i) / 3,
+                        left: 0,
+                        right: 0,
+                        height: 1,
+                        backgroundColor: 'rgba(255,255,255,0.45)',
+                      }}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              {/* resize handles: sides first so corners win where they overlap */}
+              {HANDLE_RENDER_ORDER.map((h) => {
+                const pos = handleCenter(h, box);
+                const side = h.length === 1;
+                const vertical = h === 'l' || h === 'r';
+                return (
                   <View
-                    key={`h${i}`}
-                    pointerEvents="none"
-                    style={{
-                      position: 'absolute',
-                      top: (box.height * i) / 3,
-                      left: 0,
-                      right: 0,
-                      height: 1,
-                      backgroundColor: 'rgba(255,255,255,0.45)',
-                    }}
-                  />
-                ))}
-                {CORNERS.map((c) => (
-                  <View
-                    key={c}
-                    {...responders[c].panHandlers}
+                    key={h}
+                    testID={`crop-handle-${h}`}
+                    {...responders[h].panHandlers}
                     accessible
                     accessibilityLabel={t('media.editor.cropHandle')}
-                    hitSlop={12}
                     style={[
                       {
                         position: 'absolute',
+                        left: PAD + pos.x - HANDLE / 2,
+                        top: PAD + pos.y - HANDLE / 2,
                         width: HANDLE,
                         height: HANDLE,
-                        left: c === 'tl' || c === 'bl' ? -HANDLE / 2 : box.width - HANDLE / 2,
-                        top: c === 'tl' || c === 'tr' ? -HANDLE / 2 : box.height - HANDLE / 2,
-                        borderRadius: HANDLE / 2,
-                        backgroundColor: '#ffffff',
-                        borderWidth: 2,
-                        borderColor: theme.colors.primary,
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       },
                       WEB_NO_TOUCH_SCROLL,
                       Platform.OS === 'web'
-                        ? ({
-                            cursor: c === 'tl' || c === 'br' ? 'nwse-resize' : 'nesw-resize',
-                          } as unknown as ViewStyle) // web-only CSS cursors
+                        ? ({ cursor: HANDLE_CURSOR[h] } as unknown as ViewStyle) // web-only CSS
                         : null,
                     ]}
-                  />
-                ))}
-              </View>
+                  >
+                    <View
+                      pointerEvents="none"
+                      style={{
+                        width: side ? (vertical ? 6 : 22) : 20,
+                        height: side ? (vertical ? 22 : 6) : 20,
+                        borderRadius: 10,
+                        backgroundColor: '#ffffff',
+                        borderWidth: side ? 0 : 2,
+                        borderColor: theme.colors.primary,
+                      }}
+                    />
+                  </View>
+                );
+              })}
             </View>
           ) : (
             <Loading />

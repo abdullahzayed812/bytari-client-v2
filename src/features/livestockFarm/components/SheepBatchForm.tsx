@@ -139,7 +139,7 @@ export function SheepBatchForm({
         control={control}
         name="arrivalDate"
         label={t('batchForm.fieldArrivalDate')}
-        placeholder="YYYY-MM-DD"
+        placeholder="YYYY-M-D"
         hint={t('batchForm.arrivalDateHint')}
         keyboardType="numbers-and-punctuation"
         autoCorrect={false}

@@ -35,6 +35,8 @@ export interface VeterinaryOfficeProductImage {
   id: string;
   url: string;
   sortOrder: number;
+  /** The product's cover image (`primaryImageUrl`). */
+  isPrimary?: boolean;
 }
 
 /** Free-text display fields shown on the product-details screen. All optional. */
@@ -102,6 +104,8 @@ export interface CreateVeterinaryOfficeProductInput extends VeterinaryOfficeProd
   price?: string | null;
   /** Opening stock only. Later changes go through the stock endpoint. */
   stockQuantity?: number;
+  /** Cover uploaded on the add form before the product existed (org-level presign). */
+  image?: { storageKey: string; mimeType: string };
 }
 
 export interface UpdateVeterinaryOfficeProductInput extends VeterinaryOfficeProductDetailFieldsInput {

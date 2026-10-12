@@ -109,7 +109,7 @@ export function PoultryFlockForm({
         control={control}
         name="arrivalDate"
         label={t('poultry.fieldArrivalDate')}
-        placeholder="YYYY-MM-DD"
+        placeholder="YYYY-M-D"
         hint={t('poultry.arrivalDateHint')}
         keyboardType="numbers-and-punctuation"
         autoCorrect={false}

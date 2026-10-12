@@ -18,7 +18,7 @@ import { DateTimeField } from '@/features/clinicAppointments';
 import { DateField } from '@/features/vetJobs';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { toLocalIsoDate } from '@/utils';
+import { compareIsoDates, toLocalIsoDate } from '@/utils';
 
 import {
   useCreateVetCourse,
@@ -148,7 +148,7 @@ export default function CreateVeterinaryCourseScreen() {
           price: z.string().trim(),
           topics: z.string().trim(),
         })
-        .refine((v) => !v.startDate || !v.endDate || v.endDate >= v.startDate, {
+        .refine((v) => !v.startDate || !v.endDate || compareIsoDates(v.endDate, v.startDate) >= 0, {
           message: t('form.errors.dates'),
           path: ['endDate'],
         }),

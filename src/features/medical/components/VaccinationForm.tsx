@@ -67,7 +67,7 @@ export function VaccinationForm({
         control={control}
         name="administeredOn"
         label={t('vaccinations.fieldAdministeredOn')}
-        placeholder="YYYY-MM-DD"
+        placeholder="YYYY-M-D"
         hint={t('vaccinations.administeredOnHint')}
         keyboardType="numbers-and-punctuation"
         autoCorrect={false}
@@ -78,7 +78,7 @@ export function VaccinationForm({
         control={control}
         name="nextDueOn"
         label={t('vaccinations.fieldNextDueOn')}
-        placeholder="YYYY-MM-DD"
+        placeholder="YYYY-M-D"
         hint={t('vaccinations.nextDueOnHint')}
         keyboardType="numbers-and-punctuation"
         autoCorrect={false}

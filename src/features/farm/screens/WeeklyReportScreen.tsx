@@ -9,7 +9,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Text } from '@/components/typography';
 import { useTheme } from '@/theme';
-import { formatDate } from '@/utils';
+import { formatDate, toLocalIsoDate } from '@/utils';
 
 import { WeeklySummaryCard } from '../components';
 import { useWeeklySummary, usePoultryFlocks } from '../hooks';
@@ -30,7 +30,7 @@ export default function WeeklyReportScreen() {
   const activeFlocks = usePoultryFlocks(orgId, { status: 'ACTIVE', pageSize: 1 });
   const flock = activeFlocks.flocks[0];
 
-  const [weekOf, setWeekOf] = useState(() => new Date().toISOString().slice(0, 10));
+  const [weekOf, setWeekOf] = useState(() => toLocalIsoDate(new Date()));
   const weekly = useWeeklySummary(orgId, flock?.id, weekOf, { enabled: Boolean(flock) });
 
   return (
@@ -46,7 +46,11 @@ export default function WeeklyReportScreen() {
         }}
       >
         {!flock ? (
-          <EmptyState icon="stats-chart-outline" title={t('batch.emptyTitle')} message={t('batch.emptyBody')} />
+          <EmptyState
+            icon="stats-chart-outline"
+            title={t('batch.emptyTitle')}
+            message={t('batch.emptyBody')}
+          />
         ) : (
           <>
             <View

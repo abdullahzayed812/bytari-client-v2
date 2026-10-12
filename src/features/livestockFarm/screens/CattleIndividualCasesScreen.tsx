@@ -131,7 +131,7 @@ export default function CattleIndividualCasesScreen() {
           <Input label={t('cases.diagnosisLabel')} value={diagnosis} onChangeText={setDiagnosis} />
           <Input
             label={t('cases.startedLabel')}
-            placeholder="YYYY-MM-DD"
+            placeholder="YYYY-M-D"
             value={startedOn}
             onChangeText={setStartedOn}
           />
