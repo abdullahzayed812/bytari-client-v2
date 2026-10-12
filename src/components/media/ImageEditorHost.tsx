@@ -22,6 +22,7 @@ import { createLogger } from '@/lib/logger';
 import {
   computeResize,
   editorAspects,
+  effectiveOutputSize,
   initialCropRect,
   lockedRatio,
   moveCropRect,
@@ -41,8 +42,8 @@ import { useTheme } from '@/theme';
 const log = createLogger('image-editor');
 /** Smallest crop box, in on-screen points. */
 const MIN_BOX = 48;
-/** Touch target of a resize handle, in points. */
-const HANDLE = 32;
+/** Touch target of a resize handle, in points (≥ 44 — a comfortable fingertip). */
+const HANDLE = 44;
 /**
  * Inset around the image so every handle — which straddles the crop frame's
  * edge — lies fully INSIDE its parent view. Android never delivers touches to
@@ -287,7 +288,7 @@ export function ImageEditorHost() {
     try {
       const { actions } = planEditActions(base, rect, {
         maxDimension,
-        outputSize: job.options.outputSize,
+        outputSize: effectiveOutputSize(job.options, aspect),
       });
       // Untouched and not downscaled → keep the original bytes (best quality).
       if (actions.length === 0 && !working.downscaled) {
@@ -574,7 +575,9 @@ export function ImageEditorHost() {
                     ? t('media.editor.original')
                     : a === 'free'
                       ? t('media.editor.free')
-                      : a
+                      : job.options.outputSize && a === aspects[0]
+                        ? t('media.editor.requiredSize')
+                        : a
                 }
                 selected={aspect === a}
                 onPress={() => setAspect(a)}

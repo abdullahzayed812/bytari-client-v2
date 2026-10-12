@@ -35,9 +35,10 @@ export interface ImageEditOptions {
   /** Default longest-edge cap. */
   defaultMaxDimension?: ResizeOption;
   /**
-   * Exact output size in pixels. Locks the crop to `width:height` (overrides
-   * `aspects`) and resizes the cropped area to exactly this size, so a slot
-   * that renders at a fixed ratio (ad banners) shows precisely what was framed.
+   * Exact output size in pixels. The editor offers (and starts on) the
+   * `width:height` ratio — the cropped area is then resized to exactly this
+   * size, so a slot that renders at a fixed ratio (ad banners) shows precisely
+   * what was framed — plus a `free` crop for any shape (overrides `aspects`).
    */
   outputSize?: { width: number; height: number };
 }
@@ -92,10 +93,19 @@ export function aspectOfSize(size: { width: number; height: number }): CropAspec
   return `${size.width}:${size.height}`;
 }
 
-/** Aspect choices the editor offers for `options` (an `outputSize` locks one). */
+/** Aspect choices the editor offers for `options` (an `outputSize` → its ratio first, then free). */
 export function editorAspects(options: ImageEditOptions): CropAspect[] {
-  if (options.outputSize) return [aspectOfSize(options.outputSize)];
+  if (options.outputSize) return [aspectOfSize(options.outputSize), 'free'];
   return options.aspects ?? CROP_ASPECTS;
+}
+
+/** The exact output size to export at — only while the crop is locked to its ratio. */
+export function effectiveOutputSize(
+  options: ImageEditOptions,
+  aspect: CropAspect,
+): { width: number; height: number } | undefined {
+  const size = options.outputSize;
+  return size && aspect === aspectOfSize(size) ? size : undefined;
 }
 
 /**
@@ -193,22 +203,23 @@ export function resizeCropRect(
   const maxW = left ? ax : bounds.width - ax;
   const maxH = top ? ay : bounds.height - ay;
   const min = Math.min(minSize, maxW, maxH);
+  const wantW = rect.width + (left ? -dx : dx);
+  const wantH = rect.height + (top ? -dy : dy);
 
-  let w = clamp(rect.width + (left ? -dx : dx), min, maxW);
-  let h = clamp(rect.height + (top ? -dy : dy), min, maxH);
-  if (ratio) {
-    // follow whichever edge moved further, then fit back inside the bounds
-    if (w / h > ratio) h = w / ratio;
-    else w = h * ratio;
-    if (w > maxW) {
-      w = maxW;
-      h = w / ratio;
-    }
-    if (h > maxH) {
-      h = maxH;
-      w = h * ratio;
-    }
+  if (!ratio) {
+    const w = clamp(wantW, min, maxW);
+    const h = clamp(wantH, min, maxH);
+    return { x: left ? ax - w : ax, y: top ? ay - h : ay, width: w, height: h };
   }
+  // Locked ratio: follow the axis the finger moved MORE (in width units) —
+  // growing or shrinking, in any direction — so the corner always tracks the
+  // finger. (Picking the larger box instead froze it whenever the drag went
+  // inwards on one axis, or mostly along the other one.)
+  const byWidth = Math.abs(wantW - rect.width) >= Math.abs(wantH - rect.height) * ratio;
+  const maxWidth = Math.min(maxW, maxH * ratio);
+  const minWidth = Math.min(Math.max(min, min * ratio), maxWidth);
+  const w = clamp(byWidth ? wantW : wantH * ratio, minWidth, maxWidth);
+  const h = w / ratio;
   return { x: left ? ax - w : ax, y: top ? ay - h : ay, width: w, height: h };
 }
 

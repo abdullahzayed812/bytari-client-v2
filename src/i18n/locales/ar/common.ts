@@ -73,6 +73,7 @@ export default {
       aspect: 'نسبة الأبعاد (القص)',
       original: 'الأصلي',
       free: 'حر',
+      requiredSize: 'المقاس المطلوب',
       dragHint: 'اسحب الإطار لتحريكه، واسحب الزوايا لتحديد منطقة القص',
       cropArea: 'منطقة القص',
       cropHandle: 'مقبض تغيير حجم القص',

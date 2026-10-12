@@ -1,5 +1,5 @@
 import { renderWithProviders, screen, waitFor, fireEvent } from '@/test-utils/render';
-import { resetRouterMock, setSearchParams } from '@/test-utils/routerMock';
+import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { adminPublicationsApi } from '@/features/publications';
 
@@ -211,5 +211,15 @@ describe('AdminAnimalsScreen — user pets oversight', () => {
     // gallery-empty copy only renders inside the modal
     await waitFor(() => expect(screen.getByText('لا توجد صور')).toBeTruthy());
     expect(screen.getByText('لابرادور')).toBeTruthy();
+  });
+
+  it('shows the current owner and opens the ownership history (admin only)', async () => {
+    resetRouterMock();
+    renderWithProviders(<AdminAnimalsScreen />);
+    await waitFor(() => expect(screen.getByText('ريكس')).toBeTruthy());
+    fireEvent.press(screen.getByText('ريكس'));
+    await waitFor(() => expect(screen.getByText('المالك الحالي')).toBeTruthy());
+    fireEvent.press(screen.getByText('سجل الملكية'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/an1/ownership');
   });
 });

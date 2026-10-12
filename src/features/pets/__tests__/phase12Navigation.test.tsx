@@ -82,12 +82,12 @@ describe('Phase 12 navigation', () => {
     );
   });
 
-  it('owner Pet Details shows Transfer + Ownership history (no clinic-private medical history) and navigates', async () => {
+  it('owner Pet Details shows Transfer (no current-owner / ownership-history section — admin only) and navigates', async () => {
     renderWithProviders(<PetDetailsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
-    fireEvent.press(screen.getByLabelText('سجل الملكية'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/pets/p1/ownership');
+    expect(screen.queryByLabelText('سجل الملكية')).toBeNull();
+    expect(screen.queryByText('المالك الحالي')).toBeNull();
 
     fireEvent.press(screen.getByRole('button', { name: 'تحويل الملكية' }));
     expect(routerMock.push).toHaveBeenCalledWith({

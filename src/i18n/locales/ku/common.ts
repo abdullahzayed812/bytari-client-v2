@@ -76,6 +76,7 @@ const common: KuNamespace<'common'> = {
       aspect: 'ڕێژەی دووری (بڕین)',
       original: 'ڕەسەن',
       free: 'ئازاد',
+      requiredSize: 'قەبارەی پێویست',
       dragHint: 'چوارچێوەکە ڕابکێشە بۆ جوڵاندنی، و گۆشەکان ڕابکێشە بۆ دیاریکردنی ناوچەی بڕین',
       cropArea: 'ناوچەی بڕین',
       cropHandle: 'دەستکی گۆڕینی قەبارەی بڕین',

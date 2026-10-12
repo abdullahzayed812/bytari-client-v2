@@ -1,6 +1,7 @@
 import {
   aspectRatioOf,
   editorAspects,
+  effectiveOutputSize,
   planEditActions,
   computeCrop,
   computeResize,
@@ -152,6 +153,33 @@ describe('drag crop geometry', () => {
     expect(wide.height).toBeLessThanOrEqual(3000);
   });
 
+  it('a locked-ratio corner follows the finger in ANY direction — never freezes', () => {
+    const r = { x: 1000, y: 1000, width: 1500, height: 700 };
+    const ratio = 1500 / 700;
+    // straight up (only dy): shrinks, keeping the ratio — used to do nothing
+    const up = resizeCropRect(r, 'br', 0, -200, bounds, ratio, 50);
+    expect(up.height).toBeCloseTo(500);
+    expect(up.width / up.height).toBeCloseTo(ratio);
+    // inwards on x only: shrinks too
+    const left = resizeCropRect(r, 'br', -300, 0, bounds, ratio, 50);
+    expect(left.width).toBeCloseTo(1200);
+    // straight down: grows, anchored at the top-left
+    const down = resizeCropRect(r, 'br', 0, 200, bounds, ratio, 50);
+    expect(down).toMatchObject({ x: 1000, y: 1000 });
+    expect(down.height).toBeCloseTo(900);
+    // top-left corner dragged right shrinks from that side
+    const tl = resizeCropRect(r, 'tl', 300, 0, bounds, ratio, 50);
+    expect(tl.x + tl.width).toBeCloseTo(2500);
+    expect(tl.y + tl.height).toBeCloseTo(1700);
+    expect(tl.width).toBeCloseTo(1200);
+    // never past the image or below the minimum
+    const huge = resizeCropRect(r, 'br', 0, 99999, bounds, ratio, 50);
+    expect(huge.x + huge.width).toBeLessThanOrEqual(4000 + 1e-6);
+    expect(huge.y + huge.height).toBeLessThanOrEqual(3000 + 1e-6);
+    const tiny = resizeCropRect(r, 'br', -99999, 0, bounds, ratio, 50);
+    expect(tiny.height).toBeGreaterThanOrEqual(50 - 1e-6);
+  });
+
   it('free-resizes ONE side at a time, in every direction', () => {
     const r = { x: 1000, y: 1000, width: 1000, height: 1000 };
     // right edge out: only the width grows, left / top / height untouched
@@ -238,8 +266,14 @@ describe('custom aspects + exact output size (ad banners)', () => {
     expect(aspectRatioOf('free', 300, 400)).toBeCloseTo(3 / 4);
   });
 
-  it('an outputSize locks the editor to exactly that ratio', () => {
-    expect(editorAspects({ outputSize: AD, aspects: ['1:1', '16:9'] })).toEqual(['1200:560']);
+  it('an outputSize offers exactly that ratio first, plus a free crop', () => {
+    expect(editorAspects({ outputSize: AD, aspects: ['1:1', '16:9'] })).toEqual([
+      '1200:560',
+      'free',
+    ]);
+    expect(effectiveOutputSize({ outputSize: AD }, '1200:560')).toEqual(AD);
+    expect(effectiveOutputSize({ outputSize: AD }, 'free')).toBeUndefined();
+    expect(effectiveOutputSize({}, '1:1')).toBeUndefined();
     expect(editorAspects({ aspects: ['1:1'] })).toEqual(['1:1']);
     expect(editorAspects({})).toContain('free');
   });

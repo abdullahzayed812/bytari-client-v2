@@ -37,7 +37,6 @@ const pets: KuNamespace<'pets'> = {
   },
   detail: {
     title: 'فایلی ئاژەڵ',
-    ownerYou: 'تۆ خاوەنیت',
     sectionInfo: 'زانیارییە سەرەکییەکان',
     fieldSpecies: 'جۆر',
     fieldBreed: 'ڕەگەز',
@@ -59,10 +58,6 @@ const pets: KuNamespace<'pets'> = {
     notFoundTitle: 'ئاژەڵەکە نەدۆزرایەوە',
     notFoundBody: 'لەوانەیە ئەم ئاژەڵە سڕابێتەوە یان مۆڵەتی بینینیت نەبێت.',
     backToList: 'گەڕانەوە بۆ ئاژەڵەکانم',
-    ownershipSection: 'خاوەندارێتی',
-    ownerLabel: 'خاوەنی ئێستا',
-    ownershipHistory: 'مێژووی خاوەندارێتی',
-    transferOwnership: 'گواستنەوەی خاوەندارێتی',
     tabInfo: 'زانیاری',
     tabVaccinations: 'کوتانەکان',
     tabReminders: 'بیرخستنەوەکان',

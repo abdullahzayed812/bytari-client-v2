@@ -25,6 +25,7 @@ export {
   cropActionOf,
   aspectOfSize,
   editorAspects,
+  effectiveOutputSize,
   planEditActions,
   type ManipulatorAction,
   CROP_ASPECTS,

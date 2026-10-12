@@ -47,9 +47,11 @@ describe('ImageEditorHost', () => {
       pending = editImage(PICKED, { outputSize: { width: 1200, height: 560 } });
     });
 
-    // only the locked ad ratio is offered — no free / 16:9 chips
+    // the ad's required size (default) + a free crop — no other ratios
     await waitFor(() => expect(mockManipulate).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('16:9')).toBeNull();
+    expect(screen.getByText('المقاس المطلوب')).toBeTruthy();
+    expect(screen.getByText('حر')).toBeTruthy();
 
     const save = await screen.findByRole('button', { name: SAVE });
     await waitFor(() => expect(save).not.toBeDisabled());
@@ -72,6 +74,25 @@ describe('ImageEditorHost', () => {
       width: 1200,
       height: 560,
     });
+  });
+
+  it('a fixed-size slot can switch to a free crop: no forced resize to the output size', async () => {
+    mockManipulate
+      .mockResolvedValueOnce({ uri: 'file:///working.jpg', width: 3000, height: 4000 })
+      .mockResolvedValueOnce({ uri: 'file:///out.jpg', width: 1536, height: 2048 });
+    renderWithProviders(<ImageEditorHost />);
+    let pending: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      pending = editImage(PICKED, { outputSize: { width: 1200, height: 560 } });
+    });
+    await waitFor(() => expect(mockManipulate).toHaveBeenCalledTimes(1));
+    fireEvent.press(await screen.findByText('حر'));
+    const save = await screen.findByRole('button', { name: SAVE });
+    await waitFor(() => expect(save).not.toBeDisabled());
+    fireEvent.press(save);
+    await pending;
+    // whole image (free starts uncropped), only the longest-edge cap — never 1200×560
+    expect(mockManipulate.mock.calls[1]![1]).toEqual([{ resize: { height: 2048 } }]);
   });
 
   it('caps the working copy at the default longest edge for free crops', async () => {

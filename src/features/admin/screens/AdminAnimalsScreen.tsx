@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -7,6 +8,7 @@ import { ConfirmationDialog, Skeleton, useToast } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import { useDebouncedValue } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -26,7 +28,8 @@ const STATUSES: AdminAnimalStatus[] = ['ACTIVE', 'DEACTIVATED'];
 
 /**
  * `/admin/animals` — every user's pets. Admin can search / filter and
- * soft-delete (deactivate) a pet. Deletion is backend-authorised
+ * soft-delete (deactivate) a pet. The current owner + ownership history live
+ * here only (no longer on the owner's Pet Details). Deletion is backend-authorised
  * (`animal.delete`, ADMIN override) — hiding the button is not the control.
  */
 export default function AdminAnimalsScreen() {
@@ -189,6 +192,18 @@ export default function AdminAnimalsScreen() {
             : []
         }
       >
+        {detail ? (
+          <Button
+            label={t('adminAnimals.details.ownershipHistory')}
+            variant="outline"
+            leftIcon="people-outline"
+            onPress={() => {
+              const id = detail.id;
+              setDetail(null);
+              router.push(Routes.petOwnership(id));
+            }}
+          />
+        ) : null}
         {detail && detail.status === 'ACTIVE' ? (
           <Button
             label={t('adminAnimals.editAction')}

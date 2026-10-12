@@ -25,7 +25,6 @@ import { useMarkPetSectionSeen, usePetUnseenCounts } from '@/features/notificati
 import { PublicationKindBadge, PublicationStatusBadge } from '@/features/publications/components';
 import { PUBLICATION_KIND_META } from '@/features/publications/constants';
 import { useAnimalPublications } from '@/features/publications/hooks';
-import { UserName } from '@/features/users/components';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { copyText } from '@/lib/clipboard';
@@ -867,37 +866,6 @@ function InfoTab({
           })}
         </View>
       ) : null}
-
-      {/* Ownership — current owner + history (kept from the previous layout). */}
-      <View style={{ marginTop: 24, rowGap: theme.spacing.sm }}>
-        <Row justify="space-between" align="center">
-          <Caption>{t('detail.ownerLabel')}</Caption>
-          {isOwner ? (
-            <Text variant="bodyMedium">{t('detail.ownerYou')}</Text>
-          ) : (
-            <UserName
-              userId={pet.currentOwnerUserId}
-              variant="bodyMedium"
-              numberOfLines={1}
-              style={{ maxWidth: '60%' }}
-            />
-          )}
-        </Row>
-        <Card
-          variant="outlined"
-          padding="md"
-          onPress={() => router.push(Routes.petOwnership(pet.id))}
-          accessibilityLabel={t('detail.ownershipHistory')}
-        >
-          <Row gap="md">
-            <Ionicons name="people-outline" size={22} color={C.green} />
-            <Text variant="bodyMedium" style={{ flex: 1 }}>
-              {t('detail.ownershipHistory')}
-            </Text>
-            <Ionicons name="chevron-back" size={18} color={theme.colors.textMuted} />
-          </Row>
-        </Card>
-      </View>
 
       {/* This pet's existing listings (adoption / mating / lost). */}
       {canPublish && listings.length > 0 ? (
