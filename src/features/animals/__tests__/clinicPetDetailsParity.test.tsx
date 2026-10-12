@@ -76,7 +76,7 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('clinic pet details — legacy clinic mode', () => {
-  it('shows owner contact + parity fields, and opens the owner chat (created on demand)', async () => {
+  it('shows owner name / phone pills + info strip, and opens the owner chat (created on demand)', async () => {
     setSearchParams({ organizationId: 'o1', animalId: 'a1' });
     jest.spyOn(organizationAnimalsApi, 'getProfile').mockResolvedValue(profile);
     jest.spyOn(chatApi, 'listConversations').mockResolvedValue({
@@ -89,7 +89,7 @@ describe('clinic pet details — legacy clinic mode', () => {
     await waitFor(() => expect(screen.getByText('سارة علي')).toBeOnTheScreen());
     expect(screen.getByText('0770000000')).toBeOnTheScreen();
     expect(screen.getByText('12.5 كجم')).toBeOnTheScreen();
-    expect(screen.getByText('عقيم')).toBeOnTheScreen();
+    expect(screen.getByLabelText('إيقاف المحادثة')).toBeOnTheScreen();
     expect(start).not.toHaveBeenCalled(); // viewing never creates a conversation
 
     fireEvent.press(screen.getByText('محادثة المالك'));
@@ -99,7 +99,7 @@ describe('clinic pet details — legacy clinic mode', () => {
     await waitFor(() => expect(routerMock.push).toHaveBeenCalledWith('/(app)/chat/c1'));
   });
 
-  it('quick actions route to the legacy flows (full exam / lab)', async () => {
+  it('quick actions route to the legacy flows (quick review / full exam)', async () => {
     setSearchParams({ organizationId: 'o1', animalId: 'a1' });
     jest.spyOn(organizationAnimalsApi, 'getProfile').mockResolvedValue(profile);
     renderWithProviders(<OrganizationAnimalDetailScreen />);
@@ -109,10 +109,10 @@ describe('clinic pet details — legacy clinic mode', () => {
       pathname: '/(app)/organizations/o1/animals/a1/medical-records/create',
       params: { type: 'FULL_EXAM' },
     });
-    fireEvent.press(screen.getByLabelText('إضافة تحليل'));
+    fireEvent.press(screen.getByLabelText('مراجعة سريعة'));
     expect(routerMock.push).toHaveBeenCalledWith({
-      pathname: '/(app)/organizations/o1/animals/a1/medical-records/create',
-      params: { type: 'LAB' },
+      pathname: '/(app)/clinic-dashboard/o1/quick-review',
+      params: { animalId: 'a1' },
     });
   });
 });

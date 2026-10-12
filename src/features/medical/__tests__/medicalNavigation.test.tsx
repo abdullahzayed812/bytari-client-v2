@@ -62,7 +62,7 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     expect(Routes.petVaccination('p1', 'v1')).toBe('/(app)/pets/p1/vaccinations/v1');
   });
 
-  it('Organization Animal Details (CLINIC) shows the Medical Records + Vaccinations entries', async () => {
+  it('Organization Animal Details (CLINIC) shows the Medical Records + Vaccinations tabs inline', async () => {
     seedVet();
     setSearchParams({ organizationId: 'o1', animalId: 'a1' });
     jest
@@ -98,13 +98,12 @@ describe('Phase 6 navigation (§34) + Pet Owner coexistence (§16)', () => {
     renderWithProviders(<OrganizationAnimalDetailScreen />);
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
 
-    fireEvent.press(screen.getByLabelText('السجل الطبي'));
+    expect(screen.getByRole('tab', { name: 'السجلات الطبية' })).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('tab', { name: 'التطعيمات' }));
+    fireEvent.press(screen.getByLabelText('+ إضافة تطعيم جديد'));
     expect(routerMock.push).toHaveBeenCalledWith(
-      '/(app)/organizations/o1/animals/a1/medical-records',
+      '/(app)/organizations/o1/animals/a1/vaccinations/create',
     );
-
-    fireEvent.press(screen.getByLabelText('التطعيمات'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/o1/animals/a1/vaccinations');
   });
 
   it('Pet Details (owner) shows ONLY Vaccinations + Reminders entries, and the short pet ID', async () => {
