@@ -2480,8 +2480,6 @@ export const en: TranslationResources = {
         ratingAtLeast: '{{rating}}+',
         service: 'Service',
         servicePlaceholder: 'e.g. vaccination, surgery',
-        productBrand: 'Product brand',
-        productCountry: 'Product country of origin',
         apply: 'Apply',
         reset: 'Reset',
       },

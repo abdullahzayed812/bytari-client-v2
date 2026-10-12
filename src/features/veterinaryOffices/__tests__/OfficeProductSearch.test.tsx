@@ -27,7 +27,7 @@ const hit = (id: string, officeId: string, officeName: string, name: string) =>
   }) as unknown as OfficeProductSearchHit;
 
 describe('publicVeterinaryOfficeProductsApi.searchAll', () => {
-  it('GET /office-products/search with search / type / paging', async () => {
+  it('GET /office-products/search with search / type / brand / country / paging', async () => {
     const envelope = jest.spyOn(apiClient, 'requestEnvelope').mockResolvedValueOnce({
       data: [],
       meta: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
@@ -37,11 +37,20 @@ describe('publicVeterinaryOfficeProductsApi.searchAll', () => {
       pageSize: 20,
       search: 'أموكس',
       productType: 'MEDICINE',
+      brand: 'Bayer',
+      country: 'ألمانيا',
     });
     expect(envelope).toHaveBeenCalledWith({
       method: 'GET',
       url: '/office-products/search',
-      params: { page: 1, pageSize: 20, search: 'أموكس', type: 'MEDICINE' },
+      params: {
+        page: 1,
+        pageSize: 20,
+        search: 'أموكس',
+        type: 'MEDICINE',
+        brand: 'Bayer',
+        country: 'ألمانيا',
+      },
     });
   });
 });
@@ -83,5 +92,29 @@ describe('OfficeProductSearchScreen', () => {
     renderWithProviders(<OfficeProductSearchScreen />);
     fireEvent.changeText(screen.getByLabelText('اسم المنتج، الماركة، بلد المنشأ...'), 'zzz');
     await waitFor(() => expect(screen.getByText('لا توجد منتجات مطابقة')).toBeTruthy());
+  });
+
+  it('filters by brand / country of origin from every office (no search term needed)', async () => {
+    jest
+      .spyOn(publicVeterinaryOfficeProductsApi, 'facetsAll')
+      .mockResolvedValue({ brands: ['Bayer', 'Zoetis'], countries: ['ألمانيا'] });
+    const spy = jest.spyOn(publicVeterinaryOfficeProductsApi, 'searchAll').mockResolvedValue({
+      items: [hit('p1', 'o1', 'مكتب الرافدين', 'أموكسيسيلين 500')],
+      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+    renderWithProviders(<OfficeProductSearchScreen />);
+    fireEvent.press(screen.getByRole('button', { name: 'تصفية' }));
+    await waitFor(() => expect(screen.getByText('Zoetis')).toBeTruthy());
+    expect(screen.getByText('العلامة التجارية')).toBeTruthy();
+    expect(screen.getByText('بلد المنشأ')).toBeTruthy();
+    fireEvent.press(screen.getByText('Bayer'));
+    fireEvent.press(screen.getByText('ألمانيا'));
+    fireEvent.press(screen.getByText('عرض النتائج'));
+
+    expect(await screen.findByText('أموكسيسيلين 500')).toBeTruthy();
+    expect(spy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ brand: 'Bayer', country: 'ألمانيا', page: 1 }),
+    );
+    expect(screen.getByRole('button', { name: 'تصفية (2)' })).toBeTruthy();
   });
 });

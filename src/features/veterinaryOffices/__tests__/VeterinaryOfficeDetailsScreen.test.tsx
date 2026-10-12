@@ -101,7 +101,9 @@ describe('VeterinaryOfficeDetailsScreen', () => {
       new ApiError({ code: 'NOT_FOUND', message: 'not found', status: 404 }),
     );
     renderWithProviders(<VeterinaryOfficeDetailsScreen />);
-    await waitFor(() => expect(screen.getByText('هذا المكتب غير متاح حالياً.')).toBeOnTheScreen());
+    await waitFor(() =>
+      expect(screen.getByText('هذا المكتب أو الشركة غير متاح حالياً.')).toBeOnTheScreen(),
+    );
   });
 
   it('shows a product preview and navigates to the full catalog', async () => {

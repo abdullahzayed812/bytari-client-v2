@@ -131,8 +131,6 @@ export const organizationsApi = {
         country: filter.country,
         minRating: filter.minRating,
         service: filter.service,
-        productBrand: filter.productBrand,
-        productCountry: filter.productCountry,
       },
     });
     return {

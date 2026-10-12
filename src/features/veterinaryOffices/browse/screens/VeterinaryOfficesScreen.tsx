@@ -19,8 +19,6 @@ import {
 import { useDebouncedValue, type Coordinates } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { useOfficeProductFacetsAll } from '../hooks';
-
 const PAGE_SIZE = 6;
 
 /**
@@ -48,8 +46,6 @@ export default function VeterinaryOfficesScreen() {
     filters,
     pageSize: PAGE_SIZE,
   });
-  // "العلامة التجارية" / "بلد المنشأ" chips — values from every office's products.
-  const productFacets = useOfficeProductFacetsAll();
 
   const goToDetail = (org: PublicOrganization) =>
     router.push(Routes.veterinaryOfficeDetail(org.id));
@@ -101,7 +97,6 @@ export default function VeterinaryOfficesScreen() {
         onSortChange={handleSortChange}
         filters={filters}
         onFiltersChange={setFilters}
-        productFacets={productFacets.data ?? { brands: [], countries: [] }}
       />
 
       {q.isLoading ? (

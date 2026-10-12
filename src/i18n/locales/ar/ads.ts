@@ -4,7 +4,7 @@ export default {
     PETS: 'الحيوانات الأليفة',
     POULTRY_FARMS: 'مزارع الدواجن',
     CLINICS: 'العيادات',
-    VETERINARY_OFFICES: 'المكاتب البيطرية',
+    VETERINARY_OFFICES: 'المكاتب أو الشركات البيطرية',
     VETERINARY_STORES: 'المتاجر البيطرية',
     PET_OWNER_STORE: 'متجر أصحاب الحيوانات',
     VETERINARIAN_STORE: 'المتجر البيطري',

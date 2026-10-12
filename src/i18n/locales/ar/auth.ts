@@ -115,7 +115,7 @@ export default {
       vetRejected: 'طبيب مرفوض',
       clinicOwner: 'مالك عيادة',
       farmOwner: 'مالك مزرعة',
-      officeOwner: 'مالك مكتب بيطري',
+      officeOwner: 'مالك مكتب أو شركة بيطرية',
       storeOwner: 'مالك متجر بيطري',
       orgVet: 'طبيب منشأة',
       orgSupervisor: 'مشرف منشأة',

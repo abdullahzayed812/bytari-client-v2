@@ -35,8 +35,6 @@ export const orgKeys = {
     country?: string;
     minRating?: number;
     service?: string;
-    productBrand?: string;
-    productCountry?: string;
   }) => [...orgKeys.discoverLists(), filter] as const,
   publicDetail: (organizationId: string) =>
     [...orgKeys.all, 'discover-detail', organizationId] as const,

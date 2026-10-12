@@ -34,7 +34,7 @@ export function devRegistrationDefaults(isClinic: boolean): Partial<Registration
   }
   return {
     name: 'مكتب النور البيطري',
-    description: 'مكتب بيطري متخصص في بيع المستلزمات والأدوية البيطرية.',
+    description: 'مكتب أو شركة بيطرية متخصصة في بيع المستلزمات والأدوية البيطرية.',
     address: 'شارع الرشيد، الكرادة، بغداد',
     country: 'العراق',
     phone: '07709876543',

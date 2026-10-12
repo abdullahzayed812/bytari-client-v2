@@ -98,7 +98,7 @@ describe('PublicVeterinaryOfficeProductDetailsScreen', () => {
     getProduct.mockResolvedValue(product);
     renderWithProviders(<PublicVeterinaryOfficeProductDetailsScreen />);
     await waitFor(() => expect(screen.getByText('أنتي بيك')).toBeOnTheScreen());
-    await waitFor(() => expect(screen.getByText('تواصل مع المكتب')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('تواصل مع المكتب أو الشركة')).toBeOnTheScreen());
     expect(screen.getByText('اتصال')).toBeOnTheScreen();
     expect(screen.getByText('تواصل واتساب')).toBeOnTheScreen();
   });

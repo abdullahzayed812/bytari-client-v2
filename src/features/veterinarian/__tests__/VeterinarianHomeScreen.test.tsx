@@ -107,7 +107,7 @@ describe('VeterinarianHomeScreen — capability-aware, backend authoritative', (
 
     await waitFor(() => expect(screen.getByText('عيادة البرموك البيطرية')).toBeOnTheScreen());
     expect(screen.getByText('أرسل استفسارك')).toBeOnTheScreen();
-    expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen();
+    expect(screen.getByText('المكاتب أو الشركات البيطرية')).toBeOnTheScreen();
     expect(screen.queryByText('حالة الاعتماد كطبيب بيطري')).toBeNull();
   });
 
@@ -116,7 +116,7 @@ describe('VeterinarianHomeScreen — capability-aware, backend authoritative', (
     renderWithProviders(<VeterinarianHomeScreen />);
 
     await waitFor(() => expect(screen.getByText('لا توجد استفسارات')).toBeOnTheScreen());
-    expect(screen.getByText('لا توجد مكاتب بيطرية متاحة حالياً')).toBeOnTheScreen();
+    expect(screen.getByText('لا توجد مكاتب أو شركات بيطرية متاحة حالياً')).toBeOnTheScreen();
   });
 
   it('PENDING → shows the pending hint and hides the inquiry sections, but still shows public offices', async () => {
@@ -127,7 +127,7 @@ describe('VeterinarianHomeScreen — capability-aware, backend authoritative', (
       expect(screen.getByText('طلب اعتمادك قيد المراجعة من فريق الإدارة.')).toBeOnTheScreen(),
     );
     await waitFor(() => expect(screen.getByText('عيادة البرموك البيطرية')).toBeOnTheScreen());
-    expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen();
+    expect(screen.getByText('المكاتب أو الشركات البيطرية')).toBeOnTheScreen();
     expect(screen.queryByText('أرسل استفسارك')).toBeNull();
   });
 

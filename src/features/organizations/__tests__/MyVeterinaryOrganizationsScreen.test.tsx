@@ -89,7 +89,7 @@ describe('MyVeterinaryOrganizationsScreen — leaving an organization', () => {
     renderWithProviders(<MyVeterinaryOrganizationsScreen />);
     await waitFor(() => expect(screen.getByText('عيادتي')).toBeOnTheScreen());
     expect(screen.getAllByText('مغادرة العيادة')).toHaveLength(1); // c1 only, not the owned c2
-    expect(screen.getByText('مغادرة المكتب البيطري')).toBeOnTheScreen();
+    expect(screen.getByText('مغادرة المكتب أو الشركة البيطرية')).toBeOnTheScreen();
     expect(screen.getByText('مغادرة المزرعة')).toBeOnTheScreen();
   });
 

@@ -35,7 +35,7 @@ export function usePublicVeterinaryOfficeProductFacets(organizationId: string | 
   });
 }
 
-/** Brand / country-of-origin values across every public office — the offices list filter. */
+/** Brand / country-of-origin values across every public office — the cross-office search filter. */
 export function useOfficeProductFacetsAll() {
   return useQuery({
     queryKey: publicVeterinaryOfficeProductKeys.facetsAll(),
@@ -119,12 +119,23 @@ export function usePublicVeterinaryOfficeProduct(
 export function useOfficeProductSearch(params: {
   search?: string;
   productType?: VeterinaryOfficeProductType;
+  brand?: string;
+  country?: string;
   pageSize?: number;
 }) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
   const search = params.search?.trim() ?? '';
-  const filter = { search: search || undefined, productType: params.productType };
-  const enabled = search.length >= 2 || Boolean(params.productType);
+  const filter = {
+    search: search || undefined,
+    productType: params.productType,
+    brand: params.brand,
+    country: params.country,
+  };
+  const enabled =
+    search.length >= 2 ||
+    Boolean(params.productType) ||
+    Boolean(params.brand) ||
+    Boolean(params.country);
 
   const query = useInfiniteQuery<
     Paginated<OfficeProductSearchHit>,

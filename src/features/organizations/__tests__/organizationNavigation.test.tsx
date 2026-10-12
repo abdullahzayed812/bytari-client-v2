@@ -120,7 +120,7 @@ describe('Phase 4 navigation (§32): Vet Home → Organizations → Details → 
       meta: { page: 1, pageSize: 3, total: 1, totalPages: 1 },
     });
     renderWithProviders(<VeterinarianHomeScreen />);
-    await waitFor(() => expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('المكاتب أو الشركات البيطرية')).toBeOnTheScreen());
     fireEvent.press(screen.getByText('عرض الكل'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices');
   });

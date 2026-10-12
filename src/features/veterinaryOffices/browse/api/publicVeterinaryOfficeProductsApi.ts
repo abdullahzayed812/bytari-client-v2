@@ -60,6 +60,8 @@ export const publicVeterinaryOfficeProductsApi = {
     pageSize: number;
     search?: string;
     productType?: VeterinaryOfficeProductListFilter['productType'];
+    brand?: string;
+    country?: string;
   }): Promise<Paginated<OfficeProductSearchHit>> {
     const envelope = await apiClient.requestEnvelope<OfficeProductSearchHit[]>({
       method: 'GET',
@@ -69,6 +71,8 @@ export const publicVeterinaryOfficeProductsApi = {
         pageSize: filter.pageSize,
         search: filter.search || undefined,
         type: filter.productType,
+        brand: filter.brand,
+        country: filter.country,
       },
     });
     return {
@@ -77,7 +81,7 @@ export const publicVeterinaryOfficeProductsApi = {
     };
   },
 
-  /** Distinct brands / countries across every public office (offices list filter). */
+  /** Distinct brands / countries across every public office (cross-office search filter). */
   facetsAll(): Promise<VeterinaryOfficeProductFacets> {
     return apiClient.get<VeterinaryOfficeProductFacets>('/office-products/facets');
   },

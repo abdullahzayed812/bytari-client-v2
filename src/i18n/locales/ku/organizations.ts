@@ -31,8 +31,6 @@ const organizations: KuNamespace<'organizations'> = {
       service: 'خزمەتگوزاری',
       servicePlaceholder: 'نموونە: کوتان، نەشتەرگەری',
       apply: 'جێبەجێکردن',
-      productBrand: 'براندی بەرهەمەکان',
-      productCountry: 'وڵاتی دروستکردنی بەرهەمەکان',
       reset: 'ڕێکخستنەوە',
     },
     nearest: 'نزیکترین',

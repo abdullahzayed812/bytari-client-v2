@@ -186,12 +186,6 @@ export interface DiscoverFilters {
   country?: string;
   minRating?: number;
   service?: string;
-  /**
-   * VETERINARY_OFFICE only — offices selling a public product of this brand /
-   * country of origin (values from `GET /office-products/facets`).
-   */
-  productBrand?: string;
-  productCountry?: string;
 }
 
 /** `GET /organizations/discover/:id` — public profile + veterinarians + the viewer's engagement. */

@@ -68,7 +68,7 @@ describe('ModeAwareHomeScreen — APP MODE ≠ ROLE; Pet Owner features never re
     seed('APPROVED');
     useAppModeStore.setState({ activeMode: 'veterinarian' });
     renderWithProviders(<ModeAwareHomeScreen />);
-    await waitFor(() => expect(screen.getByText('المكاتب البيطرية')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('المكاتب أو الشركات البيطرية')).toBeOnTheScreen());
   });
 
   it('a non-approved user in veterinarian mode falls back to the Pet Owner Home', async () => {

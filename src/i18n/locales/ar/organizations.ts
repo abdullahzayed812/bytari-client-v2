@@ -26,8 +26,6 @@ export default {
       service: 'الخدمة',
       servicePlaceholder: 'مثال: تطعيم، جراحة',
       apply: 'تطبيق',
-      productBrand: 'العلامة التجارية للمنتجات',
-      productCountry: 'بلد منشأ المنتجات',
       reset: 'إعادة ضبط',
     },
     nearest: 'الأقرب',
@@ -98,7 +96,7 @@ export default {
   type: {
     CLINIC: 'عيادة',
     FARM: 'مزرعة',
-    VETERINARY_OFFICE: 'مكتب بيطري',
+    VETERINARY_OFFICE: 'مكتب أو شركة بيطرية',
     VETERINARY_STORE: 'متجر بيطري',
     SYNDICATE: 'نقابة',
     CHAT_ROOM: 'غرفة دردشة',
@@ -128,16 +126,17 @@ export default {
     empty: 'لا توجد مؤسسات بعد',
     emptyHint: 'أنشئ مؤسستك الأولى أو اطلب من مالك مؤسسة إضافتك عضواً.',
     loadingMore: 'جارٍ التحميل…',
-    myVeterinaryOrgsTitle: 'مكاتبي وعياداتي',
-    myVeterinaryOrgsEmpty: 'لا توجد مكاتب أو عيادات بعد',
-    myVeterinaryOrgsEmptyHint: 'أنشئ مكتباً بيطرياً أو عيادة، أو اطلب من المالك إضافتك عضواً.',
+    myVeterinaryOrgsTitle: 'مكاتبي أو شركاتي وعياداتي',
+    myVeterinaryOrgsEmpty: 'لا توجد مكاتب أو شركات أو عيادات بعد',
+    myVeterinaryOrgsEmptyHint:
+      'أنشئ مكتباً أو شركة بيطرية أو عيادة، أو اطلب من المالك إضافتك عضواً.',
     sectionClinics: 'العيادات',
-    sectionOffices: 'المكاتب البيطرية',
+    sectionOffices: 'المكاتب أو الشركات البيطرية',
     sectionFarms: 'الحقول (دواجن/أغنام/أبقار)',
   },
   leaveMembership: {
     CLINIC: 'مغادرة العيادة',
-    VETERINARY_OFFICE: 'مغادرة المكتب البيطري',
+    VETERINARY_OFFICE: 'مغادرة المكتب أو الشركة البيطرية',
     FARM: 'مغادرة المزرعة',
     confirmTitle: 'مغادرة {{name}}',
     confirmBody:
@@ -196,7 +195,7 @@ export default {
     typeNeedsApproval: 'يتطلب اعتماد طبيب بيطري',
     typeNoApproval: 'لا يتطلب اعتماداً',
     vetApprovalRequired:
-      'إنشاء عيادة أو مزرعة يتطلب أن تكون حالتك كطبيب بيطري «معتمَد». اختر مكتباً أو متجراً بيطرياً، أو قدّم طلب الاعتماد أولاً.',
+      'إنشاء عيادة أو مزرعة يتطلب أن تكون حالتك كطبيب بيطري «معتمَد». اختر مكتباً أو شركة أو متجراً بيطرياً، أو قدّم طلب الاعتماد أولاً.',
     nameLabel: 'اسم المؤسسة',
     namePlaceholder: 'مثال: عيادة الرحمة البيطرية',
     descriptionLabel: 'الوصف (اختياري)',
@@ -236,7 +235,7 @@ export default {
   createPicker: {
     title: 'إضافة مؤسسة',
     clinicHint: 'عيادة بيطرية تستقبل الحالات والمواعيد',
-    officeHint: 'مكتب بيطري يعرض منتجات وخدمات',
+    officeHint: 'مكتب أو شركة بيطرية تعرض منتجات وخدمات',
     linkFarmTitle: 'ربط بحقل دواجن/أغنام/أبقار',
     linkFarmHint: 'أدخل كود الحقل لتنضم إليه كطبيب مسؤول',
   },
@@ -269,16 +268,16 @@ export default {
         'تسجيل عيادة يتطلب أن تكون حالتك كطبيب بيطري «معتمَد». قدّم طلب الاعتماد أولاً من صفحة البيطري.',
     },
     office: {
-      title: 'تسجيل المكتب',
+      title: 'تسجيل المكتب أو الشركة',
       intro:
-        'املأ النموذج أدناه لتسجيل مكتبك البيطري. سيتم مراجعة طلبك من قبل الإدارة قبل التفعيل.',
-      nameLabel: 'اسم المكتب',
-      namePlaceholder: 'ادخل اسم المكتب',
-      descriptionPlaceholder: 'وصف مختصر عن المكتب وخدماته',
-      addressPlaceholder: 'العنوان الكامل للمكتب',
-      websitePlaceholder: 'موقع المكتب الإلكتروني',
-      licenseNumberPlaceholder: 'رقم ترخيص المكتب البيطري',
-      imagesTitle: 'صور المكتب',
+        'املأ النموذج أدناه لتسجيل مكتبك أو شركتك البيطرية. سيتم مراجعة طلبك من قبل الإدارة قبل التفعيل.',
+      nameLabel: 'اسم المكتب أو الشركة',
+      namePlaceholder: 'ادخل اسم المكتب أو الشركة',
+      descriptionPlaceholder: 'وصف مختصر عن المكتب أو الشركة وخدماتها',
+      addressPlaceholder: 'العنوان الكامل للمكتب أو الشركة',
+      websitePlaceholder: 'الموقع الإلكتروني للمكتب أو الشركة',
+      licenseNumberPlaceholder: 'رقم ترخيص المكتب أو الشركة البيطرية',
+      imagesTitle: 'صور المكتب أو الشركة',
       freeTrialBadge: 'فترة مجانية',
     },
     sections: {
@@ -434,11 +433,11 @@ export default {
   permissions: {
     'product.read': {
       label: 'عرض المنتجات',
-      hint: 'الاطلاع على منتجات المكتب ولوحة التحكم.',
+      hint: 'الاطلاع على منتجات المكتب أو الشركة ولوحة التحكم.',
     },
     'product.create': {
       label: 'إضافة منتجات',
-      hint: 'إضافة منتجات جديدة إلى المكتب.',
+      hint: 'إضافة منتجات جديدة إلى المكتب أو الشركة.',
     },
     'product.update': {
       label: 'تعديل المنتجات',
@@ -446,7 +445,7 @@ export default {
     },
     'product.delete': {
       label: 'حذف المنتجات',
-      hint: 'حذف منتجات المكتب.',
+      hint: 'حذف منتجات المكتب أو الشركة.',
     },
     'product.inventory.adjust': {
       label: 'تعديل المخزون',
@@ -454,7 +453,7 @@ export default {
     },
     'organization.broadcast.send': {
       label: 'مراسلة المتابعين',
-      hint: 'إرسال رسالة إلى جميع متابعي المكتب.',
+      hint: 'إرسال رسالة إلى جميع متابعي المكتب أو الشركة.',
     },
     'organization.read': {
       label: 'عرض المؤسسة',
