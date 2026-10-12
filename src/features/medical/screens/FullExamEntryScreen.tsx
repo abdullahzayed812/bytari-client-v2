@@ -24,12 +24,17 @@ export default function FullExamEntryScreen() {
         organizationId={orgId}
         placeholder={t('quickReview.searchAnimal')}
         emptyTitle={t('quickReview.noAnimals')}
-        onPick={(g) =>
-          router.replace({
+        onPick={(g) => {
+          // Not `replace`: the form lives in the organizations stack, so a
+          // cross-stack replace swaps out the whole Clinic Dashboard stack and
+          // every later back skips straight to My Organizations. Pop this
+          // picker, then push the form on top of the dashboard.
+          router.back();
+          router.push({
             pathname: Routes.orgAnimalMedicalRecordCreate(orgId, g.animalId) as never,
             params: { type: 'FULL_EXAM' },
-          })
-        }
+          });
+        }}
       />
     </SafeAreaScreen>
   );
