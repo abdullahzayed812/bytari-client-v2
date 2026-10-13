@@ -132,6 +132,11 @@ export default {
         subtitle: 'إرسال رسائل وإشعارات للمستخدمين',
         unit: 'رسالة مرسلة',
       },
+      homeSections: {
+        title: 'صور أقسام الصفحة الرئيسية',
+        subtitle: 'رفع واستبدال صور أقسام الصفحة الرئيسية للمربين والأطباء',
+        unit: 'قسم',
+      },
       books: { title: 'الكتب', subtitle: 'إدارة الكتب البيطرية وملفاتها', unit: 'كتاب منشور' },
       magazines: { title: 'المجلات', subtitle: 'إدارة أعداد المجلة البيطرية', unit: 'عدد منشور' },
       // One combined tile for adoption / mating / lost (sums the three server counters).
@@ -366,6 +371,8 @@ export default {
     AD_SLIDE_REMOVED: 'تم حذف شريحة إعلانية',
     AD_SLIDE_REORDERED: 'تم إعادة ترتيب شرائح إعلانية',
     AD_SLIDE_IMAGE_UPDATED: 'تم تحديث صورة شريحة إعلانية',
+    HOME_SECTION_IMAGE_UPDATED: 'تم تحديث صورة قسم في الصفحة الرئيسية',
+    HOME_SECTION_IMAGE_REMOVED: 'تم حذف صورة قسم في الصفحة الرئيسية',
     TRADER_APPLICATION_CREATED: 'طلب تسجيل تاجر جديد',
     TRADER_APPROVED: 'تمت الموافقة على تاجر',
     TRADER_REJECTED: 'تم رفض طلب تاجر',
@@ -486,6 +493,18 @@ export default {
       COMPLETED: 'مكتملة',
       CLOSED: 'مغلقة',
     },
+  },
+
+  homeSections: {
+    title: 'صور أقسام الصفحة الرئيسية',
+    hint: 'ارفع صورة لكل قسم من أقسام أسفل الصفحة الرئيسية لتظهر بدل الأيقونة. احذف الصورة لإعادة الأيقونة الافتراضية.',
+    pages: {
+      PET_OWNER_HOME: 'الصفحة الرئيسية لأصحاب الحيوانات',
+      VETERINARIAN_HOME: 'الصفحة الرئيسية للأطباء البيطريين',
+    },
+    hasImage: 'تُعرض الصورة المرفوعة في الصفحة الرئيسية.',
+    noImage: 'لا توجد صورة — تُعرض الأيقونة الافتراضية.',
+    removed: 'تم حذف الصورة وإعادة الأيقونة الافتراضية.',
   },
 
   broadcast: {
@@ -1628,6 +1647,7 @@ export default {
       DEVICE_PUSH_TOKEN: 'جهاز إشعارات',
       AD_CAMPAIGN: 'حملة إعلانية',
       AD_SLIDE: 'شريحة إعلانية',
+      HOME_SECTION: 'قسم الصفحة الرئيسية',
       TRADER_PROFILE: 'ملف تاجر',
       POULTRY_OFFER: 'عرض دواجن',
       EGG_OFFER: 'عرض بيض',

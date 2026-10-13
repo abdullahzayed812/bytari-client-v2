@@ -742,6 +742,8 @@ export const en: TranslationResources = {
       formTitle: 'Add expense',
       submit: 'Save',
       success: 'Expense added successfully.',
+      dailyRecordTitle: 'Daily record expense',
+      dailyRecordBatch: 'Batch: {{name}}',
       categories: {
         FEED: 'Feed',
         MEDICINE: 'Medicine',
@@ -3667,6 +3669,7 @@ export const en: TranslationResources = {
       fieldName: 'Flock name',
       fieldBirdType: 'Bird type',
       fieldBirdCount: 'Bird count',
+      fieldCurrentBirdCount: 'Birds remaining',
       fieldArrivalDate: 'Arrival date',
       fieldTargetPrice: 'Expected sale price (per kg)',
       targetPriceHint: "Used to compute the batch's estimated profit (IQD per kg).",
@@ -6220,6 +6223,11 @@ export const en: TranslationResources = {
           subtitle: 'Send messages and notifications to users',
           unit: 'messages sent',
         },
+        homeSections: {
+          title: 'Home page section images',
+          subtitle: 'Upload and replace the images of the home page sections',
+          unit: 'sections',
+        },
         books: {
           title: 'Books',
           subtitle: 'Manage veterinary books and files',
@@ -6462,6 +6470,8 @@ export const en: TranslationResources = {
       AD_SLIDE_REMOVED: 'An ad slide was removed',
       AD_SLIDE_REORDERED: 'Ad slides were reordered',
       AD_SLIDE_IMAGE_UPDATED: "An ad slide's image was updated",
+      HOME_SECTION_IMAGE_UPDATED: 'A home page section image was updated',
+      HOME_SECTION_IMAGE_REMOVED: 'A home page section image was removed',
       TRADER_APPLICATION_CREATED: 'A new trader application',
       TRADER_APPROVED: 'A trader was approved',
       TRADER_REJECTED: "A trader's application was rejected",
@@ -6581,6 +6591,17 @@ export const en: TranslationResources = {
         COMPLETED: 'Completed',
         CLOSED: 'Closed',
       },
+    },
+    homeSections: {
+      title: 'Home page section images',
+      hint: 'Upload an image for each section at the bottom of the home page to show it instead of the icon. Remove the image to bring the default icon back.',
+      pages: {
+        PET_OWNER_HOME: 'Pet owner home page',
+        VETERINARIAN_HOME: 'Veterinarian home page',
+      },
+      hasImage: 'The uploaded image is shown on the home page.',
+      noImage: 'No image — the default icon is shown.',
+      removed: 'Image removed; the default icon is back.',
     },
     broadcast: {
       intro:
@@ -7719,6 +7740,7 @@ export const en: TranslationResources = {
         DEVICE_PUSH_TOKEN: 'Push notification device',
         AD_CAMPAIGN: 'Ad campaign',
         AD_SLIDE: 'Ad slide',
+        HOME_SECTION: 'Home page section',
         TRADER_PROFILE: 'Trader profile',
         POULTRY_OFFER: 'Poultry market offer',
         EGG_OFFER: 'Egg market offer',
@@ -8279,13 +8301,15 @@ export const en: TranslationResources = {
       countryOfOrigin: 'Country of origin',
       infoTitle: 'Product information',
       favoriteA11y: 'Favorite this product',
-      price: '{{value}} IQD',
+      price: '{{value}} {{currency}}',
       noPrice: 'Price not set',
       contactOffice: 'Contact the office',
       call: 'Call',
       whatsapp: 'WhatsApp',
       message: 'Message',
     },
+    currency: { IQD: 'IQD', USD: '$' },
+    currencyName: { IQD: 'Iraqi Dinar', USD: 'US Dollar' },
     manage: {
       common: {
         cancel: 'Cancel',
@@ -8315,7 +8339,7 @@ export const en: TranslationResources = {
       },
       card: {
         openLabel: 'Open {{name}}',
-        price: 'Price: {{value}}',
+        price: 'Price: {{value}} {{currency}}',
         noPrice: 'No price set',
         stock: 'Stock: {{count}}',
       },
@@ -8354,6 +8378,7 @@ export const en: TranslationResources = {
         fieldType: 'Product type',
         typePlaceholder: 'Choose a product type',
         fieldPrice: 'Price',
+        fieldCurrency: 'Currency',
         pricePlaceholder: 'e.g. 120.00',
         priceHint: 'A number with at most two decimals. Leave blank if there is no set price.',
         fieldOpeningStock: 'Opening stock',

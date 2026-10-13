@@ -16,7 +16,7 @@ import { openPhone } from '@/utils';
 
 import { veterinaryOfficeProductTypeIcon } from '../../constants';
 import type { VeterinaryOfficeProduct } from '../../types';
-import { formatProductPrice } from '../../utils';
+import { formatProductPrice, productCurrency } from '../../utils';
 import { usePublicVeterinaryOfficeProduct } from '../hooks';
 
 interface DetailRowProps {
@@ -145,7 +145,10 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
             style={{ marginTop: theme.spacing.sm, fontWeight: '700' }}
           >
             {product.price != null
-              ? t('product.price', { value: formatProductPrice(product.price) })
+              ? t('product.price', {
+                  value: formatProductPrice(product.price),
+                  currency: t(`currency.${productCurrency(product)}`),
+                })
               : t('product.noPrice')}
           </Text>
           {product.description ? (

@@ -175,6 +175,7 @@ export default {
     fieldName: 'اسم القطيع',
     fieldBirdType: 'نوع الطيور',
     fieldBirdCount: 'عدد الطيور',
+    fieldCurrentBirdCount: 'الطيور المتبقية',
     fieldArrivalDate: 'تاريخ الوصول',
     fieldTargetPrice: 'سعر البيع المتوقع (للكيلو)',
     targetPriceHint: 'يُستخدم لحساب الربح المتوقع للدفعة (د.ع لكل كغ).',

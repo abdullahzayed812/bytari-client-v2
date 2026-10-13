@@ -36,6 +36,13 @@ export interface PoultryFlock {
   batchNumber: number | null;
   /** Birds placed at the start of the batch — the mortality denominator. */
   initialBirdCount: number | null;
+  /** Deaths recorded in the batch's daily records (server-computed). */
+  totalMortality: number;
+  /**
+   * Birds still in the batch (`initial − totalMortality`, server-computed).
+   * Every bird statistic uses this, never `birdCount` (the registration figure).
+   */
+  currentBirdCount: number;
   /** Latest recorded average bird weight, grams. Backend `numeric` → string. */
   averageWeightGrams: string | null;
   /** Optional planned sale price, used for the profit estimate. `numeric` → string. */

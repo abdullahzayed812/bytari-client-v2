@@ -1,10 +1,10 @@
-import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { AppConfig } from '@/constants/config';
+import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import { ApiError } from '@/services/api';
 
-import { poultryOpsApi, poultryOpsKeys } from '../api';
+import { poultryKeys, poultryOpsApi, poultryOpsKeys } from '../api';
 import type {
   BatchSummary,
   CreateDailyRecordInput,
@@ -87,6 +87,17 @@ export function useDailyRecords(
   });
 }
 
+/**
+ * A daily record carries the batch's deaths and an expense, so besides the
+ * flock's own ops state it changes the flock's remaining bird count (flock
+ * list / detail) and the farm's "المصاريف" list + totals.
+ */
+function invalidateAfterDailyRecord(qc: QueryClient, orgId: string, flockId: string): void {
+  void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
+  void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(orgId) });
+  void qc.invalidateQueries({ queryKey: poultryKeys.forOrg(orgId) });
+}
+
 /** Record a day's data ("البيانات اليومية"). */
 export function useCreateDailyRecord(orgId: string, flockId: string) {
   const qc = useQueryClient();
@@ -94,9 +105,7 @@ export function useCreateDailyRecord(orgId: string, flockId: string) {
     mutationKey: ['poultry-ops', 'daily-record', 'create', orgId, flockId],
     mutationFn: (body: CreateDailyRecordInput) =>
       poultryOpsApi.createDailyRecord(orgId, flockId, body),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
-    },
+    onSuccess: () => invalidateAfterDailyRecord(qc, orgId, flockId),
   });
 }
 
@@ -107,9 +116,7 @@ export function useUpdateDailyRecord(orgId: string, flockId: string) {
     mutationKey: ['poultry-ops', 'daily-record', 'update', orgId, flockId],
     mutationFn: ({ recordId, body }: { recordId: string; body: UpdateDailyRecordInput }) =>
       poultryOpsApi.updateDailyRecord(orgId, flockId, recordId, body),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
-    },
+    onSuccess: () => invalidateAfterDailyRecord(qc, orgId, flockId),
   });
 }
 
@@ -118,9 +125,7 @@ export function useDeleteDailyRecord(orgId: string, flockId: string) {
   return useMutation({
     mutationKey: ['poultry-ops', 'daily-record', 'delete', orgId, flockId],
     mutationFn: (recordId: string) => poultryOpsApi.deleteDailyRecord(orgId, flockId, recordId),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(orgId, flockId) });
-    },
+    onSuccess: () => invalidateAfterDailyRecord(qc, orgId, flockId),
   });
 }
 

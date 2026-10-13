@@ -1,4 +1,3 @@
-import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import {
   useInfiniteQuery,
   useMutation,
@@ -9,6 +8,8 @@ import {
 import { useMemo } from 'react';
 
 import { AppConfig } from '@/constants/config';
+import { poultryOpsKeys } from '@/features/farm/api';
+import type { DailyRecordWeeks } from '@/features/farmShared/weeks';
 import { ApiError } from '@/services/api';
 
 import { cattleFarmApi, cattleKeys } from '../api';
@@ -185,7 +186,11 @@ export function useCreateCattleDailyRecord(orgId: string, batchId: string) {
     mutationKey: ['cattle', 'daily-record', 'create', orgId, batchId],
     mutationFn: (body: CreateCattleDailyRecordInput) =>
       cattleFarmApi.createDailyRecord(orgId, batchId, body),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) });
+      // The record's expense is listed in the farm's "المصاريف" screen too.
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(orgId) });
+    },
   });
 }
 
@@ -195,7 +200,11 @@ export function useUpdateCattleDailyRecord(orgId: string, batchId: string) {
     mutationKey: ['cattle', 'daily-record', 'update', orgId, batchId],
     mutationFn: ({ recordId, body }: { recordId: string; body: UpdateCattleDailyRecordInput }) =>
       cattleFarmApi.updateDailyRecord(orgId, batchId, recordId, body),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) });
+      // The record's expense is listed in the farm's "المصاريف" screen too.
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(orgId) });
+    },
   });
 }
 
@@ -204,7 +213,11 @@ export function useDeleteCattleDailyRecord(orgId: string, batchId: string) {
   return useMutation({
     mutationKey: ['cattle', 'daily-record', 'delete', orgId, batchId],
     mutationFn: (recordId: string) => cattleFarmApi.deleteDailyRecord(orgId, batchId, recordId),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: cattleKeys.forBatch(orgId, batchId) });
+      // The record's expense is listed in the farm's "المصاريف" screen too.
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(orgId) });
+    },
   });
 }
 

@@ -234,4 +234,12 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     route: Routes.adminBroadcast,
     show: (c) => c.isAdmin || c.can('notification.admin.send'),
   },
+  {
+    // "صور أقسام الصفحة الرئيسية" — images for the existing home-page section cards.
+    id: 'homeSections',
+    icon: 'images-outline',
+    tint: dashboardTint(6),
+    route: Routes.adminHomeSections,
+    show: (c) => c.isAdmin || c.can('home_section.manage'),
+  },
 ];

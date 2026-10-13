@@ -80,6 +80,8 @@ export const Permission = {
   VET_COURSE_REJECT: 'vet_course.reject',
   // Advertisements — one permission governs every placement
   ADVERTISEMENT_MANAGE: 'advertisement.manage',
+  /** Home-page section images — ADMIN only (no base role holds it). */
+  HOME_SECTION_MANAGE: 'home_section.manage',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission] | (string & {});

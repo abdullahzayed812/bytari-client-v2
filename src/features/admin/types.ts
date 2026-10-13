@@ -588,6 +588,7 @@ export type AdminDashboardCardId =
   | 'users'
   | 'userMessages'
   | 'broadcasts'
+  | 'homeSections'
   | 'books'
   | 'magazines'
   | 'adoption'

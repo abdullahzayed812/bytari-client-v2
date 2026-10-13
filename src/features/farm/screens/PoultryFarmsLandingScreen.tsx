@@ -26,22 +26,9 @@ import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { useTheme } from '@/theme';
 
+import { birdStats } from '../birdStats';
 import { AddFarmCard, MarketNavCard, PoultryCardSkeleton, PoultryFarmCard } from '../components';
-import type { FarmBirdStats } from '../components';
 import { usePoultryFarms, usePoultryFlocks } from '../hooks';
-import type { PoultryFlock } from '../types';
-
-function birdStats(flocks: PoultryFlock[]): FarmBirdStats {
-  const s: FarmBirdStats = { total: 0, chicken: 0, turkey: 0, duck: 0, other: 0 };
-  for (const f of flocks) {
-    s.total += f.birdCount;
-    if (f.birdType === 'CHICKEN') s.chicken += f.birdCount;
-    else if (f.birdType === 'TURKEY') s.turkey += f.birdCount;
-    else if (f.birdType === 'DUCK') s.duck += f.birdCount;
-    else s.other += f.birdCount;
-  }
-  return s;
-}
 
 /** Poultry Farms landing (Home → "الدواجن والطيور"). Reuses the ad slot, the
  *  membership-scoped org list, and the dedicated news / tips feeds. */

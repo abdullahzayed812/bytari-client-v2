@@ -78,13 +78,15 @@ const veterinaryOffices: KuNamespace<'veterinaryOffices'> = {
     countryOfOrigin: 'وڵاتی بەرهەمهێنان',
     infoTitle: 'زانیاری بەرهەم',
     favoriteA11y: 'بەدڵبوونی بەرهەم',
-    price: '{{value}} د.ع',
+    price: '{{value}} {{currency}}',
     noPrice: 'نرخ دیاری نەکراوە',
     contactOffice: 'پەیوەندی بە نووسینگەوە',
     call: 'پەیوەندی',
     whatsapp: 'پەیوەندی بە واتسئاپ',
     message: 'نامە',
   },
+  currency: { IQD: 'د.ع', USD: '$' },
+  currencyName: { IQD: 'دیناری عێراقی', USD: 'دۆلاری ئەمریکی' },
   manage: {
     common: {
       cancel: 'هەڵوەشاندنەوە',
@@ -114,7 +116,7 @@ const veterinaryOffices: KuNamespace<'veterinaryOffices'> = {
     },
     card: {
       openLabel: 'کردنەوەی {{name}}',
-      price: 'نرخ: {{value}}',
+      price: 'نرخ: {{value}} {{currency}}',
       noPrice: 'نرخ دیاری نەکراوە',
       stock: 'کۆگا: {{count}}',
     },
@@ -153,6 +155,7 @@ const veterinaryOffices: KuNamespace<'veterinaryOffices'> = {
       fieldType: 'جۆری بەرهەم',
       typePlaceholder: 'جۆری بەرهەم هەڵبژێرە',
       fieldPrice: 'نرخ',
+      fieldCurrency: 'دراو',
       pricePlaceholder: 'نموونە: 120.00',
       priceHint: 'ژمارە بە زۆرترین دوو ژمارەی دەیی. ئەگەر نرخی دیاریکراو نییە بەتاڵی جێبهێڵە.',
       fieldOpeningStock: 'کۆگای سەرەتایی',

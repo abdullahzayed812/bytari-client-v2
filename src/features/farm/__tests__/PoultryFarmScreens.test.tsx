@@ -35,6 +35,8 @@ const flock = (over: Partial<PoultryFlock> = {}): PoultryFlock => ({
   notes: null,
   batchNumber: 1,
   initialBirdCount: 5000,
+  totalMortality: 0,
+  currentBirdCount: 5000,
   averageWeightGrams: '230',
   targetPricePerKg: null,
   expectedSaleDate: null,

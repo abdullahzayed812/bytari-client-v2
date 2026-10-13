@@ -1,3 +1,12 @@
+import type { VeterinaryOfficeProductCurrency } from './types';
+
+/** A product's price currency; legacy products (no field) were priced in dinars. */
+export function productCurrency(product: {
+  currency?: VeterinaryOfficeProductCurrency | null;
+}): VeterinaryOfficeProductCurrency {
+  return product.currency === 'USD' ? 'USD' : 'IQD';
+}
+
 /**
  * Format a product's decimal-string price for display: drop a trailing
  * ".00" and group the integer part with thousand separators (e.g.

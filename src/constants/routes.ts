@@ -536,6 +536,7 @@ export const Routes = {
   adminChats: '/(app)/admin/chats',
   /** Admin dashboard "إرسال رسالة" card — platform-wide broadcast to users. */
   adminBroadcast: '/(app)/admin/broadcast',
+  adminHomeSections: '/(app)/admin/home-sections',
   /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */
   adminTraderApplications: '/(app)/admin/traders',
   /** Market offer moderation — one screen parametrized by kind (poultry | egg). */

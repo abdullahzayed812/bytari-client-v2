@@ -57,7 +57,7 @@ export function PoultryCard({ flock, onPress }: PoultryCardProps) {
         </Text>
         <Caption numberOfLines={1}>
           {t(`birdType.${flock.birdType}`, { defaultValue: flock.birdType })} ·{' '}
-          {t('poultry.birdCountShort', { count: flock.birdCount })}
+          {t('poultry.birdCountShort', { count: flock.currentBirdCount })}
         </Caption>
         <View style={{ marginTop: 2 }}>
           <Badge

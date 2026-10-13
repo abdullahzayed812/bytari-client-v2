@@ -28,6 +28,10 @@ export const VETERINARY_OFFICE_PRODUCT_TYPES = [
 ] as const;
 export type VeterinaryOfficeProductType = (typeof VETERINARY_OFFICE_PRODUCT_TYPES)[number];
 
+/** Price currency the seller picks per product — "دينار" or "دولار". */
+export const VETERINARY_OFFICE_PRODUCT_CURRENCIES = ['IQD', 'USD'] as const;
+export type VeterinaryOfficeProductCurrency = (typeof VETERINARY_OFFICE_PRODUCT_CURRENCIES)[number];
+
 export const VETERINARY_OFFICE_PRODUCT_STATUSES = ['ACTIVE', 'INACTIVE'] as const;
 export type VeterinaryOfficeProductStatus = (typeof VETERINARY_OFFICE_PRODUCT_STATUSES)[number];
 
@@ -66,6 +70,8 @@ export interface VeterinaryOfficeProduct extends VeterinaryOfficeProductDetailFi
    * NEVER a JS number — displayed verbatim, never parsed for arithmetic.
    */
   price: string | null;
+  /** Currency of `price`. Absent from older servers → treat as `IQD` (see `productCurrency`). */
+  currency?: VeterinaryOfficeProductCurrency;
   stockQuantity: number;
   status: VeterinaryOfficeProductStatus;
   /**
@@ -102,6 +108,7 @@ export interface CreateVeterinaryOfficeProductInput extends VeterinaryOfficeProd
   description?: string | null;
   productType: VeterinaryOfficeProductType;
   price?: string | null;
+  currency?: VeterinaryOfficeProductCurrency;
   /** Opening stock only. Later changes go through the stock endpoint. */
   stockQuantity?: number;
   /** Cover uploaded on the add form before the product existed (org-level presign). */
@@ -113,6 +120,7 @@ export interface UpdateVeterinaryOfficeProductInput extends VeterinaryOfficeProd
   description?: string | null;
   productType?: VeterinaryOfficeProductType;
   price?: string | null;
+  currency?: VeterinaryOfficeProductCurrency;
   status?: VeterinaryOfficeProductStatus;
   isHidden?: boolean;
 }

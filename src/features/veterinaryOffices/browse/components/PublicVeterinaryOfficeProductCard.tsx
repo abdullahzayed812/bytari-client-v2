@@ -6,8 +6,8 @@ import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { formatProductPrice } from '../../utils';
 import type { VeterinaryOfficeProduct } from '../../types';
+import { formatProductPrice, productCurrency } from '../../utils';
 
 export interface PublicVeterinaryOfficeProductCardProps {
   product: VeterinaryOfficeProduct;
@@ -68,7 +68,10 @@ export function PublicVeterinaryOfficeProductCard({
         {product.description ? <Caption numberOfLines={1}>{product.description}</Caption> : null}
         <Text variant="bodyStrong" color="primary">
           {product.price != null
-            ? t('product.price', { value: formatProductPrice(product.price) })
+            ? t('product.price', {
+                value: formatProductPrice(product.price),
+                currency: t(`currency.${productCurrency(product)}`),
+              })
             : t('product.noPrice')}
         </Text>
       </View>

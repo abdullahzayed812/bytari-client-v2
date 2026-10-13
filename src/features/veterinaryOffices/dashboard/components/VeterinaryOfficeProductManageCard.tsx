@@ -12,8 +12,8 @@ import {
   VETERINARY_OFFICE_PRODUCT_STATUS_TONE,
   veterinaryOfficeProductTypeIcon,
 } from '../../constants';
-import { formatProductPrice } from '../../utils';
 import type { VeterinaryOfficeProduct } from '../../types';
+import { formatProductPrice, productCurrency } from '../../utils';
 
 export interface VeterinaryOfficeProductManageCardProps {
   product: VeterinaryOfficeProduct;
@@ -134,7 +134,10 @@ export function VeterinaryOfficeProductManageCard({
           </Text>
           <Text variant="bodyStrong" color="primary">
             {product.price != null
-              ? tOffice('product.price', { value: formatProductPrice(product.price) })
+              ? tOffice('product.price', {
+                  value: formatProductPrice(product.price),
+                  currency: tOffice(`currency.${productCurrency(product)}`),
+                })
               : tOffice('product.noPrice')}
           </Text>
           <Caption style={{ color: stockColor }}>

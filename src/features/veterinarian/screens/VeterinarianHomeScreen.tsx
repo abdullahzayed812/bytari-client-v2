@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +14,7 @@ import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
 import { VeterinarianStatusBadge, useVeterinarianStatus } from '@/features/auth';
 import { HomeSectionHeader } from '@/features/home/components';
+import { useHomeSectionImages } from '@/features/homeSections/hooks';
 import { ClinicCard, useDiscoverOrganizations } from '@/features/organizations';
 import { ThreadCard, ThreadCardSkeleton, useMyThreads } from '@/features/support';
 import { SyndicateBranchCard } from '@/features/syndicates/components';
@@ -28,6 +30,8 @@ const INQUIRY_CARD_WIDTH = 260;
 
 interface QuickLinkCardProps {
   icon: IconName;
+  /** Admin-managed image shown in place of `icon` (falls back to the icon when absent). */
+  imageUrl?: string;
   title: string;
   subtitle: string;
   ctaLabel?: string;
@@ -38,6 +42,7 @@ interface QuickLinkCardProps {
 
 function QuickLinkCard({
   icon,
+  imageUrl,
   title,
   subtitle,
   ctaLabel,
@@ -62,7 +67,16 @@ function QuickLinkCard({
         pressed && { opacity: 0.9 },
       ]}
     >
-      <Icon name={icon} size="iconLg" color={accentColor} />
+      {imageUrl ? (
+        <Image
+          source={{ uri: imageUrl }}
+          style={{ width: 40, height: 40, borderRadius: theme.radius.md }}
+          contentFit="cover"
+          accessibilityIgnoresInvertColors
+        />
+      ) : (
+        <Icon name={icon} size="iconLg" color={accentColor} />
+      )}
       <View style={{ rowGap: 2 }}>
         <Text variant="bodyStrong">{title}</Text>
         <Caption numberOfLines={2}>{subtitle}</Caption>
@@ -116,6 +130,7 @@ export default function VeterinarianHomeScreen() {
   const officePreview = offices.organizations.slice(0, PREVIEW_COUNT);
   // Syndicates the administration pinned to Home — bottom, below Books & Magazines.
   const pinnedSyndicates = usePinnedSyndicates();
+  const sectionImages = useHomeSectionImages();
 
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -192,7 +207,9 @@ export default function VeterinarianHomeScreen() {
       {vet.isApproved ? (
         <Section spacing="xl">
           <Card variant="outlined" padding="lg">
-            <Text variant="bodyMedium">{t('home.inquiryCta.title')}</Text>
+            <Text variant="bodyMedium" style={{ textAlign: 'center' }}>
+              {t('home.inquiryCta.title')}
+            </Text>
             <View style={{ marginTop: theme.spacing.lg }}>
               <Card
                 variant="flat"
@@ -281,6 +298,7 @@ export default function VeterinarianHomeScreen() {
         <Row gap="md" align="stretch">
           <QuickLinkCard
             icon="chatbubbles-outline"
+            imageUrl={sectionImages.VET_CHAT}
             title={t('home.chat.title')}
             subtitle={t('home.chat.subtitle')}
             ctaLabel={t('home.chat.cta')}
@@ -290,6 +308,7 @@ export default function VeterinarianHomeScreen() {
           />
           <QuickLinkCard
             icon="medkit-outline"
+            imageUrl={sectionImages.VET_SERVICES}
             title={t('home.services.title')}
             subtitle={t('home.services.subtitle')}
             ctaLabel={t('home.services.cta')}
@@ -304,6 +323,7 @@ export default function VeterinarianHomeScreen() {
         <Row gap="md" align="stretch">
           <QuickLinkCard
             icon="newspaper-outline"
+            imageUrl={sectionImages.VET_MAGAZINE}
             title={t('home.magazine.title')}
             subtitle={t('home.magazine.subtitle')}
             surfaceColor={theme.colors.surfaceAccent}
@@ -312,6 +332,7 @@ export default function VeterinarianHomeScreen() {
           />
           <QuickLinkCard
             icon="book-outline"
+            imageUrl={sectionImages.VET_BOOKS}
             title={t('home.books.title')}
             subtitle={t('home.books.subtitle')}
             surfaceColor={theme.colors.surfaceAccent}

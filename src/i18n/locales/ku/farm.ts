@@ -180,6 +180,7 @@ const farm: KuNamespace<'farm'> = {
     fieldName: 'ناوی ڕانە',
     fieldBirdType: 'جۆری باڵندە',
     fieldBirdCount: 'ژمارەی باڵندەکان',
+    fieldCurrentBirdCount: 'باڵندە ماوەکان',
     fieldArrivalDate: 'بەرواری گەیشتن',
     fieldTargetPrice: 'نرخی فرۆشتنی چاوەڕوانکراو (بۆ کیلۆ)',
     targetPriceHint: 'بۆ ژماردنی قازانجی چاوەڕوانکراوی دەستە بەکاردێت (د.ع بۆ هەر کگمێک).',

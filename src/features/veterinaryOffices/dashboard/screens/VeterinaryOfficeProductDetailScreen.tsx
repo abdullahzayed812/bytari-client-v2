@@ -24,8 +24,13 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { AdjustVeterinaryOfficeStockForm } from '../components';
 import { VETERINARY_OFFICE_PRODUCT_STATUS_TONE } from '../../constants';
+import { formatProductPrice, productCurrency } from '../../utils';
+import {
+  veterinaryOfficeErrorMessage,
+  type AdjustVeterinaryOfficeStockFormValues,
+} from '../../validation/schemas';
+import { AdjustVeterinaryOfficeStockForm } from '../components';
 import {
   useAdjustVeterinaryOfficeStock,
   useDeleteVeterinaryOfficeProduct,
@@ -34,10 +39,6 @@ import {
   useRemoveVeterinaryOfficeProductImage,
   useUpdateVeterinaryOfficeProduct,
 } from '../hooks';
-import {
-  veterinaryOfficeErrorMessage,
-  type AdjustVeterinaryOfficeStockFormValues,
-} from '../../validation/schemas';
 
 const MAX_PRODUCT_IMAGES = 6;
 
@@ -202,7 +203,14 @@ export default function VeterinaryOfficeProductDetailScreen() {
               <Divider spacing="sm" />
               <Field
                 label={t('manage.form.fieldPrice')}
-                value={product.price != null ? product.price : t('manage.detail.noPrice')}
+                value={
+                  product.price != null
+                    ? t('product.price', {
+                        value: formatProductPrice(product.price),
+                        currency: t(`currency.${productCurrency(product)}`),
+                      })
+                    : t('manage.detail.noPrice')
+                }
               />
               <Divider spacing="sm" />
               <Field label={t('manage.detail.fieldStock')} value={String(product.stockQuantity)} />

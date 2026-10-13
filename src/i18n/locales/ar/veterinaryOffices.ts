@@ -77,13 +77,16 @@ export default {
     countryOfOrigin: 'بلد المنشأ',
     infoTitle: 'معلومات المنتج',
     favoriteA11y: 'إعجاب بالمنتج',
-    price: '{{value}} د.ع',
+    price: '{{value}} {{currency}}',
     noPrice: 'السعر غير محدد',
     contactOffice: 'تواصل مع المكتب أو الشركة',
     call: 'اتصال',
     whatsapp: 'تواصل واتساب',
     message: 'مراسلة',
   },
+  /** Price currency — symbol next to an amount, full name in the form picker. */
+  currency: { IQD: 'د.ع', USD: '$' },
+  currencyName: { IQD: 'دينار عراقي', USD: 'دولار أمريكي' },
   manage: {
     common: {
       cancel: 'إلغاء',
@@ -113,7 +116,7 @@ export default {
     },
     card: {
       openLabel: 'فتح {{name}}',
-      price: 'السعر: {{value}}',
+      price: 'السعر: {{value}} {{currency}}',
       noPrice: 'السعر غير محدد',
       stock: 'المخزون: {{count}}',
     },
@@ -152,6 +155,7 @@ export default {
       fieldType: 'نوع المنتج',
       typePlaceholder: 'اختر نوع المنتج',
       fieldPrice: 'السعر',
+      fieldCurrency: 'العملة',
       pricePlaceholder: 'مثال: 120.00',
       priceHint: 'رقم بحد أقصى منزلتين عشريتين. اتركه فارغًا إن لم يكن هناك سعر محدد.',
       fieldOpeningStock: 'المخزون الافتتاحي',

@@ -10,7 +10,11 @@ import { FormField, Select } from '@/components/forms';
 import { useTheme } from '@/theme';
 
 import { VETERINARY_OFFICE_PRODUCT_TYPE_ORDER } from '../../constants';
-import type { VeterinaryOfficeProductType } from '../../types';
+import {
+  VETERINARY_OFFICE_PRODUCT_CURRENCIES,
+  type VeterinaryOfficeProductCurrency,
+  type VeterinaryOfficeProductType,
+} from '../../types';
 import {
   buildVeterinaryOfficeProductSchema,
   type VeterinaryOfficeProductFormValues,
@@ -29,6 +33,7 @@ const EMPTY: VeterinaryOfficeProductFormValues = {
   name: '',
   productType: 'MEDICINE',
   price: '',
+  currency: 'IQD',
   stockQuantity: '',
   description: '',
   brand: '',
@@ -99,6 +104,23 @@ export function VeterinaryOfficeProductForm({
         keyboardType="decimal-pad"
         autoCorrect={false}
         serverError={serverFields.price}
+      />
+
+      <Controller
+        control={control}
+        name="currency"
+        render={({ field: { value, onChange }, fieldState }) => (
+          <Select<VeterinaryOfficeProductCurrency>
+            label={t('manage.form.fieldCurrency')}
+            value={value ?? 'IQD'}
+            options={VETERINARY_OFFICE_PRODUCT_CURRENCIES.map((c) => ({
+              value: c,
+              label: t(`currencyName.${c}`),
+            }))}
+            onChange={onChange}
+            error={fieldState.error?.message ?? serverFields.currency}
+          />
+        )}
       />
 
       {mode === 'create' ? (

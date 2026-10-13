@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, View } from 'react-native';
@@ -8,6 +9,7 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
+import { useHomeSectionImages } from '@/features/homeSections/hooks';
 import { ClinicCard, useDiscoverOrganizations } from '@/features/organizations';
 import { ThreadCard, ThreadCardSkeleton, useMyThreads } from '@/features/support';
 import { useTheme } from '@/theme';
@@ -20,13 +22,15 @@ const CONSULT_CARD_WIDTH = 280;
 
 interface CategoryCardProps {
   icon: IconName;
+  /** Admin-managed image shown in place of `icon` (falls back to the icon when absent). */
+  imageUrl?: string;
   title: string;
   subtitle: string;
   onPress: () => void;
   flex?: number;
 }
 
-function CategoryCard({ icon, title, subtitle, onPress, flex }: CategoryCardProps) {
+function CategoryCard({ icon, imageUrl, title, subtitle, onPress, flex }: CategoryCardProps) {
   const theme = useTheme();
   return (
     <Pressable
@@ -53,9 +57,19 @@ function CategoryCard({ icon, title, subtitle, onPress, flex }: CategoryCardProp
             backgroundColor: theme.colors.surface,
             alignItems: 'center',
             justifyContent: 'center',
+            overflow: 'hidden',
           }}
         >
-          <Icon name={icon} size="iconMd" color="primary" />
+          {imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="cover"
+              accessibilityIgnoresInvertColors
+            />
+          ) : (
+            <Icon name={icon} size="iconMd" color="primary" />
+          )}
         </View>
         <Icon name="chevron-forward" directional size="iconSm" color="primary" />
       </Row>
@@ -85,6 +99,7 @@ export default function HomeScreen() {
   const consultations = useMyThreads('CONSULTATION', { pageSize: PREVIEW_COUNT });
   const consultationPreview = consultations.threads.slice(0, PREVIEW_COUNT);
   const clinics = useDiscoverOrganizations({ type: 'CLINIC', pageSize: 10 });
+  const sectionImages = useHomeSectionImages();
 
   return (
     <ScrollScreen>
@@ -113,8 +128,10 @@ export default function HomeScreen() {
               <Icon name="chatbubbles-outline" size="iconLg" color="primary" />
             </View>
             <View style={{ flex: 1, rowGap: 2 }}>
-              <Text variant="bodyStrong">{ts('home.ctaTitle')}</Text>
-              <Caption>{ts('home.ctaSubtitle')}</Caption>
+              <Text variant="bodyStrong" style={{ textAlign: 'center' }}>
+                {ts('home.ctaTitle')}
+              </Text>
+              <Caption style={{ textAlign: 'center' }}>{ts('home.ctaSubtitle')}</Caption>
             </View>
           </Row>
           <View style={{ marginTop: theme.spacing.lg }}>
@@ -207,6 +224,7 @@ export default function HomeScreen() {
             <CategoryCard
               flex={1}
               icon="paw"
+              imageUrl={sectionImages.PET_OWNER_PETS}
               title={t('categories.pets.title')}
               subtitle={t('categories.pets.subtitle')}
               onPress={() => router.push(Routes.petsLanding)}
@@ -214,6 +232,7 @@ export default function HomeScreen() {
             <CategoryCard
               flex={1}
               icon="leaf-outline"
+              imageUrl={sectionImages.PET_OWNER_LIVESTOCK}
               title={t('categories.livestock.title')}
               subtitle={t('categories.livestock.subtitle')}
               onPress={() => router.push(Routes.sheepCattleFarms)}
@@ -221,6 +240,7 @@ export default function HomeScreen() {
           </Row>
           <CategoryCard
             icon="egg-outline"
+            imageUrl={sectionImages.PET_OWNER_POULTRY}
             title={t('categories.poultry.title')}
             subtitle={t('categories.poultry.subtitle')}
             onPress={() => router.push(Routes.poultryFarms)}

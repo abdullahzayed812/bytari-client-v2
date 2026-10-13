@@ -214,6 +214,8 @@ export default {
     formTitle: 'إضافة مصروف',
     submit: 'حفظ',
     success: 'تمت إضافة المصروف بنجاح.',
+    dailyRecordTitle: 'مصروف السجل اليومي',
+    dailyRecordBatch: 'الدفعة: {{name}}',
     categories: {
       FEED: 'علف',
       MEDICINE: 'أدوية',

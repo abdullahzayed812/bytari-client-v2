@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 
-import { VETERINARY_OFFICE_PRODUCT_TYPES } from '../types';
+import { VETERINARY_OFFICE_PRODUCT_CURRENCIES, VETERINARY_OFFICE_PRODUCT_TYPES } from '../types';
 
 /**
  * Veterinary Office product form validation (management). Mirrors the backend
@@ -25,6 +25,7 @@ const SIGNED_INT_RE = /^-?\d{1,9}$/;
  *   name         trim 1–200            (required)
  *   productType  enum                  (required)
  *   price        "12" | "12.50" | ""   (optional → null)
+ *   currency     IQD | USD             (defaults to IQD)
  *   stockQuantity "0".."999999999" | "" (create only; optional → 0)
  *   description  trim ≤ 4000           (optional)
  *   status       enum (edit only, handled outside the shared form)
@@ -47,6 +48,7 @@ export function buildVeterinaryOfficeProductSchema(t: VeterinaryOfficeTFn) {
       .regex(PRICE_RE, t('manage.form.errors.priceInvalid'))
       .optional()
       .or(z.literal('')),
+    currency: z.enum(VETERINARY_OFFICE_PRODUCT_CURRENCIES),
     stockQuantity: z
       .string()
       .trim()

@@ -129,6 +129,11 @@ export default function PoultryFlockDetailScreen() {
               <Divider spacing="sm" />
               <Field label={t('poultry.fieldBirdCount')} value={String(flock.birdCount)} />
               <Divider spacing="sm" />
+              <Field
+                label={t('poultry.fieldCurrentBirdCount')}
+                value={String(flock.currentBirdCount)}
+              />
+              <Divider spacing="sm" />
               <Field label={t('poultry.fieldArrivalDate')} value={formatDate(flock.arrivalDate)} />
               <Divider spacing="sm" />
               <Field label={t('poultry.fieldStatus')} value={t(`flockStatus.${flock.status}`)} />

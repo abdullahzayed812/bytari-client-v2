@@ -219,6 +219,19 @@ export interface FarmExpense {
   createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
+  /**
+   * `DAILY_RECORD` = the expense entered in a batch's daily record, listed
+   * read-only here (edited through that daily record; `id` is the record's id).
+   * Older servers omit it → treat as `MANUAL`.
+   */
+  source?: 'MANUAL' | 'DAILY_RECORD';
+  dailyRecord?: {
+    recordId: string;
+    batchKind: 'POULTRY' | 'SHEEP' | 'CATTLE';
+    batchId: string;
+    batchName: string;
+    batchNumber: number | null;
+  } | null;
 }
 
 export interface FarmExpenseSummary {

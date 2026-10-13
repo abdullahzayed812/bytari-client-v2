@@ -16,6 +16,7 @@ import type {
   CreateVeterinaryOfficeProductInput,
   UpdateVeterinaryOfficeProductInput,
 } from '../../types';
+import { productCurrency } from '../../utils';
 import {
   veterinaryOfficeErrorMessage,
   type VeterinaryOfficeProductFormValues,
@@ -106,6 +107,7 @@ export default function VeterinaryOfficeProductFormScreen() {
         name: product.name,
         productType: product.productType,
         price: product.price ?? '',
+        currency: productCurrency(product),
         description: product.description ?? '',
         brand: product.brand ?? '',
         countryOfOrigin: product.countryOfOrigin ?? '',
@@ -153,6 +155,7 @@ export default function VeterinaryOfficeProductFormScreen() {
         name: values.name.trim(),
         productType: values.productType,
         price,
+        currency: values.currency,
         description,
         ...catalogFields,
       };
@@ -172,6 +175,7 @@ export default function VeterinaryOfficeProductFormScreen() {
         name: values.name.trim(),
         productType: values.productType,
         price,
+        currency: values.currency,
         description,
         ...catalogFields,
         stockQuantity: values.stockQuantity?.trim() ? Number(values.stockQuantity) : undefined,

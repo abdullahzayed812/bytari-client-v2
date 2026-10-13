@@ -218,6 +218,8 @@ const poultry: KuNamespace<'poultry'> = {
     formTitle: 'زیادکردنی خەرجی',
     submit: 'پاشەکەوتکردن',
     success: 'خەرجییەکە بە سەرکەوتوویی زیاد کرا.',
+    dailyRecordTitle: 'خەرجی تۆماری ڕۆژانە',
+    dailyRecordBatch: 'دەستە: {{name}}',
     categories: {
       FEED: 'ئالیک',
       MEDICINE: 'دەرمان',

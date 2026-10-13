@@ -52,7 +52,10 @@ export default function FarmExpensesScreen() {
       >
         {summary.data ? (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-            <SummaryTile label={t('expenses.dailyAvg')} value={summary.data.dailyAverageThisMonth} />
+            <SummaryTile
+              label={t('expenses.dailyAvg')}
+              value={summary.data.dailyAverageThisMonth}
+            />
             <SummaryTile label={t('expenses.monthTotal')} value={summary.data.totalThisMonth} />
             <SummaryTile label={t('expenses.weekTotal')} value={summary.data.totalThisWeek} />
           </View>
@@ -63,7 +66,11 @@ export default function FarmExpensesScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ alignItems: 'flex-start', columnGap: theme.spacing.sm }}
         >
-          <Chip label={t('common.all')} selected={scope === 'ALL'} onPress={() => setScope('ALL')} />
+          <Chip
+            label={t('common.all')}
+            selected={scope === 'ALL'}
+            onPress={() => setScope('ALL')}
+          />
           {FARM_EXPENSE_CATEGORIES.map((c) => (
             <Chip
               key={c}
@@ -84,10 +91,14 @@ export default function FarmExpensesScreen() {
           <View style={{ rowGap: theme.spacing.md }}>
             {list.data?.items.map((expense) => (
               <ExpenseCard
-                key={expense.id}
+                key={`${expense.source ?? 'MANUAL'}-${expense.id}`}
                 expense={expense}
-                onPress={() =>
-                  router.push(Routes.poultryFarmSectionItem(orgId, 'expenses', expense.id))
+                // Daily-record expenses are edited through their daily record.
+                onPress={
+                  expense.source === 'DAILY_RECORD'
+                    ? undefined
+                    : () =>
+                        router.push(Routes.poultryFarmSectionItem(orgId, 'expenses', expense.id))
                 }
               />
             ))}
@@ -171,19 +182,29 @@ function AddExpenseDialog({
     devDataEnabled ? 'FEED' : null,
   );
   const [amount, setAmount] = useState(devDataEnabled ? '250000' : '');
-  const [spentOn, setSpentOn] = useState(devDataEnabled ? new Date().toISOString().slice(0, 10) : '');
+  const [spentOn, setSpentOn] = useState(
+    devDataEnabled ? new Date().toISOString().slice(0, 10) : '',
+  );
   const [description, setDescription] = useState(devDataEnabled ? 'شراء علف لمدة أسبوع' : '');
 
   const amountNum = Number(amount);
   const valid = category !== null && amountNum > 0 && isValidIsoDate(spentOn);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={t('expenses.formTitle')} dismissable={!loading}>
+    <Modal
+      visible={visible}
+      onClose={onCancel}
+      title={t('expenses.formTitle')}
+      dismissable={!loading}
+    >
       <View style={{ rowGap: theme.spacing.md }}>
         <Select<FarmExpenseCategory>
           label={t('expenses.typeLabel')}
           value={category}
-          options={FARM_EXPENSE_CATEGORIES.map((c) => ({ value: c, label: t(`expenses.categories.${c}`) }))}
+          options={FARM_EXPENSE_CATEGORIES.map((c) => ({
+            value: c,
+            label: t(`expenses.categories.${c}`),
+          }))}
           onChange={setCategory}
         />
         <Input
@@ -202,7 +223,13 @@ function AddExpenseDialog({
         />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Button label={t('common.cancel')} variant="ghost" fullWidth onPress={onCancel} disabled={loading} />
+            <Button
+              label={t('common.cancel')}
+              variant="ghost"
+              fullWidth
+              onPress={onCancel}
+              disabled={loading}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Button

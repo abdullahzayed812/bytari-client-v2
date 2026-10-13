@@ -21,7 +21,7 @@ import {
   type OfficeProductSearchHit,
   type VeterinaryOfficeProductType,
 } from '../../types';
-import { formatProductPrice } from '../../utils';
+import { formatProductPrice, productCurrency } from '../../utils';
 import { useOfficeProductFacetsAll, useOfficeProductSearch } from '../hooks';
 
 /**
@@ -269,7 +269,10 @@ function SearchHitRow({
           </Caption>
           <Text variant="bodyStrong" color="primary">
             {product.price != null
-              ? t('product.price', { value: formatProductPrice(product.price) })
+              ? t('product.price', {
+                  value: formatProductPrice(product.price),
+                  currency: t(`currency.${productCurrency(product)}`),
+                })
               : t('product.noPrice')}
           </Text>
         </View>
