@@ -66,6 +66,53 @@ export interface TraderStatusResult {
   profile: TraderProfile | null;
 }
 
+// --- Markets & Exchanges access (`GET /poultry-market/access`) -------
+
+export type MarketMerchantReason =
+  | 'ELIGIBLE'
+  | 'NOT_REGISTERED'
+  | 'PENDING_APPROVAL'
+  | 'REJECTED'
+  | 'SUSPENDED'
+  | 'SUBSCRIPTION_EXPIRED'
+  | 'SUBSCRIPTION_NOT_STARTED';
+
+export type MarketFarmReason =
+  | 'ELIGIBLE'
+  | 'PENDING_APPROVAL'
+  | 'NOT_ACTIVE'
+  | 'SUBSCRIPTION_EXPIRED'
+  | 'SUBSCRIPTION_NOT_STARTED';
+
+/**
+ * The caller's two INDEPENDENT market accounts — a merchant (trader) profile
+ * and each owned poultry farm — as evaluated by the backend, plus what they
+ * unlock. The backend enforces the same rule on every market request.
+ */
+export interface MarketAccess {
+  hasAccess: boolean;
+  /** ADMIN / MARKET supervisor oversight. */
+  staff: boolean;
+  merchant: {
+    status: TraderStatus;
+    eligible: boolean;
+    reason: MarketMerchantReason;
+    subscriptionStatus: 'ACTIVE' | 'EXPIRED' | 'NOT_STARTED' | null;
+    subscriptionEndDate: string | null;
+    renewalRequestedAt: string | null;
+  };
+  farms: {
+    organizationId: string;
+    name: string;
+    status: string;
+    eligible: boolean;
+    reason: MarketFarmReason;
+    subscriptionStatus: 'ACTIVE' | 'EXPIRED' | 'NOT_STARTED';
+    subscriptionEndDate: string | null;
+  }[];
+  sections: { markets: boolean; sell: boolean; poultryFarm: boolean };
+}
+
 // --- poultry offers --------------------------------------------------
 
 export const BIRD_TYPES = ['BALADI', 'LAYER', 'BROILER', 'ROOSTER', 'TURKEY', 'OTHER'] as const;

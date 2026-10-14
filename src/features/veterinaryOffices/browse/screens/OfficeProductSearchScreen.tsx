@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, RefreshControl, View } from 'react-native';
@@ -35,7 +35,9 @@ import { useOfficeProductFacetsAll, useOfficeProductSearch } from '../hooks';
 export default function OfficeProductSearchScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
-  const [rawSearch, setRawSearch] = useState('');
+  // Seeded by the main Search page's "search all offices" button.
+  const { q: initialQuery } = useLocalSearchParams<{ q?: string }>();
+  const [rawSearch, setRawSearch] = useState(initialQuery ?? '');
   const search = useDebouncedValue(rawSearch);
   const [productType, setProductType] = useState<VeterinaryOfficeProductType | undefined>();
   const [brand, setBrand] = useState<string | undefined>();

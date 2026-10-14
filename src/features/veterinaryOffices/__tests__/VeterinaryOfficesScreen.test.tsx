@@ -92,4 +92,12 @@ describe('VeterinaryOfficesScreen', () => {
       expect.objectContaining({ productBrand: expect.anything() }),
     );
   });
+
+  it('keeps cross-office product search (header icon) but the big button moved to the main Search page', async () => {
+    renderWithProviders(<VeterinaryOfficesScreen />);
+    await waitFor(() => expect(discover).toHaveBeenCalled());
+    expect(screen.queryByText('ابحث عن منتج في كل المكاتب أو الشركات')).toBeNull();
+    fireEvent.press(screen.getByLabelText('البحث عن منتج في جميع المكاتب أو الشركات البيطرية'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/products-search');
+  });
 });

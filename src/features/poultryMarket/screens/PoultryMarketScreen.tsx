@@ -23,24 +23,35 @@ import { useTheme } from '@/theme';
 import { openPhone } from '@/utils';
 
 import { GovernorateFilterRow, MarketOfferCard } from '../components';
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { BIRD_TYPE_ORDER } from '../constants';
 import {
   useDeletePoultryOffer,
   useMyPoultryOffers,
   usePoultryOffers,
-  useTraderStatus,
+  useMarketAccess,
 } from '../hooks';
 import type { BirdType, PoultryOffer } from '../types';
 
 /** Route `/(app)/poultry/market` — سوق الدواجن. */
 export default function PoultryMarketScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('poultryMarket.title')}>
+      <PoultryMarketContent />
+    </MarketAccessGate>
+  );
+}
+
+function PoultryMarketContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tc } = useTranslation('common');
   const toast = useToast();
   const { isAdmin, isSupervisorOf } = useCapabilities();
   const user = useAuthStore((s) => s.user);
-  const trader = useTraderStatus();
+  // Selling = an eligible merchant OR poultry farm (server-evaluated).
+  const canSell = useMarketAccess().data?.sections.sell ?? false;
 
   const [birdType, setBirdType] = useState<BirdType | undefined>(undefined);
   const [governorate, setGovernorate] = useState<string | undefined>(undefined);
@@ -48,7 +59,7 @@ export default function PoultryMarketScreen() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const allQ = usePoultryOffers({ birdType, governorate, enabled: scope === 'all' });
-  const mineQ = useMyPoultryOffers({ enabled: scope === 'mine' && trader.isApproved });
+  const mineQ = useMyPoultryOffers({ enabled: scope === 'mine' && canSell });
   const q = scope === 'all' ? allQ : mineQ;
   const del = useDeletePoultryOffer();
 
@@ -60,7 +71,7 @@ export default function PoultryMarketScreen() {
       <Section spacing="md">
         <Advertisement placement="POULTRY_MARKET" />
       </Section>
-      {trader.isApproved ? (
+      {canSell ? (
         <View
           style={{
             flexDirection: 'row',
@@ -107,7 +118,7 @@ export default function PoultryMarketScreen() {
         title={t('poultryMarket.title')}
         showBack
         right={
-          trader.isApproved ? (
+          canSell ? (
             <IconButton
               icon="add"
               variant="soft"

@@ -7,7 +7,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { Alert, EmptyState, useToast } from '@/components/feedback';
+import { Alert, useToast } from '@/components/feedback';
 import { FormField, Select, TileOptionGroup } from '@/components/forms';
 import { ImagePreview } from '@/components/media';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
@@ -20,10 +20,15 @@ import { isPermissionError, pickImages, type LocalFile } from '@/services/media'
 import { useTheme } from '@/theme';
 
 import { poultryMarketApi } from '../api';
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { EGG_TYPE_ORDER, SELL_UNIT_ORDER } from '../constants';
-import { useCreateEggOffer, useTraderStatus } from '../hooks';
+import { useCreateEggOffer } from '../hooks';
 import type { EggType, SellUnit } from '../types';
-import { buildEggOfferSchema, marketErrorMessage, type EggOfferFormValues } from '../validation/schemas';
+import {
+  buildEggOfferSchema,
+  marketErrorMessage,
+  type EggOfferFormValues,
+} from '../validation/schemas';
 
 const TILE_SIZE = 84;
 const MAX_IMAGES = 4;
@@ -42,11 +47,19 @@ const EMPTY: EggOfferFormValues = {
 
 /** Route `/(app)/poultry/egg-market/create` — إضافة عرض بيع بيض. */
 export default function CreateEggOfferScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('eggMarket.addTitle')} need="sell">
+      <CreateEggOfferContent />
+    </MarketAccessGate>
+  );
+}
+
+function CreateEggOfferContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tc } = useTranslation('common');
   const toast = useToast();
-  const trader = useTraderStatus();
   const user = useAuthStore((s) => s.user);
   const create = useCreateEggOffer();
 
@@ -66,32 +79,6 @@ export default function CreateEggOfferScreen() {
     mode: 'onTouched',
   });
 
-  if (!trader.isApproved) {
-    return (
-      <OrgFormLayout title={t('eggMarket.addTitle')}>
-        <EmptyState
-          icon="lock-closed-outline"
-          title={
-            trader.isPending
-              ? t('gate.pendingTitle')
-              : trader.isRejected
-                ? t('gate.rejectedTitle')
-                : trader.isSuspended
-                  ? t('gate.suspendedTitle')
-                  : t('gate.notRegisteredTitle')
-          }
-          message={trader.hasRegistered ? t('gate.pendingBody') : t('gate.notRegisteredBody')}
-          actionLabel={!trader.hasRegistered || trader.isRejected ? t('gate.registerCta') : undefined}
-          onAction={
-            !trader.hasRegistered || trader.isRejected
-              ? () => router.push('/(app)/poultry/trader-register' as never)
-              : undefined
-          }
-        />
-      </OrgFormLayout>
-    );
-  }
-
   const addPhotos = async () => {
     if (photos.length >= MAX_IMAGES) return;
     try {
@@ -99,7 +86,9 @@ export default function CreateEggOfferScreen() {
       setPhotos((prev) => [...prev, ...files]);
     } catch (error) {
       toast.show({
-        message: isPermissionError(error) ? tc('media.permissionBody') : marketErrorMessage(error, t),
+        message: isPermissionError(error)
+          ? tc('media.permissionBody')
+          : marketErrorMessage(error, t),
         tone: isPermissionError(error) ? 'warning' : 'danger',
       });
     }
@@ -108,11 +97,12 @@ export default function CreateEggOfferScreen() {
 
   const uploadPhotos = async (): Promise<string[]> => {
     const provider: PresignProvider = {
-      requestUpload: (file) => poultryMarketApi.eggOffers.requestUploadUrl({
-        filename: file.name,
-        mimeType: file.mimeType,
-        size: file.size ?? 0,
-      }),
+      requestUpload: (file) =>
+        poultryMarketApi.eggOffers.requestUploadUrl({
+          filename: file.name,
+          mimeType: file.mimeType,
+          size: file.size ?? 0,
+        }),
     };
     const uploader = new FileUploadService(provider);
     const keys: string[] = [];
@@ -268,7 +258,12 @@ export default function CreateEggOfferScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
             {photos.map((file) => (
-              <ImagePreview key={file.uri} uri={file.uri} size={TILE_SIZE} onRemove={() => removePhoto(file.uri)} />
+              <ImagePreview
+                key={file.uri}
+                uri={file.uri}
+                size={TILE_SIZE}
+                onRemove={() => removePhoto(file.uri)}
+              />
             ))}
             {photos.length < MAX_IMAGES ? (
               <Pressable

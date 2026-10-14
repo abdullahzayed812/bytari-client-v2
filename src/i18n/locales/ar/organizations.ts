@@ -206,6 +206,7 @@ export default {
     createSuccess: 'تم إنشاء المؤسسة وهي الآن قيد المراجعة.',
     editSuccess: 'تم حفظ التعديلات.',
     logoLabel: 'شعار المؤسسة',
+    roomImageLabel: 'صورة الغرفة',
     logoUpdated: 'تم تحديث الشعار.',
     logoRemoved: 'تمت إزالة الشعار.',
     logoRemoveCta: 'إزالة الشعار',

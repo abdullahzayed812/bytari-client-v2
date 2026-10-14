@@ -23,6 +23,8 @@ const auth: KuNamespace<'auth'> = {
     lastNamePlaceholder: 'نموونە: ئەحمەد',
     emailLabel: 'ئیمەیڵ',
     emailPlaceholder: 'name@example.com',
+    emailConfirmNotice:
+      'پێویستە ئیمەیڵەکەت پشتڕاست بکەیتەوە بۆ تەواوکردنی تۆمارکردن، بۆیە ئیمەیڵێکی دروست بنووسە کە دەستت پێی دەگات. دوای دروستکردنی هەژمار کۆدی پشتڕاستکردنەوەی بۆ دەنێرین.',
     phoneLabel: 'ژمارەی تەلەفۆن',
     phonePlaceholder: '+9647xxxxxxxxx',
     passwordLabel: 'وشەی نهێنی',

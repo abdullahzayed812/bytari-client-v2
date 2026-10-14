@@ -34,3 +34,4 @@ export {
   useSaveEggRates,
 } from './useExchangeRates';
 export { usePoultryMarketStatistics } from './usePoultryMarketStatistics';
+export { useMarketAccess } from './useMarketAccess';

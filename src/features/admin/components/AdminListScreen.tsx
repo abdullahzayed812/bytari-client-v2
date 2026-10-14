@@ -55,7 +55,16 @@ export function AdminListScreen<T>({
   return (
     <SafeAreaScreen>
       <AppHeader title={title} showBack right={right} />
-      {filterBar}
+      {/* Never shrinks and stays above the list, so the filter / tab row is
+          always visible and tappable however long the list is. */}
+      {filterBar ? (
+        <View
+          testID="admin-list-filter-bar"
+          style={{ flexShrink: 0, zIndex: 1, backgroundColor: theme.colors.background }}
+        >
+          {filterBar}
+        </View>
+      ) : null}
 
       {query.isLoading ? (
         <View
@@ -75,6 +84,7 @@ export function AdminListScreen<T>({
         </View>
       ) : (
         <FlatList
+          style={{ flex: 1 }}
           data={data}
           keyExtractor={keyExtractor}
           renderItem={({ item }) => renderItem(item)}

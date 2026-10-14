@@ -24,6 +24,7 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { openPhone } from '@/utils';
 
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { useDeleteEggOffer, useEggOffer } from '../hooks';
 import type { EggOffer } from '../types';
 
@@ -40,6 +41,15 @@ function Field({ label, value }: { label: string; value: string }) {
 
 /** Route `/(app)/poultry/egg-market/[offerId]` — egg offer detail. */
 export default function EggOfferDetailScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('eggMarket.title')}>
+      <EggOfferDetailContent />
+    </MarketAccessGate>
+  );
+}
+
+function EggOfferDetailContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tc } = useTranslation('common');

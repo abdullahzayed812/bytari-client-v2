@@ -295,6 +295,8 @@ export default function VeterinarianRegisterScreen() {
           serverError={serverFields.email}
           editable={stage !== 'apply-error'}
         />
+        {/* Verification itself is unchanged (verify-email step after sign-up). */}
+        <Alert tone="info" message={tAuth('register.emailConfirmNotice')} />
 
         <FormField
           control={control}

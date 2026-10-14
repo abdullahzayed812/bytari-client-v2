@@ -24,7 +24,9 @@ export function FilterChips<T extends string>({ options, value, onChange }: Filt
       keyboardShouldPersistTaps="handled"
       // RN gives a ScrollView `flexGrow: 1` by default — inside a flex column
       // that makes this row stretch and leave a large gap beneath the chips.
-      style={{ flexGrow: 0 }}
+      // `flexShrink: 0` — otherwise a long list below (flex: 1) squeezes this
+      // row to nothing on web and its items render over the tabs.
+      style={{ flexGrow: 0, flexShrink: 0 }}
       contentContainerStyle={{
         alignItems: 'flex-start',
         columnGap: theme.spacing.sm,

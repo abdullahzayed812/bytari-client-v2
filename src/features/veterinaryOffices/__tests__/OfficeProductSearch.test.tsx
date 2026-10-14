@@ -1,6 +1,6 @@
 import { apiClient } from '@/services/api';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
-import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
+import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { publicVeterinaryOfficeProductsApi } from '../browse/api';
 import OfficeProductSearchScreen from '../browse/screens/OfficeProductSearchScreen';
@@ -82,6 +82,18 @@ describe('OfficeProductSearchScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/o1/products/p1');
     fireEvent.press(screen.getByLabelText('فتح صفحة مكتب دجلة'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/o2');
+  });
+
+  it('opened from the main Search page, it searches the passed text straight away', async () => {
+    setSearchParams({ q: 'أموكس' });
+    const spy = jest.spyOn(publicVeterinaryOfficeProductsApi, 'searchAll').mockResolvedValue({
+      items: [hit('p1', 'o1', 'مكتب الرافدين', 'أموكسيسيلين 500')],
+      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+    renderWithProviders(<OfficeProductSearchScreen />);
+    expect(await screen.findByText('أموكسيسيلين 500')).toBeTruthy();
+    expect(spy).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'أموكس', page: 1 }));
+    setSearchParams({});
   });
 
   it('shows the empty state when nothing matches', async () => {

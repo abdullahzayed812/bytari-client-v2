@@ -1,8 +1,10 @@
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
 import { Badge, Icon } from '@/components/content';
 import { Caption } from '@/components/typography';
+import { useChatRoom } from '@/features/globalChat/hooks';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -49,9 +51,14 @@ export function ConversationCard({ conversation: c, onPress }: ConversationCardP
           backgroundColor: theme.colors.surfaceAccent,
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         }}
       >
-        <Icon name={conversationIcon(c.type)} size="iconMd" color="primary" />
+        {c.type === 'CHAT_ROOM' ? (
+          <RoomImage organizationId={c.organizationId} />
+        ) : (
+          <Icon name={conversationIcon(c.type)} size="iconMd" color="primary" />
+        )}
       </View>
 
       <View style={{ flex: 1, rowGap: 2 }}>
@@ -69,5 +76,21 @@ export function ConversationCard({ conversation: c, onPress }: ConversationCardP
         <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
       )}
     </Pressable>
+  );
+}
+
+/** A joined Global Chat room's own image (same cached room query as its title), else the chat icon. */
+function RoomImage({ organizationId }: { organizationId: string | null }) {
+  const q = useChatRoom(organizationId ?? undefined);
+  const uri = q.data?.logoUrl;
+  if (!uri) return <Icon name={conversationIcon('CHAT_ROOM')} size="iconMd" color="primary" />;
+  return (
+    <Image
+      testID="conversation-room-image"
+      source={uri}
+      style={{ width: 44, height: 44 }}
+      contentFit="cover"
+      accessibilityIgnoresInvertColors
+    />
   );
 }

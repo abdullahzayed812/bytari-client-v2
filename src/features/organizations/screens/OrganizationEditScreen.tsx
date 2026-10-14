@@ -135,6 +135,9 @@ export default function OrganizationEditScreen() {
 
   const org = q.data;
   const hasProfileFields = PROFILE_FIELDS_ORG_TYPES.includes(org.type);
+  // A Global Chat room has no directory profile, but it does have an image
+  // (same logo endpoints, admin/owner only) shown on every room card.
+  const hasLogo = hasProfileFields || org.type === 'CHAT_ROOM';
   const isLicensable = LICENSABLE_ORG_TYPES.includes(org.type);
   // License number + photos were reviewed at approval: the owner may still
   // correct them while PENDING / REJECTED; afterwards only an admin can.
@@ -199,11 +202,11 @@ export default function OrganizationEditScreen() {
 
   return (
     <OrgFormLayout title={t('form.editTitle')}>
-      {hasProfileFields ? (
+      {hasLogo ? (
         <View
           style={{ alignItems: 'center', rowGap: theme.spacing.xs, marginBottom: theme.spacing.md }}
         >
-          <Label>{t('form.logoLabel')}</Label>
+          <Label>{org.type === 'CHAT_ROOM' ? t('form.roomImageLabel') : t('form.logoLabel')}</Label>
           <ImageUploader
             key={logoKey}
             value={org.details.logoUrl}

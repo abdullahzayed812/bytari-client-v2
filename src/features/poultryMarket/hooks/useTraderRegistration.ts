@@ -40,7 +40,10 @@ export function useRequestTraderRenewal(): UseMutationResult<TraderProfile, unkn
   return useMutation({
     mutationKey: ['market', 'trader', 'renewal'],
     mutationFn: () => poultryMarketApi.traders.requestRenewal(),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: poultryMarketKeys.traderStatus }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryMarketKeys.traderStatus });
+      void qc.invalidateQueries({ queryKey: poultryMarketKeys.access });
+    },
   });
 }
 

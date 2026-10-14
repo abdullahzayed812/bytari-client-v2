@@ -7,7 +7,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { Alert, EmptyState, useToast } from '@/components/feedback';
+import { Alert, useToast } from '@/components/feedback';
 import { FormField, Select, TileOptionGroup } from '@/components/forms';
 import { ImagePreview } from '@/components/media';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
@@ -20,10 +20,15 @@ import { isPermissionError, pickImages, type LocalFile } from '@/services/media'
 import { useTheme } from '@/theme';
 
 import { poultryMarketApi } from '../api';
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { BIRD_TYPE_ORDER, PRICING_METHOD_ORDER } from '../constants';
-import { useCreatePoultryOffer, useTraderStatus } from '../hooks';
+import { useCreatePoultryOffer } from '../hooks';
 import type { BirdType, PricingMethod } from '../types';
-import { buildPoultryOfferSchema, marketErrorMessage, type PoultryOfferFormValues } from '../validation/schemas';
+import {
+  buildPoultryOfferSchema,
+  marketErrorMessage,
+  type PoultryOfferFormValues,
+} from '../validation/schemas';
 
 const TILE_SIZE = 84;
 const MAX_IMAGES = 5;
@@ -45,11 +50,19 @@ const EMPTY: PoultryOfferFormValues = {
 
 /** Route `/(app)/poultry/market/create` — إضافة عرض بيع دواجن. */
 export default function CreatePoultryOfferScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('poultryMarket.addTitle')} need="sell">
+      <CreatePoultryOfferContent />
+    </MarketAccessGate>
+  );
+}
+
+function CreatePoultryOfferContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tc } = useTranslation('common');
   const toast = useToast();
-  const trader = useTraderStatus();
   const user = useAuthStore((s) => s.user);
   const create = useCreatePoultryOffer();
 
@@ -70,32 +83,6 @@ export default function CreatePoultryOfferScreen() {
   });
   const pricingMethod = watch('pricingMethod');
 
-  if (!trader.isApproved) {
-    return (
-      <OrgFormLayout title={t('poultryMarket.addTitle')}>
-        <EmptyState
-          icon="lock-closed-outline"
-          title={
-            trader.isPending
-              ? t('gate.pendingTitle')
-              : trader.isRejected
-                ? t('gate.rejectedTitle')
-                : trader.isSuspended
-                  ? t('gate.suspendedTitle')
-                  : t('gate.notRegisteredTitle')
-          }
-          message={trader.hasRegistered ? t('gate.pendingBody') : t('gate.notRegisteredBody')}
-          actionLabel={!trader.hasRegistered || trader.isRejected ? t('gate.registerCta') : undefined}
-          onAction={
-            !trader.hasRegistered || trader.isRejected
-              ? () => router.push('/(app)/poultry/trader-register' as never)
-              : undefined
-          }
-        />
-      </OrgFormLayout>
-    );
-  }
-
   const addPhotos = async () => {
     if (photos.length >= MAX_IMAGES) return;
     try {
@@ -103,7 +90,9 @@ export default function CreatePoultryOfferScreen() {
       setPhotos((prev) => [...prev, ...files]);
     } catch (error) {
       toast.show({
-        message: isPermissionError(error) ? tc('media.permissionBody') : marketErrorMessage(error, t),
+        message: isPermissionError(error)
+          ? tc('media.permissionBody')
+          : marketErrorMessage(error, t),
         tone: isPermissionError(error) ? 'warning' : 'danger',
       });
     }
@@ -112,11 +101,12 @@ export default function CreatePoultryOfferScreen() {
 
   const uploadPhotos = async (): Promise<string[]> => {
     const provider: PresignProvider = {
-      requestUpload: (file) => poultryMarketApi.poultryOffers.requestUploadUrl({
-        filename: file.name,
-        mimeType: file.mimeType,
-        size: file.size ?? 0,
-      }),
+      requestUpload: (file) =>
+        poultryMarketApi.poultryOffers.requestUploadUrl({
+          filename: file.name,
+          mimeType: file.mimeType,
+          size: file.size ?? 0,
+        }),
     };
     const uploader = new FileUploadService(provider);
     const keys: string[] = [];
@@ -227,7 +217,11 @@ export default function CreatePoultryOfferScreen() {
       <FormField
         control={control}
         name="price"
-        label={pricingMethod === 'PER_BIRD' ? t('poultryMarket.fieldPriceBird') : t('poultryMarket.fieldPriceKg')}
+        label={
+          pricingMethod === 'PER_BIRD'
+            ? t('poultryMarket.fieldPriceBird')
+            : t('poultryMarket.fieldPriceKg')
+        }
         keyboardType="decimal-pad"
         serverError={serverFields.price}
       />
@@ -304,7 +298,12 @@ export default function CreatePoultryOfferScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
             {photos.map((file) => (
-              <ImagePreview key={file.uri} uri={file.uri} size={TILE_SIZE} onRemove={() => removePhoto(file.uri)} />
+              <ImagePreview
+                key={file.uri}
+                uri={file.uri}
+                size={TILE_SIZE}
+                onRemove={() => removePhoto(file.uri)}
+              />
             ))}
             {photos.length < MAX_IMAGES ? (
               <Pressable

@@ -13,12 +13,22 @@ import { useCapabilities } from '@/hooks';
 import { formatDate } from '@/utils';
 
 import { ExchangeRateLegend, ExchangeRateTable } from '../components';
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { useEggRates } from '../hooks';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
 /** Route `/(app)/poultry/egg-exchange-rates` — بورصة البيض (viewer). */
 export default function EggExchangeRateScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('exchangeRates.eggTitle')}>
+      <EggExchangeRateContent />
+    </MarketAccessGate>
+  );
+}
+
+function EggExchangeRateContent() {
   const { t } = useTranslation('poultryMarket');
   const caps = useCapabilities();
   const canManage = caps.isAdmin || caps.isSupervisorOf('MARKET') || caps.can('market.rate.manage');

@@ -6,6 +6,7 @@ export const SEARCH_TYPES = [
   'VET_STORE_PRODUCT',
   'CLINIC',
   'VETERINARY_OFFICE',
+  'OFFICE_PRODUCT',
   'FARM',
   'SERVICE',
   'COURSE',

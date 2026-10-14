@@ -89,4 +89,67 @@ describe('AdminChatsScreen', () => {
     fireEvent.press(screen.getByText('الأغنام والماعز'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/admin/organizations/r1');
   });
+
+  it('keeps both tabs visible above a long conversation list (the list can never squeeze them)', async () => {
+    jest.spyOn(adminApi, 'listChatConversations').mockResolvedValue(
+      page(
+        Array.from({ length: 60 }, (_, i) => ({
+          id: `c${i}`,
+          type: 'PET_OWNER_CLINIC',
+          status: 'OPEN',
+          organizationId: 'o1',
+          lastMessageAt: '2026-01-01T00:00:00.000Z',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        })) as never,
+      ),
+    );
+    jest.spyOn(adminApi, 'listOrganizations').mockResolvedValue(page([]));
+
+    renderWithProviders(<AdminChatsScreen />);
+    expect((await screen.findAllByText('محادثة مع عيادة')).length).toBeGreaterThan(1);
+
+    const bar = screen.getByTestId('admin-list-filter-bar');
+    expect(bar).toHaveStyle({ flexShrink: 0 });
+    expect(screen.getByText('المحادثات')).toBeOnTheScreen();
+    expect(screen.getByText('غرف الدردشة')).toBeOnTheScreen();
+    // Still usable: switching tabs works with the long list rendered.
+    fireEvent.press(screen.getByText('غرف الدردشة'));
+    expect(await screen.findByText('لا توجد غرف دردشة بعد')).toBeOnTheScreen();
+    expect(screen.getByTestId('admin-list-filter-bar')).toHaveStyle({ flexShrink: 0 });
+  });
+
+  it('shows each room’s own image in the rooms tab, with the icon fallback when none is set', async () => {
+    jest.spyOn(adminApi, 'listChatConversations').mockResolvedValue(page([]));
+    const room = (id: string, name: string, logoUrl: string | null) =>
+      ({
+        id,
+        type: 'CHAT_ROOM',
+        name,
+        description: null,
+        status: 'ACTIVE',
+        ownerUserId: 'admin1',
+        decidedBy: null,
+        decidedAt: null,
+        decisionReason: null,
+        createdAt: '',
+        updatedAt: '',
+        logoUrl,
+      }) as never;
+    jest
+      .spyOn(adminApi, 'listOrganizations')
+      .mockResolvedValue(
+        page([room('r1', 'الدواجن', 'https://cdn.test/rooms/r1.jpg'), room('r2', 'الأبقار', null)]),
+      );
+
+    renderWithProviders(<AdminChatsScreen />);
+    fireEvent.press(await screen.findByText('غرف الدردشة'));
+    expect(await screen.findByText('الدواجن')).toBeOnTheScreen();
+    type Node = { props: { source?: { uri?: string } } };
+    const withSource = (uri: string) =>
+      screen.UNSAFE_root.findAll((n: Node) => n.props.source?.uri === uri);
+    expect(withSource('https://cdn.test/rooms/r1.jpg').length).toBeGreaterThan(0);
+    expect(
+      screen.UNSAFE_root.findAll((n: Node) => String(n.props.source?.uri ?? '').includes('r2')),
+    ).toHaveLength(0);
+  });
 });

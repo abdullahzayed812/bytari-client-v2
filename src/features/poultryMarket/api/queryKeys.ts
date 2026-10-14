@@ -32,4 +32,5 @@ export const poultryMarketKeys = {
   },
 
   statistics: ['market', 'statistics'] as const,
+  access: ['market', 'access'] as const,
 };

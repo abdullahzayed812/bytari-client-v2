@@ -14,7 +14,7 @@ export default {
     POULTRY_MARKET: 'سوق الدواجن',
     EGG_MARKET: 'سوق البيض',
     EXCHANGE_RATES: 'أسعار الصرف',
-    TRADER_REGISTRATION: 'تسجيل التجار',
+    TRADER_REGISTRATION: 'تسجيل التجار (السوق وبورصات الدواجن)',
     SHEEP_FARMS: 'مزارع الأغنام',
     CATTLE_FARMS: 'مزارع الأبقار',
     VETERINARIAN_HOME: 'الرئيسية (الأطباء البيطريون)',

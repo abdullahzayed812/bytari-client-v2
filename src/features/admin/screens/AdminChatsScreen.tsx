@@ -88,6 +88,8 @@ export default function AdminChatsScreen() {
           <AdminRow
             title={o.name}
             subtitle={o.description ?? undefined}
+            // The room's own image (set on create / edit), else the chat icon.
+            image={{ uri: o.logoUrl ?? null, fallbackIcon: 'chatbubbles-outline' }}
             badge={{ label: t(`orgs.status.${o.status}`), tone: statusTone(o.status) }}
             onPress={() => router.push(Routes.adminOrganization(o.id))}
           />

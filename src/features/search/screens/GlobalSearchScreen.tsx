@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, SectionList, View } from 'react-native';
 
+import { Button } from '@/components/actions';
 import { Icon, type IconName } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
@@ -23,6 +24,7 @@ const TYPE_ICON: Record<SearchType, IconName> = {
   VET_STORE_PRODUCT: 'medkit-outline',
   CLINIC: 'medical-outline',
   VETERINARY_OFFICE: 'business-outline',
+  OFFICE_PRODUCT: 'cube-outline',
   FARM: 'leaf-outline',
   SERVICE: 'briefcase-outline',
   COURSE: 'school-outline',
@@ -46,6 +48,11 @@ export function searchHitHref(hit: SearchHit): Href {
       return Routes.organizationDiscoverDetail(hit.id);
     case 'VETERINARY_OFFICE':
       return Routes.veterinaryOfficeDetail(hit.id);
+    case 'OFFICE_PRODUCT':
+      // `meta.officeId` = the office selling it (subtitle = its name).
+      return hit.meta?.officeId
+        ? Routes.veterinaryOfficeProductDetail(hit.meta.officeId, hit.id)
+        : Routes.veterinaryOfficeProductSearch;
     case 'FARM':
       return Routes.farmDashboard(hit.id, hit.meta?.farmSpecies);
     case 'SERVICE':
@@ -137,6 +144,26 @@ export default function GlobalSearchScreen() {
         />
         {text.trim().length > 0 && text.trim().length < SEARCH_MIN_CHARS ? (
           <Caption style={{ marginTop: theme.spacing.xs }}>{t('search.hint')}</Caption>
+        ) : null}
+        {q.scope === 'VETERINARIAN' ? (
+          // Moved here from the Veterinary Offices screen — the full cross-office
+          // product search (filters, pagination), seeded with the current text.
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <Button
+              label={t('search.officeProductsCta')}
+              accessibilityLabel={t('search.officeProductsCtaA11y')}
+              variant="outline"
+              size="sm"
+              leftIcon="cube-outline"
+              fullWidth
+              onPress={() =>
+                router.push({
+                  pathname: Routes.veterinaryOfficeProductSearch,
+                  params: text.trim() ? { q: text.trim() } : {},
+                })
+              }
+            />
+          </View>
         ) : null}
       </View>
       {body}

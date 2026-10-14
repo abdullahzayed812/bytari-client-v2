@@ -24,6 +24,7 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { openPhone } from '@/utils';
 
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { useDeletePoultryOffer, usePoultryOffer } from '../hooks';
 import type { PoultryOffer } from '../types';
 
@@ -40,6 +41,15 @@ function Field({ label, value }: { label: string; value: string }) {
 
 /** Route `/(app)/poultry/market/[offerId]` — poultry offer detail. */
 export default function PoultryOfferDetailScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('poultryMarket.title')}>
+      <PoultryOfferDetailContent />
+    </MarketAccessGate>
+  );
+}
+
+function PoultryOfferDetailContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tc } = useTranslation('common');

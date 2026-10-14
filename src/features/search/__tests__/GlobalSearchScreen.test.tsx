@@ -1,4 +1,6 @@
+import { useAuthStore } from '@/features/auth/store';
 import { apiClient } from '@/services/api';
+import { useAppModeStore } from '@/store/appModeStore';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
@@ -47,6 +49,10 @@ describe('searchHitHref', () => {
       '/(app)/livestock/sheep/x1',
     );
     expect(searchHitHref({ ...hit, type: 'BOOK' })).toBe('/(app)/veterinary-books/x1');
+    // An office product opens the product inside the office selling it.
+    expect(
+      searchHitHref({ ...hit, type: 'OFFICE_PRODUCT', meta: { officeId: 'o1', officeName: 'م' } }),
+    ).toBe('/(app)/veterinary-offices/o1/products/x1');
   });
 });
 
@@ -84,5 +90,99 @@ describe('GlobalSearchScreen', () => {
     await waitFor(() =>
       expect(routerMock.push).toHaveBeenCalledWith('/(app)/pet-owner-store/products/p1'),
     );
+  });
+});
+
+describe('GlobalSearchScreen — Veterinary Office products (veterinarian interface)', () => {
+  function asApprovedVet() {
+    const user = {
+      id: 'v1',
+      email: 'v@x.c',
+      firstName: 'ط',
+      lastName: 'ب',
+      phone: null,
+      status: 'ACTIVE' as const,
+      veterinarianStatus: 'APPROVED' as const,
+      traderStatus: 'NOT_REGISTERED' as const,
+      createdAt: '',
+      updatedAt: '',
+    };
+    useAuthStore.setState({
+      user,
+      status: 'authenticated',
+      session: {
+        user,
+        roles: ['PET_OWNER'],
+        permissions: [],
+        isAdmin: false,
+        supervisorDomains: [],
+        veterinarian: { status: 'APPROVED', approved: true },
+        trader: { status: 'NOT_REGISTERED', approved: false },
+      },
+    });
+    useAppModeStore.setState({ activeMode: 'veterinarian' });
+  }
+  afterEach(() => {
+    useAppModeStore.setState({ activeMode: 'owner' });
+    useAuthStore.setState({ session: null, user: null, status: 'unauthenticated' });
+  });
+
+  it('shows office products with the office selling each, and opens the product', async () => {
+    asApprovedVet();
+    const search = jest.spyOn(searchApi, 'search').mockResolvedValue({
+      query: 'كوكسيديا',
+      groups: [
+        {
+          type: 'OFFICE_PRODUCT',
+          total: 1,
+          items: [
+            {
+              type: 'OFFICE_PRODUCT',
+              id: 'p1',
+              title: 'مضاد كوكسيديا',
+              subtitle: 'مكتب الرافدين',
+              imageUrl: null,
+              meta: { officeId: 'o1', officeName: 'مكتب الرافدين' },
+            },
+          ],
+        },
+      ],
+    });
+    renderWithProviders(<GlobalSearchScreen />);
+    fireEvent.changeText(
+      screen.getByLabelText('ابحث عن كتاب، مجلة، منتج، مكتب أو شركة، خدمة، دورة أو وظيفة…'),
+      'كوكسيديا',
+    );
+    expect(await screen.findByText('مضاد كوكسيديا')).toBeOnTheScreen();
+    expect(screen.getByText('مكتب الرافدين')).toBeOnTheScreen();
+    expect(screen.getByText('منتجات المكاتب أو الشركات')).toBeOnTheScreen();
+    expect(search).toHaveBeenCalledWith('كوكسيديا', {
+      interface: 'VETERINARIAN',
+      types: undefined,
+    });
+    fireEvent.press(screen.getByText('مضاد كوكسيديا'));
+    await waitFor(() =>
+      expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/o1/products/p1'),
+    );
+  });
+
+  it('hosts the "search products in all offices" button, seeded with the typed text', async () => {
+    asApprovedVet();
+    jest.spyOn(searchApi, 'search').mockResolvedValue({ query: 'لقاح', groups: [] });
+    renderWithProviders(<GlobalSearchScreen />);
+    fireEvent.changeText(
+      screen.getByLabelText('ابحث عن كتاب، مجلة، منتج، مكتب أو شركة، خدمة، دورة أو وظيفة…'),
+      'لقاح',
+    );
+    fireEvent.press(screen.getByText('ابحث عن منتج في كل المكاتب أو الشركات'));
+    expect(routerMock.push).toHaveBeenCalledWith({
+      pathname: '/(app)/veterinary-offices/products-search',
+      params: { q: 'لقاح' },
+    });
+  });
+
+  it('the Pet Owner interface has no office product search button', () => {
+    renderWithProviders(<GlobalSearchScreen />);
+    expect(screen.queryByText('ابحث عن منتج في كل المكاتب أو الشركات')).toBeNull();
   });
 });

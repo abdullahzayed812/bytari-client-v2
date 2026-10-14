@@ -21,6 +21,8 @@ export default {
     lastNamePlaceholder: 'مثال: أحمد',
     emailLabel: 'البريد الإلكتروني',
     emailPlaceholder: 'name@example.com',
+    emailConfirmNotice:
+      'ستحتاج إلى تأكيد بريدك الإلكتروني لإكمال التسجيل، لذا أدخل بريدًا إلكترونيًا صحيحًا يمكنك الوصول إليه. سنرسل إليه رمز التفعيل بعد إنشاء الحساب.',
     phoneLabel: 'رقم الهاتف',
     phonePlaceholder: '+9647xxxxxxxxx',
     passwordLabel: 'كلمة المرور',

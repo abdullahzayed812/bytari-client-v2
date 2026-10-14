@@ -131,16 +131,16 @@ describe('PoultryFarmsLandingScreen', () => {
     expect(await screen.findByText('لا توجد حقول دواجن بعد')).toBeTruthy();
   });
 
-  it('routes the market card to trader registration while the trader is not approved', async () => {
-    // beforeEach sets session = null → NOT_REGISTERED → not approved
+  it('routes the market card to the market hub even without an account (the hub shows the account choice)', async () => {
+    // beforeEach sets session = null → NOT_REGISTERED
     listMine.mockResolvedValue({
       items: [],
       meta: { page: 1, pageSize: 50, total: 0, totalPages: 1 },
     });
     renderWithProviders(<PoultryFarmsLandingScreen />);
     fireEvent.press(await screen.findByText('الدواجن والسوق والبورصات'));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/trader-register');
-    expect(routerMock.push).not.toHaveBeenCalledWith('/(app)/poultry/market-hub');
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/market-hub');
+    expect(routerMock.push).not.toHaveBeenCalledWith('/(app)/poultry/trader-register');
   });
 
   it('routes the market card to the market hub when the trader is approved', async () => {

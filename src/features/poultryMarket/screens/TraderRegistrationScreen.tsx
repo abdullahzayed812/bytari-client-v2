@@ -11,7 +11,6 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
-import { Advertisement } from '@/features/ads';
 import { useAuthStore } from '@/features/auth/store';
 import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useAuth } from '@/hooks';
@@ -146,8 +145,6 @@ export default function TraderRegistrationScreen() {
       <AppHeader title={t('register.title')} showBack backAlign="left" />
 
       <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
-        <Advertisement placement="TRADER_REGISTRATION" />
-
         <BenefitsCard />
 
         {formError ? <Alert tone="danger" message={formError} /> : null}

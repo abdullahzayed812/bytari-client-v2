@@ -20,8 +20,6 @@ import { Advertisement } from '@/features/ads';
 import { HomeSectionHeader } from '@/features/home/components';
 import { NewsCard } from '@/features/news/components';
 import { useNews } from '@/features/news/hooks';
-// Deep import — avoids a farm ⇄ poultryMarket barrel require cycle.
-import { useTraderStatus } from '@/features/poultryMarket/hooks/useTraderStatus';
 import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { useTheme } from '@/theme';
@@ -39,7 +37,6 @@ export default function PoultryFarmsLandingScreen() {
   const { width } = useWindowDimensions();
 
   const farms = usePoultryFarms();
-  const trader = useTraderStatus();
   const farmPreview = farms.farms.slice(0, 3);
   const primaryFarm = farms.farms[0];
   const flocks = usePoultryFlocks(primaryFarm?.id, {
@@ -136,9 +133,8 @@ export default function PoultryFarmsLandingScreen() {
             icon="trending-up-outline"
             title={t('landing.marketTitle')}
             subtitle={t('landing.marketSubtitle')}
-            onPress={() =>
-              trader.isApproved ? router.push(Routes.marketHub) : router.push(Routes.traderRegister)
-            }
+            // The hub decides (server-evaluated): account choice, renewal notice, or the markets.
+            onPress={() => router.push(Routes.marketHub)}
           />
         </Section>
 

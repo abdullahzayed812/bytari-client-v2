@@ -9,6 +9,7 @@ import type {
   EggRateEntryInput,
   ListEggOffersFilter,
   ListPoultryOffersFilter,
+  MarketAccess,
   MarketStatisticsSummary,
   Paginated,
   PoultryOffer,
@@ -282,6 +283,13 @@ export const poultryMarketApi = {
         date,
         entries,
       });
+    },
+  },
+
+  /** My Markets & Exchanges access — merchant + owned poultry farms, evaluated server-side. */
+  access: {
+    get(): Promise<MarketAccess> {
+      return apiClient.get<MarketAccess>('/poultry-market/access');
     },
   },
 

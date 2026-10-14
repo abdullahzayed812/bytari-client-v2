@@ -78,16 +78,6 @@ export default function VeterinaryOfficesScreen() {
           />
         }
       />
-      <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.sm }}>
-        <Button
-          label={t('productSearch.entry')}
-          variant="outline"
-          size="sm"
-          leftIcon="search-outline"
-          fullWidth
-          onPress={() => router.push(Routes.veterinaryOfficeProductSearch)}
-        />
-      </View>
 
       <DiscoverFilterBar
         search={rawSearch}

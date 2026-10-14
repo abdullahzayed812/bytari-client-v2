@@ -23,19 +23,30 @@ import { useTheme } from '@/theme';
 import { openPhone } from '@/utils';
 
 import { GovernorateFilterRow, MarketOfferCard } from '../components';
+import { MarketAccessGate } from '../components/MarketAccessGate';
 import { EGG_TYPE_ORDER } from '../constants';
-import { useDeleteEggOffer, useEggOffers, useMyEggOffers, useTraderStatus } from '../hooks';
+import { useDeleteEggOffer, useEggOffers, useMyEggOffers, useMarketAccess } from '../hooks';
 import type { EggOffer, EggType } from '../types';
 
 /** Route `/(app)/poultry/egg-market` — سوق البيض. */
 export default function EggMarketScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('eggMarket.title')}>
+      <EggMarketContent />
+    </MarketAccessGate>
+  );
+}
+
+function EggMarketContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
   const { t: tc } = useTranslation('common');
   const toast = useToast();
   const { isAdmin, isSupervisorOf } = useCapabilities();
   const user = useAuthStore((s) => s.user);
-  const trader = useTraderStatus();
+  // Selling = an eligible merchant OR poultry farm (server-evaluated).
+  const canSell = useMarketAccess().data?.sections.sell ?? false;
 
   const [eggType, setEggType] = useState<EggType | undefined>(undefined);
   const [governorate, setGovernorate] = useState<string | undefined>(undefined);
@@ -43,7 +54,7 @@ export default function EggMarketScreen() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const allQ = useEggOffers({ eggType, governorate, enabled: scope === 'all' });
-  const mineQ = useMyEggOffers({ enabled: scope === 'mine' && trader.isApproved });
+  const mineQ = useMyEggOffers({ enabled: scope === 'mine' && canSell });
   const q = scope === 'all' ? allQ : mineQ;
   const del = useDeleteEggOffer();
 
@@ -57,7 +68,7 @@ export default function EggMarketScreen() {
       <Section spacing="md">
         <Advertisement placement="EGG_MARKET" />
       </Section>
-      {trader.isApproved ? (
+      {canSell ? (
         <View
           style={{
             flexDirection: 'row',
@@ -104,7 +115,7 @@ export default function EggMarketScreen() {
         title={t('eggMarket.title')}
         showBack
         right={
-          trader.isApproved ? (
+          canSell ? (
             <IconButton
               icon="add"
               variant="soft"

@@ -93,6 +93,9 @@ export function marketErrorMessage(error: unknown, t: MarketTFn): string {
   if (error instanceof ApiError) {
     const code = error.code as string;
     if (code === 'TRADER_APPROVAL_REQUIRED') return t('gate.notRegisteredBody');
+    if (code === 'MARKET_ACCOUNT_REQUIRED') return t('access.denied.account');
+    if (code === 'TRADER_SUBSCRIPTION_EXPIRED') return t('access.denied.merchantExpired');
+    if (code === 'FARM_SUBSCRIPTION_NOT_ACTIVE') return t('access.denied.farmExpired');
     if (error.status === 404) return t('poultryMarket.notFound');
     if (error.status === 403) return t('gate.notRegisteredBody');
   }

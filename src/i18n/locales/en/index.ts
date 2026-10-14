@@ -2134,7 +2134,7 @@ export const en: TranslationResources = {
       POULTRY_MARKET: 'Poultry Market',
       EGG_MARKET: 'Egg Market',
       EXCHANGE_RATES: 'Exchange Rates',
-      TRADER_REGISTRATION: 'Trader Registration',
+      TRADER_REGISTRATION: 'Trader Registration (Markets & Exchanges)',
       SHEEP_FARMS: 'Sheep Farms',
       CATTLE_FARMS: 'Cattle Farms',
       VETERINARIAN_HOME: 'Home (Veterinarians)',
@@ -2327,6 +2327,8 @@ export const en: TranslationResources = {
       placeholder: 'Search products, clinics, farms, services, news or tips…',
       placeholderVet: 'Search books, magazines, products, offices, services, courses or jobs…',
       hint: 'Type at least two letters to search the app.',
+      officeProductsCta: 'Search products in all offices',
+      officeProductsCtaA11y: 'Search products across every veterinary office',
       empty: 'No results',
       emptyHint: 'Try another word or check the spelling.',
       count: '{{count}} results',
@@ -2337,6 +2339,7 @@ export const en: TranslationResources = {
         VET_STORE_PRODUCT: 'Veterinarian store',
         CLINIC: 'Clinics',
         VETERINARY_OFFICE: 'Veterinary offices',
+        OFFICE_PRODUCT: 'Office products',
         FARM: 'My farms',
         SERVICE: 'Services',
         COURSE: 'Courses & seminars',
@@ -2661,6 +2664,7 @@ export const en: TranslationResources = {
       createSuccess: 'The organization was created and is now under review.',
       editSuccess: 'Changes saved.',
       logoLabel: 'Organization logo',
+      roomImageLabel: 'Room image',
       logoUpdated: 'Logo updated.',
       logoRemoved: 'Logo removed.',
       logoRemoveCta: 'Remove logo',
@@ -3774,6 +3778,87 @@ export const en: TranslationResources = {
       renewalPending: 'Your renewal request is awaiting the administration.',
       activeUntil: 'Your trader account is active until {{date}}',
     },
+    access: {
+      title: 'Poultry Markets & Exchanges',
+      welcome: 'Welcome to',
+      heroSubtitle: 'Choose the account that suits you\nand start your journey in poultry',
+      featuresTitle: 'What you get:',
+      farm: {
+        title: 'Add a poultry farm',
+        subtitle: 'Complete farm management with every merchant feature',
+        cta: 'Create a poultry farm',
+        feature: {
+          merchant: 'Every merchant account feature',
+          dashboard: 'A complete farm dashboard',
+          info: 'Farm and information management',
+          staff: 'Add employees and permissions',
+          vets: 'Add veterinarians',
+          remote: 'Remote supervision and follow-up',
+          treatments: 'Treatments and vaccinations',
+          stats: 'Farm statistics and production',
+          alerts: 'Alerts and task planning',
+        },
+      },
+      merchant: {
+        title: 'Merchant account',
+        subtitle: 'Buy, sell and follow the market and prices',
+        cta: 'Register as a merchant',
+        feature: {
+          poultryMarket: 'Poultry market',
+          eggMarket: 'Egg market',
+          poultryBourse: 'Poultry exchange',
+          eggBourse: 'Egg exchange',
+          statistics: 'Poultry statistics',
+          ads: 'Publish ads and sale offers',
+          contact: 'Contact merchants and farms',
+          prices: 'Follow daily prices',
+        },
+      },
+      infoTitle: 'Good to know',
+      infoBody:
+        'You can enter the poultry market as a merchant only and use all the core features, or add a poultry farm to get a complete management system plus every merchant feature.',
+      status: {
+        merchantPending:
+          'Your merchant registration is under review — access opens once the administration approves it.',
+        merchantRejected: 'Your merchant registration was rejected. You can apply again.',
+        merchantSuspended:
+          'Your merchant account is suspended, so it does not grant market access.',
+        merchantExpired:
+          'Your merchant activation period ended on {{date}}. This account grants no access until it is renewed.',
+        merchantNotStarted:
+          'Your merchant activation period has not started yet. Contact the administration.',
+        farmPending: 'The farm “{{name}}” is awaiting the administration’s approval.',
+        farmInactive: 'The farm “{{name}}” is not active.',
+        farmExpired:
+          'The subscription of “{{name}}” ended on {{date}}. It grants no market access until renewed.',
+        farmNotStarted:
+          'The subscription of “{{name}}” has not started yet. Contact the administration.',
+        farmRenewCta: 'Renew farm subscription',
+      },
+      card: {
+        poultryMarketTitle: 'Poultry market',
+        poultryMarketSubtitle: 'Browse and buy every kind of poultry',
+        eggMarketTitle: 'Egg market',
+        eggMarketSubtitle: 'Daily egg listings',
+        poultryBourseTitle: 'Poultry exchange',
+        poultryBourseSubtitle: 'Daily poultry prices by governorate',
+        eggBourseTitle: 'Egg exchange',
+        eggBourseSubtitle: 'Daily egg prices by governorate',
+        statisticsTitle: 'Poultry statistics',
+        statisticsSubtitle: 'Poultry numbers across Iraq',
+        addFarmSubtitle: 'Add your farm and start managing production and sales',
+        myFarmsTitle: 'Poultry farms',
+        myFarmSubtitle: 'Manage your farm, production and sales',
+      },
+      denied: {
+        title: 'Market access is unavailable',
+        account:
+          'This section requires an active merchant account or a poultry farm with an active subscription.',
+        merchantExpired: 'Your merchant activation period has ended. Request a renewal to return.',
+        farmExpired: 'Your poultry farm subscription is not active. Renew it to return.',
+        openCta: 'Go to Poultry Markets & Exchanges',
+      },
+    },
     filters: { all: 'All types', allGovernorates: 'All governorates' },
     actions: {
       call: 'Call',
@@ -4750,6 +4835,8 @@ export const en: TranslationResources = {
       lastNamePlaceholder: 'e.g. Ahmed',
       emailLabel: 'Email',
       emailPlaceholder: 'name@example.com',
+      emailConfirmNotice:
+        'You will need to confirm your email address to complete registration, so enter a valid email you can access. We will send it a confirmation code after the account is created.',
       phoneLabel: 'Phone',
       phonePlaceholder: '+9647xxxxxxxxx',
       passwordLabel: 'Password',
@@ -7011,6 +7098,11 @@ export const en: TranslationResources = {
       submit: 'Create room',
       submitting: 'Creating…',
       created: 'Room created',
+      image: 'Room image',
+      imageHint:
+        'Shown instead of the chat icon on the room card (optional). Change or remove it later from “Edit room”.',
+      imageUploadFailed:
+        'The room was created, but the image upload failed. Retry from “Edit room”.',
       errors: {
         name: 'Room name is too short',
       },

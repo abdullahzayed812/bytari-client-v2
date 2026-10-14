@@ -171,6 +171,8 @@ export default function PetOwnerRegisterScreen() {
           leftIcon="mail-outline"
           serverError={serverFields.email}
         />
+        {/* Verification itself is unchanged (verify-email step after sign-up). */}
+        <Alert tone="info" message={tAuth('register.emailConfirmNotice')} />
 
         <FormField
           control={control}

@@ -215,6 +215,7 @@ const organizations: KuNamespace<'organizations'> = {
     createSuccess: 'دامەزراوەکە دروست کرا و ئێستا لە ژێر پێداچوونەوەدایە.',
     editSuccess: 'گۆڕانکارییەکان پاشەکەوت کران.',
     logoLabel: 'لۆگۆی دامەزراوە',
+    roomImageLabel: 'وێنەی ژوور',
     logoUpdated: 'لۆگۆکە نوێ کرایەوە.',
     logoRemoved: 'لۆگۆکە لابرا.',
     logoRemoveCta: 'لابردنی لۆگۆ',

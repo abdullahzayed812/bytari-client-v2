@@ -7,39 +7,38 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
-import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { usePoultryMarketStatistics, useTraderStatus } from '../hooks';
+import { MarketAccessGate } from '../components/MarketAccessGate';
+import { usePoultryMarketStatistics } from '../hooks';
 
 function StatTile({ value, label }: { value: number; label: string }) {
   const theme = useTheme();
   return (
-    <Card variant="outlined" style={{ flex: 1, alignItems: 'center', paddingVertical: theme.spacing.lg }}>
+    <Card
+      variant="outlined"
+      style={{ flex: 1, alignItems: 'center', paddingVertical: theme.spacing.lg }}
+    >
       <Text variant="title">{value.toLocaleString()}</Text>
       <Caption>{label}</Caption>
     </Card>
   );
 }
 
-/** Route `/(app)/poultry/statistics` — إحصائيات المحافظات (admin / approved trader only). */
+/** Route `/(app)/poultry/statistics` — إحصائيات المحافظات (Markets & Exchanges access). */
 export default function PoultryMarketStatisticsScreen() {
+  const { t } = useTranslation('poultryMarket');
+  return (
+    <MarketAccessGate title={t('statistics.title')}>
+      <PoultryMarketStatisticsContent />
+    </MarketAccessGate>
+  );
+}
+
+function PoultryMarketStatisticsContent() {
   const theme = useTheme();
   const { t } = useTranslation('poultryMarket');
-  const caps = useCapabilities();
-  const trader = useTraderStatus();
-  const canView = caps.isAdmin || trader.isApproved;
-
-  const q = usePoultryMarketStatistics({ enabled: canView });
-
-  if (!canView) {
-    return (
-      <ScrollScreen>
-        <AppHeader title={t('statistics.title')} showBack />
-        <EmptyState icon="lock-closed-outline" title={t('gate.notRegisteredTitle')} message={t('gate.notRegisteredBody')} />
-      </ScrollScreen>
-    );
-  }
+  const q = usePoultryMarketStatistics();
 
   return (
     <ScrollScreen>
@@ -90,10 +89,16 @@ export default function PoultryMarketStatisticsScreen() {
                 <Text variant="label" style={{ flex: 1.4, color: theme.colors.onPrimary }}>
                   {t('statistics.columnGovernorate')}
                 </Text>
-                <Text variant="label" style={{ flex: 1, color: theme.colors.onPrimary, textAlign: 'center' }}>
+                <Text
+                  variant="label"
+                  style={{ flex: 1, color: theme.colors.onPrimary, textAlign: 'center' }}
+                >
                   {t('statistics.columnFarmCount')}
                 </Text>
-                <Text variant="label" style={{ flex: 1, color: theme.colors.onPrimary, textAlign: 'center' }}>
+                <Text
+                  variant="label"
+                  style={{ flex: 1, color: theme.colors.onPrimary, textAlign: 'center' }}
+                >
                   {t('statistics.columnBirdCount')}
                 </Text>
               </View>
@@ -108,7 +113,8 @@ export default function PoultryMarketStatisticsScreen() {
                       alignItems: 'center',
                       paddingVertical: theme.spacing.md,
                       paddingHorizontal: theme.spacing.md,
-                      backgroundColor: index % 2 === 0 ? theme.colors.surface : theme.colors.surfaceMuted,
+                      backgroundColor:
+                        index % 2 === 0 ? theme.colors.surface : theme.colors.surfaceMuted,
                     }}
                   >
                     <Text variant="bodyMedium" style={{ flex: 1.4 }}>
