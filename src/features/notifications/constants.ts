@@ -270,8 +270,19 @@ function hrefByType(
     case 'SUBSCRIPTION_UPDATED':
     case 'SUBSCRIPTION_RENEWAL_APPROVED':
     case 'SUBSCRIPTION_RENEWAL_REJECTED':
-    case 'FARM_MEMBER_JOINED':
     case 'FARM_APPOINTMENT_CREATED': {
+      // The farm's own appointments screen (species from `data.farmSpecies`);
+      // falls through to the organization page for legacy rows without an id.
+      const appointmentId = id('appointmentId');
+      if (orgId && appointmentId) {
+        const species = pick(d, 'farmSpecies');
+        if (species === 'SHEEP') return Routes.sheepFarmSection(orgId, 'appointments');
+        if (species === 'CATTLE') return Routes.cattleFarmSection(orgId, 'appointments');
+        return Routes.poultryFarmSectionItem(orgId, 'appointments', appointmentId);
+      }
+      return orgId ? Routes.organizationDetail(orgId) : Routes.organizations;
+    }
+    case 'FARM_MEMBER_JOINED': {
       const oid = orgId ?? (n.entityType === 'ORGANIZATION' ? n.entityId : null);
       return oid ? Routes.organizationDetail(oid) : Routes.organizations;
     }
