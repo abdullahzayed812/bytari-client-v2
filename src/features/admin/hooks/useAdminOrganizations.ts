@@ -93,23 +93,28 @@ export function useAdminOrganizationMembers(
   });
 }
 
+/** `purge` (permanent delete) returns only `{ id, deleted }` — the row is gone. */
+type OrgDecisionResult = Organization | { id: string; deleted: true };
+
 type OrgDecisionInput =
   | { decision: 'approve' }
   | { decision: 'delete' }
+  | { decision: 'purge' }
   | { decision: 'reject'; reason: string }
   | { decision: OrgStatusAction; reason?: string };
 
 export function useOrgDecisionMutation(
   organizationId: string,
-): UseMutationResult<Organization, unknown, OrgDecisionInput> {
+): UseMutationResult<OrgDecisionResult, unknown, OrgDecisionInput> {
   const qc = useQueryClient();
-  return useMutation({
+  return useMutation<OrgDecisionResult, unknown, OrgDecisionInput>({
     mutationKey: ['admin', 'organizations', organizationId, 'decision'],
     mutationFn: (input) => {
       if (input.decision === 'approve') return adminApi.approveOrganization(organizationId);
       if (input.decision === 'reject')
         return adminApi.rejectOrganization(organizationId, input.reason);
       if (input.decision === 'delete') return adminApi.deleteOrganization(organizationId);
+      if (input.decision === 'purge') return adminApi.purgeOrganization(organizationId);
       return adminApi.changeOrganizationStatus(organizationId, input.decision, input.reason);
     },
     onSuccess: () => {

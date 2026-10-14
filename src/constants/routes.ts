@@ -16,6 +16,8 @@ export const Routes = {
   authRegisterSuccess: '/(auth)/register-success',
   /** The only screen a veterinarian-registered account sees until an admin approves it. `AuthRedirector` pins `status === 'pending-approval'` here. */
   authVeterinarianPending: '/(auth)/veterinarian-pending',
+  /** "تواصل معنا" for a signed-out user (welcome / sign-in) — same screen as `contact`. */
+  authContact: '/(auth)/contact',
 
   home: '/(app)/(tabs)',
   account: '/(app)/(tabs)/account',

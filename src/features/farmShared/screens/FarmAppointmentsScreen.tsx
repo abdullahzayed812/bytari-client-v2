@@ -17,9 +17,14 @@ import { FARM_APPOINTMENT_CATEGORIES } from '@/features/farm/types';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
+import { fullName } from '@/utils';
 
 import { AppointmentCard, DateFieldInput, isValidIsoDate } from '../components';
-import { useCreateFarmAppointment, useFarmAppointments } from '../hooks';
+import {
+  useAssignableVeterinarians,
+  useCreateFarmAppointment,
+  useFarmAppointments,
+} from '../hooks';
 
 type Scope = 'ALL' | FarmAppointmentCategory;
 
@@ -57,7 +62,11 @@ export default function FarmAppointmentsScreen() {
           paddingVertical: theme.spacing.sm,
         }}
       >
-        <Chip label={t('appointments.tab.all')} selected={scope === 'ALL'} onPress={() => setScope('ALL')} />
+        <Chip
+          label={t('appointments.tab.all')}
+          selected={scope === 'ALL'}
+          onPress={() => setScope('ALL')}
+        />
         {FARM_APPOINTMENT_CATEGORIES.map((c) => (
           <Chip
             key={c}
@@ -81,7 +90,11 @@ export default function FarmAppointmentsScreen() {
         ) : list.isError ? (
           <ErrorState error={list.error} onRetry={() => void list.refetch()} />
         ) : list.appointments.length === 0 ? (
-          <EmptyState icon="calendar-outline" title={t('appointments.empty')} message={t('appointments.emptyHint')} />
+          <EmptyState
+            icon="calendar-outline"
+            title={t('appointments.empty')}
+            message={t('appointments.emptyHint')}
+          />
         ) : (
           list.appointments.map((a) => (
             <AppointmentCard
@@ -106,6 +119,7 @@ export default function FarmAppointmentsScreen() {
       </View>
 
       <AddAppointmentDialog
+        orgId={orgId}
         visible={formOpen}
         loading={create.isPending}
         onCancel={() => setFormOpen(false)}
@@ -123,12 +137,17 @@ export default function FarmAppointmentsScreen() {
   );
 }
 
+/** Sentinel for "no responsible veterinarian" in the picker. */
+const NO_VET = 'NONE';
+
 function AddAppointmentDialog({
+  orgId,
   visible,
   loading,
   onSubmit,
   onCancel,
 }: {
+  orgId: string;
   visible: boolean;
   loading: boolean;
   onSubmit: (input: {
@@ -136,6 +155,7 @@ function AddAppointmentDialog({
     description?: string;
     category?: FarmAppointmentCategory;
     scheduledFor: string;
+    assignedVeterinarianUserId?: string;
   }) => void;
   onCancel: () => void;
 }) {
@@ -151,11 +171,22 @@ function AddAppointmentDialog({
     devDataEnabled ? new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10) : '',
   );
 
+  const [vetId, setVetId] = useState<string>(NO_VET);
+  const vets = useAssignableVeterinarians(orgId, { enabled: visible });
+
   const valid = title.trim().length > 0 && isValidIsoDate(scheduledFor);
 
   return (
-    <Modal visible={visible} onClose={onCancel} title={t('appointments.form.title')} dismissable={!loading}>
-      <ScrollView contentContainerStyle={{ rowGap: theme.spacing.md }} keyboardShouldPersistTaps="handled">
+    <Modal
+      visible={visible}
+      onClose={onCancel}
+      title={t('appointments.form.title')}
+      dismissable={!loading}
+    >
+      <ScrollView
+        contentContainerStyle={{ rowGap: theme.spacing.md }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Input label={t('appointments.form.titleLabel')} value={title} onChangeText={setTitle} />
         <Select<FarmAppointmentCategory>
           label={t('appointments.form.categoryLabel')}
@@ -171,6 +202,19 @@ function AddAppointmentDialog({
           value={scheduledFor}
           onChangeText={setScheduledFor}
         />
+        {/* "الطبيب المسؤول" — notified on assignment and on the day itself. */}
+        <Select<string>
+          label={t('appointments.form.vetLabel')}
+          value={vetId}
+          options={[
+            { value: NO_VET, label: t('appointments.form.vetNone') },
+            ...(vets.data ?? []).map((v) => ({
+              value: v.id,
+              label: fullName(v.firstName, v.lastName),
+            })),
+          ]}
+          onChange={setVetId}
+        />
         <Input
           label={t('appointments.form.descriptionLabel')}
           multiline
@@ -180,7 +224,13 @@ function AddAppointmentDialog({
         />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Button label={t('common.cancel')} variant="ghost" fullWidth onPress={onCancel} disabled={loading} />
+            <Button
+              label={t('common.cancel')}
+              variant="ghost"
+              fullWidth
+              onPress={onCancel}
+              disabled={loading}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Button
@@ -195,6 +245,7 @@ function AddAppointmentDialog({
                   description: description.trim() || undefined,
                   category: category ?? undefined,
                   scheduledFor,
+                  assignedVeterinarianUserId: vetId === NO_VET ? undefined : vetId,
                 })
               }
             />

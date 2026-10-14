@@ -6,7 +6,9 @@ import VeterinarianPendingApprovalScreen from '../screens/VeterinarianPendingApp
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
-const mockRefreshSession = jest.fn(async () => undefined);
+const mockRefreshSession = jest.fn(async () => true);
+const mockToast = jest.fn();
+let mockRefetchResult: { isError: boolean; data?: unknown } = { isError: false };
 const mockLogout = jest.fn(async () => undefined);
 let mockVetStatus: 'NOT_APPLIED' | 'PENDING' | 'REJECTED' = 'PENDING';
 let mockReason: string | null = null;
@@ -24,8 +26,13 @@ jest.mock('@/hooks', () => ({
 jest.mock('@/features/veterinarian', () => ({
   useVeterinarianApplicationStatus: () => ({
     data: { veterinarianStatus: mockVetStatus, application: { decisionReason: mockReason } },
-    refetch: jest.fn(async () => undefined),
+    refetch: jest.fn(async () => mockRefetchResult),
   }),
+}));
+
+jest.mock('@/components/feedback', () => ({
+  ...jest.requireActual('@/components/feedback'),
+  useToast: () => ({ show: mockToast }),
 }));
 
 beforeAll(() => initI18n('ar'));
@@ -34,6 +41,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockVetStatus = 'PENDING';
   mockReason = null;
+  mockRefetchResult = { isError: false, data: { veterinarianStatus: 'PENDING' } };
 });
 
 describe('VeterinarianPendingApprovalScreen', () => {
@@ -46,10 +54,41 @@ describe('VeterinarianPendingApprovalScreen', () => {
 
     fireEvent.press(screen.getByRole('button', { name: 'تحديث حالة الطلب' }));
     await waitFor(() => expect(mockRefreshSession).toHaveBeenCalled());
+    // The backend still says PENDING — the user is told so.
+    await waitFor(() =>
+      expect(mockToast).toHaveBeenCalledWith({
+        message: 'لا يزال طلبك قيد المراجعة.',
+        tone: 'info',
+      }),
+    );
 
     fireEvent.press(screen.getByRole('button', { name: 'تسجيل الخروج' }));
     await waitFor(() => expect(mockLogout).toHaveBeenCalled());
   });
+
+  it('"تحديث حالة الطلب" reports a failed refresh instead of failing silently', async () => {
+    mockRefetchResult = { isError: true };
+    renderWithProviders(<VeterinarianPendingApprovalScreen />);
+    fireEvent.press(screen.getByRole('button', { name: 'تحديث حالة الطلب' }));
+    await waitFor(() =>
+      expect(mockToast).toHaveBeenCalledWith({
+        message: 'تعذّر تحديث حالة الطلب. حاول مرة أخرى.',
+        tone: 'danger',
+      }),
+    );
+  });
+
+  it.each(['REJECTED', 'NOT_APPLIED'] as const)(
+    '%s → "تحديث حالة الطلب" and "تسجيل الخروج" are offered too',
+    async (status) => {
+      mockVetStatus = status;
+      renderWithProviders(<VeterinarianPendingApprovalScreen />);
+      fireEvent.press(screen.getByRole('button', { name: 'تحديث حالة الطلب' }));
+      await waitFor(() => expect(mockRefreshSession).toHaveBeenCalled());
+      fireEvent.press(screen.getByRole('button', { name: 'تسجيل الخروج' }));
+      await waitFor(() => expect(mockLogout).toHaveBeenCalled());
+    },
+  );
 
   it('REJECTED → shows the reason and a re-apply link to /veterinarian/apply', () => {
     mockVetStatus = 'REJECTED';

@@ -21,6 +21,9 @@ import { useAuth } from '@/hooks';
  *   application). Every other route, including a manual deep link or a restart
  *   into `(app)`, is replaced. The server independently refuses every
  *   non-onboarding API with 403 `VETERINARIAN_ACCOUNT_PENDING_APPROVAL`.
+ * - Unauthenticated on `/(auth)/veterinarian-pending` → sign-in. That screen
+ *   only means something for a signed-in account; without this rule its
+ *   "تسجيل الخروج" cleared the session but left the user parked on it.
  * - Unauthenticated inside `(app)`  → send to the auth flow, remembering the
  *                                     requested path (a shared clinic / office
  *                                     link) so it opens right after sign-in.
@@ -59,6 +62,8 @@ export function AuthRedirector() {
           (segments[1] === 'veterinarian-pending' || segments[1] === 'register-veterinarian')) ||
         (inAppGroup && segments[1] === 'veterinarian' && segments[2] === 'apply');
       if (!allowed) router.replace('/(auth)/veterinarian-pending');
+    } else if (!isAuthenticated && inAuthGroup && segments[1] === 'veterinarian-pending') {
+      router.replace('/(auth)/sign-in');
     } else if (!isAuthenticated && inAppGroup) {
       if (pathname && pathname !== '/') pendingDeepLink = pathname;
       router.replace('/(auth)/sign-in');

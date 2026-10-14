@@ -5,7 +5,7 @@ import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Divider, Icon, type IconName } from '@/components/content';
-import { ErrorState, useToast } from '@/components/feedback';
+import { useToast } from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -147,7 +147,23 @@ export default function ContactUsScreen() {
         <Section>
           <Label>{t('form.title')}</Label>
           {!user ? (
-            <ErrorState title={t('form.signInRequired')} />
+            // Support messages are tied to an account (the reply arrives in
+            // the app), so a signed-out visitor — reaching this page from the
+            // welcome / sign-in screen — is offered sign-in; the channels
+            // above work without one.
+            <Card padding="lg">
+              <View style={{ rowGap: theme.spacing.md, alignItems: 'center' }}>
+                <Icon name="lock-closed-outline" size="iconLg" color="textMuted" />
+                <Text center>{t('form.signInRequired')}</Text>
+                <Button
+                  label={t('form.signIn')}
+                  variant="primary"
+                  fullWidth
+                  leftIcon="log-in-outline"
+                  onPress={() => router.replace(Routes.authSignIn)}
+                />
+              </View>
+            </Card>
           ) : (
             <Card padding="lg">
               <View style={{ rowGap: theme.spacing.md }}>

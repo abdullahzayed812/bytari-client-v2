@@ -16,6 +16,8 @@ interface AuthScreenLayoutProps {
   footer?: ReactNode;
   /** Hide the back control (e.g. for the first screen in a stack). */
   showBack?: boolean;
+  /** Top-bar controls opposite the back chevron (e.g. language + "تواصل معنا"). */
+  headerActions?: ReactNode;
 }
 
 /**
@@ -33,6 +35,7 @@ export function AuthScreenLayout({
   children,
   footer,
   showBack = true,
+  headerActions,
 }: AuthScreenLayoutProps) {
   const theme = useTheme();
   const router = useRouter();
@@ -42,19 +45,38 @@ export function AuthScreenLayout({
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       edges={['top', 'bottom']}
     >
-      {showBack ? (
+      {showBack || headerActions ? (
         <View
           style={{
-            alignItems: isRTL() ? 'flex-end' : 'flex-start',
+            // Physical left/right in both languages (see above): back on the
+            // left, the actions on the right.
+            flexDirection: isRTL() ? 'row-reverse' : 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             paddingHorizontal: theme.screenPadding,
             paddingTop: theme.spacing.xs,
           }}
         >
-          <IconButton
-            icon="chevron-back"
-            accessibilityLabel="Back"
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          />
+          {showBack ? (
+            <IconButton
+              icon="chevron-back"
+              accessibilityLabel="Back"
+              onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+            />
+          ) : (
+            <View />
+          )}
+          {headerActions ? (
+            <View
+              style={{
+                flexDirection: isRTL() ? 'row-reverse' : 'row',
+                alignItems: 'center',
+                columnGap: theme.spacing.sm,
+              }}
+            >
+              {headerActions}
+            </View>
+          ) : null}
         </View>
       ) : null}
 

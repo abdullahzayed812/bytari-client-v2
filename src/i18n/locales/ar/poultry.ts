@@ -315,7 +315,11 @@ export default {
       dateLabel: 'التاريخ',
       submit: 'حفظ',
       success: 'تمت إضافة الموعد بنجاح.',
+      vetLabel: 'الطبيب البيطري المسؤول',
+      vetNone: 'بدون تعيين',
     },
+    assignedVet: 'الطبيب المسؤول',
+    assigned: 'تم تحديث الطبيب المسؤول.',
   },
   settings: {
     title: 'إعدادات الحقل',

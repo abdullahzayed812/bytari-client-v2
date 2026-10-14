@@ -1,16 +1,14 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, TextButton } from '@/components/actions';
-import { Icon } from '@/components/content';
 import { useToast } from '@/components/feedback';
-import { Caption, Heading, Text } from '@/components/typography';
+import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { LANGUAGE_OPTIONS, languageLabelKey, setLanguage as applyI18nLanguage } from '@/i18n';
-import { usePreferencesStore, type AppLanguage } from '@/store';
+import { ContactUsButton, LanguageSelector } from '@/features/auth';
 import { useTheme } from '@/theme';
 
 import logoMark from '../../../../assets/logo-mark.png';
@@ -26,23 +24,7 @@ const LOGO_WIDTH = 180;
 export default function WelcomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('registration');
-  const { t: tNav } = useTranslation('nav');
   const toast = useToast();
-
-  const language = usePreferencesStore((s) => s.language);
-  const setLanguagePref = usePreferencesStore((s) => s.setLanguage);
-  // Cycles through every supported language (العربية → English → کوردی).
-  const index = LANGUAGE_OPTIONS.findIndex((o) => o.value === language);
-  const nextLanguage: AppLanguage =
-    LANGUAGE_OPTIONS[(index + 1) % LANGUAGE_OPTIONS.length]?.value ?? 'ar';
-
-  const toggleLanguage = async () => {
-    setLanguagePref(nextLanguage);
-    const { directionChanged } = await applyI18nLanguage(nextLanguage);
-    if (directionChanged) {
-      toast.show({ message: tNav('more.languageRestart'), tone: 'info', durationMs: 6000 });
-    }
-  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -54,22 +36,10 @@ export default function WelcomeScreen() {
           justifyContent: 'space-between',
         }}
       >
-        <View style={{ alignItems: 'flex-start' }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={tNav(languageLabelKey(nextLanguage))}
-            onPress={() => void toggleLanguage()}
-            hitSlop={8}
-            style={({ pressed }) => [
-              { flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs },
-              pressed && { opacity: 0.6 },
-            ]}
-          >
-            <Text variant="label" color="primary">
-              {tNav(languageLabelKey(language))}
-            </Text>
-            <Icon name="globe-outline" size="iconSm" color="primary" />
-          </Pressable>
+        {/* Language list + "تواصل معنا", side by side. */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+          <LanguageSelector />
+          <ContactUsButton />
         </View>
 
         <View

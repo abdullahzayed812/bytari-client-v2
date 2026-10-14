@@ -324,7 +324,11 @@ const poultry: KuNamespace<'poultry'> = {
       dateLabel: 'بەروار',
       submit: 'پاشەکەوتکردن',
       success: 'ژوانەکە بە سەرکەوتوویی زیاد کرا.',
+      vetLabel: 'پزیشکی ڤێتێرنەری بەرپرسیار',
+      vetNone: 'دیاری نەکراوە',
     },
+    assignedVet: 'پزیشکی بەرپرسیار',
+    assigned: 'پزیشکی بەرپرسیار نوێکرایەوە.',
   },
   settings: {
     title: 'ڕێکخستنەکانی کێڵگە',

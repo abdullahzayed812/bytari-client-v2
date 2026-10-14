@@ -6,6 +6,7 @@ import type {
   CreateFarmExpenseInput,
   FarmAppointment,
   FarmAppointmentCategory,
+  FarmPersonName,
   FarmExpense,
   FarmExpenseSummary,
   FarmProfile,
@@ -129,5 +130,36 @@ export function useFarmAppointment(orgId: string | undefined, appointmentId: str
     enabled: Boolean(orgId) && Boolean(appointmentId),
     retry: noRetryOn403,
     staleTime: 15_000,
+  });
+}
+
+/** ACTIVE veterinarians of the farm an appointment can be assigned to. */
+export function useAssignableVeterinarians(
+  orgId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<FarmPersonName[], ApiError>({
+    queryKey: [...poultryOpsKeys.forOrg(orgId ?? 'unknown'), 'assignable-veterinarians'],
+    queryFn: () => farmOpsApi.listAssignableVeterinarians(orgId as string),
+    enabled: Boolean(orgId) && (options.enabled ?? true),
+    retry: noRetryOn403,
+    staleTime: 60_000,
+  });
+}
+
+/** (Re)assign — or clear — an appointment's responsible veterinarian. */
+export function useAssignFarmAppointment(orgId: string) {
+  const qc = useQueryClient();
+  return useMutation<
+    FarmAppointment,
+    ApiError,
+    { appointmentId: string; veterinarianUserId: string | null }
+  >({
+    mutationKey: ['farm-ops', 'appointment', 'assign', orgId],
+    mutationFn: ({ appointmentId, veterinarianUserId }) =>
+      farmOpsApi.assignAppointment(orgId, appointmentId, veterinarianUserId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forOrg(orgId) });
+    },
   });
 }

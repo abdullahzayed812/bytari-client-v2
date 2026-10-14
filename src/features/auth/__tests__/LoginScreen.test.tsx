@@ -62,6 +62,13 @@ describe('LoginScreen', () => {
     expect(login.mock.calls[0]?.[0]).toEqual({ email: 'user@example.com', password: 'secret123' });
   });
 
+  it('has the language selector and a "تواصل معنا" icon beside it that opens Contact Us', () => {
+    renderWithProviders(<LoginScreen />);
+    expect(screen.getByTestId('language-selector')).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: 'تواصل معنا' }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(auth)/contact');
+  });
+
   it('"Create New Account" opens the account-type chooser (not the Pet Owner form)', () => {
     renderWithProviders(<LoginScreen />);
     fireEvent.press(screen.getByRole('button', { name: 'إنشاء حساب جديد' }));

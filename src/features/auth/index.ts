@@ -20,7 +20,13 @@ export {
 export { useVeterinarianStatus, type VeterinarianStatusInfo } from './hooks/useVeterinarianStatus';
 
 export { authErrorMessage, fieldErrors, type AuthErrorContext } from './errors';
-export { AuthScreenLayout, FormField, VeterinarianStatusBadge } from './components';
+export {
+  AuthScreenLayout,
+  ContactUsButton,
+  FormField,
+  LanguageSelector,
+  VeterinarianStatusBadge,
+} from './components';
 export { ForgotPasswordScreen, LoginScreen, RegisterScreen } from './screens';
 
 export { authApi, type AuthApi } from './api';

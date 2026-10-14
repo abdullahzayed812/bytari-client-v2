@@ -115,6 +115,8 @@ const registration: KuNamespace<'registration'> = {
       complete: 'تەواوکردنی داواکاری',
     },
     checkStatus: 'نوێکردنەوەی دۆخی داواکاری',
+    stillPending: 'داواکارییەکەت هێشتا لە پێداچوونەوەدایە.',
+    checkFailed: 'نوێکردنەوەی دۆخی داواکاری سەرکەوتوو نەبوو. دووبارە هەوڵ بدەرەوە.',
     logout: 'چوونەدەرەوە',
   },
   errors: {

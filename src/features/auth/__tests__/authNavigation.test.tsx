@@ -1,7 +1,9 @@
-import { render } from '@testing-library/react-native';
+import { act, render } from '@testing-library/react-native';
 
 import { AuthRedirector } from '@/navigation/AuthRedirector';
 
+import { authApi } from '../api';
+import { tokenStorage } from '../services';
 import { useAuthStore } from '../store';
 import type { SessionSnapshot } from '../types';
 
@@ -143,6 +145,41 @@ describe('AuthRedirector — veterinarian pending-approval gate', () => {
     mockSegments = ['(app)', '(tabs)'];
     render(<AuthRedirector />);
     expect(mockReplace).toHaveBeenCalledWith('/(auth)/verify-email');
+  });
+
+  it('"تسجيل الخروج" on the pending screen clears tokens + session and lands on sign-in', async () => {
+    const logoutCall = jest.spyOn(authApi, 'logout').mockResolvedValue({ success: true });
+    setAuth('pending-approval', pendingVet());
+    await tokenStorage.saveTokens({
+      accessToken: 'a',
+      refreshToken: 'r',
+      tokenType: 'Bearer',
+      expiresIn: 900,
+    });
+    mockSegments = ['(auth)', 'veterinarian-pending'];
+    render(<AuthRedirector />);
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    await act(() => useAuthStore.getState().logout());
+
+    expect(logoutCall).toHaveBeenCalledWith('r');
+    expect(useAuthStore.getState()).toMatchObject({
+      status: 'unauthenticated',
+      tokens: null,
+      session: null,
+    });
+    expect(await tokenStorage.getStoredTokens()).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith('/(auth)/sign-in');
+    logoutCall.mockRestore();
+  });
+
+  it('signed out on another auth screen (sign-in / register / verify-email) → left alone', () => {
+    for (const screen of ['sign-in', 'register', 'verify-email']) {
+      setAuth('unauthenticated');
+      mockSegments = ['(auth)', screen];
+      render(<AuthRedirector />);
+    }
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it('approved vet on the pending screen → moved into the app', () => {

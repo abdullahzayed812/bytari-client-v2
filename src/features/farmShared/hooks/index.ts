@@ -10,5 +10,7 @@ export {
   useFarmAppointments,
   useCreateFarmAppointment,
   useFarmAppointment,
+  useAssignableVeterinarians,
+  useAssignFarmAppointment,
 } from './useFarmOps';
 export { useFarmMemberChat } from './useFarmMemberChat';

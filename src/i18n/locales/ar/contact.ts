@@ -30,6 +30,7 @@ export default {
   form: {
     title: 'أرسل رسالة',
     signInRequired: 'يجب تسجيل الدخول لإرسال رسالة.',
+    signIn: 'تسجيل الدخول',
     nameLabel: 'الاسم',
     emailLabel: 'البريد الإلكتروني',
     messageLabel: 'رسالتك',

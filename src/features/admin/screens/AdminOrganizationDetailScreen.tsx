@@ -10,9 +10,11 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
+import { Permission } from '@/constants/permissions';
 import { Routes } from '@/constants/routes';
 import { termsKeyForOrganization } from '@/features/organizations/constants';
 import { useOrganizationTerms } from '@/features/organizations/hooks/useOrganizationTerms';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate, formatDateTime, fullName } from '@/utils';
@@ -34,6 +36,8 @@ import type { AdminTermsAcceptance, OrganizationStatus, OrgStatusAction } from '
 
 /** Subscription management is generalized to these two org types too — see `FarmSubscriptionRenewalRepository`. */
 const SUBSCRIPTION_CAPABLE_TYPES = new Set(['VETERINARY_OFFICE', 'CLINIC']);
+/** Types the server permanently deletes (`DELETE /admin/organizations/:id/permanent`). */
+const PURGEABLE_TYPES = new Set(['VETERINARY_OFFICE', 'CLINIC', 'FARM']);
 /** Types with a directory profile (contact/address/social) — mirrors `PROFILE_FIELDS_ORG_TYPES`. */
 const PROFILE_TYPES = new Set(['VETERINARY_OFFICE', 'CLINIC', 'VETERINARY_STORE']);
 
@@ -44,7 +48,7 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
   return 'danger';
 }
 
-type Pending = 'approve' | 'reject' | 'delete' | OrgStatusAction | null;
+type Pending = 'approve' | 'reject' | 'delete' | 'purge' | OrgStatusAction | null;
 
 export default function AdminOrganizationDetailScreen() {
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
@@ -56,6 +60,7 @@ export default function AdminOrganizationDetailScreen() {
   const q = useAdminOrganization(organizationId);
   const membersQ = useAdminOrganizationMembers(organizationId);
   const decide = useOrgDecisionMutation(organizationId);
+  const caps = useCapabilities();
   const setSubscription = useSetFarmSubscriptionMutation(organizationId);
   const [pending, setPending] = useState<Pending>(null);
   const [subscriptionDialog, setSubscriptionDialog] = useState(false);
@@ -90,6 +95,20 @@ export default function AdminOrganizationDetailScreen() {
           router.back();
         },
         onError: fail,
+      },
+    );
+  const runPurge = () =>
+    decide.mutate(
+      { decision: 'purge' },
+      {
+        onSuccess: () => {
+          done(t('orgs.toast.purged'));
+          router.back();
+        },
+        onError: (e) => {
+          setPending(null);
+          fail(e);
+        },
       },
     );
   const runStatus = (action: OrgStatusAction, reason?: string) =>
@@ -518,6 +537,18 @@ export default function AdminOrganizationDetailScreen() {
                   onPress={() => setPending('delete')}
                 />
               ) : null}
+              {/* Permanent delete — ADMIN only, after the soft delete. */}
+              {org.status === 'DEACTIVATED' &&
+              PURGEABLE_TYPES.has(org.type) &&
+              caps.can(Permission.ORGANIZATION_ADMIN_DELETE) ? (
+                <Button
+                  label={t('orgs.purge')}
+                  variant="danger"
+                  leftIcon="trash"
+                  fullWidth
+                  onPress={() => setPending('purge')}
+                />
+              ) : null}
             </View>
           </Section>
         </>
@@ -558,6 +589,18 @@ export default function AdminOrganizationDetailScreen() {
         destructive
         loading={decide.isPending}
         onConfirm={runDelete}
+        onCancel={() => setPending(null)}
+      />
+
+      <ConfirmationDialog
+        visible={pending === 'purge'}
+        title={t('orgs.purgeTitle')}
+        message={t('orgs.purgeBody')}
+        confirmLabel={t('orgs.purge')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={decide.isPending}
+        onConfirm={runPurge}
         onCancel={() => setPending(null)}
       />
 

@@ -36,6 +36,8 @@ export const Permission = {
   ORGANIZATION_ADMIN_READ: 'organization.admin.read',
   ORGANIZATION_ADMIN_APPROVE: 'organization.admin.approve',
   ORGANIZATION_ADMIN_STATUS: 'organization.admin.status',
+  /** Permanent delete of an already-deleted clinic / office / farm — ADMIN only. */
+  ORGANIZATION_ADMIN_DELETE: 'organization.admin.delete',
   ORGANIZATION_ADMIN_MANAGE: 'organization.admin.manage',
   // syndicates
   SYNDICATE_ADMIN_CREATE: 'syndicate.admin.create',

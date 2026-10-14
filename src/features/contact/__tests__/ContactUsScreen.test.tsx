@@ -91,4 +91,15 @@ describe('ContactUsScreen — "تواصل معنا"', () => {
     expect(create).not.toHaveBeenCalled();
     expect(screen.getByText('الرجاء كتابة رسالتك.')).toBeTruthy();
   });
+
+  it('signed out (opened from welcome / sign-in): channels shown, form replaced by a sign-in prompt', () => {
+    useAuthStore.setState({ user: null, session: null, status: 'unauthenticated', tokens: null });
+    renderWithProviders(<ContactUsScreen />);
+    expect(screen.getByText('baytariapp@gmail.com')).toBeTruthy();
+    expect(screen.getByText('يجب تسجيل الدخول لإرسال رسالة.')).toBeTruthy();
+    expect(screen.queryByPlaceholderText('رسالتك...')).toBeNull();
+    fireEvent.press(screen.getByRole('button', { name: 'تسجيل الدخول' }));
+    expect(routerMock.replace).toHaveBeenCalledWith('/(auth)/sign-in');
+    expect(create).not.toHaveBeenCalled();
+  });
 });

@@ -141,6 +141,14 @@ export default {
       title: 'موعد جديد',
       body: 'تمت إضافة موعد جديد في الحقل.',
     },
+    FARM_APPOINTMENT_ASSIGNED: {
+      title: 'تم تعيينك لموعد',
+      body: 'تم تعيينك طبيباً بيطرياً مسؤولاً عن موعد في الحقل.',
+    },
+    FARM_APPOINTMENT_DUE: {
+      title: 'موعد اليوم في الحقل',
+      body: 'لديك موعد مجدول اليوم في الحقل.',
+    },
     TRADER_APPLICATION_SUBMITTED: {
       title: 'طلب تسجيل تاجر جديد',
       body: 'قدّم مستخدم طلب تسجيل تاجر بانتظار المراجعة.',

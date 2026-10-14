@@ -18,7 +18,13 @@ import { SocialLoginButtons } from '@/features/registration/components/SocialLog
 import { ApiError, ApiErrorCode } from '@/services/api';
 import { useTheme } from '@/theme';
 
-import { AuthScreenLayout, DevAccountPicker, FormField } from '../components';
+import {
+  AuthScreenLayout,
+  ContactUsButton,
+  DevAccountPicker,
+  FormField,
+  LanguageSelector,
+} from '../components';
 import { authErrorMessage, fieldErrors } from '../errors';
 import { useLoginMutation } from '../hooks';
 import { buildLoginSchema, type LoginFormValues } from '../validation/schemas';
@@ -79,6 +85,12 @@ export default function LoginScreen() {
     <AuthScreenLayout
       title={t('login.title')}
       subtitle={t('login.subtitle')}
+      headerActions={
+        <>
+          <ContactUsButton />
+          <LanguageSelector />
+        </>
+      }
       footer={
         <Row gap="xs" justify="center">
           <Caption>{t('login.noAccount')}</Caption>

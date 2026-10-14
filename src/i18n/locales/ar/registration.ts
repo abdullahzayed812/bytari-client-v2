@@ -111,6 +111,8 @@ export default {
       complete: 'إكمال الطلب',
     },
     checkStatus: 'تحديث حالة الطلب',
+    stillPending: 'لا يزال طلبك قيد المراجعة.',
+    checkFailed: 'تعذّر تحديث حالة الطلب. حاول مرة أخرى.',
     logout: 'تسجيل الخروج',
   },
   errors: {

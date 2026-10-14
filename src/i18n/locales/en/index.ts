@@ -848,7 +848,11 @@ export const en: TranslationResources = {
         dateLabel: 'Date',
         submit: 'Save',
         success: 'Appointment added successfully.',
+        vetLabel: 'Responsible veterinarian',
+        vetNone: 'Not assigned',
       },
+      assignedVet: 'Responsible vet',
+      assigned: 'Responsible veterinarian updated.',
     },
     settings: {
       title: 'Farm settings',
@@ -5316,6 +5320,7 @@ export const en: TranslationResources = {
     form: {
       title: 'Send a message',
       signInRequired: 'You must be signed in to send a message.',
+      signIn: 'Sign in',
       nameLabel: 'Name',
       emailLabel: 'Email',
       messageLabel: 'Your message',
@@ -5807,6 +5812,14 @@ export const en: TranslationResources = {
       FARM_APPOINTMENT_CREATED: {
         title: 'New appointment',
         body: 'A new appointment was added to the farm.',
+      },
+      FARM_APPOINTMENT_ASSIGNED: {
+        title: 'Assigned to an appointment',
+        body: 'You were assigned as the responsible veterinarian for a farm appointment.',
+      },
+      FARM_APPOINTMENT_DUE: {
+        title: 'Farm appointment today',
+        body: 'You have an appointment scheduled at the farm today.',
       },
       TRADER_APPLICATION_SUBMITTED: {
         title: 'New trader application',
@@ -6985,7 +6998,7 @@ export const en: TranslationResources = {
       title: 'Organizations',
       empty: 'No organizations',
       emptyHint: 'No organization matches this filter.',
-      tab: { all: 'All', pending: 'Pending review' },
+      tab: { all: 'All', pending: 'Pending review', deleted: 'Deleted' },
       type: {
         CLINIC: 'Clinic',
         FARM: 'Farm',
@@ -7008,6 +7021,10 @@ export const en: TranslationResources = {
       deactivate: 'Deactivate',
       edit: 'Edit organization',
       delete: 'Delete organization',
+      purge: 'Delete permanently',
+      purgeTitle: 'Delete organization permanently',
+      purgeBody:
+        "The organization and its operational data (products, batches, appointments, members, chats) are deleted for good — this cannot be undone. User accounts and the audit log are kept. A clinic holding pet owners' medical records or appointments cannot be deleted.",
       deleteTitle: 'Delete organization',
       deleteBody:
         'The organization will be deactivated and hidden, and pending subscription renewals are closed. Its data and history are kept and it can be re-activated later.',
@@ -7080,6 +7097,7 @@ export const en: TranslationResources = {
         rejected: 'Organization rejected',
         statusChanged: 'Organization status updated',
         deleted: 'Organization deleted',
+        purged: 'Organization permanently deleted',
       },
       renewals: {
         empty: 'No pending subscription renewal requests.',
@@ -7975,6 +7993,8 @@ export const en: TranslationResources = {
         complete: 'Finish application',
       },
       checkStatus: 'Check status',
+      stillPending: 'Your application is still under review.',
+      checkFailed: 'Could not refresh the status. Please try again.',
       logout: 'Sign out',
     },
     errors: {

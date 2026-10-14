@@ -295,6 +295,10 @@ export interface FarmAppointment {
   category: FarmAppointmentCategory;
   scheduledFor: string;
   status: FarmAppointmentStatus;
+  /** ACTIVE veterinarian of the farm responsible for this appointment ("الطبيب المسؤول"). */
+  assignedVeterinarianUserId?: string | null;
+  /** Server-resolved name of {@link assignedVeterinarianUserId}. */
+  assignedVeterinarian?: FarmPersonName | null;
   createdByUserId: string | null;
   /** Server-resolved creator name ("أضيف بواسطة"). */
   createdBy?: { id: string; firstName: string; lastName: string } | null;
@@ -308,6 +312,13 @@ export interface CreateFarmAppointmentInput {
   category?: FarmAppointmentCategory;
   scheduledFor: string;
   poultryFlockId?: string | null;
+  assignedVeterinarianUserId?: string | null;
+}
+
+export interface FarmPersonName {
+  id: string;
+  firstName: string;
+  lastName: string;
 }
 
 // --- individual cases ------------------------------

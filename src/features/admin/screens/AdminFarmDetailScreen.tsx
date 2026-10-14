@@ -10,7 +10,9 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
+import { Permission } from '@/constants/permissions';
 import { Routes } from '@/constants/routes';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -43,7 +45,7 @@ function renewalTone(s: RenewalRequestStatus): 'success' | 'warning' | 'danger' 
   return 'warning';
 }
 
-type OrgPending = 'approve' | 'reject' | 'delete' | OrgStatusAction | null;
+type OrgPending = 'approve' | 'reject' | 'delete' | 'purge' | OrgStatusAction | null;
 
 /**
  * `/admin/farms/[organizationId]` — the complete farm file (registration
@@ -63,6 +65,7 @@ export default function AdminFarmDetailScreen() {
   const membersQ = useAdminOrganizationMembers(orgId);
   const renewalsQ = useAdminFarmRenewals(orgId);
   const decide = useOrgDecisionMutation(orgId);
+  const caps = useCapabilities();
   const setSubscription = useSetFarmSubscriptionMutation(orgId);
 
   const [orgPending, setOrgPending] = useState<OrgPending>(null);
@@ -117,6 +120,22 @@ export default function AdminFarmDetailScreen() {
           if (router.canGoBack()) router.back();
         },
         onError: fail,
+      },
+    );
+
+  const runPurge = () =>
+    decide.mutate(
+      { decision: 'purge' },
+      {
+        onSuccess: () => {
+          toast.show({ message: t('orgs.toast.purged'), tone: 'success' });
+          setOrgPending(null);
+          if (router.canGoBack()) router.back();
+        },
+        onError: (e) => {
+          setOrgPending(null);
+          fail(e);
+        },
       },
     );
 
@@ -308,6 +327,16 @@ export default function AdminFarmDetailScreen() {
                   onPress={() => setOrgPending('delete')}
                 />
               ) : null}
+              {/* Permanent delete — ADMIN only, after the soft delete. */}
+              {org.status === 'DEACTIVATED' && caps.can(Permission.ORGANIZATION_ADMIN_DELETE) ? (
+                <Button
+                  label={t('orgs.purge')}
+                  variant="danger"
+                  leftIcon="trash"
+                  fullWidth
+                  onPress={() => setOrgPending('purge')}
+                />
+              ) : null}
             </View>
           </Section>
 
@@ -457,6 +486,17 @@ export default function AdminFarmDetailScreen() {
         destructive
         loading={decide.isPending}
         onConfirm={runDelete}
+        onCancel={() => setOrgPending(null)}
+      />
+      <ConfirmationDialog
+        visible={orgPending === 'purge'}
+        title={t('orgs.purgeTitle')}
+        message={t('orgs.purgeBody')}
+        confirmLabel={t('orgs.purge')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={decide.isPending}
+        onConfirm={runPurge}
         onCancel={() => setOrgPending(null)}
       />
       <ReasonPromptDialog

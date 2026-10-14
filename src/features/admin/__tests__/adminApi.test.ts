@@ -19,6 +19,13 @@ beforeEach(() => {
 afterAll(() => jest.restoreAllMocks());
 
 describe('adminApi — maps 1:1 to the backend admin surface', () => {
+  it('deleteOrganization → DELETE /admin/organizations/:id; purgeOrganization → …/permanent', async () => {
+    await adminApi.deleteOrganization('o1');
+    expect(del).toHaveBeenCalledWith('/admin/organizations/o1');
+    await adminApi.purgeOrganization('o1');
+    expect(del).toHaveBeenCalledWith('/admin/organizations/o1/permanent');
+  });
+
   it('listUsers → GET /admin/users with pagination + filters', async () => {
     await adminApi.listUsers({ page: 2, pageSize: 20, status: 'SUSPENDED', search: 'رنا' });
     expect(requestEnvelope).toHaveBeenCalledWith({

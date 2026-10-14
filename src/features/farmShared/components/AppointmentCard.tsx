@@ -5,7 +5,7 @@ import { Badge, Card, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import type { FarmAppointment } from '@/features/farm/types';
 import { useTheme } from '@/theme';
-import { formatDate, formatWeekday } from '@/utils';
+import { formatDate, formatWeekday, fullName } from '@/utils';
 
 import { APPOINTMENT_CATEGORY_TONE } from '../constants';
 
@@ -33,6 +33,14 @@ export function AppointmentCard({
           </Text>
           {appointment.description ? (
             <Caption numberOfLines={2}>{appointment.description}</Caption>
+          ) : null}
+          {appointment.assignedVeterinarian ? (
+            <Caption numberOfLines={1} color="primary">
+              {`${t('appointments.assignedVet')}: ${fullName(
+                appointment.assignedVeterinarian.firstName,
+                appointment.assignedVeterinarian.lastName,
+              )}`}
+            </Caption>
           ) : null}
         </View>
         <Badge

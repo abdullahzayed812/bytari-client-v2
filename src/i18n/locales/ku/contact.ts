@@ -31,6 +31,7 @@ const contact: KuNamespace<'contact'> = {
   form: {
     title: 'نامەیەک بنێرە',
     signInRequired: 'بۆ ناردنی نامە دەبێت بچیتە ژوورەوە.',
+    signIn: 'چوونەژوورەوە',
     nameLabel: 'ناو',
     emailLabel: 'ئیمەیڵ',
     messageLabel: 'نامەکەت',

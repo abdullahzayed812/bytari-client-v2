@@ -41,6 +41,8 @@ export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; 
   SUBSCRIPTION_RENEWAL_REJECTED: { icon: 'card-outline', tone: 'danger' },
   FARM_MEMBER_JOINED: { icon: 'people-outline', tone: 'info' },
   FARM_APPOINTMENT_CREATED: { icon: 'calendar-outline', tone: 'info' },
+  FARM_APPOINTMENT_ASSIGNED: { icon: 'person-add-outline', tone: 'info' },
+  FARM_APPOINTMENT_DUE: { icon: 'alarm-outline', tone: 'warning' },
   TRADER_APPLICATION_SUBMITTED: { icon: 'storefront-outline', tone: 'info' },
   TRADER_APPROVED: { icon: 'storefront-outline', tone: 'success' },
   TRADER_REJECTED: { icon: 'storefront-outline', tone: 'danger' },
@@ -270,7 +272,9 @@ function hrefByType(
     case 'SUBSCRIPTION_UPDATED':
     case 'SUBSCRIPTION_RENEWAL_APPROVED':
     case 'SUBSCRIPTION_RENEWAL_REJECTED':
-    case 'FARM_APPOINTMENT_CREATED': {
+    case 'FARM_APPOINTMENT_CREATED':
+    case 'FARM_APPOINTMENT_ASSIGNED':
+    case 'FARM_APPOINTMENT_DUE': {
       // The farm's own appointments screen (species from `data.farmSpecies`);
       // falls through to the organization page for legacy rows without an id.
       const appointmentId = id('appointmentId');

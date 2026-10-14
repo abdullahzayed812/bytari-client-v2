@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
+import { useToast } from '@/components/feedback';
 import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useVeterinarianApplicationStatus } from '@/features/veterinarian';
@@ -36,6 +37,7 @@ export default function VeterinarianPendingApprovalScreen() {
   const { t } = useTranslation('registration');
   const { session, refreshSession, logout, requiresVeterinarianApproval } = useAuth();
   const statusQ = useVeterinarianApplicationStatus({ enabled: requiresVeterinarianApproval });
+  const toast = useToast();
   const [checking, setChecking] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -58,10 +60,18 @@ export default function VeterinarianPendingApprovalScreen() {
     };
   }, [check]);
 
+  // "تحديث حالة الطلب": re-pulls `/auth/me` + the application status. An
+  // approval flips the session to `authenticated` and `AuthRedirector` moves
+  // the user into the app; otherwise say what came back.
   const onCheck = async () => {
     setChecking(true);
     try {
-      await check();
+      const [sessionOk, result] = await Promise.all([refreshSession(), refetch()]);
+      if (!sessionOk || result?.isError) {
+        toast.show({ message: t('vetPending.checkFailed'), tone: 'danger' });
+      } else if ((result?.data?.veterinarianStatus ?? 'PENDING') === 'PENDING') {
+        toast.show({ message: t('vetPending.stillPending'), tone: 'info' });
+      }
     } finally {
       setChecking(false);
     }
@@ -76,12 +86,21 @@ export default function VeterinarianPendingApprovalScreen() {
     }
   };
 
-  const variant = status === 'REJECTED' ? 'rejected' : status === 'NOT_APPLIED' ? 'incomplete' : 'pending';
+  const variant =
+    status === 'REJECTED' ? 'rejected' : status === 'NOT_APPLIED' ? 'incomplete' : 'pending';
   const tone =
     variant === 'rejected'
-      ? { bg: theme.colors.dangerSoft, fg: 'danger' as const, icon: 'close-circle-outline' as const }
+      ? {
+          bg: theme.colors.dangerSoft,
+          fg: 'danger' as const,
+          icon: 'close-circle-outline' as const,
+        }
       : variant === 'incomplete'
-        ? { bg: theme.colors.warningSoft, fg: 'warning' as const, icon: 'document-text-outline' as const }
+        ? {
+            bg: theme.colors.warningSoft,
+            fg: 'warning' as const,
+            icon: 'document-text-outline' as const,
+          }
         : { bg: theme.colors.warningSoft, fg: 'warning' as const, icon: 'time-outline' as const };
 
   return (
@@ -122,7 +141,14 @@ export default function VeterinarianPendingApprovalScreen() {
             <Card variant="outlined" padding="md" style={{ alignSelf: 'stretch' }}>
               <View style={{ rowGap: theme.spacing.sm }}>
                 {(['submitted', 'underReview', 'waitAdmin', 'afterApproval'] as const).map((k) => (
-                  <View key={k} style={{ flexDirection: 'row', columnGap: theme.spacing.sm, alignItems: 'flex-start' }}>
+                  <View
+                    key={k}
+                    style={{
+                      flexDirection: 'row',
+                      columnGap: theme.spacing.sm,
+                      alignItems: 'flex-start',
+                    }}
+                  >
                     <Icon name="checkmark-circle-outline" size="iconSm" color="primary" />
                     <Text variant="body" style={{ flex: 1 }}>
                       {t(`vetPending.pending.points.${k}`)}
@@ -144,21 +170,26 @@ export default function VeterinarianPendingApprovalScreen() {
         </View>
 
         <View style={{ rowGap: theme.spacing.md }}>
-          {variant === 'pending' ? (
+          {variant !== 'pending' ? (
             <Button
-              label={t('vetPending.checkStatus')}
-              fullWidth
-              leftIcon="refresh-outline"
-              loading={checking}
-              onPress={() => void onCheck()}
-            />
-          ) : (
-            <Button
-              label={t(variant === 'rejected' ? 'vetPending.rejected.reapply' : 'vetPending.incomplete.complete')}
+              label={t(
+                variant === 'rejected'
+                  ? 'vetPending.rejected.reapply'
+                  : 'vetPending.incomplete.complete',
+              )}
               fullWidth
               onPress={() => router.push(Routes.veterinarianApply)}
             />
-          )}
+          ) : null}
+          {/* Every state can re-check: an admin may decide while the screen is open. */}
+          <Button
+            label={t('vetPending.checkStatus')}
+            variant={variant === 'pending' ? 'primary' : 'outline'}
+            fullWidth
+            leftIcon="refresh-outline"
+            loading={checking}
+            onPress={() => void onCheck()}
+          />
           <Button
             label={t('vetPending.logout')}
             variant="outline"

@@ -29,6 +29,15 @@ describe('WelcomeScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(auth)/sign-in');
   });
 
+  it('the language control opens the list of languages; "تواصل معنا" opens Contact Us', () => {
+    renderWithProviders(<WelcomeScreen />);
+    fireEvent.press(screen.getByTestId('language-selector'));
+    expect(screen.getByRole('radio', { name: 'English' })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: 'کوردی' })).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: 'تواصل معنا' }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(auth)/contact');
+  });
+
   it('shows a coming-soon toast for guest browsing, without navigating', () => {
     renderWithProviders(<WelcomeScreen />);
     fireEvent.press(screen.getByText('تصفح كضيف'));

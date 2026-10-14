@@ -50,7 +50,7 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
  * "المكاتب" / "نقابة الأطباء البيطريين" cards); omitted shows every type,
  * same as before this param existed.
  */
-type Scope = 'all' | 'pending' | 'renewals';
+type Scope = 'all' | 'pending' | 'deleted' | 'renewals';
 
 export default function AdminOrganizationsScreen() {
   const { t } = useTranslation('admin');
@@ -72,6 +72,8 @@ export default function AdminOrganizationsScreen() {
 
   const q = useAdminOrganizations({
     pending: scope === 'pending',
+    // admin "حذف" is a soft delete → DEACTIVATED, hidden from "الكل" by the server
+    status: scope === 'deleted' ? 'DEACTIVATED' : undefined,
     type,
     enabled: !isRenewalsScope,
   });
@@ -95,6 +97,7 @@ export default function AdminOrganizationsScreen() {
       options={[
         { value: 'all', label: t('orgs.tab.all') },
         { value: 'pending', label: t('orgs.tab.pending') },
+        { value: 'deleted', label: t('orgs.tab.deleted') },
         ...(showRenewalsTab
           ? [{ value: 'renewals' as const, label: t('farms.tab.renewals') }]
           : []),

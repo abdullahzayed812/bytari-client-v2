@@ -195,6 +195,16 @@ export const adminApi = {
     return apiClient.delete<Organization>(`/admin/organizations/${organizationId}`);
   },
 
+  /**
+   * PERMANENT delete of an already-deleted clinic / office / farm (ADMIN only).
+   * 409 `ORGANIZATION_PURGE_BLOCKED` while it holds pet owners' records.
+   */
+  purgeOrganization(organizationId: string): Promise<{ id: string; deleted: true }> {
+    return apiClient.delete<{ id: string; deleted: true }>(
+      `/admin/organizations/${organizationId}/permanent`,
+    );
+  },
+
   changeOrganizationStatus(
     organizationId: string,
     action: OrgStatusAction,

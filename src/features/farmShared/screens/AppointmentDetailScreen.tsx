@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { Badge, Card, Chip } from '@/components/content';
 import { ErrorState, Loading, useToast } from '@/components/feedback';
+import { Select } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
@@ -11,14 +12,16 @@ import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { formatDate, formatWeekday } from '@/utils';
+import { formatDate, formatWeekday, fullName } from '@/utils';
 
 import { FarmRecordFooter } from '../components/FarmRecordFooter';
 import { APPOINTMENT_CATEGORY_TONE } from '../constants';
-import { useFarmAppointment } from '../hooks';
+import { useAssignableVeterinarians, useAssignFarmAppointment, useFarmAppointment } from '../hooks';
 import { useDeleteFarmAppointment, useUpdateFarmAppointmentStatus } from '../records';
 
 const APPOINTMENT_STATUSES = ['UPCOMING', 'DONE', 'CANCELLED'] as const;
+/** Sentinel for "no responsible veterinarian" in the picker. */
+const NO_VET = 'NONE';
 
 /** Route `/poultry/[organizationId]/sections/appointments/[itemId]` — one appointment's full detail. */
 export default function AppointmentDetailScreen() {
@@ -38,6 +41,14 @@ export default function AppointmentDetailScreen() {
   const canManage = farmCaps.canManageFarmPoultry;
   const remove = useDeleteFarmAppointment(organizationId ?? '');
   const setStatus = useUpdateFarmAppointmentStatus(organizationId ?? '');
+  const assign = useAssignFarmAppointment(organizationId ?? '');
+  const vets = useAssignableVeterinarians(organizationId, { enabled: canManage });
+  const assignee = q.data?.assignedVeterinarian ?? null;
+  // The current assignee stays listed even if they no longer belong to the farm.
+  const vetChoices = [
+    ...(assignee && !(vets.data ?? []).some((v) => v.id === assignee.id) ? [assignee] : []),
+    ...(vets.data ?? []),
+  ];
 
   return (
     <ScrollScreen>
@@ -66,6 +77,43 @@ export default function AppointmentDetailScreen() {
                 label={t('appointments.form.dateLabel')}
                 value={`${formatWeekday(q.data.scheduledFor)} — ${formatDate(q.data.scheduledFor)}`}
               />
+
+              {canManage ? (
+                <Select<string>
+                  label={t('appointments.form.vetLabel')}
+                  value={q.data.assignedVeterinarianUserId ?? NO_VET}
+                  options={[
+                    { value: NO_VET, label: t('appointments.form.vetNone') },
+                    ...vetChoices.map((v) => ({
+                      value: v.id,
+                      label: fullName(v.firstName, v.lastName),
+                    })),
+                  ]}
+                  disabled={assign.isPending}
+                  onChange={(next) =>
+                    assign.mutate(
+                      {
+                        appointmentId: q.data!.id,
+                        veterinarianUserId: next === NO_VET ? null : next,
+                      },
+                      {
+                        onSuccess: () =>
+                          toast.show({ tone: 'success', message: t('appointments.assigned') }),
+                        onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                      },
+                    )
+                  }
+                />
+              ) : (
+                <Row
+                  label={t('appointments.assignedVet')}
+                  value={
+                    assignee
+                      ? fullName(assignee.firstName, assignee.lastName)
+                      : t('appointments.form.vetNone')
+                  }
+                />
+              )}
 
               {q.data.description ? (
                 <View style={{ rowGap: 2 }}>

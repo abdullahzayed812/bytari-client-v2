@@ -4,6 +4,7 @@ import type {
   FarmAppointment,
   FarmExpense,
   FarmExpenseSummary,
+  FarmPersonName,
   FarmProfile,
   Paginated,
   UpdateFarmProfileInput,
@@ -11,7 +12,6 @@ import type {
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/files/types';
-
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
   const m = (meta ?? {}) as Partial<ApiPageMeta>;
@@ -104,6 +104,21 @@ export const farmOpsApi = {
   },
   getAppointment(orgId: string, appointmentId: string): Promise<FarmAppointment> {
     return apiClient.get<FarmAppointment>(`${farmBase(orgId)}/appointments/${appointmentId}`);
+  },
+  /** The farm's ACTIVE veterinarians — the "الطبيب المسؤول" picker. */
+  listAssignableVeterinarians(orgId: string): Promise<FarmPersonName[]> {
+    return apiClient.get<FarmPersonName[]>(
+      `${farmBase(orgId)}/appointments/assignable-veterinarians`,
+    );
+  },
+  assignAppointment(
+    orgId: string,
+    appointmentId: string,
+    assignedVeterinarianUserId: string | null,
+  ): Promise<FarmAppointment> {
+    return apiClient.patch<FarmAppointment>(`${farmBase(orgId)}/appointments/${appointmentId}`, {
+      assignedVeterinarianUserId,
+    });
   },
 };
 
