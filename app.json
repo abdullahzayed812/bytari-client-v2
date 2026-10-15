@@ -9,7 +9,9 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "primaryColor": "#0BAA55",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bytari.mobile",
@@ -78,7 +80,10 @@
     },
     "extra": {
       "router": {},
-      "environment": "development"
+      "environment": "development",
+      "eas": {
+        "projectId": "3ca5a512-985b-4083-91f5-a3c50c2d0c28"
+      }
     }
   }
 }

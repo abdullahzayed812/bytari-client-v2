@@ -11,6 +11,11 @@ import OrganizationAnimalsScreen from '../screens/OrganizationAnimalsScreen';
 import type { ClinicPet } from '../types';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
+// Debounce is a pass-through here so the filter test does not race a timer on slow CI runners.
+jest.mock('@/hooks', () => ({
+  ...jest.requireActual('@/hooks'),
+  useDebouncedValue: <T,>(v: T) => v,
+}));
 
 function seedSession(over: Partial<SessionSnapshot> = {}) {
   useAuthStore.setState({
@@ -142,22 +147,15 @@ describe('OrganizationAnimalsScreen (§5, §22, §26, §27)', () => {
     renderWithProviders(<OrganizationAnimalsScreen />);
     await waitFor(() => expect(screen.getByText('ميمي')).toBeOnTheScreen());
 
-    // The filter is debounced (`useDebouncedValue`) — poll until it settles.
     fireEvent.changeText(screen.getByPlaceholderText('تصفية بالاسم أو رقم المعرف…'), 'لولو');
-    await waitFor(
-      () => {
-        expect(screen.getByText('لولو')).toBeOnTheScreen();
-        expect(screen.queryByText('ميمي')).toBeNull();
-      },
-      { timeout: 5000, interval: 60 },
-    );
+    await waitFor(() => {
+      expect(screen.getByText('لولو')).toBeOnTheScreen();
+      expect(screen.queryByText('ميمي')).toBeNull();
+    });
 
     fireEvent.changeText(screen.getByPlaceholderText('تصفية بالاسم أو رقم المعرف…'), 'zzz');
-    await waitFor(() => expect(screen.getByText('لم يتم العثور على الحيوان')).toBeOnTheScreen(), {
-      timeout: 5000,
-      interval: 60,
-    });
-  }, 15000);
+    await waitFor(() => expect(screen.getByText('لم يتم العثور على الحيوان')).toBeOnTheScreen());
+  });
 
   it('tapping a card navigates to the organization animal detail', async () => {
     list.mockResolvedValue({
