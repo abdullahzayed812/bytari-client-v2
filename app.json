@@ -9,9 +9,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "primaryColor": "#0BAA55",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bytari.mobile",
