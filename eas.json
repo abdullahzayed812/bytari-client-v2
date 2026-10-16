@@ -7,14 +7,34 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.baytari.com",
+        "EXPO_PUBLIC_API_VERSION": "v1",
+        "EXPO_PUBLIC_REALTIME_URL": "wss://api.baytari.com",
+        "EXPO_PUBLIC_REALTIME_PATH": "/realtime",
+        "EXPO_PUBLIC_ENVIRONMENT": "production",
+        "EXPO_PUBLIC_DEBUG_LOGGING": "false"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.baytari.com",
+        "EXPO_PUBLIC_API_VERSION": "v1",
+        "EXPO_PUBLIC_REALTIME_URL": "wss://api.baytari.com",
+        "EXPO_PUBLIC_REALTIME_PATH": "/realtime",
+        "EXPO_PUBLIC_ENVIRONMENT": "production",
+        "EXPO_PUBLIC_DEBUG_LOGGING": "false"
+      }
     }
   },
   "submit": {

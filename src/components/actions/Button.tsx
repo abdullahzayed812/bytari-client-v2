@@ -91,13 +91,21 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={colors.fg} />
       ) : (
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: theme.spacing.sm,
+            flexShrink: 1,
+          }}
+        >
           {leftIcon ? (
             <Icon name={leftIcon} size="iconSm" color="textPrimary" style={{ color: colors.fg }} />
           ) : null}
           <Text
             variant={size === 'sm' ? 'label' : 'bodyMedium'}
-            style={{ color: colors.fg }}
+            // Shrinks (ellipsis) inside a narrow button instead of overflowing it.
+            style={{ color: colors.fg, flexShrink: 1 }}
             numberOfLines={1}
           >
             {label}

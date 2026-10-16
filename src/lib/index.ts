@@ -18,6 +18,8 @@ export {
   applyDirectionForLanguage,
   directionSign,
   flipForDirection,
+  physicalLeft,
+  physicalRow,
   writingDirection,
   supportsRuntimeReload,
   RTL_LANGUAGES,

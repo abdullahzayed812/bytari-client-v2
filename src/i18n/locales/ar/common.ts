@@ -1,6 +1,7 @@
 export default {
   appName: 'بيطري',
   tagline: 'منصة الرعاية البيطرية',
+  splashTagline: 'رعاية بيطرية متكاملة بلمسة واحدة',
   comingSoon: 'هذه الميزة ستتوفر قريباً.',
   animalSections: {
     PETS: 'الحيوانات الأليفة',

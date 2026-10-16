@@ -44,4 +44,10 @@ describe('PetOwnerSettingsScreen — "الإعدادات"', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/settings/change-password');
     expect(screen.queryByText('هذا القسم غير متاح حالياً.')).toBeNull();
   });
+
+  it('is the entry point to My Organizations', () => {
+    renderWithProviders(<PetOwnerSettingsScreen />);
+    fireEvent.press(screen.getByText('مؤسساتي'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations');
+  });
 });

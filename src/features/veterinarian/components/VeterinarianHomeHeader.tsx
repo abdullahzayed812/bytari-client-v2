@@ -1,15 +1,11 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
 
-import { Avatar } from '@/components/content';
-import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversations } from '@/features/chat/hooks';
-import { HeaderIconButton } from '@/features/home/components';
+import { HeaderIconButton, HomeHeaderLayout } from '@/features/home/components';
 import { useUnreadCount } from '@/features/notifications/hooks';
 import { INTERFACE_SWITCH_ICON, useAuth, useInterfaceSwitch } from '@/hooks';
-import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
 
 /**
@@ -23,7 +19,6 @@ import { fullName } from '@/utils';
  * joined-room threads), NOT the public Global Chat directly.
  */
 export function VeterinarianHomeHeader() {
-  const theme = useTheme();
   const { t } = useTranslation('veterinarian');
   const { t: th } = useTranslation('home');
   const { t: tn } = useTranslation('notifications');
@@ -37,52 +32,29 @@ export function VeterinarianHomeHeader() {
   const name = user ? fullName(user.firstName, user.lastName) : undefined;
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        columnGap: theme.spacing.md,
-      }}
-    >
-      <View
-        style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm, flex: 1 }}
-      >
-        <Avatar uri={user?.avatarUrl} name={name} size="avatarMd" />
-        <View style={{ flex: 1 }}>
-          <Caption numberOfLines={1}>{t('home.greeting')}</Caption>
-          {name ? (
-            <Heading level={3} numberOfLines={1}>
-              {name}
-            </Heading>
-          ) : null}
-        </View>
-      </View>
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-        <HeaderIconButton
-          icon="search-outline"
-          label={th('header.searchA11y')}
-          onPress={() => router.push(Routes.search)}
-        />
-        <HeaderIconButton
-          icon="notifications-outline"
-          label={unread > 0 ? tn('bell.a11yWithCount', { count: unread }) : tn('bell.a11y')}
-          badgeCount={unread}
-          onPress={() => router.push(Routes.notifications)}
-        />
-        <HeaderIconButton
-          icon="chatbubbles-outline"
-          label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
-          badgeCount={chatUnread}
-          onPress={() => router.push(Routes.chat)}
-        />
-        <HeaderIconButton
-          icon={INTERFACE_SWITCH_ICON}
-          label={t('home.switchToOwnerA11y')}
-          onPress={() => void interfaceSwitch.switchTo('owner')}
-        />
-      </View>
-    </View>
+    <HomeHeaderLayout avatarUrl={user?.avatarUrl} name={name} greeting={t('home.greeting')}>
+      <HeaderIconButton
+        icon="search-outline"
+        label={th('header.searchA11y')}
+        onPress={() => router.push(Routes.search)}
+      />
+      <HeaderIconButton
+        icon="notifications-outline"
+        label={unread > 0 ? tn('bell.a11yWithCount', { count: unread }) : tn('bell.a11y')}
+        badgeCount={unread}
+        onPress={() => router.push(Routes.notifications)}
+      />
+      <HeaderIconButton
+        icon="chatbubbles-outline"
+        label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
+        badgeCount={chatUnread}
+        onPress={() => router.push(Routes.chat)}
+      />
+      <HeaderIconButton
+        icon={INTERFACE_SWITCH_ICON}
+        label={t('home.switchToOwnerA11y')}
+        onPress={() => void interfaceSwitch.switchTo('owner')}
+      />
+    </HomeHeaderLayout>
   );
 }

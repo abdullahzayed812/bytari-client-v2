@@ -1,6 +1,13 @@
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/content';
@@ -17,6 +24,7 @@ import { useNews } from '@/features/news/hooks';
 import type { MyOrganization } from '@/features/organizations/types';
 import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { CattleFarmCard, SheepFarmCard } from '../components';
@@ -65,6 +73,9 @@ export default function SheepCattleFarmsLandingScreen() {
 
   const farms = useMyFarms(['SHEEP', 'CATTLE']);
   const farmPreview = farms.farms.slice(0, 3);
+  // Same sizing as the poultry landing — a peek of the next card, never wider than the screen.
+  const { width: windowWidth } = useWindowDimensions();
+  const farmWidth = Math.min(320, (windowWidth - theme.screenPadding * 2) * 0.86);
   // Sheep + cattle feeds only (additional corrections §11).
   const news = useNews({ pageSize: 6, sections: ['SHEEP', 'CATTLE'] });
   const tips = useTips({ pageSize: 6, sections: ['SHEEP', 'CATTLE'] });
@@ -85,7 +96,8 @@ export default function SheepCattleFarmsLandingScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background, paddingTop: insets.top }}>
       <View
         style={{
-          flexDirection: 'row',
+          // The home (back) link is pinned to the physical left (lib/rtl convention).
+          flexDirection: physicalRow(),
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: theme.screenPadding,
@@ -95,25 +107,25 @@ export default function SheepCattleFarmsLandingScreen() {
           borderBottomColor: theme.colors.divider,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-          <Icon name="paw" size="iconLg" color="primary" />
-          <Heading level={3}>{t('landing.title')}</Heading>
-        </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('landing.homeA11y')}
           onPress={goHome}
           hitSlop={8}
           style={({ pressed }) => [
-            { flexDirection: 'row', alignItems: 'center', columnGap: 2 },
+            { flexDirection: physicalRow(), alignItems: 'center', columnGap: 2 },
             pressed && { opacity: 0.6 },
           ]}
         >
+          <Icon name="chevron-back" size="iconSm" color="primary" />
           <Text variant="label" color="primary">
             {t('landing.homeA11y')}
           </Text>
-          <Icon name="chevron-back" size="iconSm" color="primary" directional />
         </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+          <Icon name="paw" size="iconLg" color="primary" />
+          <Heading level={3}>{t('landing.title')}</Heading>
+        </View>
       </View>
 
       <ScrollView
@@ -141,15 +153,16 @@ export default function SheepCattleFarmsLandingScreen() {
         </Section>
 
         <Section spacing="xl">
-          <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
-            <View style={{ flex: 1 }}>
+          {/* Side by side when both labels fit; wraps to a stacked pair on narrow phones. */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+            <View style={{ flexGrow: 1, flexBasis: 160 }}>
               <AddFarmButton
                 icon="paw-outline"
                 label={t('landing.addCattleFarm')}
                 onPress={() => router.push(Routes.cattleFarmCreate)}
               />
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{ flexGrow: 1, flexBasis: 160 }}>
               <AddFarmButton
                 icon="paw-outline"
                 label={t('landing.addSheepFarm')}
@@ -188,7 +201,7 @@ export default function SheepCattleFarmsLandingScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-              renderItem={({ item }) => <FarmListRow farm={item} width={300} />}
+              renderItem={({ item }) => <FarmListRow farm={item} width={farmWidth} />}
             />
           )}
         </Section>
@@ -267,6 +280,7 @@ function AddFarmButton({
           justifyContent: 'center',
           columnGap: theme.spacing.sm,
           paddingVertical: theme.spacing.md,
+          paddingHorizontal: theme.spacing.md,
           borderRadius: theme.radius.pill,
           backgroundColor: theme.colors.primary,
         },
@@ -275,7 +289,11 @@ function AddFarmButton({
     >
       <Icon name="add-circle" size="iconMd" color="onPrimary" />
       <Icon name={icon} size="iconSm" color="onPrimary" />
-      <Text variant="bodyMedium" style={{ color: theme.colors.onPrimary }} numberOfLines={1}>
+      <Text
+        variant="bodyMedium"
+        style={{ color: theme.colors.onPrimary, flexShrink: 1, textAlign: 'center' }}
+        numberOfLines={2}
+      >
         {label}
       </Text>
     </Pressable>

@@ -92,7 +92,7 @@ export default function SyndicateMembersScreen() {
                 {item.isVeterinarian ? (
                   <Icon name="medkit-outline" size="iconSm" color="primary" />
                 ) : null}
-                <Icon name="chevron-back" directional size="iconSm" color="textMuted" />
+                <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
               </View>
             </Card>
           )}

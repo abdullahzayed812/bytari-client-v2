@@ -91,12 +91,6 @@ export default function ServicesHubScreen() {
       <Section spacing="lg">
         <Label>{t('services.sectionWork')}</Label>
         <View style={{ rowGap: theme.spacing.sm }}>
-          <HubTile
-            icon="business-outline"
-            label={t('services.organizations')}
-            hint={t('services.organizationsHint')}
-            onPress={() => router.push(Routes.organizations)}
-          />
           {isApprovedVet ? (
             <HubTile
               icon="git-branch-outline"

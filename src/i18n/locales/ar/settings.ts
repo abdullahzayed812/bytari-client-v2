@@ -12,6 +12,7 @@ export default {
     notifications: 'الإشعارات',
     privacy: 'الخصوصية والأمان',
     changePassword: 'تغيير كلمة المرور',
+    organizations: 'مؤسساتي',
     appearance: 'مظهر التطبيق',
     help: 'مساعدة',
     about: 'عن التطبيق',

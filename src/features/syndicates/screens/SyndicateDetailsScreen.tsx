@@ -392,7 +392,7 @@ export default function SyndicateDetailsScreen() {
                 <Text variant="bodyStrong">{t('home.branchesCardTitle')}</Text>
                 <Caption color="textSecondary">{t('home.branchesCardSubtitle')}</Caption>
               </View>
-              <Icon name="chevron-back" directional size="iconSm" color="textMuted" />
+              <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
             </View>
           </Card>
         ) : null}

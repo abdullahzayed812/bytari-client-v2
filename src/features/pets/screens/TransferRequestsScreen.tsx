@@ -21,6 +21,7 @@ import { BottomSheet } from '@/components/overlays/BottomSheet';
 import { Caption, Heading, Text } from '@/components/typography';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -197,7 +198,8 @@ export default function TransferRequestsScreen() {
     <SafeAreaScreen>
       <View
         style={{
-          flexDirection: 'row',
+          // Back pinned to the physical left (lib/rtl convention).
+          flexDirection: physicalRow(),
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: theme.screenPadding,
@@ -205,7 +207,13 @@ export default function TransferRequestsScreen() {
           paddingBottom: theme.spacing.md,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+        <View
+          style={{
+            flexDirection: physicalRow(),
+            alignItems: 'center',
+            columnGap: theme.spacing.sm,
+          }}
+        >
           <BackButton />
           <Heading level={3}>{t('transferRequests.title')}</Heading>
         </View>

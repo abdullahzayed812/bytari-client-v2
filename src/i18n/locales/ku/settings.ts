@@ -13,6 +13,7 @@ const settings: KuNamespace<'settings'> = {
     notifications: 'ئاگادارکردنەوەکان',
     privacy: 'تایبەتمەندی و ئاسایش',
     changePassword: 'گۆڕینی وشەی نهێنی',
+    organizations: 'دامەزراوەکانم',
     appearance: 'ڕووکاری ئەپ',
     help: 'یارمەتی',
     about: 'دەربارەی ئەپ',

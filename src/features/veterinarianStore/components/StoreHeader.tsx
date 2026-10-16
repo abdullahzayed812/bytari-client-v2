@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import { Icon } from '@/components/content';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { useVeterinarianStore } from '../hooks';
@@ -28,7 +29,8 @@ export function StoreHeader({ title, subtitle, showBack }: StoreHeaderProps) {
   return (
     <View
       style={{
-        flexDirection: 'row',
+        // With a back control it is pinned to the physical left (lib/rtl convention).
+        flexDirection: showBack ? physicalRow() : 'row',
         alignItems: 'center',
         columnGap: theme.spacing.md,
         paddingHorizontal: theme.screenPadding,
@@ -43,7 +45,7 @@ export function StoreHeader({ title, subtitle, showBack }: StoreHeaderProps) {
           onPress={() => router.back()}
           hitSlop={10}
         >
-          <Icon name="chevron-back" directional size="iconMd" color="textPrimary" />
+          <Icon name="chevron-back" size="iconMd" color="textPrimary" />
         </Pressable>
       ) : (
         <View

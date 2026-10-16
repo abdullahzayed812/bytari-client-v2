@@ -22,6 +22,7 @@ import { NewsCard } from '@/features/news/components';
 import { useNews } from '@/features/news/hooks';
 import { TipCard } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { birdStats } from '../birdStats';
@@ -73,7 +74,8 @@ export default function PoultryFarmsLandingScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background, paddingTop: insets.top }}>
       <View
         style={{
-          flexDirection: 'row',
+          // The home (back) link is pinned to the physical left (lib/rtl convention).
+          flexDirection: physicalRow(),
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: theme.screenPadding,
@@ -83,25 +85,25 @@ export default function PoultryFarmsLandingScreen() {
           borderBottomColor: theme.colors.divider,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-          <Icon name="egg" size="iconLg" color="primary" />
-          <Heading level={3}>{t('landing.title')}</Heading>
-        </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('landing.homeA11y')}
           onPress={goHome}
           hitSlop={8}
           style={({ pressed }) => [
-            { flexDirection: 'row', alignItems: 'center', columnGap: 2 },
+            { flexDirection: physicalRow(), alignItems: 'center', columnGap: 2 },
             pressed && { opacity: 0.6 },
           ]}
         >
+          <Icon name="chevron-back" size="iconSm" color="primary" />
           <Text variant="label" color="primary">
             {t('landing.homeA11y')}
           </Text>
-          <Icon name="chevron-back" size="iconSm" color="primary" directional />
         </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+          <Icon name="egg" size="iconLg" color="primary" />
+          <Heading level={3}>{t('landing.title')}</Heading>
+        </View>
       </View>
 
       <ScrollView

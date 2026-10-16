@@ -12,6 +12,7 @@ import {
 import { Icon } from '@/components/content';
 import { ImageViewer } from '@/components/media';
 import { BackButton } from '@/components/navigation';
+import { physicalLeft } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 const HEIGHT = 260;
@@ -75,7 +76,9 @@ export function ImageCarousel({ images, enableViewer = true }: ImageCarouselProp
         </View>
       )}
 
-      <View style={{ position: 'absolute', top: theme.spacing.md, left: theme.spacing.md }}>
+      <View
+        style={{ position: 'absolute', top: theme.spacing.md, ...physicalLeft(theme.spacing.md) }}
+      >
         <View
           style={{
             backgroundColor: theme.colors.surface,

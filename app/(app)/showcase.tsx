@@ -247,7 +247,7 @@ export default function ShowcaseScreen() {
           />
         </Row>
         <Row gap="sm" style={{ marginTop: theme.spacing.md }}>
-          <Icon name="chevron-back" directional color="textMuted" />
+          <Icon name="chevron-forward" directional color="textMuted" />
           <Caption>أيقونة اتجاهية تنعكس في RTL</Caption>
         </Row>
       </Section>

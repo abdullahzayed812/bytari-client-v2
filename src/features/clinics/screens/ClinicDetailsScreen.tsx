@@ -179,12 +179,14 @@ export default function ClinicDetailsScreen() {
       <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.lg }}>
         <Section>
           <Card padding="lg">
-            <Row justify="space-between" align="flex-start">
-              <Row gap="xs">
+            {/* Title + actions share a line when they fit; otherwise the actions
+                wrap below (and among themselves), never past the card edge. */}
+            <Row justify="space-between" align="center" gap="md" wrap>
+              <Row gap="xs" style={{ flexShrink: 0 }}>
                 <Text variant="bodyStrong">{t('clinicDetail.infoTitle')}</Text>
                 <Icon name="business-outline" size="iconSm" color="primary" />
               </Row>
-              <Row gap="sm" wrap>
+              <Row gap="sm" wrap style={{ flexShrink: 1, maxWidth: '100%', marginStart: 'auto' }}>
                 <Chip
                   label={
                     org.engagement.isFollowing
@@ -421,22 +423,26 @@ export default function ClinicDetailsScreen() {
         ) : null}
 
         <Section>
-          <Row gap="md">
-            <Button
-              label={t('clinicDetail.bookAppointment')}
-              variant="outline"
-              leftIcon="calendar-outline"
-              onPress={onBookAppointment}
-              fullWidth
-            />
-            <Button
-              label={t('clinicDetail.directContact')}
-              variant="outline"
-              leftIcon="chatbubble-ellipses-outline"
-              loading={startConversation.isPending}
-              onPress={onDirectContact}
-              fullWidth
-            />
+          <Row gap="md" wrap>
+            <View style={{ flexGrow: 1, flexBasis: 150 }}>
+              <Button
+                label={t('clinicDetail.bookAppointment')}
+                variant="outline"
+                leftIcon="calendar-outline"
+                onPress={onBookAppointment}
+                fullWidth
+              />
+            </View>
+            <View style={{ flexGrow: 1, flexBasis: 150 }}>
+              <Button
+                label={t('clinicDetail.directContact')}
+                variant="outline"
+                leftIcon="chatbubble-ellipses-outline"
+                loading={startConversation.isPending}
+                onPress={onDirectContact}
+                fullWidth
+              />
+            </View>
           </Row>
         </Section>
 

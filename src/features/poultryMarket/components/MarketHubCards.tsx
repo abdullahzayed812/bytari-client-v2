@@ -28,7 +28,7 @@ function ArrowPip({ size = 24 }: { size?: number }) {
         justifyContent: 'center',
       }}
     >
-      <Icon name="chevron-back" directional size="iconXs" color="primary" />
+      <Icon name="chevron-forward" directional size="iconXs" color="primary" />
     </View>
   );
 }
@@ -211,7 +211,7 @@ export function MarketFarmEntryCard({
             justifyContent: 'center',
           }}
         >
-          <Icon name="chevron-back" directional size="iconXs" color="textInverse" />
+          <Icon name="chevron-forward" directional size="iconXs" color="textInverse" />
         </View>
       </LinearGradient>
     </Pressable>

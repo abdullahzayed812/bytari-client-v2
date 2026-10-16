@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/typography';
-import { isRTL } from '@/lib/rtl';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { BackButton } from './BackButton';
@@ -19,10 +19,10 @@ export interface AppHeaderProps {
   left?: ReactNode;
   transparent?: boolean;
   /**
-   * Where the leading slot (back button) sits. `start` (default) is the
-   * logical RTL position — physical right in Arabic. `left` pins it to the
-   * physical left edge regardless of language, matching the auth-flow
-   * reference designs, which keep back navigation top-left in both languages.
+   * Where the leading slot (back button) sits. `left` (default) pins it to
+   * the physical left edge in both languages — the app-wide back-navigation
+   * convention (`lib/rtl`). `start` is the logical position (physical right
+   * in Arabic).
    */
   backAlign?: 'start' | 'left';
   /** Makes the title tappable (e.g. a chat room name → its info screen). */
@@ -40,7 +40,7 @@ export function AppHeader({
   right,
   left,
   transparent,
-  backAlign = 'start',
+  backAlign = 'left',
   onTitlePress,
   titleAccessibilityHint,
 }: AppHeaderProps) {
@@ -49,7 +49,7 @@ export function AppHeader({
   // Forcing the opposite of the native row-flip cancels it out, pinning the
   // leading slot to the physical left in both LTR and RTL.
   const pinLeft = backAlign === 'left';
-  const flexDirection = pinLeft && isRTL() ? 'row-reverse' : 'row';
+  const flexDirection = pinLeft ? physicalRow() : 'row';
 
   return (
     <View

@@ -20,6 +20,7 @@ import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement, useAds } from '@/features/ads';
 import { HomeSectionHeader } from '@/features/home/components';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
 import { FeatureCard, PetCardSkeleton, PetShowcaseCard } from '../components';
@@ -63,10 +64,11 @@ export default function PetsLandingScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background, paddingTop: insets.top }}>
-      {/* Page header — brand mark + title (start), back-to-home (end). */}
+      {/* Page header — back-to-home on the physical left, brand mark + title opposite. */}
       <View
         style={{
-          flexDirection: 'row',
+          // The home (back) link is pinned to the physical left (lib/rtl convention).
+          flexDirection: physicalRow(),
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: theme.screenPadding,
@@ -76,25 +78,25 @@ export default function PetsLandingScreen() {
           borderBottomColor: theme.colors.divider,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-          <Icon name="paw" size="iconLg" color="primary" />
-          <Heading level={3}>{t('landing.title')}</Heading>
-        </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('landing.homeA11y')}
           onPress={goHome}
           hitSlop={8}
           style={({ pressed }) => [
-            { flexDirection: 'row', alignItems: 'center', columnGap: 2 },
+            { flexDirection: physicalRow(), alignItems: 'center', columnGap: 2 },
             pressed && { opacity: 0.6 },
           ]}
         >
+          <Icon name="chevron-back" size="iconSm" color="primary" />
           <Text variant="label" color="primary">
             {t('landing.home')}
           </Text>
-          <Icon name="chevron-back" size="iconSm" color="primary" directional />
         </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+          <Icon name="paw" size="iconLg" color="primary" />
+          <Heading level={3}>{t('landing.title')}</Heading>
+        </View>
       </View>
 
       <ScrollView

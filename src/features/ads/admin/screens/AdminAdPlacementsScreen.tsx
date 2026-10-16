@@ -43,10 +43,14 @@ export default function AdminAdPlacementsScreen() {
             accessibilityLabel={t(`placements.${item}`)}
           >
             <View
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
             >
               <Text variant="bodyStrong">{t(`placements.${item}`)}</Text>
-              <Icon name="chevron-back-outline" size="iconSm" color="textMuted" />
+              <Icon name="chevron-forward-outline" directional size="iconSm" color="textMuted" />
             </View>
           </Card>
         )}

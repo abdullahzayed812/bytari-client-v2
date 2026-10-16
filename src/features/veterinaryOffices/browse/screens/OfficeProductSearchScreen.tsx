@@ -315,7 +315,7 @@ function SearchHitRow({
             </Caption>
           ) : null}
         </View>
-        <Icon name="chevron-back" directional size="iconSm" color="textMuted" />
+        <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />
       </Pressable>
     </View>
   );

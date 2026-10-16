@@ -9,6 +9,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { BackButton } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -171,7 +172,8 @@ export default function PublicationsBrowseScreen() {
     <SafeAreaScreen>
       <View
         style={{
-          flexDirection: 'row',
+          // Back pinned to the physical left (lib/rtl convention).
+          flexDirection: physicalRow(),
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: theme.screenPadding,

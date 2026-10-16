@@ -25,6 +25,7 @@ import {
 } from '@/features/content';
 import { RatingStars } from '@/features/organizations';
 import { apiErrorMessage } from '@/lib/apiError';
+import { physicalRow } from '@/lib/rtl';
 import { shareText } from '@/lib/share';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -154,13 +155,13 @@ export default function BookDetailScreen() {
             top: theme.spacing.md,
             insetInlineStart: theme.spacing.md,
             insetInlineEnd: theme.spacing.md,
-            flexDirection: 'row',
+            // Back pinned to the physical left (lib/rtl convention).
+            flexDirection: physicalRow(),
             justifyContent: 'space-between',
           }}
         >
           <IconButton
             icon="chevron-back"
-            directional
             variant="soft"
             accessibilityLabel={tc('actions.back')}
             onPress={() => router.back()}

@@ -9,6 +9,7 @@ export const en: TranslationResources = {
   common: {
     appName: 'Bytari',
     tagline: 'Veterinary care platform',
+    splashTagline: 'Complete veterinary care in a single touch',
     comingSoon: 'This feature is coming soon.',
     animalSections: {
       PETS: 'Pet animals',
@@ -5344,6 +5345,7 @@ export const en: TranslationResources = {
       notifications: 'Notifications',
       privacy: 'Privacy & security',
       changePassword: 'Change password',
+      organizations: 'My organizations',
       appearance: 'App appearance',
       help: 'Help',
       about: 'About the app',
@@ -6187,9 +6189,10 @@ export const en: TranslationResources = {
     dashboard: {
       header: {
         backA11y: 'Back',
-        searchPlaceholder: 'Search the system…',
+        searchPlaceholder: 'Search sections…',
         greeting: 'Welcome, {{name}}',
-        subtitle: "Here's an overview of today's system activity.",
+        greetingPrefix: 'Welcome,',
+        subtitle: 'Glad to have you on the dashboard today',
         roleAdmin: 'System administrator',
         roleSupervisor: 'System supervisor',
         noSearchResults: 'No results match your search',

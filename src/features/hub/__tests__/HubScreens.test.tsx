@@ -54,6 +54,8 @@ describe('ServicesHubScreen — no dead ends, capability-aware', () => {
     expect(screen.getByText('كن طبيباً بيطرياً')).toBeTruthy();
     // Vet-only entries hidden for a non-vet:
     expect(screen.queryByText('الاستفسارات')).toBeNull();
+    // My Organizations is reachable from Settings only.
+    expect(screen.queryByText('مؤسساتي')).toBeNull();
 
     fireEvent.press(screen.getByText('الاستشارات'));
     expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/support/consultations');

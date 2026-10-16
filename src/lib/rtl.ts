@@ -103,6 +103,29 @@ export const flipForDirection = (): { transform: { scaleX: number }[] } => ({
   transform: [{ scaleX: directionSign() }],
 });
 
+/**
+ * Back-navigation convention (both languages): the back control sits on the
+ * PHYSICAL LEFT and its arrow always points left — `chevron-back` /
+ * `arrow-back` WITHOUT `directional`. Forward / "open" indicators stay
+ * directional (`chevron-forward` + `directional`: → in LTR, ← in RTL).
+ *
+ * `physicalRow()` lays a row's children out physically left → right in both
+ * directions (it cancels RN's / the DOM's RTL row flip), so a back control
+ * placed FIRST lands on the left.
+ */
+export const physicalRow = (): 'row' | 'row-reverse' => (isRTL() ? 'row-reverse' : 'row');
+
+/**
+ * Absolute offset from the PHYSICAL left edge. Native swaps `left` / `right`
+ * in RTL (`I18nManager.swapLeftAndRightInRTL`), so there the physically-left
+ * edge is `end`; react-native-web never swaps (and maps `end` to `right`), so
+ * plain `left` is already physical.
+ */
+export const physicalLeft = (
+  offset: number,
+): { left: number } | { start: number } | { end: number } =>
+  IS_WEB ? { left: offset } : isRTL() ? { end: offset } : { start: offset };
+
 /** `writingDirection` for `<Text>` so mixed content aligns correctly. */
 export const writingDirection = (): 'rtl' | 'ltr' => (isRTL() ? 'rtl' : 'ltr');
 

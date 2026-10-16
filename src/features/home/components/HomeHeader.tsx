@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
@@ -60,6 +61,71 @@ export function HeaderIconButton({
   );
 }
 
+export interface HomeHeaderLayoutProps {
+  avatarUrl?: string | null;
+  name?: string;
+  greeting: string;
+  /** The round `HeaderIconButton`s. */
+  children: ReactNode;
+}
+
+/**
+ * Shared Home header layout (Pet Owner + Veterinarian): avatar + greeting +
+ * full name (start) and the icon actions (end). The row wraps instead of
+ * truncating — the identity block's basis is its natural width, so when the
+ * name and the icons don't fit on one line (phones), the icons drop onto
+ * their own line and the name keeps the whole width (up to two lines).
+ */
+export function HomeHeaderLayout({ avatarUrl, name, greeting, children }: HomeHeaderLayoutProps) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        columnGap: theme.spacing.md,
+        rowGap: theme.spacing.md,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          columnGap: theme.spacing.sm,
+          flexGrow: 1,
+          flexShrink: 1,
+          minWidth: 0,
+        }}
+      >
+        {/* the signed-in user's photo (`/auth/me` → `avatarUrl`); initials until one exists */}
+        <Avatar uri={avatarUrl} name={name} size="avatarMd" />
+        <View style={{ flexShrink: 1 }}>
+          <Caption numberOfLines={1}>{greeting}</Caption>
+          {name ? (
+            <Heading level={3} numberOfLines={2}>
+              {name}
+            </Heading>
+          ) : null}
+        </View>
+      </View>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          columnGap: theme.spacing.sm,
+          flexShrink: 0,
+          marginStart: 'auto',
+        }}
+      >
+        {children}
+      </View>
+    </View>
+  );
+}
+
 /**
  * Pet Owner Home header: greeting + avatar (start) and search / notifications
  * / chat / mode-switch icon buttons (end). No text labels, matching the
@@ -72,7 +138,6 @@ export function HeaderIconButton({
  * re-verifies approval against `/auth/me` (`useInterfaceSwitch`).
  */
 export function HomeHeader() {
-  const theme = useTheme();
   const { t } = useTranslation('home');
   const { t: tn } = useTranslation('notifications');
   const { t: tch } = useTranslation('chat');
@@ -85,59 +150,35 @@ export function HomeHeader() {
   const name = user ? fullName(user.firstName, user.lastName) : undefined;
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        columnGap: theme.spacing.md,
-      }}
-    >
-      <View
-        style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm, flex: 1 }}
-      >
-        {/* the signed-in user's photo (`/auth/me` → `avatarUrl`); initials until one exists */}
-        <Avatar uri={user?.avatarUrl} name={name} size="avatarMd" />
-        <View style={{ flex: 1 }}>
-          <Caption numberOfLines={1}>{greeting}</Caption>
-          {name ? (
-            <Heading level={3} numberOfLines={1}>
-              {name}
-            </Heading>
-          ) : null}
-        </View>
-      </View>
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+    <HomeHeaderLayout avatarUrl={user?.avatarUrl} name={name} greeting={greeting}>
+      <HeaderIconButton
+        icon="search-outline"
+        label={t('header.searchA11y')}
+        onPress={() => router.push(Routes.search)}
+      />
+      <HeaderIconButton
+        icon="notifications-outline"
+        label={unread > 0 ? tn('bell.a11yWithCount', { count: unread }) : tn('bell.a11y')}
+        badgeCount={unread}
+        onPress={() => router.push(Routes.notifications)}
+      />
+      <HeaderIconButton
+        icon="chatbubbles-outline"
+        label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
+        badgeCount={chatUnread}
+        onPress={() => router.push(Routes.chat)}
+      />
+      {/* Only an approved veterinarian (or admin) gets the switch — a plain
+          pet owner sees no button and no "become a vet" detour here. */}
+      {interfaceSwitch.canSwitch ? (
         <HeaderIconButton
-          icon="search-outline"
-          label={t('header.searchA11y')}
-          onPress={() => router.push(Routes.search)}
+          icon={INTERFACE_SWITCH_ICON}
+          label={t('header.switchToVetA11y')}
+          onPress={() => {
+            if (!interfaceSwitch.switching) void interfaceSwitch.switchTo('veterinarian');
+          }}
         />
-        <HeaderIconButton
-          icon="notifications-outline"
-          label={unread > 0 ? tn('bell.a11yWithCount', { count: unread }) : tn('bell.a11y')}
-          badgeCount={unread}
-          onPress={() => router.push(Routes.notifications)}
-        />
-        <HeaderIconButton
-          icon="chatbubbles-outline"
-          label={chatUnread > 0 ? tch('list.a11yUnread', { count: chatUnread }) : tch('home.title')}
-          badgeCount={chatUnread}
-          onPress={() => router.push(Routes.chat)}
-        />
-        {/* Only an approved veterinarian (or admin) gets the switch — a plain
-            pet owner sees no button and no "become a vet" detour here. */}
-        {interfaceSwitch.canSwitch ? (
-          <HeaderIconButton
-            icon={INTERFACE_SWITCH_ICON}
-            label={t('header.switchToVetA11y')}
-            onPress={() => {
-              if (!interfaceSwitch.switching) void interfaceSwitch.switchTo('veterinarian');
-            }}
-          />
-        ) : null}
-      </View>
-    </View>
+      ) : null}
+    </HomeHeaderLayout>
   );
 }

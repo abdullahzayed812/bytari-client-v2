@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View, type DimensionValue } from 'react-native';
+import { Pressable, StyleSheet, View, type DimensionValue } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
@@ -79,6 +79,7 @@ export function PoultryFarmCard({
         <View
           style={{
             width: 128,
+            minHeight: 120,
             backgroundColor: theme.colors.surfaceAccent,
             alignItems: 'center',
             justifyContent: 'center',
@@ -87,7 +88,9 @@ export function PoultryFarmCard({
           {(imageUrl ?? profile?.imageUrl) ? (
             <Image
               source={(imageUrl ?? profile?.imageUrl) as string}
-              style={{ width: '100%', height: '100%' }}
+              // Absolutely filled so the photo's intrinsic size never drives the
+              // card height — the text column decides it (min 120).
+              style={StyleSheet.absoluteFill}
               contentFit="cover"
               accessibilityIgnoresInvertColors
             />

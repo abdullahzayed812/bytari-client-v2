@@ -1,2 +1,8 @@
 export { HomeSectionHeader } from './HomeSectionHeader';
-export { HomeHeader, HeaderIconButton, type HeaderIconButtonProps } from './HomeHeader';
+export {
+  HomeHeader,
+  HomeHeaderLayout,
+  HeaderIconButton,
+  type HeaderIconButtonProps,
+  type HomeHeaderLayoutProps,
+} from './HomeHeader';

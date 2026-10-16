@@ -131,6 +131,13 @@ export default function PetOwnerSettingsScreen() {
           onPress={() => router.push(Routes.settingsChangePassword)}
         />
 
+        {/* مؤسساتي — the only in-app entry point to My Organizations */}
+        <Row
+          icon="business-outline"
+          label={t('rows.organizations')}
+          onPress={() => router.push(Routes.organizations)}
+        />
+
         {/* مظهر التطبيق */}
         <Row
           icon="moon-outline"

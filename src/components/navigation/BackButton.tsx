@@ -5,15 +5,18 @@ import { IconButton } from '@/components/actions';
 export interface BackButtonProps {
   accessibilityLabel?: string;
   onPress?: () => void;
-  /** Chevron mirrors for RTL by default. Pass `false` to keep it pointing left (pinned-left headers). */
+  /**
+   * Mirror the chevron for RTL. Off by default: back arrows point LEFT in
+   * both languages (see the back-navigation convention in `lib/rtl`).
+   */
   directional?: boolean;
 }
 
-/** Directional back control — the chevron mirrors automatically in RTL. */
+/** Back control — the chevron points left in both Arabic (RTL) and English (LTR). */
 export function BackButton({
   accessibilityLabel = 'Back',
   onPress,
-  directional = true,
+  directional = false,
 }: BackButtonProps) {
   const router = useRouter();
   return (

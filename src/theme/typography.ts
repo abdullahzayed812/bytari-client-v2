@@ -91,5 +91,35 @@ export const typography: Record<TypographyVariant, VariantStyle> = {
   },
 };
 
+/**
+ * Cairo's glyphs overflow a tight line box. Its font box is 1.874em
+ * (hhea ascent 1.303 / descent 0.571), so with our display/heading/title
+ * line heights (~1.33–1.5em) Android, iOS and web all apply NEGATIVE
+ * half-leading (CSS inline model) and the text view's bounds end ~0.3em
+ * below the baseline — but the dots of ي reach 0.462em (Cairo Bold, the
+ * lowest glyph) and tall marks reach 1.092em above it. Views clip their
+ * own drawing, so those pixels vanish (a margin can't help; it's outside).
+ *
+ * `cairoGlyphPadding` returns the padding that brings the bounds out to the
+ * real glyph extents, keeping the designed line spacing:
+ *   effective descent = 0.571s + (lh − 1.874s) / 2  →  bottom = 0.828s − lh/2
+ *   effective ascent  = 1.303s + (lh − 1.874s) / 2  →  top    = 0.726s − lh/2
+ * (+1px for the integer rounding of font metrics). Tajawal (body) fits.
+ */
+const CAIRO_OVERFLOW = { bottom: 0.828, top: 0.726 } as const;
+
+export function cairoGlyphPadding(
+  fontSize: number,
+  lineHeight: number,
+): { paddingTop: number; paddingBottom: number } | null {
+  const pad = (em: number) => {
+    const px = em * fontSize - lineHeight / 2;
+    return px > 0 ? Math.ceil(px) + 1 : 0;
+  };
+  const paddingTop = pad(CAIRO_OVERFLOW.top);
+  const paddingBottom = pad(CAIRO_OVERFLOW.bottom);
+  return paddingTop || paddingBottom ? { paddingTop, paddingBottom } : null;
+}
+
 /** Convenience aliases mirroring the brief's naming. */
 export const textVariants = typography;

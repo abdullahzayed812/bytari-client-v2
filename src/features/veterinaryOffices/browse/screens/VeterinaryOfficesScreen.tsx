@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
-import { Button, IconButton } from '@/components/actions';
+import { Button } from '@/components/actions';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -64,20 +64,7 @@ export default function VeterinaryOfficesScreen() {
 
   return (
     <SafeAreaScreen>
-      <AppHeader
-        title={t('list.title')}
-        subtitle={t('list.subtitle')}
-        showBack
-        backAlign="left"
-        right={
-          <IconButton
-            icon="cube-outline"
-            variant="soft"
-            accessibilityLabel={t('productSearch.entryA11y')}
-            onPress={() => router.push(Routes.veterinaryOfficeProductSearch)}
-          />
-        }
-      />
+      <AppHeader title={t('list.title')} subtitle={t('list.subtitle')} showBack backAlign="left" />
 
       <DiscoverFilterBar
         search={rawSearch}
@@ -88,6 +75,19 @@ export default function VeterinaryOfficesScreen() {
         filters={filters}
         onFiltersChange={setFilters}
       />
+
+      {/* Cross-office product search (restored here; also reachable from the main Search page). */}
+      <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.md }}>
+        <Button
+          label={t('productSearch.entry')}
+          accessibilityLabel={t('productSearch.entryA11y')}
+          leftIcon="cube-outline"
+          variant="outline"
+          size="sm"
+          fullWidth
+          onPress={() => router.push(Routes.veterinaryOfficeProductSearch)}
+        />
+      </View>
 
       {q.isLoading ? (
         <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.md }}>
