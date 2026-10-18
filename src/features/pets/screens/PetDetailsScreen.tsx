@@ -25,7 +25,8 @@ import { useMarkPetSectionSeen, usePetUnseenCounts } from '@/features/notificati
 import { PublicationKindBadge, PublicationStatusBadge } from '@/features/publications/components';
 import { PUBLICATION_KIND_META } from '@/features/publications/constants';
 import { useAnimalPublications } from '@/features/publications/hooks';
-import { useAuth } from '@/hooks';
+import { UserName } from '@/features/users/components';
+import { useAuth, useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { copyText } from '@/lib/clipboard';
 import { shareText } from '@/lib/share';
@@ -125,6 +126,10 @@ export default function PetDetailsScreen() {
   const q = usePet(petId);
   const pet = q.data;
   const isOwner = Boolean(pet && user && pet.currentOwnerUserId === user.id);
+  // Admin / ANIMAL supervisor oversight: may see who owns the animal (the
+  // backend only serves the profile + ownership history to them anyway).
+  const caps = useCapabilities();
+  const canSeeOwner = !isOwner && caps.isSupervisorOf('ANIMAL');
   const canPublish = isOwner && pet?.status === 'ACTIVE';
   const listings = useAnimalPublications(petId, { enabled: canPublish });
   // "New from the clinic" per section — unread pet-care notifications, owner only.
@@ -488,6 +493,7 @@ export default function PetDetailsScreen() {
           <InfoTab
             pet={pet}
             isOwner={isOwner}
+            canSeeOwner={canSeeOwner}
             canPublish={canPublish}
             listings={listings.publications}
           />
@@ -690,11 +696,14 @@ function HeaderIcon({
 function InfoTab({
   pet,
   isOwner,
+  canSeeOwner = false,
   canPublish,
   listings,
 }: {
   pet: Pet;
   isOwner: boolean;
+  /** Admin / ANIMAL supervisor viewing someone else's animal. */
+  canSeeOwner?: boolean;
   canPublish: boolean;
   listings: ReturnType<typeof useAnimalPublications>['publications'];
 }) {
@@ -791,6 +800,37 @@ function InfoTab({
           </Text>
         </View>
       ))}
+
+      {canSeeOwner && pet.currentOwnerUserId ? (
+        <View
+          style={{
+            paddingVertical: 14,
+            rowGap: 8,
+            borderTopWidth: 1,
+            borderTopColor: dark ? theme.colors.border : C.divider,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Text style={{ fontSize: 16, color: dark ? theme.colors.textPrimary : C.rowLabel }}>
+              {t('detail.ownerAdmin')}
+            </Text>
+            <UserName userId={pet.currentOwnerUserId} />
+          </View>
+          <Button
+            label={t('detail.ownerAdminHistory')}
+            variant="outline"
+            size="sm"
+            leftIcon="people-outline"
+            onPress={() => router.push(Routes.petOwnership(pet.id))}
+          />
+        </View>
+      ) : null}
 
       {pet.medicalHistory ? (
         <View

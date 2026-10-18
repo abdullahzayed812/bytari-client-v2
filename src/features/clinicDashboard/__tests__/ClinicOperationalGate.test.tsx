@@ -1,6 +1,7 @@
 import { Text } from 'react-native';
 
 import { organizationsApi } from '@/features/organizations';
+import { subscriptionsApi } from '@/features/subscriptions';
 import { ApiError } from '@/services/api';
 import { createQueryClient } from '@/lib/queryClient';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
@@ -61,11 +62,57 @@ describe('ClinicOperationalGate', () => {
     expect(routerMock.replace).toHaveBeenCalledWith('/(app)/organizations/c1/subscription-renewal');
   });
 
+  describe('expired subscription → "التواصل مع الإدارة" (send subscription info)', () => {
+    const send = jest.spyOn(subscriptionsApi, 'sendInfoRequest');
+    beforeEach(() => {
+      send.mockReset().mockResolvedValue({ threadId: 't9' });
+      get.mockResolvedValue(clinic({}, { subscriptionStatus: 'EXPIRED' }));
+    });
+
+    it('confirms first, then sends the CLINIC info request and opens the support thread', async () => {
+      renderGate();
+      fireEvent.press(await screen.findByText('التواصل مع الإدارة'));
+      expect(await screen.findByText('إرسال معلومات الاشتراك؟')).toBeOnTheScreen();
+      expect(send).not.toHaveBeenCalled();
+      fireEvent.press(screen.getByText('إرسال'));
+      await waitFor(() =>
+        expect(send).toHaveBeenCalledWith({ subject: 'CLINIC', organizationId: 'c1' }),
+      );
+      await waitFor(() =>
+        expect(routerMock.push).toHaveBeenCalledWith('/(app)/support/support-messages/t9'),
+      );
+      expect(send).toHaveBeenCalledTimes(1);
+      // Still locked — contacting the administration grants no access.
+      expect(screen.queryByText('DASHBOARD CONTENT')).toBeNull();
+    });
+
+    it('cancelling the confirmation sends nothing', async () => {
+      renderGate();
+      fireEvent.press(await screen.findByText('التواصل مع الإدارة'));
+      fireEvent.press(await screen.findByText('إلغاء'));
+      await waitFor(() => expect(screen.queryByText('إرسال معلومات الاشتراك؟')).toBeNull());
+      expect(send).not.toHaveBeenCalled();
+    });
+
+    it('a double tap on confirm sends once; a failure keeps the dialog open', async () => {
+      send.mockReset().mockRejectedValue(new Error('boom'));
+      renderGate();
+      fireEvent.press(await screen.findByText('التواصل مع الإدارة'));
+      const confirm = await screen.findByText('إرسال');
+      fireEvent.press(confirm);
+      fireEvent.press(confirm);
+      expect(await screen.findByText(/تعذّر إرسال معلومات الاشتراك/)).toBeOnTheScreen();
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('إرسال معلومات الاشتراك؟')).toBeOnTheScreen();
+    });
+  });
+
   it('expired subscription for a staff member → locked, without the owner-only renewal CTA', async () => {
     get.mockResolvedValue(clinic({ myRole: 'VETERINARIAN' }, { subscriptionStatus: 'EXPIRED' }));
     renderGate();
     await waitFor(() => expect(screen.getByText('انتهى اشتراك العيادة')).toBeOnTheScreen());
     expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
+    expect(screen.queryByText('التواصل مع الإدارة')).toBeNull();
     expect(screen.queryByText('DASHBOARD CONTENT')).toBeNull();
   });
 

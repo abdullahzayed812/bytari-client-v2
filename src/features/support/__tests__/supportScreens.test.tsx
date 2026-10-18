@@ -5,7 +5,7 @@ import { usersApi } from '@/features/users';
 import { fireEvent, renderWithProviders, screen, waitFor, within } from '@/test-utils/render';
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
-import { consultationApi, inquiryApi } from '../api';
+import { consultationApi, inquiryApi, supportMessageApi } from '../api';
 import AdminThreadListScreen from '../screens/AdminThreadListScreen';
 import CreateThreadScreen from '../screens/CreateThreadScreen';
 import ThreadDetailScreen from '../screens/ThreadDetailScreen';
@@ -97,6 +97,9 @@ const msgPage = (items: ThreadMessage[]): Paginated<ThreadMessage> => ({
 
 beforeEach(() => {
   resetRouterMock();
+  for (const api of [consultationApi, inquiryApi, supportMessageApi]) {
+    jest.spyOn(api, 'adminUnreadCount').mockResolvedValue({ count: 0 });
+  }
   jest.spyOn(usersApi, 'getSummary').mockResolvedValue({
     id: OTHER,
     firstName: 'سارة',
@@ -302,5 +305,44 @@ describe('AdminThreadListScreen — supervisor scoping', () => {
     renderWithProviders(<AdminThreadListScreen />);
     const card = await screen.findByRole('button', { name: /فتح استفسار/ });
     expect(within(card).getByText('استفسار')).toBeOnTheScreen();
+  });
+});
+
+describe('AdminThreadListScreen — "رسائل المستخدمين" new-message counter', () => {
+  it('shows the unread counter, flags new threads and filters to them', async () => {
+    seed({ isAdmin: true });
+    setSearchParams({ kind: 'support-messages' });
+    jest.spyOn(supportMessageApi, 'adminUnreadCount').mockResolvedValue({ count: 1 });
+    const listAdmin = jest
+      .spyOn(supportMessageApi, 'listAdmin')
+      .mockResolvedValue(
+        listOf([
+          thread({ id: 's1', kind: 'SUPPORT', responderUnread: true, preview: 'رسالة جديدة' }),
+          thread({ id: 's2', kind: 'SUPPORT', responderUnread: false, preview: 'تمت مراجعتها' }),
+        ]),
+      );
+
+    renderWithProviders(<AdminThreadListScreen />);
+    // Generous timeout: under the full parallel suite the first render can exceed 1 s.
+    expect(
+      await screen.findByText('1 رسالة جديدة بانتظار المراجعة', {}, { timeout: 5000 }),
+    ).toBeOnTheScreen();
+    // exactly one card carries the "جديد" badge — the reviewed one does not
+    expect(await screen.findAllByText('جديد')).toHaveLength(1);
+
+    fireEvent.press(screen.getByText('الجديدة (1)'));
+    await waitFor(() =>
+      expect(listAdmin).toHaveBeenLastCalledWith(expect.objectContaining({ unread: true })),
+    );
+  });
+
+  it('says so when everything has been reviewed', async () => {
+    seed({ isAdmin: true });
+    setSearchParams({ kind: 'support-messages' });
+    const listAdmin = jest.spyOn(supportMessageApi, 'listAdmin').mockResolvedValue(emptyPage);
+    renderWithProviders(<AdminThreadListScreen />);
+    await waitFor(() => expect(listAdmin).toHaveBeenCalled(), { timeout: 5000 });
+    expect(await screen.findByText('لا توجد رسائل جديدة', {}, { timeout: 5000 })).toBeOnTheScreen();
+    expect(screen.queryByText('جديد')).toBeNull();
   });
 });

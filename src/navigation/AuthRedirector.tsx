@@ -1,5 +1,11 @@
-import { router, usePathname, useSegments, type Href } from 'expo-router';
-import { useEffect } from 'react';
+import {
+  router,
+  useNavigationContainerRef,
+  usePathname,
+  useSegments,
+  type Href,
+} from 'expo-router';
+import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks';
 
@@ -33,6 +39,34 @@ import { useAuth } from '@/hooks';
  *
  * Nothing else in the tree performs auth redirects. Renders nothing.
  */
+type NavState = { index?: number; routes: { state?: unknown }[] } | undefined;
+const hasNestedState = (state: NavState) => Boolean(state?.routes[state.index ?? 0]?.state);
+
+/**
+ * `true` once the navigation container's ROOT state — what expo-router's
+ * `linkTo` reads via `navigationRef.getRootState()` — contains the root
+ * `<Stack>`'s nested state. The container syncs that state after the commit
+ * in which the Stack first mounts, so checking a navigator's own state is not
+ * enough; listen to the container's `state` event instead.
+ */
+function useRootStackMounted(): boolean {
+  const navigationRef = useNavigationContainerRef();
+  const [mounted, setMounted] = useState(() => hasNestedState(readRootState(navigationRef)));
+  useEffect(() => {
+    if (mounted) return;
+    const check = () => {
+      if (hasNestedState(readRootState(navigationRef))) setMounted(true);
+    };
+    check();
+    return navigationRef.addListener('state', check);
+  }, [mounted, navigationRef]);
+  return mounted;
+}
+
+function readRootState(ref: ReturnType<typeof useNavigationContainerRef>): NavState {
+  return (ref.isReady() ? ref.getRootState() : undefined) as NavState;
+}
+
 /** A deep link that was opened while signed out — consumed on the next sign-in. */
 let pendingDeepLink: string | null = null;
 
@@ -46,9 +80,17 @@ export function AuthRedirector() {
   // Widened: the typed-routes tuple from .expo/types is absent in CI.
   const segments: string[] = useSegments();
   const pathname = usePathname();
+  // `true` once the root `<Stack>` (mounted by the root layout when the splash
+  // ends) has registered its state with expo-router's internal root navigator.
+  // A `router.replace` issued before that — e.g. in the very commit the Stack
+  // first mounts — finds no nested state, so expo-router targets its internal
+  // root navigator and REPLACES the root route: the whole root layout
+  // remounts and the brand splash plays a second time. Waiting one state
+  // update avoids that.
+  const rootStackMounted = useRootStackMounted();
 
   useEffect(() => {
-    if (isBootstrapping) return;
+    if (isBootstrapping || !rootStackMounted) return;
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
@@ -75,6 +117,7 @@ export function AuthRedirector() {
   }, [
     isAuthenticated,
     isBootstrapping,
+    rootStackMounted,
     requiresEmailVerification,
     requiresVeterinarianApproval,
     segments,

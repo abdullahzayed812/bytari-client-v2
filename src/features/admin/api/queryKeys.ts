@@ -78,6 +78,8 @@ export const adminKeys = {
   chats: {
     all: ['admin', 'chats'] as const,
     lists: () => [...adminKeys.chats.all, 'list'] as const,
+    detail: (id: string) => [...adminKeys.chats.all, 'detail', id] as const,
+    messages: (id: string) => [...adminKeys.chats.all, 'detail', id, 'messages'] as const,
   },
 
   dashboard: {

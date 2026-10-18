@@ -242,17 +242,22 @@ export default function TraderRegistrationScreen() {
           />
         </View>
 
+        {/* Children stretch: a centred wrapper shrinks the card to its intrinsic
+            width, collapsing its `flex: 1` text column into a tall, empty pill. */}
         <View
           style={{
-            alignItems: 'center',
-            paddingVertical: theme.spacing.md,
+            alignItems: 'stretch',
+            rowGap: theme.spacing.sm,
+            padding: theme.spacing.md,
             borderRadius: theme.radius.lg,
             borderWidth: 1,
             borderColor: theme.colors.success,
             backgroundColor: theme.colors.successSoft,
           }}
         >
-          <Caption style={{ color: theme.colors.success }}>{t('register.trialBanner')}</Caption>
+          <Caption center style={{ color: theme.colors.success }}>
+            {t('register.trialBanner')}
+          </Caption>
           {/* the trial length — sending needs a registration, so no send button yet */}
           <SubscriptionTrialCard subject="POULTRY_TRADER" canSend={false} />
         </View>

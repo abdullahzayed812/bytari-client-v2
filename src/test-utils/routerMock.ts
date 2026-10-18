@@ -27,10 +27,36 @@ export function setSearchParams(params: Record<string, string>): void {
 export function setSegments(next: string[]): void {
   segments = next;
 }
+/**
+ * Navigation-container root state as `AuthRedirector` reads it: by default the
+ * root `<Stack>` has registered (nested `state` present). `setRootStackMounted(false)`
+ * simulates the first commit after the splash, before the container synced.
+ */
+let rootStackMounted = true;
+const stateListeners = new Set<() => void>();
+export function setRootStackMounted(next: boolean): void {
+  rootStackMounted = next;
+  stateListeners.forEach((listener) => listener());
+}
+const navigationContainerRef = {
+  isReady: () => true,
+  getRootState: () => ({
+    index: 0,
+    routes: [{ name: '__root', state: rootStackMounted ? { index: 0, routes: [] } : undefined }],
+  }),
+  addListener: (_event: string, listener: () => void) => {
+    stateListeners.add(listener);
+    return () => {
+      stateListeners.delete(listener);
+    };
+  },
+};
+
 export function resetRouterMock(): void {
   Object.values(routerMock).forEach((fn) => (fn as jest.Mock).mockClear());
   searchParams = {};
   segments = [];
+  rootStackMounted = true;
 }
 
 const passthrough = ({ children }: { children?: ReactNode }) => children ?? null;
@@ -43,6 +69,7 @@ export const expoRouter = {
   useSegments: () => segments,
   useFocusEffect: () => undefined,
   usePathname: () => '/',
+  useNavigationContainerRef: () => navigationContainerRef,
   Link: passthrough,
   Redirect: () => null,
   Stack: Object.assign(() => null, { Screen: () => null }),

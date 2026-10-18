@@ -70,4 +70,26 @@ describe('PublicationsBrowseScreen — "طلباتي" (my requests)', () => {
     await waitFor(() => expect(mine).toHaveBeenCalled());
     await waitFor(() => expect(screen.queryByTestId('loading')).toBeNull());
   });
+
+  it.each(['adoption', 'mating', 'lost'] as const)(
+    '%s: switching from the rendered 2-column grid to "طلباتي" and back does not crash',
+    async (slug) => {
+      // Regression: both lists sat in one slot, so React reused the FlatList and
+      // flipped numColumns 2 → 1 — an invariant error that closed the app.
+      setSearchParams({ kind: slug });
+      mine.mockResolvedValue({
+        items: [interaction()],
+        meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+      });
+      renderWithProviders(<PublicationsBrowseScreen />);
+      // wait for the "الكل" grid itself (not the loading skeleton)
+      await waitFor(() => expect(pub).toHaveBeenCalled());
+      await waitFor(() => expect(screen.queryByTestId('loading')).toBeNull());
+      await screen.findByText(/لا توجد/);
+      fireEvent.press(screen.getByText('طلباتي'));
+      await waitFor(() => expect(screen.getByText('Luna')).toBeOnTheScreen());
+      fireEvent.press(screen.getByText('الكل'));
+      await waitFor(() => expect(screen.queryByText('Luna')).toBeNull());
+    },
+  );
 });

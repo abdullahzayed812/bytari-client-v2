@@ -44,6 +44,11 @@ export {
   useAdminUpdateAnimal,
   type AdminAnimalsParams,
 } from './useAdminAnimals';
-export { useAdminChats, type AdminChatsParams } from './useAdminChats';
+export {
+  useAdminChats,
+  useAdminChatConversation,
+  useAdminChatMessages,
+  type AdminChatsParams,
+} from './useAdminChats';
 export { useSendBroadcast, useAdminBroadcastImageProvider } from './useAdminBroadcast';
 export { useAdminDashboardSummary, useMarkDashboardCardSeen } from './useAdminDashboard';

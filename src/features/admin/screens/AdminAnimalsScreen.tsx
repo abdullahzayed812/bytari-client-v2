@@ -186,6 +186,12 @@ export default function AdminAnimalsScreen() {
                   label: t('adminAnimals.details.owner'),
                   value: detail.ownerName ?? t('adminAnimals.noOwner'),
                 },
+                { label: t('adminAnimals.details.ownerEmail'), value: detail.owner?.email || null },
+                { label: t('adminAnimals.details.ownerPhone'), value: detail.owner?.phone ?? null },
+                {
+                  label: t('adminAnimals.details.ownerWhatsapp'),
+                  value: detail.owner?.whatsapp ?? null,
+                },
                 { label: t('adminAnimals.details.createdAt'), value: formatDate(detail.createdAt) },
                 { label: t('adminAnimals.details.updatedAt'), value: formatDate(detail.updatedAt) },
               ]

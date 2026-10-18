@@ -12,6 +12,7 @@ const clinicDashboard: KuNamespace<'clinicDashboard'> = {
   expiredBody:
     'تا بەشداریکردن نوێ نەکرێتەوە، کلینیکەکە بۆ خاوەن ئاژەڵان دەرناکەوێت و ناردنی نامە بۆ شوێنکەوتووان ناچالاکە.',
   renewCta: 'داواکردنی نوێکردنەوەی بەشداریکردن',
+  contactAdminCta: 'پەیوەندی بە بەڕێوەبەرایەتییەوە',
   stats: {
     activeAnimals: 'ئاژەڵەکان',
     followers: 'شوێنکەوتووان',

@@ -27,8 +27,8 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
 /**
  * `/admin/chats` — the dashboard's "الدردشات" card. Two tabs:
  *  - "المحادثات": read-only oversight of every 1:1 conversation (`chat.read`,
- *    ADMIN-override) — no per-conversation transcript screen yet, just the
- *    count and a scannable list.
+ *    ADMIN-override); a row opens the read-only transcript viewer
+ *    (`AdminChatConversationScreen`).
  *  - "غرف الدردشة": Global Chat public rooms — a plain `organizations` list
  *    (`type=CHAT_ROOM`), same data/screens `AdminOrganizationsScreen` /
  *    `AdminOrganizationDetailScreen` already use, so create/edit/moderator/
@@ -119,6 +119,7 @@ export default function AdminChatsScreen() {
           title={t(`chats.type.${c.type}`, { defaultValue: c.type })}
           subtitle={t(`chats.status.${c.status}`, { defaultValue: c.status })}
           meta={formatDate(c.lastMessageAt ?? c.createdAt)}
+          onPress={() => router.push(Routes.adminChatConversation(c.id))}
         />
       )}
     />

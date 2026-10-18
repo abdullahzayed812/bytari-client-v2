@@ -32,7 +32,13 @@ export function VeterinarianHomeHeader() {
   const name = user ? fullName(user.firstName, user.lastName) : undefined;
 
   return (
-    <HomeHeaderLayout avatarUrl={user?.avatarUrl} name={name} greeting={t('home.greeting')}>
+    <HomeHeaderLayout
+      avatarUrl={user?.avatarUrl}
+      name={name}
+      greeting={t('home.greeting')}
+      onAvatarPress={() => router.push(Routes.account)}
+      avatarA11yLabel={th('header.accountA11y')}
+    >
       <HeaderIconButton
         icon="search-outline"
         label={th('header.searchA11y')}

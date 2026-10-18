@@ -57,6 +57,7 @@ function normalizeMessage(raw: unknown): ThreadMessage {
  *   POST /<slug>/:id/messages                         { body }
  *   POST /<slug>/:id/{close,block,unblock}            responder / admin
  *   GET  /admin/<slug>?page&pageSize&status&createdBy adminRead perm / supervisor domain
+ *   GET  /admin/<slug>/unread-count                   adminRead perm — the "new" counter
  *   GET  /admin/<slug>/:id                            adminRead perm
  */
 export function makeThreadApi(kind: ThreadKind) {
@@ -129,6 +130,11 @@ export function makeThreadApi(kind: ThreadKind) {
       return apiClient.post<Thread>(`/${slug}/${threadId}/${blocked ? 'block' : 'unblock'}`, {});
     },
 
+    /** `GET /admin/<slug>/unread-count` — threads with user messages no responder has opened. */
+    adminUnreadCount(): Promise<{ count: number }> {
+      return apiClient.get<{ count: number }>(`/admin/${slug}/unread-count`);
+    },
+
     async listAdmin(filter: AdminThreadListFilter): Promise<Paginated<Thread>> {
       const envelope = await apiClient.requestEnvelope<Thread[]>({
         method: 'GET',
@@ -138,6 +144,7 @@ export function makeThreadApi(kind: ThreadKind) {
           pageSize: filter.pageSize,
           status: filter.status,
           createdBy: filter.createdBy,
+          unread: filter.unread ? 'true' : undefined,
         },
       });
       return {

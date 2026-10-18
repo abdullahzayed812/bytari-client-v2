@@ -9,6 +9,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Routes } from '@/constants/routes';
 import { useOrganization } from '@/features/organizations';
+import { SendSubscriptionInfoButton } from '@/features/subscriptions';
 import { useCapabilities } from '@/hooks';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -102,11 +103,22 @@ export function ClinicOperationalGate({
           message={t('expiredBody')}
         />
         {data.myRole === 'OWNER' ? (
-          <Button
-            label={t('renewCta')}
-            leftIcon="refresh-outline"
-            onPress={() => router.replace(Routes.organizationSubscriptionRenewal(data.id))}
-          />
+          <>
+            <Button
+              label={t('renewCta')}
+              leftIcon="refresh-outline"
+              onPress={() => router.replace(Routes.organizationSubscriptionRenewal(data.id))}
+            />
+            {/* The farms' "إرسال معلومات الاشتراك" flow (confirm first, then a
+                support thread with the administration). The clinic stays locked:
+                this only opens a conversation, it grants no access. */}
+            <SendSubscriptionInfoButton
+              subject="CLINIC"
+              organizationId={data.id}
+              label={t('contactAdminCta')}
+              leftIcon="chatbubbles-outline"
+            />
+          </>
         ) : null}
         <Button label={t('openProfile')} variant="outline" onPress={openProfile} />
       </View>,

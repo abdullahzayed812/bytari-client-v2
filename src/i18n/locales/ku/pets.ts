@@ -36,6 +36,8 @@ const pets: KuNamespace<'pets'> = {
     open: 'کردنەوەی فایلی {{name}}',
   },
   detail: {
+    ownerAdmin: 'خاوەن',
+    ownerAdminHistory: 'مێژووی خاوەندارێتی و زانیاری پەیوەندی',
     title: 'فایلی ئاژەڵ',
     sectionInfo: 'زانیارییە سەرەکییەکان',
     fieldSpecies: 'جۆر',

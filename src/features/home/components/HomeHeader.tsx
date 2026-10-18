@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 
-import { Avatar, Badge, Icon, type IconName } from '@/components/content';
-import { Caption, Heading } from '@/components/typography';
+import { Avatar, Icon, type IconName } from '@/components/content';
+import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversations } from '@/features/chat/hooks';
 import { useUnreadCount } from '@/features/notifications/hooks';
@@ -21,7 +21,18 @@ export interface HeaderIconButtonProps {
   disabled?: boolean;
 }
 
-/** Round icon button used in screen headers (Home, Veterinarian Home) — optional unread badge. */
+/** Halo shown around a pressed header control — the reference's soft green ring. */
+const PRESS_HALO = 'rgba(0, 168, 89, 0.18)';
+const ICON_BUTTON_SIZE = 36;
+/** Card width under which the header switches to its compact spacing. */
+const COMPACT_BELOW = 400;
+
+/**
+ * Round icon button used in screen headers (Home, Veterinarian Home) —
+ * optional unread badge. Matches the supplied header reference: a compact
+ * 36px muted circle with a thin icon; pressing it scales down slightly with a
+ * soft green halo.
+ */
 export function HeaderIconButton({
   icon,
   label,
@@ -37,26 +48,63 @@ export function HeaderIconButton({
       accessibilityState={{ disabled }}
       onPress={onPress}
       disabled={disabled}
-      hitSlop={8}
+      hitSlop={6}
       style={({ pressed }) => [
         {
-          width: theme.sizes.controlHeightMd,
-          height: theme.sizes.controlHeightMd,
+          width: ICON_BUTTON_SIZE,
+          height: ICON_BUTTON_SIZE,
           borderRadius: theme.radius.pill,
           backgroundColor: theme.colors.surfaceMuted,
           alignItems: 'center',
           justifyContent: 'center',
+          // Constant border width so the press halo never shifts the layout.
+          borderWidth: 2,
+          borderColor: 'transparent',
         },
-        pressed && { opacity: 0.7 },
+        pressed && {
+          transform: [{ scale: 0.94 }],
+          backgroundColor: theme.colors.primarySoft,
+          borderColor: PRESS_HALO,
+        },
         disabled && { opacity: 0.5 },
       ]}
     >
-      <Icon name={icon} size="iconMd" color="textPrimary" />
-      {badgeCount > 0 ? (
-        <View style={{ position: 'absolute', top: 2, end: 2 }}>
-          <Badge label={badgeCount > 99 ? '99+' : String(badgeCount)} tone="danger" size="sm" />
-        </View>
-      ) : null}
+      {({ pressed }) => (
+        <>
+          <Icon name={icon} size="iconMd" color={pressed ? 'primary' : 'textPrimary'} />
+          {badgeCount > 0 ? (
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                top: -6,
+                end: -6,
+                minWidth: 16,
+                height: 16,
+                paddingHorizontal: 3,
+                borderRadius: 8,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: theme.colors.dangerSoft,
+                borderWidth: 1,
+                borderColor: theme.colors.surface,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  lineHeight: 12,
+                  fontWeight: '600',
+                  color: theme.colors.danger,
+                }}
+                numberOfLines={1}
+              >
+                {badgeCount > 99 ? '99+' : String(badgeCount)}
+              </Text>
+            </View>
+          ) : null}
+        </>
+      )}
     </Pressable>
   );
 }
@@ -65,48 +113,101 @@ export interface HomeHeaderLayoutProps {
   avatarUrl?: string | null;
   name?: string;
   greeting: string;
+  /** Pressing the avatar (e.g. open the account page). Not pressable when omitted. */
+  onAvatarPress?: () => void;
+  avatarA11yLabel?: string;
   /** The round `HeaderIconButton`s. */
   children: ReactNode;
 }
 
 /**
- * Shared Home header layout (Pet Owner + Veterinarian): avatar + greeting +
- * full name (start) and the icon actions (end). The row wraps instead of
- * truncating — the identity block's basis is its natural width, so when the
- * name and the icons don't fit on one line (phones), the icons drop onto
- * their own line and the name keeps the whole width (up to two lines).
+ * Shared Home header (Pet Owner + Veterinarian), restored to the supplied
+ * "القائمة العلوية" reference: ONE row inside a white rounded card —
+ * avatar + greeting + full name at the start, the four icon actions at the
+ * end. The icons never wrap or shrink; the identity block gives up space,
+ * and a long name wraps between words onto a second line (ellipsised after
+ * that) instead of being cut after its first word. Logical `start`/`end` layout, so Arabic RTL puts the
+ * identity on the right and English LTR on the left.
  */
-export function HomeHeaderLayout({ avatarUrl, name, greeting, children }: HomeHeaderLayoutProps) {
+export function HomeHeaderLayout({
+  avatarUrl,
+  name,
+  greeting,
+  onAvatarPress,
+  avatarA11yLabel,
+  children,
+}: HomeHeaderLayoutProps) {
   const theme = useTheme();
+  // Phones (card < 400px — every phone width up to 430): slightly tighter
+  // spacing + a 16px name so a typical full name still fits on two lines.
+  // Measured (not `useWindowDimensions`, which is 0×0 on the static web export).
+  const [compact, setCompact] = useState(false);
+  const onLayout = (e: LayoutChangeEvent) => {
+    const next = e.nativeEvent.layout.width < COMPACT_BELOW;
+    if (next !== compact) setCompact(next);
+  };
+  const avatar = <Avatar uri={avatarUrl} name={name} size="avatarMd" />;
   return (
     <View
+      onLayout={onLayout}
       style={{
         flexDirection: 'row',
-        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
-        columnGap: theme.spacing.md,
-        rowGap: theme.spacing.md,
+        columnGap: compact ? 6 : theme.spacing.sm,
+        paddingHorizontal: compact ? 12 : theme.spacing.lg,
+        paddingVertical: 14,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: theme.colors.divider,
+        backgroundColor: theme.colors.surface,
+        ...theme.shadows.xs,
       }}
     >
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          columnGap: theme.spacing.sm,
-          flexGrow: 1,
-          flexShrink: 1,
+          columnGap: compact ? 8 : 10,
+          flex: 1,
           minWidth: 0,
         }}
       >
         {/* the signed-in user's photo (`/auth/me` → `avatarUrl`); initials until one exists */}
-        <Avatar uri={avatarUrl} name={name} size="avatarMd" />
-        <View style={{ flexShrink: 1 }}>
-          <Caption numberOfLines={1}>{greeting}</Caption>
+        {onAvatarPress ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={avatarA11yLabel ?? name}
+            onPress={onAvatarPress}
+            style={({ pressed }) => [
+              { borderRadius: theme.radius.pill, borderWidth: 2, borderColor: 'transparent' },
+              pressed && { transform: [{ scale: 0.95 }], borderColor: PRESS_HALO },
+            ]}
+          >
+            {avatar}
+          </Pressable>
+        ) : (
+          avatar
+        )}
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Caption numberOfLines={1} style={{ fontSize: 13 }}>
+            {greeting}
+          </Caption>
           {name ? (
-            <Heading level={3} numberOfLines={2}>
+            <Text
+              // Up to two lines, broken between words — a narrow phone shows the
+              // full name instead of cutting it after the first word.
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              weight="bold"
+              style={{
+                fontSize: compact ? 16 : 17,
+                lineHeight: compact ? 22 : 24,
+                color: theme.colors.textPrimary,
+              }}
+            >
               {name}
-            </Heading>
+            </Text>
           ) : null}
         </View>
       </View>
@@ -115,9 +216,8 @@ export function HomeHeaderLayout({ avatarUrl, name, greeting, children }: HomeHe
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          columnGap: theme.spacing.sm,
+          columnGap: compact ? 4 : 6,
           flexShrink: 0,
-          marginStart: 'auto',
         }}
       >
         {children}
@@ -150,7 +250,13 @@ export function HomeHeader() {
   const name = user ? fullName(user.firstName, user.lastName) : undefined;
 
   return (
-    <HomeHeaderLayout avatarUrl={user?.avatarUrl} name={name} greeting={greeting}>
+    <HomeHeaderLayout
+      avatarUrl={user?.avatarUrl}
+      name={name}
+      greeting={greeting}
+      onAvatarPress={() => router.push(Routes.account)}
+      avatarA11yLabel={t('header.accountA11y')}
+    >
       <HeaderIconButton
         icon="search-outline"
         label={t('header.searchA11y')}

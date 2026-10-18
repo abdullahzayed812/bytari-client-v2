@@ -1,4 +1,10 @@
-export { useMyThreads, useAdminThreads, useThread, useThreadMessages } from './useThreads';
+export {
+  useMyThreads,
+  useAdminThreads,
+  useAdminUnreadCount,
+  useThread,
+  useThreadMessages,
+} from './useThreads';
 export {
   useCreateThread,
   useSendMessage,

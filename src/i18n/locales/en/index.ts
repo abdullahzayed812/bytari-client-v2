@@ -305,6 +305,8 @@ export const en: TranslationResources = {
     },
     detail: {
       fieldColor: 'Colour',
+      ownerAdmin: 'Owner',
+      ownerAdminHistory: 'Ownership history & contact details',
       fieldWeight: 'Weight',
       weightValue: '{{value}} kg',
       fieldNeutered: 'Neutered',
@@ -2324,6 +2326,7 @@ export const en: TranslationResources = {
   home: {
     header: {
       searchA11y: 'Search',
+      accountA11y: 'Profile',
       switchToVetA11y: 'Switch to Veterinarian mode',
       becomeVetA11y: 'Apply to become an approved veterinarian',
     },
@@ -5229,6 +5232,7 @@ export const en: TranslationResources = {
     expiredBody:
       'Neither the owner nor the staff can use the clinic dashboard or manage animals, records, appointments or conversations until the subscription is renewed.',
     renewCta: 'Request subscription renewal',
+    contactAdminCta: 'Contact administration',
     stats: {
       activeAnimals: 'Animals',
       followers: 'Followers',
@@ -5556,9 +5560,14 @@ export const en: TranslationResources = {
       empty: 'Nothing needs review',
       deniedTitle: 'Not available',
       deniedBody: 'You do not have permission to manage this kind.',
+      newCount: 'New messages awaiting review: {{count}}',
+      noNewMessages: 'No new messages',
+      filterNew: 'New ({{count}})',
+      emptyNew: 'No new messages — everything has been reviewed',
     },
     card: {
       openLabel: 'Open {{kind}} from {{date}}',
+      newBadge: 'New',
       by: 'Created by:',
       lastActivity: 'Last activity: {{date}}',
       created: 'Created {{date}}',
@@ -6694,6 +6703,19 @@ export const en: TranslationResources = {
         COMPLETED: 'Completed',
         CLOSED: 'Closed',
       },
+      open: 'Open conversation',
+      viewer: {
+        title: 'Conversation',
+        readOnly:
+          'Read-only view — you cannot post in this conversation, and your access is logged.',
+        createdAt: 'Started {{date}}',
+        organization: 'Organization: {{name}}',
+        messageCount: 'Messages: {{count}}',
+        participants: 'Participants',
+        noParticipants: 'No recorded participants',
+        left: 'left',
+        empty: 'No messages in this conversation',
+      },
     },
     homeSections: {
       title: 'Home page section images',
@@ -7405,6 +7427,12 @@ export const en: TranslationResources = {
         submittedAt: 'Submitted',
         reviewedAt: 'Reviewed',
         animalName: 'Animal name',
+        submittedBy: 'Submitted by',
+        submittedByEmail: 'Submitter email',
+        submittedByPhone: 'Submitter phone',
+        currentOwner: 'Current owner of the animal',
+        currentOwnerEmail: 'Owner email',
+        currentOwnerPhone: 'Owner phone',
         gallery: 'Animal photos',
         noImages: 'No photos attached',
         yes: 'Yes',
@@ -7726,6 +7754,9 @@ export const en: TranslationResources = {
         sex: 'Sex',
         status: 'Status',
         owner: 'Current owner',
+        ownerEmail: 'Owner email',
+        ownerPhone: 'Owner phone',
+        ownerWhatsapp: 'Owner WhatsApp',
         ownershipHistory: 'Ownership history',
         createdAt: 'Added',
         updatedAt: 'Last updated',

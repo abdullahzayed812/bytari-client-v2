@@ -207,8 +207,13 @@ export default function PublicationsBrowseScreen() {
         </Pressable>
       </View>
 
+      {/* Distinct `key`s: both lists sit in the same slot, so without them React
+          reuses one FlatList and flips `numColumns` 2 → 1 on it, which FlatList
+          rejects with an invariant ("Changing numColumns on the fly…") — the
+          crash/app exit behind "طلباتي". */}
       {scope === 'requests' ? (
         <FlatList
+          key="requests"
           data={requestsQ.interactions}
           keyExtractor={(i) => i.id}
           renderItem={renderRequest}
@@ -274,6 +279,7 @@ export default function PublicationsBrowseScreen() {
         </View>
       ) : (
         <FlatList
+          key="grid"
           data={q.publications}
           keyExtractor={(p) => p.id}
           numColumns={COLUMNS}

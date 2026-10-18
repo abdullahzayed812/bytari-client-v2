@@ -8,6 +8,7 @@ import type { AdminThreadListFilter, ThreadKind, ThreadListFilter } from '../typ
  *   supportKeys.forKind(kind)                  → ['support', kind]
  *   supportKeys.myList(kind, filter)           → ['support', kind, 'mine', { …filter }]
  *   supportKeys.adminList(kind, filter)        → ['support', kind, 'admin', { …filter }]
+ *   supportKeys.adminUnreadCount(kind)         → ['support', kind, 'admin', 'unread-count']
  *   supportKeys.detail(kind, id)               → ['support', kind, 'detail', id]
  *   supportKeys.messages(kind, id)             → ['support', kind, 'detail', id, 'messages']
  *   supportKeys.aiSettings()                   → ['support', 'ai-settings']
@@ -21,6 +22,9 @@ export const supportKeys = {
   adminLists: (kind: ThreadKind) => [...supportKeys.forKind(kind), 'admin'] as const,
   adminList: (kind: ThreadKind, filter: Omit<AdminThreadListFilter, 'page'>) =>
     [...supportKeys.adminLists(kind), filter] as const,
+  /** Under `adminLists`, so invalidating the queue refreshes the counter too. */
+  adminUnreadCount: (kind: ThreadKind) =>
+    [...supportKeys.adminLists(kind), 'unread-count'] as const,
   details: (kind: ThreadKind) => [...supportKeys.forKind(kind), 'detail'] as const,
   detail: (kind: ThreadKind, threadId: string) => [...supportKeys.details(kind), threadId] as const,
   messages: (kind: ThreadKind, threadId: string) =>

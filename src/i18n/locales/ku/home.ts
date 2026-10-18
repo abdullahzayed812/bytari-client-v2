@@ -3,6 +3,7 @@ import type { KuNamespace } from './types';
 const home: KuNamespace<'home'> = {
   header: {
     searchA11y: 'گەڕان',
+    accountA11y: 'پرۆفایل',
     switchToVetA11y: 'گۆڕین بۆ دۆخی پزیشکی ڤێتێرنەری',
     becomeVetA11y: 'داواکاری بۆ ئەوەی ببیت بە پزیشکی ڤێتێرنەریی پەسەندکراو',
   },

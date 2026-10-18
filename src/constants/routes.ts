@@ -536,6 +536,9 @@ export const Routes = {
   adminVeterinarianStoreHub: '/(app)/admin/veterinarian-store-hub',
   /** Admin dashboard "الدردشات" card — read-only oversight list of all conversations. */
   adminChats: '/(app)/admin/chats',
+  /** Read-only admin viewer of one conversation. */
+  adminChatConversation: (conversationId: string) =>
+    `/(app)/admin/chat-conversation/${conversationId}` as const,
   /** Admin dashboard "إرسال رسالة" card — platform-wide broadcast to users. */
   adminBroadcast: '/(app)/admin/broadcast',
   adminHomeSections: '/(app)/admin/home-sections',

@@ -17,7 +17,6 @@ import { useTheme } from '@/theme';
 import { HomeHeader, HomeSectionHeader } from '../components';
 
 const PREVIEW_COUNT = 3;
-const CLINIC_CARD_WIDTH = 220;
 const CONSULT_CARD_WIDTH = 280;
 
 interface CategoryCardProps {
@@ -199,20 +198,17 @@ export default function HomeScreen() {
         {clinics.organizations.length === 0 && !clinics.isLoading ? (
           <EmptyState icon="medkit-outline" title={torg('home.emptyTitle')} />
         ) : (
-          <FlatList
-            data={clinics.organizations}
-            keyExtractor={(o) => o.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-            renderItem={({ item }) => (
+          // One full-width card per row so the clinic name has room to show in full.
+          <View style={{ rowGap: theme.spacing.md }}>
+            {clinics.organizations.slice(0, PREVIEW_COUNT).map((item) => (
               <ClinicCard
+                key={item.id}
                 organization={item}
-                width={CLINIC_CARD_WIDTH}
+                width="100%"
                 onPress={() => router.push(Routes.organizationDiscoverDetail(item.id))}
               />
-            )}
-          />
+            ))}
+          </View>
         )}
       </Section>
 

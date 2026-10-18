@@ -54,10 +54,19 @@ type DetailKey =
   | 'submittedAt'
   | 'reviewedAt'
   | 'animalName'
+  | 'submittedBy'
+  | 'submittedByEmail'
+  | 'submittedByPhone'
+  | 'currentOwner'
+  | 'currentOwnerEmail'
+  | 'currentOwnerPhone'
   | 'gallery'
   | 'noImages'
   | 'yes'
   | 'no';
+
+const personName = (p: { firstName: string; lastName: string } | null | undefined) =>
+  p ? `${p.firstName} ${p.lastName}`.trim() || null : null;
 
 /** Tab order of the combined "التبني والتزاوج والحيوانات المفقودة" section. */
 const KINDS: PublicationKind[] = ['ADOPTION', 'MATING', 'LOST'];
@@ -115,6 +124,19 @@ export default function AdminAnimalPublicationsScreen() {
     { label: dt('kind'), value: t(`animalPublications.kind.${p.kind}`) },
     { label: dt('status'), value: t(`animalPublications.status.${p.status}`) },
     { label: dt('animalName'), value: p.animal?.name },
+    // Real account relationships (server-joined), shown before the listing's
+    // free-text contact fields.
+    { label: dt('submittedBy'), value: personName(p.submittedBy) },
+    { label: dt('submittedByEmail'), value: p.submittedBy?.email || null },
+    { label: dt('submittedByPhone'), value: p.submittedBy?.phone ?? null },
+    // Only when it differs from the submitter (e.g. after an ownership transfer).
+    ...(p.currentOwner && p.currentOwner.id !== p.submittedBy?.id
+      ? [
+          { label: dt('currentOwner'), value: personName(p.currentOwner) },
+          { label: dt('currentOwnerEmail'), value: p.currentOwner.email || null },
+          { label: dt('currentOwnerPhone'), value: p.currentOwner.phone },
+        ]
+      : []),
     { label: dt('contactName'), value: p.contactName },
     { label: dt('contactPhone'), value: p.contactPhone },
     { label: dt('city'), value: p.city },

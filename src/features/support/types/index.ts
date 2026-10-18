@@ -88,6 +88,11 @@ export interface Thread {
   /** ISO datetime or `null`. */
   lastMessageAt: string | null;
   closedAt: string | null;
+  /**
+   * Admin / supervisor queue only: the creator wrote something the responder
+   * team has not opened yet ("جديد"). Absent on the creator's own lists.
+   */
+  responderUnread?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -146,6 +151,8 @@ export interface ThreadListFilter {
 export interface AdminThreadListFilter extends ThreadListFilter {
   /** Filter by creator (admin / supervisor list only). */
   createdBy?: string;
+  /** Only threads new to the responder team. */
+  unread?: boolean;
 }
 
 export interface PageMeta {

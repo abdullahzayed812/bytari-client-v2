@@ -123,6 +123,20 @@ export interface AnimalPublication extends PublicationListingFields {
    * return the bare publication.
    */
   animal?: PublicationAnimal;
+  /** Moderation list / detail only: the submitting account (moderators, never public). */
+  submittedBy?: PublicationPerson | null;
+  /** Moderation list / detail only: the animal's current registered owner. */
+  currentOwner?: PublicationPerson | null;
+}
+
+/** Account contact shown to moderators (`/admin/animal-publications`). */
+export interface PublicationPerson {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  whatsapp: string | null;
 }
 
 /**

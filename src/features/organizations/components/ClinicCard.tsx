@@ -80,7 +80,7 @@ export function ClinicCard({ organization, width, onPress }: ClinicCardProps) {
 
       <View style={{ flex: 1, rowGap: 4 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
-          <Text variant="bodyStrong" numberOfLines={1} style={{ flexShrink: 1 }}>
+          <Text variant="bodyStrong" numberOfLines={2} style={{ flexShrink: 1 }}>
             {organization.name}
           </Text>
           <View accessible accessibilityLabel={t('discover.verifiedA11y')}>

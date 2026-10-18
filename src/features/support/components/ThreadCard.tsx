@@ -32,6 +32,8 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
   const { t } = useTranslation('support');
   const { t: tVs } = useTranslation('vetServices');
   const meta = SUPPORT_KIND_META[thread.kind];
+  // Admin queue only — a user message nobody on the responder team has opened.
+  const isNew = thread.responderUnread === true;
 
   return (
     <Pressable
@@ -49,9 +51,9 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
           columnGap: theme.spacing.lg,
           padding: theme.spacing.lg,
           borderRadius: theme.radius.xl,
-          backgroundColor: theme.colors.surface,
-          borderWidth: 1,
-          borderColor: theme.colors.border,
+          backgroundColor: isNew ? theme.colors.primarySoft : theme.colors.surface,
+          borderWidth: isNew ? 1.5 : 1,
+          borderColor: isNew ? theme.colors.primary : theme.colors.border,
           ...theme.shadows.xs,
         },
         pressed && { opacity: 0.85 },
@@ -75,13 +77,14 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
           <Text variant="bodyStrong" style={{ flex: 1 }} numberOfLines={1}>
             {t(`kind.${thread.kind}`)}
           </Text>
+          {isNew ? <Badge label={t('card.newBadge')} tone="success" size="sm" /> : null}
           <ThreadStatusBadge status={thread.status} />
         </View>
 
         {thread.preview !== undefined ? (
           <Text
-            variant="body"
-            color={thread.preview ? 'textSecondary' : 'textMuted'}
+            variant={isNew ? 'bodyStrong' : 'body'}
+            color={thread.preview ? (isNew ? 'textPrimary' : 'textSecondary') : 'textMuted'}
             numberOfLines={2}
           >
             {thread.preview ? thread.preview : t('card.noPreview')}

@@ -276,20 +276,17 @@ export default function VeterinarianHomeScreen() {
         {officePreview.length === 0 && !offices.isLoading ? (
           <EmptyState icon="business-outline" title={t('home.organizations.emptyTitle')} />
         ) : (
-          <FlatList
-            data={officePreview}
-            keyExtractor={(o) => o.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-            renderItem={({ item }) => (
+          // One full-width card per row so the office name has room to show in full.
+          <View style={{ rowGap: theme.spacing.md }}>
+            {officePreview.map((item) => (
               <ClinicCard
+                key={item.id}
                 organization={item}
-                width={280}
+                width="100%"
                 onPress={() => router.push(Routes.veterinaryOfficeDetail(item.id))}
               />
-            )}
-          />
+            ))}
+          </View>
         )}
       </Section>
 

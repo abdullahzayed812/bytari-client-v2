@@ -44,6 +44,8 @@ export default {
     chat: 'محادثة العيادة',
   },
   detail: {
+    ownerAdmin: 'المالك',
+    ownerAdminHistory: 'سجل الملكية وبيانات التواصل',
     fieldColor: 'اللون',
     fieldWeight: 'الوزن',
     weightValue: '{{value}} كجم',

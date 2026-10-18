@@ -9,11 +9,28 @@ import type { SessionSnapshot } from '../types';
 
 const mockReplace = jest.fn();
 let mockSegments: string[] = [];
+// The navigation container's root state: has the root <Stack> registered yet?
+let mockRootStackMounted = true;
+const mockStateListeners = new Set<() => void>();
+const mockNavRef = {
+  isReady: () => true,
+  getRootState: () => ({
+    index: 0,
+    routes: [
+      { name: '__root', state: mockRootStackMounted ? { index: 0, routes: [] } : undefined },
+    ],
+  }),
+  addListener: (_e: string, l: () => void) => {
+    mockStateListeners.add(l);
+    return () => mockStateListeners.delete(l);
+  },
+};
 
 jest.mock('expo-router', () => ({
   router: { replace: (...a: unknown[]) => mockReplace(...a) },
   useSegments: () => mockSegments,
   usePathname: () => '/',
+  useNavigationContainerRef: () => mockNavRef,
 }));
 
 const session = (over: Partial<SessionSnapshot> = {}): SessionSnapshot => ({
@@ -76,6 +93,23 @@ describe('AuthRedirector — navigation guards (§24)', () => {
     mockSegments = ['(auth)', 'sign-in'];
     render(<AuthRedirector />);
     expect(mockReplace).toHaveBeenCalledWith('/(app)/(tabs)');
+  });
+
+  it('waits for the root Stack to register before redirecting (no root remount → no second splash)', () => {
+    setAuth('authenticated', session());
+    mockSegments = [];
+    mockRootStackMounted = false;
+    render(<AuthRedirector />);
+    // Redirecting now would REPLACE expo-router's internal root route and
+    // remount the whole root layout (the splash played twice).
+    expect(mockReplace).not.toHaveBeenCalled();
+    act(() => {
+      mockRootStackMounted = true;
+      mockStateListeners.forEach((l) => l());
+    });
+    expect(mockReplace).toHaveBeenCalledTimes(1);
+    expect(mockReplace).toHaveBeenCalledWith('/(app)/(tabs)');
+    mockRootStackMounted = true;
   });
 
   it('does nothing while bootstrapping (no flicker / race)', () => {

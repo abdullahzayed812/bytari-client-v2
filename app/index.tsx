@@ -11,5 +11,9 @@ import { useAuth } from '@/hooks';
  */
 export default function Index() {
   const { isAuthenticated } = useAuth();
-  return <Redirect href={isAuthenticated ? Routes.home : Routes.authWelcome} />;
+  // Signed-in users are sent on by `AuthRedirector` (which also honours a
+  // pending deep link). A second replace from here would rebuild the whole
+  // `(app)` subtree right after that one.
+  if (isAuthenticated) return null;
+  return <Redirect href={Routes.authWelcome} />;
 }

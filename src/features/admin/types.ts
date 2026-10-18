@@ -484,6 +484,15 @@ export interface AdminAnimal {
   currentOwnerUserId: string | null;
   /** Current owner's display name, resolved server-side. */
   ownerName: string | null;
+  /** Current owner's account contact (admin / ANIMAL supervisor). */
+  owner?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+    whatsapp: string | null;
+  } | null;
   galleryUrls: string[];
   dateOfBirth?: string | null;
   color?: string | null;
@@ -554,6 +563,15 @@ export interface AdminChatConversation {
   lastMessageAt: string | null;
   createdAt: string;
   status: string;
+}
+
+/** `GET /admin/chat/conversations/:id` — read-only oversight view of one conversation. */
+export interface AdminChatConversationDetail extends AdminChatConversation {
+  organizationName: string | null;
+  subjectType: string | null;
+  subjectId: string | null;
+  createdByUserId: string | null;
+  participants: { userId: string; role: string; joinedAt: string; leftAt: string | null }[];
 }
 
 export interface AdminChatListFilter {

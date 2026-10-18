@@ -42,12 +42,19 @@ export function useMyThreads(kind: ThreadKind, params: ListParams = {}) {
 
 interface AdminListParams extends ListParams {
   createdBy?: string;
+  unread?: boolean;
 }
 
 /** All threads for a supervisor / admin (`GET /admin/<slug>`). Caller must gate `enabled`. */
 export function useAdminThreads(kind: ThreadKind, params: AdminListParams = {}) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
-  const filter = { status: params.status, createdBy: params.createdBy || undefined, pageSize };
+  const unread = params.unread || undefined;
+  const filter = {
+    status: params.status,
+    createdBy: params.createdBy || undefined,
+    unread,
+    pageSize,
+  };
   const api = threadApi(kind);
 
   const query = useInfiniteQuery<
@@ -65,6 +72,7 @@ export function useAdminThreads(kind: ThreadKind, params: AdminListParams = {}) 
         pageSize,
         status: params.status,
         createdBy: params.createdBy || undefined,
+        unread,
       }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
@@ -75,6 +83,17 @@ export function useAdminThreads(kind: ThreadKind, params: AdminListParams = {}) 
   const threads = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
   const total = query.data?.pages[0]?.meta.total ?? 0;
   return { ...query, threads, total };
+}
+
+/** The admin queue's "new messages" counter. Caller must gate `enabled`. */
+export function useAdminUnreadCount(kind: ThreadKind, options: { enabled?: boolean } = {}) {
+  const api = threadApi(kind);
+  return useQuery<{ count: number }, ApiError>({
+    queryKey: supportKeys.adminUnreadCount(kind),
+    queryFn: () => api.adminUnreadCount(),
+    enabled: options.enabled ?? true,
+    staleTime: 15_000,
+  });
 }
 
 /** One thread. `admin` picks `/admin/<slug>/:id`; otherwise the relationship-scoped route. A 404 hides "does it exist". */

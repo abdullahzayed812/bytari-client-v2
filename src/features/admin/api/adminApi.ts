@@ -1,3 +1,4 @@
+import type { ChatMessage } from '@/features/chat/types';
 import { apiClient } from '@/services/api';
 import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/media';
@@ -6,6 +7,7 @@ import type {
   AdminAnimal,
   AdminAnimalsFilter,
   AdminChatConversation,
+  AdminChatConversationDetail,
   AdminChatListFilter,
   AdminDashboardCardId,
   AdminDashboardSummary,
@@ -366,6 +368,25 @@ export const adminApi = {
   // --- chat oversight ("الدردشات") ----------------------
   listChatConversations(f: AdminChatListFilter): Promise<Paginated<AdminChatConversation>> {
     return listPaged<AdminChatConversation>('/admin/chat/conversations', f.page, f.pageSize, {});
+  },
+  /** Read-only viewer — any conversation, even one the admin is not part of (audited server-side). */
+  getChatConversation(conversationId: string): Promise<AdminChatConversationDetail> {
+    return apiClient.get<AdminChatConversationDetail>(
+      `/admin/chat/conversations/${conversationId}`,
+    );
+  },
+  /** Messages oldest-first, paginated. */
+  listChatMessages(
+    conversationId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Paginated<ChatMessage>> {
+    return listPaged<ChatMessage>(
+      `/admin/chat/conversations/${conversationId}/messages`,
+      page,
+      pageSize,
+      {},
+    );
   },
 
   // --- dashboard summary ---------------------------------
