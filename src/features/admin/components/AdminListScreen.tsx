@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
 import type { IconName } from '@/components/content';
@@ -34,6 +35,8 @@ export interface AdminListScreenProps<T> {
   emptyTitle: string;
   emptyMessage?: string;
   loadingMoreLabel?: string;
+  /** The active (debounced) search term — an empty result then reads "no matches", not "nothing here". */
+  searchTerm?: string;
 }
 
 export function AdminListScreen<T>({
@@ -49,8 +52,10 @@ export function AdminListScreen<T>({
   emptyTitle,
   emptyMessage,
   loadingMoreLabel,
+  searchTerm,
 }: AdminListScreenProps<T>) {
   const theme = useTheme();
+  const { t } = useTranslation('admin');
 
   return (
     <SafeAreaScreen>
@@ -89,7 +94,15 @@ export function AdminListScreen<T>({
           keyExtractor={keyExtractor}
           renderItem={({ item }) => renderItem(item)}
           ListEmptyComponent={
-            <EmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />
+            searchTerm ? (
+              <EmptyState
+                icon="search-outline"
+                title={t('search.noResults', { term: searchTerm })}
+                message={t('search.noResultsHint')}
+              />
+            ) : (
+              <EmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />
+            )
           }
           ListFooterComponent={
             query.isFetchingNextPage ? <Loading label={loadingMoreLabel} /> : null

@@ -33,7 +33,7 @@ export const publicationKeys = {
 
   /** Admin moderation queue. */
   admin: () => [...publicationKeys.all, 'admin'] as const,
-  adminList: (filter: { kind?: string; status?: string } = {}) =>
+  adminList: (filter: { kind?: string; status?: string; search?: string } = {}) =>
     [...publicationKeys.admin(), 'list', filter] as const,
 
   forAnimal: (animalId: string) => [...publicationKeys.all, 'animal', animalId] as const,

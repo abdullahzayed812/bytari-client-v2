@@ -18,6 +18,8 @@ export interface RegisterDeviceInput {
 
 /** A parsed, non-sensitive view of a received notification. */
 export interface ReceivedNotification {
+  /** OS request identifier — stable per delivered notification (dedupes replays). */
+  id?: string;
   title?: string;
   body?: string;
   /** Opaque routing hint set by the backend (e.g. `{ type, entityId }`). */

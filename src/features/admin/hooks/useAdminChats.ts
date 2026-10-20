@@ -6,27 +6,39 @@ import type { ChatMessage } from '@/features/chat/types';
 import { ApiError } from '@/services/api';
 
 import { adminApi, adminKeys } from '../api';
-import type { AdminChatConversation, AdminChatConversationDetail, Paginated } from '../types';
+import type {
+  AdminChatConversation,
+  AdminChatConversationDetail,
+  AdminChatConversationStatus,
+  AdminChatConversationType,
+  Paginated,
+} from '../types';
 
 export interface AdminChatsParams {
   pageSize?: number;
   enabled?: boolean;
+  search?: string;
+  type?: AdminChatConversationType;
+  status?: AdminChatConversationStatus;
 }
 
 /** `/admin/chat/conversations` — read-only oversight list (`chat.read`, ADMIN-override). */
 export function useAdminChats(params: AdminChatsParams = {}) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+  const search = params.search?.trim() || undefined;
+  const filter = { search, type: params.type, status: params.status };
 
   const query = useInfiniteQuery<
     Paginated<AdminChatConversation>,
     ApiError,
     InfiniteData<Paginated<AdminChatConversation>>,
-    ReturnType<typeof adminKeys.chats.lists>,
+    ReturnType<typeof adminKeys.chats.list>,
     number
   >({
-    queryKey: adminKeys.chats.lists(),
+    queryKey: adminKeys.chats.list(filter),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => adminApi.listChatConversations({ page: pageParam, pageSize }),
+    queryFn: ({ pageParam }) =>
+      adminApi.listChatConversations({ page: pageParam, pageSize, ...filter }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: params.enabled ?? true,

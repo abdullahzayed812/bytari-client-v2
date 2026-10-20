@@ -22,7 +22,12 @@ export function JobSeekerCard({
   const location = [profile.governorate, profile.district].filter(Boolean).join(' - ');
 
   return (
-    <Card variant="elevated" padding="md" onPress={onPress} style={{ alignItems: 'center' }}>
+    <Card
+      variant="elevated"
+      padding="md"
+      onPress={onPress}
+      style={{ flexGrow: 1, alignItems: 'center', borderRadius: theme.radius.lg }}
+    >
       <View
         style={{
           width: 64,

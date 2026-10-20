@@ -28,7 +28,8 @@ export const adminKeys = {
 
   vetApplications: {
     all: ['admin', 'vet-applications'] as const,
-    list: () => [...adminKeys.vetApplications.all, 'list'] as const,
+    lists: () => [...adminKeys.vetApplications.all, 'list'] as const,
+    list: (search?: string) => [...adminKeys.vetApplications.lists(), search ?? ''] as const,
   },
 
   animals: {
@@ -49,8 +50,12 @@ export const adminKeys = {
     members: (organizationId: string) =>
       [...adminKeys.organizations.detail(organizationId), 'members'] as const,
     pendingRenewalsAll: () => [...adminKeys.organizations.all, 'pending-renewals'] as const,
-    pendingRenewals: (organizationType?: OrganizationType) =>
-      [...adminKeys.organizations.pendingRenewalsAll(), organizationType ?? 'all'] as const,
+    pendingRenewals: (organizationType?: OrganizationType, search?: string) =>
+      [
+        ...adminKeys.organizations.pendingRenewalsAll(),
+        organizationType ?? 'all',
+        search ?? '',
+      ] as const,
   },
 
   farms: {
@@ -78,6 +83,8 @@ export const adminKeys = {
   chats: {
     all: ['admin', 'chats'] as const,
     lists: () => [...adminKeys.chats.all, 'list'] as const,
+    list: (f: { search?: string; type?: string; status?: string }) =>
+      [...adminKeys.chats.lists(), f] as const,
     detail: (id: string) => [...adminKeys.chats.all, 'detail', id] as const,
     messages: (id: string) => [...adminKeys.chats.all, 'detail', id, 'messages'] as const,
   },

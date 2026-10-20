@@ -69,6 +69,13 @@ function readRootState(ref: ReturnType<typeof useNavigationContainerRef>): NavSt
 
 /** A deep link that was opened while signed out — consumed on the next sign-in. */
 let pendingDeepLink: string | null = null;
+/**
+ * Set once a session was authenticated in this app run. Leaving `(app)`
+ * because the user signed out (or the session expired) is NOT a deep link:
+ * remembering that screen made the next sign-in land on e.g. Notifications /
+ * Settings instead of Home.
+ */
+let hadAuthenticatedSession = false;
 
 export function AuthRedirector() {
   const {
@@ -91,6 +98,7 @@ export function AuthRedirector() {
 
   useEffect(() => {
     if (isBootstrapping || !rootStackMounted) return;
+    if (isAuthenticated) hadAuthenticatedSession = true;
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
@@ -107,7 +115,8 @@ export function AuthRedirector() {
     } else if (!isAuthenticated && inAuthGroup && segments[1] === 'veterinarian-pending') {
       router.replace('/(auth)/sign-in');
     } else if (!isAuthenticated && inAppGroup) {
-      if (pathname && pathname !== '/') pendingDeepLink = pathname;
+      // Only a link that OPENED the app signed-out is replayed after sign-in.
+      if (!hadAuthenticatedSession && pathname && pathname !== '/') pendingDeepLink = pathname;
       router.replace('/(auth)/sign-in');
     } else if (isAuthenticated && (inAuthGroup || group === undefined)) {
       const target = pendingDeepLink;

@@ -12,17 +12,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/content';
 import { EmptyState, ErrorState } from '@/components/feedback';
-import { Section } from '@/components/layout';
+import { THREE_UP_COUNT, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
 // Deep import — keeps the farm barrel (and its screens) out of the require graph.
 import { useMyFarms } from '@/features/farm/hooks/useMyFarms';
 import { HomeSectionHeader } from '@/features/home/components';
-import { NewsCard } from '@/features/news/components';
+import { NewsSectionPreview } from '@/features/news/components';
 import { useNews } from '@/features/news/hooks';
 import type { MyOrganization } from '@/features/organizations/types';
-import { TipCard } from '@/features/tips/components';
+import { TipsSectionPreview } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
@@ -77,8 +77,9 @@ export default function SheepCattleFarmsLandingScreen() {
   const { width: windowWidth } = useWindowDimensions();
   const farmWidth = Math.min(320, (windowWidth - theme.screenPadding * 2) * 0.86);
   // Sheep + cattle feeds only (additional corrections §11).
-  const news = useNews({ pageSize: 6, sections: ['SHEEP', 'CATTLE'] });
-  const tips = useTips({ pageSize: 6, sections: ['SHEEP', 'CATTLE'] });
+  // Same query keys as the three-card previews below — pull-to-refresh refetches them.
+  const news = useNews({ pageSize: THREE_UP_COUNT, sections: ['SHEEP', 'CATTLE'] });
+  const tips = useTips({ pageSize: THREE_UP_COUNT, sections: ['SHEEP', 'CATTLE'] });
 
   const isLoading = farms.isLoading;
   const isError = farms.isError;
@@ -214,20 +215,7 @@ export default function SheepCattleFarmsLandingScreen() {
               router.push({ pathname: '/(app)/news', params: { section: 'SHEEP,CATTLE' } })
             }
           />
-          {news.news.length === 0 ? null : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
-                {news.news.map((item) => (
-                  <NewsCard
-                    key={item.id}
-                    item={item}
-                    width={220}
-                    onPress={() => router.push(Routes.newsDetail(item.id))}
-                  />
-                ))}
-              </View>
-            </ScrollView>
-          )}
+          <NewsSectionPreview sections={['SHEEP', 'CATTLE']} />
         </Section>
 
         <Section spacing="huge">
@@ -238,20 +226,7 @@ export default function SheepCattleFarmsLandingScreen() {
               router.push({ pathname: '/(app)/tips', params: { section: 'SHEEP,CATTLE' } })
             }
           />
-          {tips.tips.length === 0 ? null : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
-                {tips.tips.map((tip) => (
-                  <TipCard
-                    key={tip.id}
-                    tip={tip}
-                    width={200}
-                    onPress={() => router.push(Routes.tip(tip.id))}
-                  />
-                ))}
-              </View>
-            </ScrollView>
-          )}
+          <TipsSectionPreview sections={['SHEEP', 'CATTLE']} />
         </Section>
       </ScrollView>
     </View>

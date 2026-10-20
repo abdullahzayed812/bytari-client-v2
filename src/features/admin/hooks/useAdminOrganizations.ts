@@ -51,7 +51,12 @@ export function useAdminOrganizations(params: AdminOrgsParams = {}) {
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       filter.pending
-        ? adminApi.listPendingOrganizations(pageParam, pageSize)
+        ? adminApi.listPendingOrganizations({
+            page: pageParam,
+            pageSize,
+            type: filter.type,
+            search: filter.search,
+          })
         : adminApi.listOrganizations({
             page: pageParam,
             pageSize,

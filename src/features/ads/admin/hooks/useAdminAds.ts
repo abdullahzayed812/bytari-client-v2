@@ -1,4 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+} from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { AppConfig } from '@/constants/config';
 import { ApiError } from '@/services/api';
@@ -15,13 +22,25 @@ import type {
 } from '../../types';
 import { adminAdsApi } from '../api/adminAdsApi';
 
+/** Server-paginated (infinite) campaign list — every page, not only the first. */
 export function useAdminAdCampaigns(params: ListAdminAdCampaignsParams) {
   const pageSize = AppConfig.defaultPageSize;
-  return useQuery<Paginated<AdminAdCampaign>, ApiError>({
+  const query = useInfiniteQuery<
+    Paginated<AdminAdCampaign>,
+    ApiError,
+    InfiniteData<Paginated<AdminAdCampaign>>,
+    ReturnType<typeof adKeys.adminList>,
+    number
+  >({
     queryKey: adKeys.adminList(params),
-    queryFn: () => adminAdsApi.list({ ...params, page: 1, pageSize }),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => adminAdsApi.list({ ...params, page: pageParam, pageSize }),
+    getNextPageParam: (last) =>
+      last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,
   });
+  const campaigns = useMemo(() => query.data?.pages.flatMap((p) => p.items) ?? [], [query.data]);
+  return { ...query, campaigns };
 }
 
 export function useAdminAdCampaign(campaignId: string | undefined) {

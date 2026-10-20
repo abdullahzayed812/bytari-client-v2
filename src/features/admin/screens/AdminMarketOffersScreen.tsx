@@ -25,8 +25,10 @@ import {
   AdminDetailModal,
   AdminListScreen,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   ReasonPromptDialog,
+  useAdminSearch,
 } from '../components';
 
 type Offer = PoultryOffer | EggOffer;
@@ -52,12 +54,20 @@ export default function AdminMarketOffersScreen() {
   const [rejecting, setRejecting] = useState<string | null>(null);
 
   const isEgg = kind === 'egg';
+  // Offer id / location / phone / notes / seller — kept when switching kind or moderation tab.
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
   const poultryQuery = useAdminPoultryOffers({
     page: 1,
     pageSize: 20,
     moderationStatus: moderation,
+    search,
   });
-  const eggQuery = useAdminEggOffers({ page: 1, pageSize: 20, moderationStatus: moderation });
+  const eggQuery = useAdminEggOffers({
+    page: 1,
+    pageSize: 20,
+    moderationStatus: moderation,
+    search,
+  });
   const deletePoultry = useAdminDeletePoultryOffer();
   const deleteEgg = useAdminDeleteEggOffer();
   const moderatePoultry = useModeratePoultryOffer();
@@ -183,8 +193,14 @@ export default function AdminMarketOffersScreen() {
         emptyTitle={t('marketOffers.empty')}
         emptyMessage={t('marketOffers.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
           <View style={{ rowGap: theme.spacing.xs }}>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.marketOffers')}
+            />
             <FilterChips<Kind>
               value={kind}
               onChange={(v) => setKind(v ?? 'poultry')}

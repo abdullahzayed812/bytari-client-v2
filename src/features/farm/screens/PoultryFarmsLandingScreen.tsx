@@ -13,14 +13,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/content';
 import { EmptyState, ErrorState } from '@/components/feedback';
-import { Section } from '@/components/layout';
+import { THREE_UP_COUNT, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
 import { HomeSectionHeader } from '@/features/home/components';
-import { NewsCard } from '@/features/news/components';
+import { NewsSectionPreview } from '@/features/news/components';
 import { useNews } from '@/features/news/hooks';
-import { TipCard } from '@/features/tips/components';
+import { TipsSectionPreview } from '@/features/tips/components';
 import { useTips } from '@/features/tips/hooks';
 import { physicalRow } from '@/lib/rtl';
 import { useTheme } from '@/theme';
@@ -45,8 +45,9 @@ export default function PoultryFarmsLandingScreen() {
     enabled: Boolean(primaryFarm),
   });
   // Poultry's own feeds only (additional corrections §11).
-  const news = useNews({ pageSize: 6, sections: ['POULTRY'] });
-  const tips = useTips({ pageSize: 6, sections: ['POULTRY'] });
+  // Same query keys as the three-card previews below — pull-to-refresh refetches them.
+  const news = useNews({ pageSize: THREE_UP_COUNT, sections: ['POULTRY'] });
+  const tips = useTips({ pageSize: THREE_UP_COUNT, sections: ['POULTRY'] });
 
   const stats = useMemo(
     () => (primaryFarm && flocks.flocks.length > 0 ? birdStats(flocks.flocks) : null),
@@ -54,8 +55,6 @@ export default function PoultryFarmsLandingScreen() {
   );
 
   const cardWidth = width - theme.screenPadding * 2;
-  const newsWidth = Math.min(220, cardWidth * 0.62);
-  const tipWidth = Math.min(200, cardWidth * 0.56);
   const farmWidth = Math.min(320, cardWidth * 0.86);
 
   const refreshing =
@@ -199,26 +198,7 @@ export default function PoultryFarmsLandingScreen() {
               router.push({ pathname: '/(app)/news', params: { section: 'POULTRY' } })
             }
           />
-          {news.isLoading ? (
-            <PoultryCardSkeleton />
-          ) : news.news.length === 0 ? (
-            <EmptyState icon="newspaper-outline" title={t('common.error')} />
-          ) : (
-            <FlatList
-              data={news.news}
-              keyExtractor={(i) => i.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-              renderItem={({ item }) => (
-                <NewsCard
-                  item={item}
-                  width={newsWidth}
-                  onPress={() => router.push(Routes.newsDetail(item.id))}
-                />
-              )}
-            />
-          )}
+          <NewsSectionPreview sections={['POULTRY']} />
         </Section>
 
         <Section spacing="huge">
@@ -229,26 +209,7 @@ export default function PoultryFarmsLandingScreen() {
               router.push({ pathname: '/(app)/tips', params: { section: 'POULTRY' } })
             }
           />
-          {tips.isLoading ? (
-            <PoultryCardSkeleton />
-          ) : tips.tips.length === 0 ? (
-            <EmptyState icon="bulb-outline" title={t('common.error')} />
-          ) : (
-            <FlatList
-              data={tips.tips}
-              keyExtractor={(i) => i.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-              renderItem={({ item }) => (
-                <TipCard
-                  tip={item}
-                  width={tipWidth}
-                  onPress={() => router.push(Routes.tip(item.id))}
-                />
-              )}
-            />
-          )}
+          <TipsSectionPreview sections={['POULTRY']} />
         </Section>
       </ScrollView>
     </View>

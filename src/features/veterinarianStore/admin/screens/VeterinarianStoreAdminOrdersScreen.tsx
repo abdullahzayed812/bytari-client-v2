@@ -9,6 +9,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { AdminSearchBar, useAdminSearch } from '@/features/admin/components/AdminSearchBar';
 import { useTheme } from '@/theme';
 
 import { OrderStatusBadge } from '../../components';
@@ -22,13 +23,21 @@ export default function VeterinarianStoreAdminOrdersScreen() {
   const { t } = useTranslation('veterinarianStore');
   const [status, setStatus] = useState<VetStoreOrderStatus | undefined>();
   const [newOnly, setNewOnly] = useState(false);
-  const q = useVetStoreAdminOrders(status, newOnly);
+  const { t: tAdmin } = useTranslation('admin');
+  // Kept across the status chips — the search narrows whichever queue is shown.
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useVetStoreAdminOrders(status, newOnly, search);
   const summary = useVetStoreAdminOrdersSummary();
   const newCount = summary.data?.newCount ?? 0;
 
   return (
     <SafeAreaScreen>
       <AppHeader title={t('admin.orders.title')} showBack />
+      <AdminSearchBar
+        value={rawSearch}
+        onChangeText={setRawSearch}
+        placeholder={tAdmin('search.placeholders.orders')}
+      />
 
       <ScrollView
         horizontal
@@ -120,7 +129,18 @@ export default function VeterinarianStoreAdminOrdersScreen() {
               </View>
             </Card>
           )}
-          ListEmptyComponent={<EmptyState icon="receipt-outline" title={t('admin.orders.empty')} />}
+          ListEmptyComponent={
+            search ? (
+              <EmptyState
+                icon="search-outline"
+                title={tAdmin('search.noResults', { term: search })}
+                message={tAdmin('search.noResultsHint')}
+              />
+            ) : (
+              <EmptyState icon="receipt-outline" title={t('admin.orders.empty')} />
+            )
+          }
+          keyboardShouldPersistTaps="handled"
           ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
           contentContainerStyle={{
             padding: theme.screenPadding,

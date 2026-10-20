@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -82,6 +83,31 @@ export function useContentList(params: UseContentListParams = {}) {
   const total = query.data?.pages[0]?.meta.total ?? 0;
 
   return { ...query, items, total };
+}
+
+/**
+ * One numbered page of published content (same filters as
+ * {@link useContentList}) — for screens with page-number pagination. The
+ * previous page stays on screen while the next one loads.
+ */
+export function useContentPage(params: UseContentListParams & { page: number }) {
+  const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+  const filter = {
+    page: params.page,
+    pageSize,
+    type: params.type,
+    categoryId: params.categoryId,
+    search: params.search || undefined,
+    sort: params.sort,
+    bookmarkedOnly: params.bookmarkedOnly,
+  };
+  return useQuery<Paginated<ContentItem>, ApiError>({
+    queryKey: contentKeys.page(filter),
+    queryFn: () => contentApi.list(filter),
+    placeholderData: keepPreviousData,
+    enabled: params.enabled ?? true,
+    staleTime: 15_000,
+  });
 }
 
 /** One published content item. A DRAFT / ARCHIVED / deleted / unknown id → `404`. */
@@ -199,7 +225,10 @@ export function useDeleteContentComment(
 
 // --- engagement: rating (books) -------------------------------------
 
-export function useContentRating(contentId: string | undefined, options: { enabled?: boolean } = {}) {
+export function useContentRating(
+  contentId: string | undefined,
+  options: { enabled?: boolean } = {},
+) {
   return useQuery<{ aggregate: ContentRatingAggregate; myRating: number | null }, ApiError>({
     queryKey: contentKeys.rating(contentId ?? 'unknown'),
     queryFn: () => contentApi.getRating(contentId as string),

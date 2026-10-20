@@ -270,6 +270,8 @@ export interface SupervisorListFilter {
   domain?: SupervisorDomain;
   status?: SupervisorAssignmentStatus;
   userId?: string;
+  /** The supervisor's name / email / phone. */
+  search?: string;
 }
 
 /** The admin UI assigns by email; the server resolves the account and checks eligibility. */
@@ -314,6 +316,8 @@ export interface AuditListFilter {
   entityType?: string;
   entityId?: string;
   actorUserId?: string;
+  /** Action / entity type / entity id (prefix) / actor. */
+  search?: string;
 }
 
 // --- Poultry Farms management (subscription + renewal requests) ----------
@@ -400,6 +404,8 @@ export interface AdminListFarmsFilter {
   subscriptionStatus?: FarmSubscriptionStatus;
   /** `POULTRY` → poultry farms; `LIVESTOCK` → sheep + cattle farms. */
   speciesGroup?: FarmSpeciesGroup;
+  /** Farm name / code / location / contact, or the owner. */
+  search?: string;
 }
 
 export const RENEWAL_REQUEST_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
@@ -551,7 +557,18 @@ export type AdminChatConversationType =
   | 'FARM_OWNER_MEMBER'
   | 'FARM_MEMBER_DIRECT'
   | 'SYNDICATE_MEMBER'
-  | 'ANIMAL_PUBLICATION';
+  | 'ANIMAL_PUBLICATION'
+  | 'CHAT_ROOM';
+
+export type AdminChatConversationStatus = 'OPEN' | 'COMPLETED' | 'CLOSED';
+
+/** A named person on a conversation's relationship column (list rows). */
+export interface AdminChatPerson {
+  userId: string;
+  side: 'PET_OWNER' | 'MEMBER' | 'VETERINARIAN';
+  firstName: string;
+  lastName: string;
+}
 
 export interface AdminChatConversation {
   id: string;
@@ -563,11 +580,16 @@ export interface AdminChatConversation {
   lastMessageAt: string | null;
   createdAt: string;
   status: string;
+  /** Organization / clinic / office / room name ("اسم المحادثة"). */
+  organizationName: string | null;
+  /** List rows only — names of the people on the relationship columns. */
+  people?: AdminChatPerson[];
+  /** List rows only — active explicit participants (e.g. a room's members). */
+  participantCount?: number;
 }
 
 /** `GET /admin/chat/conversations/:id` — read-only oversight view of one conversation. */
 export interface AdminChatConversationDetail extends AdminChatConversation {
-  organizationName: string | null;
   subjectType: string | null;
   subjectId: string | null;
   createdByUserId: string | null;
@@ -577,6 +599,10 @@ export interface AdminChatConversationDetail extends AdminChatConversation {
 export interface AdminChatListFilter {
   page: number;
   pageSize: number;
+  /** Conversation (organization / room) name or participant name. */
+  search?: string;
+  type?: AdminChatConversationType;
+  status?: AdminChatConversationStatus;
 }
 
 // --- admin dashboard summary (GET /admin/dashboard/summary, dashboard.admin.read) ---
@@ -607,6 +633,7 @@ export type AdminDashboardCardId =
   | 'userMessages'
   | 'broadcasts'
   | 'homeSections'
+  | 'featuredOrganizations'
   | 'books'
   | 'magazines'
   | 'adoption'

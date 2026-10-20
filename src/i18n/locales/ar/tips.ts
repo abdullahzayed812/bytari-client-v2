@@ -27,6 +27,8 @@ export default {
   list: {
     title: 'أفضل النصائح',
     section: 'أهم النصائح',
+    all: 'الكل',
+    allWithCount: 'الكل ({{count}})',
     searchPlaceholder: 'ابحث عن نصيحة…',
     empty: 'لا توجد نصائح بعد',
     emptyHint: 'سيظهر هنا المحتوى المنشور من فريق المحتوى.',

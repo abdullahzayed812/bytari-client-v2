@@ -114,6 +114,17 @@ describe('ClinicOperationalGate', () => {
     expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
     expect(screen.queryByText('التواصل مع الإدارة')).toBeNull();
     expect(screen.queryByText('DASHBOARD CONTENT')).toBeNull();
+    // …but is told how to get access back: the owner renews, or contact us.
+    expect(screen.getByText(/تواصل مع مالك العيادة لتجديد الاشتراك/)).toBeOnTheScreen();
+    expect(screen.getByText('تواصل معنا')).toBeOnTheScreen();
+  });
+
+  it('a staff member of a suspended clinic sees the inactive state with the contact path', async () => {
+    get.mockResolvedValue(clinic({ myRole: 'STAFF', status: 'SUSPENDED' }));
+    renderGate();
+    await waitFor(() => expect(screen.getByText('العيادة غير نشطة')).toBeOnTheScreen());
+    expect(screen.getByText('تواصل معنا')).toBeOnTheScreen();
+    expect(screen.queryByText('DASHBOARD CONTENT')).toBeNull();
   });
 
   it('a staff member of a pending clinic (403 on the profile) gets the not-available state', async () => {

@@ -5,7 +5,13 @@ import { Linking, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Badge, Card, Chip } from '@/components/content';
-import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { PasswordInput } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
@@ -16,6 +22,7 @@ import { Routes } from '@/constants/routes';
 import { countryDisplayName } from '@/features/registration';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
+import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -150,7 +157,7 @@ export default function AdminUserDetailScreen() {
         title={t('users.detail.title')}
         showBack
         right={
-          u ? (
+          u && !q.isError ? (
             <Button
               label={t('users.detail.editCta')}
               size="sm"
@@ -163,6 +170,15 @@ export default function AdminUserDetailScreen() {
 
       {q.isLoading ? (
         <Loading fill />
+      ) : q.error instanceof ApiError && q.error.status === 404 ? (
+        // Deleted / missing account (e.g. opened from an old message) — not an error to retry.
+        <Section spacing="lg">
+          <EmptyState
+            icon="person-remove-outline"
+            title={t('users.detail.notFoundTitle')}
+            message={t('users.detail.notFoundBody')}
+          />
+        </Section>
       ) : q.isError || !q.data ? (
         <Section spacing="lg">
           <ErrorState error={q.error} onRetry={() => void q.refetch()} />

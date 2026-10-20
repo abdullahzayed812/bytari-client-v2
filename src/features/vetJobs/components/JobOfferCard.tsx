@@ -34,7 +34,14 @@ export function JobOfferCard({
   const location = [offer.governorate, offer.district].filter(Boolean).join(' - ');
 
   return (
-    <Card variant="elevated" padding="md" onPress={onPress}>
+    // `flexGrow: 1` + the footer's `marginTop: 'auto'` keep cards in one grid row the
+    // same height, with the salary / button line aligned at the bottom.
+    <Card
+      variant="elevated"
+      padding="md"
+      onPress={onPress}
+      style={{ flexGrow: 1, borderRadius: theme.radius.lg }}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.md }}>
         <View
           style={{
@@ -82,11 +89,12 @@ export function JobOfferCard({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginTop: theme.spacing.sm,
+          marginTop: 'auto',
+          paddingTop: theme.spacing.sm,
           columnGap: theme.spacing.sm,
         }}
       >
-        <Text variant="label" color="primary">
+        <Text variant="label" color="primary" style={{ flexShrink: 1 }} numberOfLines={2}>
           {formatSalary(offer.salaryAmount, offer.salaryNegotiable, t)}
         </Text>
         <Button label={t('offers.viewDetails')} variant="primary" size="sm" onPress={onPress} />

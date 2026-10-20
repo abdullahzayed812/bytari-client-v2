@@ -3,8 +3,8 @@ import type { ListEggOffersFilter, ListPoultryOffersFilter } from '../types';
 /** Poultry Markets query keys. Trader status/profile is a per-USER concept — no organizationId anywhere. */
 export const poultryMarketKeys = {
   traderStatus: ['market', 'trader', 'me'] as const,
-  traderAdminList: (status: string | undefined) =>
-    ['market', 'trader', 'admin', 'list', status] as const,
+  traderAdminList: (status: string | undefined, search?: string) =>
+    ['market', 'trader', 'admin', 'list', status, search ?? ''] as const,
 
   poultryOffers: {
     all: ['market', 'poultry-offers'] as const,

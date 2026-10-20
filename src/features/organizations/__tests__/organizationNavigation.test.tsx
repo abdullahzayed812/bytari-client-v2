@@ -121,8 +121,12 @@ describe('Phase 4 navigation (§32): Vet Home → Organizations → Details → 
     });
     renderWithProviders(<VeterinarianHomeScreen />);
     await waitFor(() => expect(screen.getByText('المكاتب أو الشركات البيطرية')).toBeOnTheScreen());
-    fireEvent.press(screen.getByText('عرض الكل'));
+    // Offices carousel header first, then the office-products preview header.
+    const [officesViewAll, productsViewAll] = screen.getAllByText('عرض الكل');
+    fireEvent.press(officesViewAll!);
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices');
+    fireEvent.press(productsViewAll!);
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/products-search');
   });
 
   it('Organization Details → Members, Supervisors and Edit', async () => {

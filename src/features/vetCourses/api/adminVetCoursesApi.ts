@@ -30,12 +30,12 @@ export const adminVetCoursesApi = {
   async listCourses(
     page: number,
     pageSize: number,
-    filter: { status?: VetCourseModerationStatus; type?: VetCourseType } = {},
+    filter: { status?: VetCourseModerationStatus; type?: VetCourseType; search?: string } = {},
   ): Promise<Paginated<VetCourse>> {
     const env = await apiClient.requestEnvelope<VetCourse[]>({
       method: 'GET',
       url: '/admin/vet-courses',
-      params: { page, pageSize, status: filter.status, type: filter.type },
+      params: { page, pageSize, status: filter.status, type: filter.type, search: filter.search },
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },

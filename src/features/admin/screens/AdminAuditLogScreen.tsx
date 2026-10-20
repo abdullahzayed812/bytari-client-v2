@@ -7,14 +7,15 @@ import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 import { formatDateTime } from '@/utils';
 
-import { AdminListScreen, AdminRow } from '../components';
+import { AdminListScreen, AdminRow, AdminSearchBar, useAdminSearch } from '../components';
 import { useAdminAuditLog } from '../hooks';
 import type { AuditLogEntry } from '../types';
 
 export default function AdminAuditLogScreen() {
   const { t } = useTranslation('admin');
   const theme = useTheme();
-  const q = useAdminAuditLog();
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminAuditLog({ search });
 
   return (
     <AdminListScreen<AuditLogEntry>
@@ -32,6 +33,14 @@ export default function AdminAuditLogScreen() {
       emptyTitle={t('audit.empty')}
       emptyMessage={t('audit.emptyHint')}
       loadingMoreLabel={t('common.loadingMore')}
+      searchTerm={search}
+      filterBar={
+        <AdminSearchBar
+          value={rawSearch}
+          onChangeText={setRawSearch}
+          placeholder={t('search.placeholders.audit')}
+        />
+      }
       renderItem={(e) => (
         <AdminRow
           title={t(`activityActions.${e.action}`, { defaultValue: e.action })}

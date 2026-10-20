@@ -11,7 +11,15 @@ import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { AdminListScreen, AdminRow, FilterChips } from '../components';
+import {
+  AdminListScreen,
+  AdminRow,
+  AdminSearchBar,
+  FilterChips,
+  ViewUserProfileButton,
+  useAdminSearch,
+  useCanOpenAdminUser,
+} from '../components';
 import { useAdminFarms } from '../hooks';
 import type { AdminFarmListItem, FarmSpeciesGroup, OrganizationStatus } from '../types';
 
@@ -65,7 +73,10 @@ export default function AdminFarmsScreen() {
   const [scope, setScope] = useState<Scope>('all');
   const [viewerImage, setViewerImage] = useState<string | null>(null);
 
-  const q = useAdminFarms({ ...scopeFilter(scope), speciesGroup });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const canOpenUser = useCanOpenAdminUser();
+
+  const q = useAdminFarms({ ...scopeFilter(scope), speciesGroup, search });
 
   return (
     <>
@@ -84,8 +95,14 @@ export default function AdminFarmsScreen() {
         emptyTitle={t('farms.empty')}
         emptyMessage={t('farms.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
           <View style={{ rowGap: theme.spacing.xs }}>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.farms')}
+            />
             {isPoultry ? null : (
               <FilterChips<LivestockScope>
                 value={livestock}
@@ -139,15 +156,24 @@ export default function AdminFarmsScreen() {
             }}
             badge={{ label: t(`orgs.status.${f.status}`), tone: statusTone(f.status) }}
             actions={
-              f.status === 'ACTIVE' ? (
+              f.status === 'ACTIVE' || canOpenUser ? (
                 <>
-                  <Badge
-                    label={t(`farms.subscriptionStatus.${f.subscriptionStatus}`)}
-                    tone={f.subscriptionStatus === 'EXPIRED' ? 'danger' : 'success'}
-                    size="sm"
-                  />
-                  {f.hasOpenRenewalRequest ? (
+                  {f.status === 'ACTIVE' ? (
+                    <Badge
+                      label={t(`farms.subscriptionStatus.${f.subscriptionStatus}`)}
+                      tone={f.subscriptionStatus === 'EXPIRED' ? 'danger' : 'success'}
+                      size="sm"
+                    />
+                  ) : null}
+                  {f.status === 'ACTIVE' && f.hasOpenRenewalRequest ? (
                     <Badge label={t('farms.renewalPendingBadge')} tone="warning" size="sm" />
+                  ) : null}
+                  {canOpenUser ? (
+                    <ViewUserProfileButton
+                      userId={f.ownerUserId}
+                      label={t('userLink.viewOwnerProfile')}
+                      fullWidth={false}
+                    />
                   ) : null}
                 </>
               ) : undefined

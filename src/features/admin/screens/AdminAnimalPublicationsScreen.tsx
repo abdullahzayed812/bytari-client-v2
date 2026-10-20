@@ -29,8 +29,10 @@ import {
   AdminListScreen,
   AdminPublicationEditSheet,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   ReasonPromptDialog,
+  useAdminSearch,
 } from '../components';
 
 type DetailKey =
@@ -101,7 +103,8 @@ export default function AdminAnimalPublicationsScreen() {
     KINDS.includes(kindParam as PublicationKind) ? (kindParam as PublicationKind) : 'ADOPTION',
   );
   const [status, setStatus] = useState<PublicationStatus | undefined>('PENDING');
-  const q = useAdminAnimalPublications({ kind, status });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminAnimalPublications({ search, kind, status });
   const approve = useAdminApprovePublication();
   const reject = useAdminRejectPublication();
   const remove = useDeletePublication();
@@ -255,31 +258,39 @@ export default function AdminAnimalPublicationsScreen() {
         emptyTitle={t('animalPublications.empty')}
         emptyMessage={t('animalPublications.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
-          <View style={{ rowGap: theme.spacing.sm }}>
-            <View style={{ paddingHorizontal: theme.screenPadding }}>
-              <SegmentedControl<PublicationKind>
-                value={kind}
-                onChange={setKind}
+          <>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.publications')}
+            />
+            <View style={{ rowGap: theme.spacing.sm }}>
+              <View style={{ paddingHorizontal: theme.screenPadding }}>
+                <SegmentedControl<PublicationKind>
+                  value={kind}
+                  onChange={setKind}
+                  options={[
+                    { value: 'ADOPTION', label: t('animalPublications.tabs.ADOPTION') },
+                    { value: 'MATING', label: t('animalPublications.tabs.MATING') },
+                    { value: 'LOST', label: t('animalPublications.tabs.LOST') },
+                  ]}
+                />
+              </View>
+              <FilterChips<PublicationStatus>
+                value={status}
+                onChange={setStatus}
                 options={[
-                  { value: 'ADOPTION', label: t('animalPublications.tabs.ADOPTION') },
-                  { value: 'MATING', label: t('animalPublications.tabs.MATING') },
-                  { value: 'LOST', label: t('animalPublications.tabs.LOST') },
+                  { value: undefined, label: t('animalPublications.status.ALL') },
+                  ...STATUSES.map((s) => ({
+                    value: s,
+                    label: t(`animalPublications.status.${s}`),
+                  })),
                 ]}
               />
             </View>
-            <FilterChips<PublicationStatus>
-              value={status}
-              onChange={setStatus}
-              options={[
-                { value: undefined, label: t('animalPublications.status.ALL') },
-                ...STATUSES.map((s) => ({
-                  value: s,
-                  label: t(`animalPublications.status.${s}`),
-                })),
-              ]}
-            />
-          </View>
+          </>
         }
         renderItem={(p) => (
           <AdminRow

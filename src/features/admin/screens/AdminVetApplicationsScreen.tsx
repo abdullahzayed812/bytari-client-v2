@@ -12,7 +12,14 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { AdminDetailModal, AdminListScreen, AdminRow, ReasonPromptDialog } from '../components';
+import {
+  AdminDetailModal,
+  AdminListScreen,
+  AdminRow,
+  AdminSearchBar,
+  ReasonPromptDialog,
+  useAdminSearch,
+} from '../components';
 import { useAdminVetApplications, useVetDecisionMutation } from '../hooks';
 import type { PendingVetApplication, VetApplicationDocument } from '../types';
 
@@ -37,7 +44,8 @@ export default function AdminVetApplicationsScreen() {
   const { t, i18n } = useTranslation('admin');
   const theme = useTheme();
   const toast = useToast();
-  const q = useAdminVetApplications();
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminVetApplications({ search });
   const decide = useVetDecisionMutation();
 
   const [approving, setApproving] = useState<PendingVetApplication | null>(null);
@@ -170,6 +178,14 @@ export default function AdminVetApplicationsScreen() {
         emptyTitle={t('vets.empty')}
         emptyMessage={t('vets.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
+        filterBar={
+          <AdminSearchBar
+            value={rawSearch}
+            onChangeText={setRawSearch}
+            placeholder={t('search.placeholders.vetApplications')}
+          />
+        }
         renderItem={(a) => (
           <AdminRow
             title={fullName(a)}

@@ -55,8 +55,8 @@ export interface PickImageOptions {
   quality?: number;
   /**
    * Shared editor step (crop / aspect / resize / preview). Default: on, free
-   * aspect. `false` keeps the ORIGINAL untouched — required for identity
-   * documents / certificates that must not be cropped.
+   * aspect. `false` keeps the ORIGINAL untouched (certificates that must not
+   * be cropped); ID photos use `ID_DOCUMENT_EDIT`.
    */
   edit?: ImageEditOptions | false;
 }

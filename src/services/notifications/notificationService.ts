@@ -76,7 +76,12 @@ Notifications.setNotificationHandler({
 function parse(notification: Notifications.Notification): ReceivedNotification {
   const content = notification.request.content;
   const data = (content.data ?? {}) as Record<string, unknown>;
-  return { title: content.title ?? undefined, body: content.body ?? undefined, data };
+  return {
+    id: notification.request.identifier,
+    title: content.title ?? undefined,
+    body: content.body ?? undefined,
+    data,
+  };
 }
 
 export const notificationService = {
@@ -195,18 +200,32 @@ export const notificationService = {
     return () => sub.remove();
   },
 
-  /** Notification-tap listener (app foreground/background). Returns an unsubscribe. */
+  /**
+   * Notification-tap listener (app foreground/background). Returns an
+   * unsubscribe. Only the default "open" action counts as a tap — a dismiss
+   * (or any custom action) never navigates.
+   */
   onNotificationTap(handler: NotificationTapHandler): () => void {
-    const sub = Notifications.addNotificationResponseReceivedListener((response) =>
-      handler(parse(response.notification)),
-    );
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+      handler(parse(response.notification));
+    });
     return () => sub.remove();
   },
 
-  /** The notification that cold-started the app, if any. */
-  async getInitialNotification(): Promise<ReceivedNotification | null> {
+  /**
+   * The notification tap that launched the app, if any — consumed: the cached
+   * response is cleared right away. `getLastNotificationResponseAsync` keeps
+   * returning the LAST tap for as long as the native process lives (on Android
+   * "back" closes the JS app but not the process), so without clearing it
+   * every later launch / sign-in replayed that tap and opened Notifications.
+   */
+  async consumeInitialNotification(): Promise<ReceivedNotification | null> {
     const response = await Notifications.getLastNotificationResponseAsync();
-    return response ? parse(response.notification) : null;
+    if (!response) return null;
+    await Notifications.clearLastNotificationResponseAsync().catch(() => undefined);
+    if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return null;
+    return parse(response.notification);
   },
 
   async setBadgeCount(count: number): Promise<void> {

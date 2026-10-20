@@ -138,6 +138,11 @@ export default {
         subtitle: 'إدارة صور الأقسام',
         unit: 'قسم',
       },
+      featuredOrganizations: {
+        title: 'العيادات والمكاتب المميزة',
+        subtitle: 'شريط العيادات والمكاتب في الصفحة الرئيسية',
+        unit: 'عنصر',
+      },
       books: { title: 'الكتب', subtitle: 'إدارة الكتب البيطرية وملفاتها', unit: 'كتاب منشور' },
       magazines: { title: 'المجلات', subtitle: 'إدارة أعداد المجلة البيطرية', unit: 'عدد منشور' },
       // One combined tile for adoption / mating / lost (sums the three server counters).
@@ -474,6 +479,13 @@ export default {
 
   chats: {
     empty: 'لا توجد محادثات بعد',
+    noResults: 'لا توجد محادثات مطابقة للبحث أو الفلاتر',
+    searchPlaceholder: 'ابحث باسم المحادثة أو اسم المشارك',
+    filter: {
+      allTypes: 'كل الأنواع',
+      allStatuses: 'كل الحالات',
+    },
+    participantCount: '{{count}} مشارك',
     tab: {
       conversations: 'المحادثات',
       rooms: 'غرف الدردشة',
@@ -485,6 +497,7 @@ export default {
       PET_OWNER_VETERINARY_OFFICE: 'محادثة مع مكتب أو شركة بيطرية',
       PET_OWNER_VETERINARIAN: 'محادثة مع طبيب بيطري',
       FARM_OWNER_MEMBER: 'محادثة مزرعة',
+      FARM_MEMBER_DIRECT: 'محادثة بين أعضاء المزرعة',
       CHAT_ROOM: 'غرفة دردشة عامة',
       SYNDICATE_MEMBER: 'محادثة نقابة',
       ANIMAL_PUBLICATION: 'محادثة إعلان حيوان',
@@ -506,6 +519,42 @@ export default {
       left: 'غادر',
       empty: 'لا توجد رسائل في هذه المحادثة',
     },
+  },
+
+  featuredOrgs: {
+    title: 'العيادات والمكاتب المميزة',
+    hint: 'اختر العيادات والمكاتب البيطرية التي تظهر في الشريط المتحرك أعلى الصفحة الرئيسية، وحدد فترة ظهور كل منها. تظهر العناصر المفعّلة فقط خلال فترتها، وما دامت المؤسسة نفسها ظاهرة للعامة.',
+    add: 'إضافة عيادة أو مكتب',
+    addTitle: 'إضافة عنصر مميز',
+    editTitle: 'تعديل العنصر المميز',
+    edit: 'تعديل',
+    remove: 'حذف',
+    removeTitle: 'حذف من العناصر المميزة؟',
+    removeBody: 'ستتوقف «{{name}}» عن الظهور في الشريط. لا يؤثر ذلك على المؤسسة نفسها.',
+    allPages: 'كل الصفحات',
+    pageShort: { PET_OWNER_HOME: 'أصحاب الحيوانات', VETERINARIAN_HOME: 'الأطباء' },
+    empty: 'لا توجد عيادات أو مكاتب مميزة',
+    emptyHint: 'عند عدم وجود عناصر فعالة يعرض الشريط العيادات / المكاتب المتاحة تلقائياً.',
+    window: 'من {{from}} إلى {{to}}',
+    order: 'الترتيب {{value}}',
+    orgHidden: 'المؤسسة غير ظاهرة للعامة حالياً (غير نشطة أو انتهى اشتراكها) — لن تظهر في الشريط.',
+    enabled: 'مفعّل',
+    page: 'الصفحة',
+    organization: 'المؤسسة',
+    searchPlaceholder: 'ابحث بالاسم',
+    noOrganizations: 'لا توجد مؤسسات نشطة مطابقة',
+    startsOn: 'تاريخ البداية',
+    endsOn: 'تاريخ النهاية',
+    dateHint: 'بالصيغة سنة-شهر-يوم، مثل 2026-10-1',
+    dateError: 'أدخل تاريخاً صحيحاً بالصيغة سنة-شهر-يوم',
+    windowError: 'يجب أن يكون تاريخ النهاية في يوم البداية أو بعده',
+    sortOrder: 'الترتيب',
+    sortOrderHint: 'الأصغر يظهر أولاً',
+    sortOrderError: 'أدخل رقماً من 0 إلى 9999',
+    save: 'حفظ',
+    saved: 'تم الحفظ',
+    type: { CLINIC: 'عيادة', VETERINARY_OFFICE: 'مكتب أو شركة بيطرية' },
+    state: { ACTIVE: 'ظاهر الآن', SCHEDULED: 'مجدول', EXPIRED: 'منتهي', DISABLED: 'معطّل' },
   },
 
   homeSections: {
@@ -586,9 +635,47 @@ export default {
     reasonOptional: 'السبب (اختياري)',
   },
 
+  /** Per-section admin list search (server-side; the placeholder says what it matches). */
+  search: {
+    noResults: 'لا توجد نتائج مطابقة لـ «{{term}}»',
+    noResultsHint: 'جرّب كلمة أخرى أو امسح البحث لعرض كل السجلات.',
+    placeholders: {
+      organizations: 'ابحث بالاسم أو المالك أو البريد أو الهاتف…',
+      farms: 'ابحث باسم الحقل أو المالك أو الهاتف أو رمز الحقل…',
+      renewals: 'ابحث باسم المؤسسة…',
+      vetApplications: 'ابحث باسم المتقدم أو البريد أو الهاتف…',
+      traders: 'ابحث باسم التاجر أو الهاتف أو المحافظة…',
+      marketOffers: 'ابحث بالبائع أو الهاتف أو المحافظة…',
+      threads: 'ابحث باسم المرسل أو البريد أو الهاتف أو نص الرسالة…',
+      supervisors: 'ابحث باسم المشرف أو البريد أو الهاتف…',
+      publications: 'ابحث باسم الحيوان أو الرمز أو صاحب الإعلان أو الهاتف…',
+      courses: 'ابحث بالعنوان أو الجهة المنظمة أو المحاضر…',
+      jobOffers: 'ابحث بعنوان الوظيفة أو الجهة أو الناشر…',
+      jobSeekers: 'ابحث بالاسم أو التخصص أو الهاتف…',
+      serviceListings: 'ابحث بعنوان الخدمة أو اسم الطبيب…',
+      serviceRequests: 'ابحث بعنوان الطلب أو اسم صاحب الطلب…',
+      orders: 'ابحث برقم الطلب أو اسم المستلم أو الهاتف…',
+      campaigns: 'ابحث بعنوان الحملة أو الشريحة…',
+      audit: 'ابحث بالإجراء أو المعرّف أو اسم المنفّذ…',
+      categories: 'ابحث باسم التصنيف…',
+    },
+  },
+
+  /** Opening a user's existing Admin profile from another section. */
+  userLink: {
+    viewProfile: 'عرض ملف المستخدم',
+    viewOwnerProfile: 'عرض ملف المالك',
+    openProfileA11y: 'فتح ملف المستخدم {{name}}',
+    deletedAccount: 'حساب محذوف',
+    unavailable: 'حساب المستخدم غير متاح أو محذوف',
+    primaryOwner: 'المالك الأساسي',
+    linkedUsers: 'المستخدمون المرتبطون',
+    noOwner: 'لا يوجد مالك مرتبط بهذه المؤسسة',
+  },
+
   users: {
     title: 'المستخدمون',
-    searchPlaceholder: 'ابحث بالاسم أو البريد…',
+    searchPlaceholder: 'ابحث بالاسم أو البريد أو الهاتف…',
     empty: 'لا يوجد مستخدمون',
     emptyHint: 'جرّب تعديل البحث أو عوامل التصفية.',
     filter: {
@@ -628,6 +715,8 @@ export default {
       },
     },
     detail: {
+      notFoundTitle: 'الحساب غير متاح',
+      notFoundBody: 'تم حذف هذا المستخدم أو لم يعد موجوداً.',
       title: 'ملف المستخدم',
       accountSection: 'الحساب',
       rolesSection: 'الأدوار العامة',

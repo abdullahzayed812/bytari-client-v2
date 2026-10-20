@@ -108,6 +108,14 @@ export default function ManagementScreen() {
   }, [visibleCards, search, t]);
 
   const canViewAuditLog = caps.isAdmin || caps.can('audit.read');
+  // "المهام المطلوبة" — only for callers who may act on at least one task kind.
+  // The server already filters each task by its own permission (type-scoped);
+  // this just avoids an empty section for e.g. a USERS-only supervisor.
+  const canSeePendingTasks =
+    caps.isAdmin ||
+    caps.can('veterinarian.approve') ||
+    caps.can('organization.admin.approve') ||
+    caps.can('organization.admin.subscription');
   const name = fullName(user?.firstName, user?.lastName) || user?.email || '';
   const roleLabel = caps.isAdmin
     ? t('dashboard.header.roleAdmin')
@@ -258,12 +266,14 @@ export default function ManagementScreen() {
               <AdminActivityFeed items={summary.data.recentActivity} />
             </View>
           ) : null}
-          <View style={sectionStyle}>
-            <View style={{ marginBottom: 12, paddingHorizontal: 4 }}>
-              {sectionTitle('checkmark-done-outline', t('dashboard.sections.pendingTasks'))}
+          {canSeePendingTasks ? (
+            <View style={sectionStyle}>
+              <View style={{ marginBottom: 12, paddingHorizontal: 4 }}>
+                {sectionTitle('checkmark-done-outline', t('dashboard.sections.pendingTasks'))}
+              </View>
+              <AdminPendingTasksList items={summary.data.pendingTasks} />
             </View>
-            <AdminPendingTasksList items={summary.data.pendingTasks} />
-          </View>
+          ) : null}
         </View>
       ) : null}
     </ScrollView>

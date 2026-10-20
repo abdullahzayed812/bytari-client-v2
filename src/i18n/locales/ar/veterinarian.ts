@@ -43,7 +43,7 @@ export default {
     },
   },
   home: {
-    greeting: 'مرحباً دكتور',
+    greeting: 'أهلاً بك دكتور',
     switchToOwnerA11y: 'التبديل إلى وضع مالك الحيوان',
     inquiryCta: {
       title:
@@ -59,6 +59,14 @@ export default {
       title: 'المكاتب أو الشركات البيطرية',
       viewAll: 'عرض الكل',
       emptyTitle: 'لا توجد مكاتب أو شركات بيطرية متاحة حالياً',
+    },
+    featuredOrganizations: 'عيادات ومكاتب مميزة',
+    officeProducts: {
+      title: 'منتجات المكاتب والشركات البيطرية',
+      viewAll: 'عرض الكل',
+      view: 'عرض',
+      empty: 'لا توجد منتجات متاحة حالياً',
+      outOfStock: 'غير متوفر حالياً',
     },
     chat: {
       title: 'الدردشة العامة',

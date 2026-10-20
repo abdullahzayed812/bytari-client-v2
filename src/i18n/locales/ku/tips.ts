@@ -28,6 +28,8 @@ const tips: KuNamespace<'tips'> = {
   },
   list: {
     title: 'باشترین ئامۆژگارییەکان',
+    all: 'هەموو',
+    allWithCount: 'هەموو ({{count}})',
     section: 'گرنگترین ئامۆژگارییەکان',
     searchPlaceholder: 'گەڕان بەدوای ئامۆژگارییەکدا…',
     empty: 'هێشتا هیچ ئامۆژگارییەک نییە',

@@ -160,3 +160,24 @@ export function useOfficeProductSearch(params: {
   );
   return { ...query, hits, total: query.data?.pages[0]?.meta.total ?? 0, enabled };
 }
+
+/**
+ * The newest products across every public veterinary office — the home-page
+ * preview ("منتجات المكاتب"). Same visibility as the cross-office search
+ * (ACTIVE office with a valid subscription, ACTIVE + not hidden product).
+ */
+export function useLatestOfficeProducts(limit: number) {
+  return useQuery<OfficeProductSearchHit[], ApiError>({
+    queryKey: publicVeterinaryOfficeProductKeys.latest(limit),
+    queryFn: async () =>
+      (
+        await publicVeterinaryOfficeProductsApi.searchAll({
+          page: 1,
+          pageSize: limit,
+          sort: 'createdAt',
+          order: 'desc',
+        })
+      ).items,
+    staleTime: 60_000,
+  });
+}

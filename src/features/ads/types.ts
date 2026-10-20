@@ -99,6 +99,8 @@ export interface ListAdminAdCampaignsParams {
   placement?: AdPlacement;
   type?: AdType;
   includeDeleted?: boolean;
+  /** Campaign title / id or a slide's title / subtitle (server-side). */
+  search?: string;
 }
 
 export interface PageMeta {

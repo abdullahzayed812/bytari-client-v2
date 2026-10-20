@@ -24,5 +24,49 @@ export interface HomeSectionImage {
   updatedAt: string | null;
 }
 
+// --- featured clinics / offices (home carousel) ---------------------
+
+/** `/home-sections/featured-organizations` — one carousel per home page. */
+export type FeaturedPlacement = HomeSectionPage;
+
+/** Derived server-side from the switch + window (business date). */
+export type FeaturedState = 'DISABLED' | 'SCHEDULED' | 'ACTIVE' | 'EXPIRED';
+
+/** Admin row: the entry + its state + the existing organization it points at. */
+export interface AdminFeaturedOrganization {
+  id: string;
+  organizationId: string;
+  placement: FeaturedPlacement;
+  /** `YYYY-MM-DD` (business date), inclusive. */
+  startsOn: string;
+  endsOn: string;
+  isEnabled: boolean;
+  sortOrder: number;
+  state: FeaturedState;
+  createdAt: string;
+  updatedAt: string;
+  organization: {
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+    /** `false` while the organization itself is hidden (not active / subscription expired). */
+    publiclyVisible: boolean;
+  };
+}
+
+export interface CreateFeaturedOrganizationInput {
+  organizationId: string;
+  placement: FeaturedPlacement;
+  startsOn: string;
+  endsOn: string;
+  isEnabled?: boolean;
+  sortOrder?: number;
+}
+
+export type UpdateFeaturedOrganizationInput = Partial<
+  Pick<CreateFeaturedOrganizationInput, 'startsOn' | 'endsOn' | 'isEnabled' | 'sortOrder'>
+>;
+
 /** Square crop exported at a fixed size — the cards render it in a square tile. */
 export const HOME_SECTION_IMAGE_SIZE = { width: 512, height: 512 } as const;

@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/features/auth/store';
-import { fireEvent, renderWithProviders, screen } from '@/test-utils/render';
+import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
 import { adminApi } from '../api';
@@ -106,7 +106,8 @@ describe('AdminChatsScreen', () => {
     jest.spyOn(adminApi, 'listOrganizations').mockResolvedValue(page([]));
 
     renderWithProviders(<AdminChatsScreen />);
-    expect((await screen.findAllByText('محادثة مع عيادة')).length).toBeGreaterThan(1);
+    // The type filter chip carries the same label — wait for several list rows.
+    await waitFor(() => expect(screen.getAllByText('محادثة مع عيادة').length).toBeGreaterThan(3));
 
     const bar = screen.getByTestId('admin-list-filter-bar');
     expect(bar).toHaveStyle({ flexShrink: 0 });
@@ -151,5 +152,49 @@ describe('AdminChatsScreen', () => {
     expect(
       screen.UNSAFE_root.findAll((n: Node) => String(n.props.source?.uri ?? '').includes('r2')),
     ).toHaveLength(0);
+  });
+
+  it('searches by name and filters by type / status (sent to the server)', async () => {
+    const list = jest.spyOn(adminApi, 'listChatConversations').mockResolvedValue(
+      page([
+        {
+          id: 'c1',
+          type: 'PET_OWNER_CLINIC',
+          status: 'OPEN',
+          organizationId: 'o1',
+          organizationName: 'عيادة النور',
+          people: [{ userId: 'u1', side: 'PET_OWNER', firstName: 'زينب', lastName: 'كريم' }],
+          participantCount: 0,
+          lastMessageAt: '2026-01-01T00:00:00.000Z',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        } as never,
+      ]),
+    );
+    jest.spyOn(adminApi, 'listOrganizations').mockResolvedValue(page([]));
+
+    renderWithProviders(<AdminChatsScreen />);
+    // Conversation name + participant names on the row.
+    expect(await screen.findByText('عيادة النور')).toBeOnTheScreen();
+    expect(screen.getByText(/زينب كريم/)).toBeOnTheScreen();
+
+    fireEvent.changeText(screen.getByLabelText('ابحث باسم المحادثة أو اسم المشارك'), 'زينب');
+    await waitFor(() =>
+      expect(list).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'زينب' })),
+    );
+    fireEvent.press(screen.getByText('مغلقة'));
+    await waitFor(() =>
+      expect(list).toHaveBeenLastCalledWith(
+        expect.objectContaining({ search: 'زينب', status: 'CLOSED' }),
+      ),
+    );
+    fireEvent.press(screen.getAllByText('محادثة مع عيادة')[0]!);
+    await waitFor(() =>
+      expect(list).toHaveBeenLastCalledWith(
+        expect.objectContaining({ type: 'PET_OWNER_CLINIC', status: 'CLOSED' }),
+      ),
+    );
+
+    fireEvent.press(screen.getByText('عيادة النور'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/admin/chat-conversation/c1');
   });
 });

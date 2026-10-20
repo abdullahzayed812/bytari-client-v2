@@ -60,11 +60,12 @@ export const poultryMarketApi = {
       status: TraderStatus | undefined,
       page: number,
       pageSize: number,
+      search?: string,
     ): Promise<Paginated<TraderApplicationSummary>> {
       const envelope = await apiClient.requestEnvelope<TraderApplicationSummary[]>({
         method: 'GET',
         url: '/admin/traders',
-        params: { status, page, pageSize },
+        params: { status, page, pageSize, search },
       });
       return {
         items: envelope.data,
@@ -162,6 +163,7 @@ export const poultryMarketApi = {
           governorate: filter.governorate,
           status: filter.status,
           moderationStatus: filter.moderationStatus,
+          search: filter.search,
         },
       });
       return {
@@ -235,6 +237,7 @@ export const poultryMarketApi = {
           governorate: filter.governorate,
           status: filter.status,
           moderationStatus: filter.moderationStatus,
+          search: filter.search,
         },
       });
       return {

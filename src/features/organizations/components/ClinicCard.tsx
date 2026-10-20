@@ -15,6 +15,10 @@ export interface ClinicCardProps {
   organization: PublicOrganization;
   width: DimensionValue;
   onPress: () => void;
+  /** Small "عيادة" / "مكتب أو شركة بيطرية" label — for lists mixing both types. */
+  showType?: boolean;
+  /** Lines the name may wrap to before it is shortened (default 2). */
+  nameLines?: number;
 }
 
 const IMAGE_SIZE = 84;
@@ -30,7 +34,13 @@ const IMAGE_SIZE = 84;
  * `status = ACTIVE` organizations, i.e. admin-approved, so every card shown
  * here legitimately earns the badge.
  */
-export function ClinicCard({ organization, width, onPress }: ClinicCardProps) {
+export function ClinicCard({
+  organization,
+  width,
+  onPress,
+  showType,
+  nameLines = 2,
+}: ClinicCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('organizations');
 
@@ -80,7 +90,7 @@ export function ClinicCard({ organization, width, onPress }: ClinicCardProps) {
 
       <View style={{ flex: 1, rowGap: 4 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
-          <Text variant="bodyStrong" numberOfLines={2} style={{ flexShrink: 1 }}>
+          <Text variant="bodyStrong" numberOfLines={nameLines} style={{ flexShrink: 1 }}>
             {organization.name}
           </Text>
           <View accessible accessibilityLabel={t('discover.verifiedA11y')}>
@@ -92,6 +102,21 @@ export function ClinicCard({ organization, width, onPress }: ClinicCardProps) {
             </Text>
           ) : null}
         </View>
+        {showType ? (
+          <View
+            style={{
+              alignSelf: 'flex-start',
+              paddingHorizontal: theme.spacing.sm,
+              paddingVertical: 1,
+              borderRadius: theme.radius.pill,
+              backgroundColor: theme.colors.surfaceAccent,
+            }}
+          >
+            <Text variant="overline" color="primary" numberOfLines={1}>
+              {t(`type.${organization.type}`)}
+            </Text>
+          </View>
+        ) : null}
         {organization.address ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 2 }}>
             <Icon name="location-outline" size="iconXs" color="textMuted" />

@@ -22,6 +22,8 @@ const news: KuNamespace<'news'> = {
   },
   list: {
     title: 'دوایین هەواڵەکان',
+    all: 'هەموو',
+    allWithCount: 'هەموو ({{count}})',
     section: 'نوێترین هەواڵەکان',
     searchPlaceholder: 'گەڕان بەدوای هەواڵێکدا…',
     empty: 'هێشتا هیچ هەواڵێک نییە',

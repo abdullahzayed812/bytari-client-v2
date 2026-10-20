@@ -9,8 +9,9 @@ import type { LocalFile } from '@/services/files/types';
  * The UI lives in one `<ImageEditorHost />` mounted at the app root; it
  * registers itself here. `pickImage` then awaits {@link editImage}. Editing is
  * client-side only — the backend still validates MIME (magic bytes), size and
- * ownership of whatever is uploaded. Callers that must keep the ORIGINAL (ID
- * documents, certificates) pass `edit: false`.
+ * ownership of whatever is uploaded. Callers that must keep the ORIGINAL
+ * (organization licence certificates) pass `edit: false`; identity documents
+ * use {@link ID_DOCUMENT_EDIT}.
  */
 
 /**
@@ -42,6 +43,20 @@ export interface ImageEditOptions {
    */
   outputSize?: { width: number; height: number };
 }
+
+/**
+ * Veterinarian ID / licence and student ID photos (registration + in-app
+ * application): FREE drag-crop by default — the frame moves and resizes from
+ * every edge and corner, with no ratio lock — so the user can trim a photo of
+ * a card to the card itself. The ratio presets stay available as shortcuts;
+ * 2048 px on the longest edge keeps the text legible while the JPEG export
+ * stays far below the 5 MB document limit (the server re-checks size and MIME).
+ */
+export const ID_DOCUMENT_EDIT: ImageEditOptions = {
+  aspects: ['free', 'original', '4:3', '3:4'],
+  defaultAspect: 'free',
+  defaultMaxDimension: 2048,
+};
 
 export type EditOutcome = LocalFile | null | 'keep-rest';
 

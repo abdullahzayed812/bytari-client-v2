@@ -3,7 +3,7 @@ import { Pressable, View, type DimensionValue } from 'react-native';
 
 import { Badge, Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
-import { UserName } from '@/features/users/components';
+import { AdminUserLink } from '@/features/admin/components/AdminUserLink';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
@@ -14,7 +14,11 @@ import { ThreadStatusBadge } from './ThreadStatusBadge';
 
 export interface ThreadCardProps {
   thread: Thread;
-  /** Show the creator's name (admin / supervisor list); hidden on "my threads". */
+  /**
+   * Show the creator's name (admin / supervisor list); hidden on "my threads".
+   * The name opens the creator's Admin profile by `createdByUserId` (when the
+   * viewer holds `user.read`).
+   */
   showCreator?: boolean;
   /** Fixed width — set when the card sits in a horizontal list (e.g. the home preview). */
   width?: DimensionValue;
@@ -92,9 +96,12 @@ export function ThreadCard({ thread, showCreator = false, width, onPress }: Thre
         ) : null}
 
         {showCreator ? (
-          <Caption numberOfLines={1}>
-            {t('card.by')} <UserName userId={thread.createdByUserId} variant="caption" />
-          </Caption>
+          <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
+            <Caption>{t('card.by')}</Caption>
+            <View style={{ flexShrink: 1 }}>
+              <AdminUserLink userId={thread.createdByUserId} variant="caption" numberOfLines={1} />
+            </View>
+          </View>
         ) : null}
 
         <View

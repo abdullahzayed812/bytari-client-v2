@@ -7,6 +7,7 @@ import { Button } from '@/components/actions';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
+import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useOrganization } from '@/features/organizations';
 import { SendSubscriptionInfoButton } from '@/features/subscriptions';
@@ -71,6 +72,21 @@ export function ClinicOperationalGate({
   if (data.type !== 'CLINIC' || isAdmin) return <>{children}</>;
 
   const openProfile = () => router.replace(Routes.organizationDetail(data.id));
+  // Staff / vets cannot renew — point them at the owner and the support thread.
+  const staffPath =
+    data.myRole === 'OWNER' ? null : (
+      <>
+        <Caption color="textSecondary" style={{ textAlign: 'center' }}>
+          {t('staffRestrictionHint')}
+        </Caption>
+        <Button
+          label={t('contactSupportCta')}
+          variant="outline"
+          leftIcon="chatbubbles-outline"
+          onPress={() => router.push(Routes.supportCreate('support-messages'))}
+        />
+      </>
+    );
 
   if (data.status === 'PENDING') {
     return shell(
@@ -85,13 +101,16 @@ export function ClinicOperationalGate({
   }
   if (data.status !== 'ACTIVE') {
     return shell(
-      <EmptyState
-        icon="pause-circle-outline"
-        title={t('inactiveTitle')}
-        message={t('inactiveBody')}
-        actionLabel={t('openProfile')}
-        onAction={openProfile}
-      />,
+      <View style={{ rowGap: theme.spacing.md }}>
+        <EmptyState
+          icon="pause-circle-outline"
+          title={t('inactiveTitle')}
+          message={t('inactiveBody')}
+          actionLabel={t('openProfile')}
+          onAction={openProfile}
+        />
+        {staffPath}
+      </View>,
     );
   }
   if (data.details.subscriptionStatus === 'EXPIRED') {
@@ -119,7 +138,9 @@ export function ClinicOperationalGate({
               leftIcon="chatbubbles-outline"
             />
           </>
-        ) : null}
+        ) : (
+          staffPath
+        )}
         <Button label={t('openProfile')} variant="outline" onPress={openProfile} />
       </View>,
     );

@@ -15,7 +15,7 @@ import { useCapabilities, useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { JobSeekerCard } from '../components';
-import { useMyVetJobSeekerProfile, useVetJobSeekers } from '../hooks';
+import { useJobGridColumns, useMyVetJobSeekerProfile, useVetJobSeekers } from '../hooks';
 import type { SeekerBrowseFilter } from '../types';
 
 /** Route `/(app)/vet-jobs/seekers` — "باحثون عن عمل" (reference screenshot 4). */
@@ -32,6 +32,8 @@ export default function VetJobSeekersScreen() {
     [search, governorate],
   );
   const q = useVetJobSeekers(filter);
+  // Two compact seeker cards per row, one on very narrow phones.
+  const grid = useJobGridColumns(150, theme.spacing.md, theme.screenPadding);
   const mine = useMyVetJobSeekerProfile({ enabled: caps.isApprovedVeterinarian });
 
   return (
@@ -91,12 +93,15 @@ export default function VetJobSeekersScreen() {
         </View>
       ) : (
         <FlatList
+          // numColumns cannot change on a mounted FlatList — remount per column count.
+          key={`seekers-${grid.columns}`}
+          onLayout={grid.onLayout}
           data={q.seekers}
-          numColumns={2}
+          numColumns={grid.columns}
           keyExtractor={(p) => p.id}
-          columnWrapperStyle={{ gap: theme.spacing.md }}
+          columnWrapperStyle={grid.columns === 2 ? { gap: theme.spacing.md } : undefined}
           renderItem={({ item }) => (
-            <View style={{ flex: 1 }}>
+            <View style={grid.columns === 2 ? { flex: 1 } : undefined}>
               <JobSeekerCard
                 profile={item}
                 onPress={() => router.push(Routes.vetJobSeeker(item.id))}

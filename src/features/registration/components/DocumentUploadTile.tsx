@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { LocalImageUploader } from '@/components/media';
 import { Caption, Label } from '@/components/typography';
 import type { LocalFile } from '@/services/files/types';
+import { ID_DOCUMENT_EDIT } from '@/services/media';
 import { useTheme } from '@/theme';
 
 export interface DocumentUploadTileProps {
@@ -57,8 +58,8 @@ export function DocumentUploadTile({
           shape="square"
           size={64}
           icon="arrow-up-outline"
-          // Identity documents / certificates are stored exactly as picked.
-          edit={false}
+          // Free crop (any edge / corner, no fixed ratio) in the shared editor.
+          edit={ID_DOCUMENT_EDIT}
         />
       </View>
 

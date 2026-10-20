@@ -29,12 +29,12 @@ export const adminPublicationsApi = {
   async list(
     page: number,
     pageSize: number,
-    filter: { kind?: PublicationKind; status?: PublicationStatus } = {},
+    filter: { kind?: PublicationKind; status?: PublicationStatus; search?: string } = {},
   ): Promise<Paginated<AnimalPublication>> {
     const envelope = await apiClient.requestEnvelope<AnimalPublication[]>({
       method: 'GET',
       url: '/admin/animal-publications',
-      params: { page, pageSize, kind: filter.kind, status: filter.status },
+      params: { page, pageSize, kind: filter.kind, status: filter.status, search: filter.search },
     });
     return {
       items: envelope.data,

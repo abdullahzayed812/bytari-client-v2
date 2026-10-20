@@ -15,6 +15,7 @@ import { Caption, Label, Text } from '@/components/typography';
 import { useVeterinarianStatus } from '@/features/auth';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
+import { ID_DOCUMENT_EDIT } from '@/services/media';
 import { useTheme } from '@/theme';
 
 import { useApplyForVeterinarian, useVeterinarianDocumentPresignProvider } from '../hooks';
@@ -61,8 +62,8 @@ function DocumentField({ kind, label, required, onChange, error }: DocumentField
         provider={provider}
         shape="square"
         size={120}
-        // Application documents are reviewed as-is — never cropped.
-        edit={false}
+        // ID / licence photos: free crop in the shared editor (no fixed ratio).
+        edit={ID_DOCUMENT_EDIT}
         onChange={(result) => onChange(result ? toDocumentRef(result) : null)}
       />
       <Caption>{t('apply.maxSizeHint')}</Caption>

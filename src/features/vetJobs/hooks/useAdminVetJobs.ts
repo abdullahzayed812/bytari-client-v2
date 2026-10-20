@@ -22,7 +22,9 @@ import type {
 const PAGE = AppConfig.defaultPageSize;
 
 /** `GET /admin/vet-job-offers` — the offer moderation queue (defaults to PENDING). */
-export function useAdminVetJobOffers(filter: { status?: VetJobModerationStatus } = {}) {
+export function useAdminVetJobOffers(
+  filter: { status?: VetJobModerationStatus; search?: string } = {},
+) {
   const query = useInfiniteQuery<
     Paginated<VetJobOffer>,
     unknown,
@@ -30,7 +32,7 @@ export function useAdminVetJobOffers(filter: { status?: VetJobModerationStatus }
     ReturnType<typeof vetJobKeys.adminOfferList>,
     number
   >({
-    queryKey: vetJobKeys.adminOfferList(filter.status),
+    queryKey: vetJobKeys.adminOfferList(filter.status, filter.search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetJobsApi.listOffers(pageParam, PAGE, filter),
     getNextPageParam: (last) =>
@@ -42,7 +44,9 @@ export function useAdminVetJobOffers(filter: { status?: VetJobModerationStatus }
 }
 
 /** `GET /admin/vet-job-seekers` — the job-seeker profile moderation queue. */
-export function useAdminVetJobSeekers(filter: { status?: VetJobModerationStatus } = {}) {
+export function useAdminVetJobSeekers(
+  filter: { status?: VetJobModerationStatus; search?: string } = {},
+) {
   const query = useInfiniteQuery<
     Paginated<VetJobSeekerProfile>,
     unknown,
@@ -50,7 +54,7 @@ export function useAdminVetJobSeekers(filter: { status?: VetJobModerationStatus 
     ReturnType<typeof vetJobKeys.adminSeekerList>,
     number
   >({
-    queryKey: vetJobKeys.adminSeekerList(filter.status),
+    queryKey: vetJobKeys.adminSeekerList(filter.status, filter.search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetJobsApi.listSeekers(pageParam, PAGE, filter),
     getNextPageParam: (last) =>

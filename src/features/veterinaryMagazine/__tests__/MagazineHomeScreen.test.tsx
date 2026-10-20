@@ -65,12 +65,28 @@ describe('MagazineHomeScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith(Routes.veterinaryMagazineArticle('a1'));
   });
 
-  it('navigates to a category chip', async () => {
+  it('a category chip filters the grid in place (server-side categoryId)', async () => {
     list.mockResolvedValue(page([]));
     renderWithProviders(<MagazineHomeScreen />);
 
     await waitFor(() => expect(screen.getByLabelText('دواجن')).toBeOnTheScreen());
     fireEvent.press(screen.getByLabelText('دواجن'));
-    expect(routerMock.push).toHaveBeenCalledWith(Routes.veterinaryMagazineCategory('cat-poultry'));
+    await waitFor(() =>
+      expect(list).toHaveBeenLastCalledWith(
+        expect.objectContaining({ type: 'MAGAZINE', categoryId: 'cat-poultry' }),
+      ),
+    );
+    expect(routerMock.push).not.toHaveBeenCalled();
+  });
+
+  it('keeps "most read" and the saved articles reachable', async () => {
+    list.mockResolvedValue(page([]));
+    renderWithProviders(<MagazineHomeScreen />);
+
+    await waitFor(() => expect(screen.getByLabelText('الأكثر قراءة')).toBeOnTheScreen());
+    fireEvent.press(screen.getByLabelText('الأكثر قراءة'));
+    expect(routerMock.push).toHaveBeenCalledWith(Routes.veterinaryMagazineSection('mostRead'));
+    fireEvent.press(screen.getByLabelText('المقالات المحفوظة'));
+    expect(routerMock.push).toHaveBeenCalledWith(Routes.veterinaryMagazineSection('saved'));
   });
 });

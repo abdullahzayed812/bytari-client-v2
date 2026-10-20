@@ -8,10 +8,10 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { MessageBubble } from '@/features/chat';
-import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
+import { AdminUserLink } from '../components';
 import { useAdminChatConversation, useAdminChatMessages } from '../hooks';
 
 /**
@@ -96,10 +96,14 @@ export default function AdminChatConversationScreen() {
           <Caption>{t('chats.viewer.noParticipants')}</Caption>
         ) : (
           c.participants.map((p) => (
-            <Caption key={p.userId} numberOfLines={1}>
-              • <UserName userId={p.userId} variant="caption" />
-              {p.leftAt ? ` (${t('chats.viewer.left')})` : ''}
-            </Caption>
+            <View
+              key={p.userId}
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}
+            >
+              <Caption>•</Caption>
+              <AdminUserLink userId={p.userId} variant="caption" numberOfLines={1} />
+              {p.leftAt ? <Caption>{`(${t('chats.viewer.left')})`}</Caption> : null}
+            </View>
           ))
         )}
       </View>
@@ -116,14 +120,13 @@ export default function AdminChatConversationScreen() {
         renderItem={({ item }) => (
           <View style={{ rowGap: 2 }}>
             {item.type !== 'SYSTEM' ? (
-              <Caption
-                numberOfLines={1}
+              <View
                 style={{
                   alignSelf: item.senderUserId === endSideUserId ? 'flex-end' : 'flex-start',
                 }}
               >
-                <UserName userId={item.senderUserId} variant="caption" />
-              </Caption>
+                <AdminUserLink userId={item.senderUserId} variant="caption" numberOfLines={1} />
+              </View>
             ) : null}
             {/* No `onDelete`: the viewer is read-only. */}
             <MessageBubble message={item} currentUserId={endSideUserId} />

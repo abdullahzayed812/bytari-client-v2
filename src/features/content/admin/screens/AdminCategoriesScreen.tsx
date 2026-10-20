@@ -4,12 +4,20 @@ import { ScrollView, View } from 'react-native';
 
 import { Button, IconButton, TextButton } from '@/components/actions';
 import { Card } from '@/components/content';
-import { Alert, ConfirmationDialog, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import {
+  Alert,
+  ConfirmationDialog,
+  EmptyState,
+  ErrorState,
+  Loading,
+  useToast,
+} from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
+import { AdminSearchBar, useAdminSearch } from '@/features/admin/components/AdminSearchBar';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -38,7 +46,17 @@ export default function AdminCategoriesScreen() {
   const { t } = useTranslation('content');
   const toast = useToast();
 
+  const { t: tAdmin } = useTranslation('admin');
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch(150);
   const q = useAdminContentCategories();
+  // The whole (small, admin-curated) category list arrives unpaginated — filter it locally.
+  const term = search?.toLocaleLowerCase();
+  const visible = (q.data ?? []).filter(
+    (c) =>
+      !term ||
+      c.name.toLocaleLowerCase().includes(term) ||
+      c.slug.toLocaleLowerCase().includes(term),
+  );
   const { create, update, remove } = useAdminContentCategoryMutations();
 
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -66,7 +84,10 @@ export default function AdminCategoriesScreen() {
     };
     if (draft.id) {
       update.mutate(
-        { categoryId: draft.id, body: { name: draft.name.trim(), description: draft.description.trim() || null } },
+        {
+          categoryId: draft.id,
+          body: { name: draft.name.trim(), description: draft.description.trim() || null },
+        },
         { onSuccess },
       );
     } else {
@@ -87,8 +108,18 @@ export default function AdminCategoriesScreen() {
         title={t('admin.categories.title')}
         showBack
         right={
-          <IconButton icon="add" accessibilityLabel={t('admin.categories.add')} onPress={openCreate} />
+          <IconButton
+            icon="add"
+            accessibilityLabel={t('admin.categories.add')}
+            onPress={openCreate}
+          />
         }
+      />
+
+      <AdminSearchBar
+        value={rawSearch}
+        onChangeText={setRawSearch}
+        placeholder={tAdmin('search.placeholders.categories')}
       />
 
       {q.isLoading ? (
@@ -111,10 +142,22 @@ export default function AdminCategoriesScreen() {
               actionLabel={t('admin.categories.add')}
               onAction={openCreate}
             />
+          ) : visible.length === 0 ? (
+            <EmptyState
+              icon="search-outline"
+              title={tAdmin('search.noResults', { term: search })}
+              message={tAdmin('search.noResultsHint')}
+            />
           ) : (
-            (q.data ?? []).map((c) => (
+            visible.map((c) => (
               <Card key={c.id} variant="outlined" padding="md" onPress={() => openEdit(c)}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    columnGap: theme.spacing.md,
+                  }}
+                >
                   <View style={{ flex: 1, rowGap: 2 }}>
                     <Text variant="bodyStrong">{c.name}</Text>
                     <Caption>{c.slug}</Caption>

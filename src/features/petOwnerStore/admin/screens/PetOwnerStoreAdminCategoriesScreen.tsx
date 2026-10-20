@@ -19,6 +19,7 @@ import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
+import { AdminSearchBar, useAdminSearch } from '@/features/admin/components/AdminSearchBar';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
@@ -52,6 +53,8 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
   const theme = useTheme();
   const { t } = useTranslation('petOwnerStore');
   const toast = useToast();
+  const { t: tAdmin } = useTranslation('admin');
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch(150);
 
   const q = usePetStoreAdminCategories();
   const { create, update, remove } = usePetStoreAdminCategoryMutations();
@@ -79,6 +82,17 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
   const sections = all.filter((c) => !c.parentId || !known.has(c.parentId));
   const childrenOf = (id: string) => all.filter((c) => c.parentId === id);
   const ordered = sections.flatMap((s) => [s, ...childrenOf(s.id)]);
+  // The admin endpoint returns the whole (small, admin-curated) category tree
+  // unpaginated, so search filters it locally: name / slug, keeping a matching
+  // sub-category's section visible for context.
+  const term = search?.toLocaleLowerCase();
+  const matches = (c: { name: string; slug: string }): boolean =>
+    !term || c.name.toLocaleLowerCase().includes(term) || c.slug.toLocaleLowerCase().includes(term);
+  const visible = term
+    ? ordered.filter(
+        (c) => matches(c) || (!c.parentId && childrenOf(c.id).some((child) => matches(child))),
+      )
+    : ordered;
   // a section that already has sub-categories cannot itself move under another
   const draftHasChildren = draft?.id ? childrenOf(draft.id).length > 0 : false;
 
@@ -123,6 +137,12 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
         }
       />
 
+      <AdminSearchBar
+        value={rawSearch}
+        onChangeText={setRawSearch}
+        placeholder={tAdmin('search.placeholders.categories')}
+      />
+
       {q.isLoading ? (
         <Loading fill />
       ) : q.isError ? (
@@ -143,8 +163,14 @@ export default function PetOwnerStoreAdminCategoriesScreen() {
               actionLabel={t('admin.categories.add')}
               onAction={openCreate}
             />
+          ) : visible.length === 0 ? (
+            <EmptyState
+              icon="search-outline"
+              title={tAdmin('search.noResults', { term: search })}
+              message={tAdmin('search.noResultsHint')}
+            />
           ) : (
-            ordered.map((c) => (
+            visible.map((c) => (
               <Card
                 key={c.id}
                 variant="outlined"

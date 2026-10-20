@@ -18,9 +18,13 @@ import { formatDate } from '@/utils';
 import {
   AdminListScreen,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   RenewalApproveDialog,
   RenewalRejectDialog,
+  ViewUserProfileButton,
+  useAdminSearch,
+  useCanOpenAdminUser,
 } from '../components';
 import { useAdminOrganizations, useAdminPendingRenewals } from '../hooks';
 import type {
@@ -63,6 +67,10 @@ export default function AdminOrganizationsScreen() {
       : undefined;
   const [scope, setScope] = useState<Scope>('all');
   const caps = useCapabilities();
+  // One search box for every tab: name / owner / email / phone on the
+  // organization tabs, organization name on the renewals queue (server-side).
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const canOpenUser = useCanOpenAdminUser();
 
   // Renewal requests exist for both subscription-capable types. The queue is
   // server-scoped to `type`, so CLINIC and VETERINARY_OFFICE (and FARM)
@@ -75,10 +83,12 @@ export default function AdminOrganizationsScreen() {
     // admin "حذف" is a soft delete → DEACTIVATED, hidden from "الكل" by the server
     status: scope === 'deleted' ? 'DEACTIVATED' : undefined,
     type,
+    search,
     enabled: !isRenewalsScope,
   });
   const renewalsQ = useAdminPendingRenewals({
     organizationType: type,
+    search,
     enabled: isRenewalsScope,
   });
 
@@ -91,18 +101,27 @@ export default function AdminOrganizationsScreen() {
   const canCreateChatRoom = type === 'CHAT_ROOM' && caps.can(Permission.CHAT_ROOM_ADMIN_CREATE);
 
   const filterBar = (
-    <FilterChips<Scope>
-      value={scope}
-      onChange={(v) => setScope(v ?? 'all')}
-      options={[
-        { value: 'all', label: t('orgs.tab.all') },
-        { value: 'pending', label: t('orgs.tab.pending') },
-        { value: 'deleted', label: t('orgs.tab.deleted') },
-        ...(showRenewalsTab
-          ? [{ value: 'renewals' as const, label: t('farms.tab.renewals') }]
-          : []),
-      ]}
-    />
+    <>
+      <AdminSearchBar
+        value={rawSearch}
+        onChangeText={setRawSearch}
+        placeholder={t(
+          isRenewalsScope ? 'search.placeholders.renewals' : 'search.placeholders.organizations',
+        )}
+      />
+      <FilterChips<Scope>
+        value={scope}
+        onChange={(v) => setScope(v ?? 'all')}
+        options={[
+          { value: 'all', label: t('orgs.tab.all') },
+          { value: 'pending', label: t('orgs.tab.pending') },
+          { value: 'deleted', label: t('orgs.tab.deleted') },
+          ...(showRenewalsTab
+            ? [{ value: 'renewals' as const, label: t('farms.tab.renewals') }]
+            : []),
+        ]}
+      />
+    </>
   );
 
   const right = canCreateSyndicate ? (
@@ -140,6 +159,7 @@ export default function AdminOrganizationsScreen() {
           emptyIcon="time-outline"
           emptyTitle={t('orgs.renewals.empty')}
           loadingMoreLabel={t('common.loadingMore')}
+          searchTerm={search}
           filterBar={filterBar}
           renderItem={(r) => (
             <Card variant="outlined" padding="md">
@@ -210,6 +230,7 @@ export default function AdminOrganizationsScreen() {
           emptyTitle={t('orgs.empty')}
           emptyMessage={t('orgs.emptyHint')}
           loadingMoreLabel={t('common.loadingMore')}
+          searchTerm={search}
           filterBar={filterBar}
           renderItem={(o) => (
             <AdminRow
@@ -221,6 +242,16 @@ export default function AdminOrganizationsScreen() {
                 fallbackIcon: 'business-outline',
                 onPress: o.logoUrl ? () => setViewerImage(o.logoUrl as string) : undefined,
               }}
+              // The owner by the real relation (`ownerUserId`), never by name.
+              actions={
+                canOpenUser ? (
+                  <ViewUserProfileButton
+                    userId={o.ownerUserId}
+                    label={t('userLink.viewOwnerProfile')}
+                    fullWidth={false}
+                  />
+                ) : undefined
+              }
               onPress={() => router.push(Routes.adminOrganization(o.id))}
             />
           )}

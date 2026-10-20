@@ -31,7 +31,12 @@ export const vetServiceKeys = {
 
   listingRequests: () => [...vetServiceKeys.all, 'listing-requests'] as const,
   listingRequestsForListing: (listingId: string, status?: EngagementStatus) =>
-    [...vetServiceKeys.listingRequests(), 'for-listing', listingId, { status: status ?? null }] as const,
+    [
+      ...vetServiceKeys.listingRequests(),
+      'for-listing',
+      listingId,
+      { status: status ?? null },
+    ] as const,
   receivedListingRequests: (status?: EngagementStatus) =>
     [...vetServiceKeys.listingRequests(), 'received', { status: status ?? null }] as const,
   myListingRequests: (status?: EngagementStatus) =>
@@ -39,8 +44,16 @@ export const vetServiceKeys = {
   listingRequest: (id: string) => [...vetServiceKeys.listingRequests(), 'detail', id] as const,
 
   // --- moderation (ADMIN / VET_SERVICE supervisor) ---
-  adminListingList: (status?: ModerationStatus) =>
-    [...vetServiceKeys.listings(), 'admin', { status: status ?? null }] as const,
-  adminRequestList: (status?: ModerationStatus) =>
-    [...vetServiceKeys.requests(), 'admin', { status: status ?? null }] as const,
+  adminListingList: (status?: ModerationStatus, search?: string) =>
+    [
+      ...vetServiceKeys.listings(),
+      'admin',
+      { status: status ?? null, search: search ?? null },
+    ] as const,
+  adminRequestList: (status?: ModerationStatus, search?: string) =>
+    [
+      ...vetServiceKeys.requests(),
+      'admin',
+      { status: status ?? null, search: search ?? null },
+    ] as const,
 };

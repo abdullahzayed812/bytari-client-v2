@@ -1,7 +1,15 @@
+import type { PublicOrganization } from '@/features/organizations/types';
 import { apiClient } from '@/services/api';
 import type { PresignedUpload } from '@/services/files/types';
 
-import type { HomeSectionImage, HomeSectionKey } from '../types';
+import type {
+  AdminFeaturedOrganization,
+  CreateFeaturedOrganizationInput,
+  FeaturedPlacement,
+  HomeSectionImage,
+  HomeSectionKey,
+  UpdateFeaturedOrganizationInput,
+} from '../types';
 
 /**
  * `GET /home-sections` (any signed-in user) + `/admin/home-sections*`
@@ -34,6 +42,44 @@ export const homeSectionsApi = {
 
   removeImage(key: HomeSectionKey): Promise<HomeSectionImage> {
     return apiClient.delete<HomeSectionImage>(`/admin/home-sections/${key}/image`);
+  },
+
+  // --- featured clinics / offices (home carousel) ---------------------
+
+  /** Today's carousel for one home page — public directory cards (+ ratings). */
+  listFeatured(placement: FeaturedPlacement): Promise<PublicOrganization[]> {
+    return apiClient.get<PublicOrganization[]>('/home-sections/featured-organizations', {
+      placement,
+    });
+  },
+
+  adminListFeatured(): Promise<AdminFeaturedOrganization[]> {
+    return apiClient.get<AdminFeaturedOrganization[]>(
+      '/admin/home-sections/featured-organizations',
+    );
+  },
+
+  createFeatured(input: CreateFeaturedOrganizationInput): Promise<AdminFeaturedOrganization> {
+    return apiClient.post<AdminFeaturedOrganization>(
+      '/admin/home-sections/featured-organizations',
+      input,
+    );
+  },
+
+  updateFeatured(
+    id: string,
+    input: UpdateFeaturedOrganizationInput,
+  ): Promise<AdminFeaturedOrganization> {
+    return apiClient.patch<AdminFeaturedOrganization>(
+      `/admin/home-sections/featured-organizations/${id}`,
+      input,
+    );
+  },
+
+  removeFeatured(id: string): Promise<{ removed: boolean }> {
+    return apiClient.delete<{ removed: boolean }>(
+      `/admin/home-sections/featured-organizations/${id}`,
+    );
   },
 };
 

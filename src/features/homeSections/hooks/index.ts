@@ -4,3 +4,8 @@ export {
   useHomeSectionImagePresignProvider,
   useRemoveHomeSectionImage,
 } from './useAdminHomeSections';
+export {
+  useAdminFeaturedOrganizations,
+  useFeaturedOrganizationMutations,
+  useFeaturedOrganizations,
+} from './useFeaturedOrganizations';

@@ -4,6 +4,7 @@ import type { KuNamespace } from './types';
 const veterinarianStore: KuNamespace<'veterinarianStore'> = {
   common: {
     price: '{{value}} د.ع',
+    currencyShort: 'د.ع',
     back: 'گەڕانەوە',
     delete: 'سڕینەوە',
     cancel: 'هەڵوەشاندنەوە',
@@ -23,6 +24,7 @@ const veterinarianStore: KuNamespace<'veterinarianStore'> = {
     title: 'بەرهەمەکان',
     subtitle: 'لە کۆمەڵە بەرهەمەکانمان بازاڕ بکە',
     searchPlaceholder: 'گەڕان بۆ بەرهەم یان دەرمان…',
+    searchInPlaceholder: 'گەڕان لە {{name}}…',
     empty: 'هیچ بەرهەمێک نییە',
     emptyHint: 'بەرهەمەکان کاتێک زیاد دەکرێن لێرە دەردەکەون.',
     emptySearch: 'هیچ ئەنجامێک نییە',
@@ -39,6 +41,7 @@ const veterinarianStore: KuNamespace<'veterinarianStore'> = {
   product: {
     title: 'وردەکاری بەرهەم',
     addToCart: 'زیادکردن بۆ سەبەتە',
+    shop: 'کڕین',
     outOfStock: 'بەردەست نییە',
     notFound: 'بەرهەمەکە بەردەست نییە',
     specs: 'تایبەتمەندییەکان',

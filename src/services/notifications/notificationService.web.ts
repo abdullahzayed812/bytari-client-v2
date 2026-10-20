@@ -50,7 +50,7 @@ export const notificationService: NotificationService = {
   onNotificationTap() {
     return () => undefined;
   },
-  async getInitialNotification() {
+  async consumeInitialNotification() {
     return null;
   },
   async setBadgeCount() {

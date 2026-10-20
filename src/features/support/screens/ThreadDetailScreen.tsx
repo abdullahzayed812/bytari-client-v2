@@ -215,7 +215,11 @@ export default function ThreadDetailScreen() {
             data={msgQ.messages}
             keyExtractor={(m) => m.id}
             renderItem={({ item }) => (
-              <MessageBubble message={item} currentUserId={user?.id ?? null} />
+              <MessageBubble
+                message={item}
+                currentUserId={user?.id ?? null}
+                linkSender={!isCreator}
+              />
             )}
             ListEmptyComponent={<EmptyState icon={meta.icon} title={t('detail.noMessages')} />}
             ListFooterComponent={

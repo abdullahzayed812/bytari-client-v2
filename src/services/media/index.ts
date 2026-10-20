@@ -11,6 +11,7 @@ export {
 } from './mediaPickers';
 export {
   editImage,
+  ID_DOCUMENT_EDIT,
   registerImageEditor,
   isImageEditorAvailable,
   computeCrop,

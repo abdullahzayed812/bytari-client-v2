@@ -31,10 +31,10 @@ export const vetJobKeys = {
   application: (id: string) => [...vetJobKeys.applications(), 'detail', id] as const,
 
   // --- moderation (ADMIN / VET_JOBS supervisor) ---
-  adminOfferList: (status?: VetJobModerationStatus) =>
-    [...vetJobKeys.offers(), 'admin', { status: status ?? null }] as const,
-  adminSeekerList: (status?: VetJobModerationStatus) =>
-    [...vetJobKeys.seekers(), 'admin', { status: status ?? null }] as const,
+  adminOfferList: (status?: VetJobModerationStatus, search?: string) =>
+    [...vetJobKeys.offers(), 'admin', { status: status ?? null, search: search ?? null }] as const,
+  adminSeekerList: (status?: VetJobModerationStatus, search?: string) =>
+    [...vetJobKeys.seekers(), 'admin', { status: status ?? null, search: search ?? null }] as const,
   adminOfferApplications: (offerId: string) =>
     [...vetJobKeys.applications(), 'admin', offerId] as const,
 };

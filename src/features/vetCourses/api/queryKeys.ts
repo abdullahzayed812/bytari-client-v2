@@ -18,8 +18,12 @@ export const vetCourseKeys = {
   registration: (id: string) => [...vetCourseKeys.registrations(), 'detail', id] as const,
 
   // --- moderation (ADMIN / VET_COURSES supervisor) ---
-  adminCourseList: (status?: VetCourseModerationStatus, type?: VetCourseType) =>
-    [...vetCourseKeys.courses(), 'admin', { status: status ?? null, type: type ?? null }] as const,
+  adminCourseList: (status?: VetCourseModerationStatus, type?: VetCourseType, search?: string) =>
+    [
+      ...vetCourseKeys.courses(),
+      'admin',
+      { status: status ?? null, type: type ?? null, search: search ?? null },
+    ] as const,
   adminCourseRegistrations: (courseId: string) =>
     [...vetCourseKeys.registrations(), 'admin', 'for-course', courseId] as const,
 };

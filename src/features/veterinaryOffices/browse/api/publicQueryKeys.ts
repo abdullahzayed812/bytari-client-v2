@@ -29,6 +29,8 @@ export const publicVeterinaryOfficeProductKeys = {
     brand?: string;
     country?: string;
   }) => [...publicVeterinaryOfficeProductKeys.all, 'search-all', filter] as const,
+  /** Newest products across every public office (home-page preview). */
+  latest: (limit: number) => [...publicVeterinaryOfficeProductKeys.all, 'latest', limit] as const,
   detail: (organizationId: string, productId: string) =>
     [...publicVeterinaryOfficeProductKeys.forOffice(organizationId), 'detail', productId] as const,
 };

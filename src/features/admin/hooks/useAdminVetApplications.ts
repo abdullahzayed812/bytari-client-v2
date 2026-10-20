@@ -13,8 +13,11 @@ import { ApiError } from '@/services/api';
 import { adminApi, adminKeys } from '../api';
 import type { Paginated, PendingVetApplication } from '../types';
 
-export function useAdminVetApplications(params: { pageSize?: number; enabled?: boolean } = {}) {
+export function useAdminVetApplications(
+  params: { search?: string; pageSize?: number; enabled?: boolean } = {},
+) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+  const search = params.search || undefined;
 
   const query = useInfiniteQuery<
     Paginated<PendingVetApplication>,
@@ -23,9 +26,9 @@ export function useAdminVetApplications(params: { pageSize?: number; enabled?: b
     ReturnType<typeof adminKeys.vetApplications.list>,
     number
   >({
-    queryKey: adminKeys.vetApplications.list(),
+    queryKey: adminKeys.vetApplications.list(search),
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => adminApi.listPendingVetApplications(pageParam, pageSize),
+    queryFn: ({ pageParam }) => adminApi.listPendingVetApplications(pageParam, pageSize, search),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: params.enabled ?? true,

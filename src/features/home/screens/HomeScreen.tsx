@@ -9,12 +9,13 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
-import { useHomeSectionImages } from '@/features/homeSections/hooks';
-import { ClinicCard, useDiscoverOrganizations } from '@/features/organizations';
+import { useFeaturedOrganizations, useHomeSectionImages } from '@/features/homeSections/hooks';
+import { useDiscoverOrganizations } from '@/features/organizations';
+import type { PublicOrganization } from '@/features/organizations/types';
 import { ThreadCard, ThreadCardSkeleton, useMyThreads } from '@/features/support';
 import { useTheme } from '@/theme';
 
-import { HomeHeader, HomeSectionHeader } from '../components';
+import { HomeHeader, HomeSectionHeader, OrganizationsCarousel } from '../components';
 
 const PREVIEW_COUNT = 3;
 const CONSULT_CARD_WIDTH = 280;
@@ -97,8 +98,20 @@ export default function HomeScreen() {
 
   const consultations = useMyThreads('CONSULTATION', { pageSize: PREVIEW_COUNT });
   const consultationPreview = consultations.threads.slice(0, PREVIEW_COUNT);
+  const featured = useFeaturedOrganizations('PET_OWNER_HOME');
   const clinics = useDiscoverOrganizations({ type: 'CLINIC', pageSize: 10 });
   const sectionImages = useHomeSectionImages();
+  // Admin-featured clinics / offices first; with none active right now the
+  // carousel shows the available clinics, as this section always did.
+  const hasFeatured = (featured.data?.length ?? 0) > 0;
+  const carouselItems = hasFeatured ? (featured.data ?? []) : clinics.organizations;
+  const openOrganization = (org: PublicOrganization): void => {
+    router.push(
+      org.type === 'VETERINARY_OFFICE'
+        ? Routes.veterinaryOfficeDetail(org.id)
+        : Routes.organizationDiscoverDetail(org.id),
+    );
+  };
 
   return (
     <ScrollScreen>
@@ -188,27 +201,20 @@ export default function HomeScreen() {
         )}
       </Section>
 
-      {/* Available clinics. */}
+      {/* Featured clinics & offices (admin-curated) — auto-moving carousel. */}
       <Section spacing="xl">
         <HomeSectionHeader
-          title={torg('home.clinicsTitle')}
-          actionLabel={clinics.organizations.length > 0 ? torg('home.viewAll') : undefined}
+          title={hasFeatured ? t('featured.title') : torg('home.clinicsTitle')}
+          actionLabel={carouselItems.length > 0 ? torg('home.viewAll') : undefined}
           onAction={() => router.push(Routes.organizationsDiscover)}
         />
-        {clinics.organizations.length === 0 && !clinics.isLoading ? (
+        {carouselItems.length === 0 && !clinics.isLoading && !featured.isLoading ? (
           <EmptyState icon="medkit-outline" title={torg('home.emptyTitle')} />
         ) : (
-          // One full-width card per row so the clinic name has room to show in full.
-          <View style={{ rowGap: theme.spacing.md }}>
-            {clinics.organizations.slice(0, PREVIEW_COUNT).map((item) => (
-              <ClinicCard
-                key={item.id}
-                organization={item}
-                width="100%"
-                onPress={() => router.push(Routes.organizationDiscoverDetail(item.id))}
-              />
-            ))}
-          </View>
+          <OrganizationsCarousel
+            organizations={carouselItems}
+            onPressOrganization={openOrganization}
+          />
         )}
       </Section>
 

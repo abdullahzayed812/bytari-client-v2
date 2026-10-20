@@ -12,6 +12,7 @@ export function useAdminAuditLog(
     action?: string;
     entityType?: string;
     actorUserId?: string;
+    search?: string;
     pageSize?: number;
     enabled?: boolean;
   } = {},
@@ -21,6 +22,7 @@ export function useAdminAuditLog(
     action: params.action || undefined,
     entityType: params.entityType || undefined,
     actorUserId: params.actorUserId || undefined,
+    search: params.search || undefined,
   };
 
   const query = useInfiniteQuery<

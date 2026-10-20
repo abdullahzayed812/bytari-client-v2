@@ -153,6 +153,8 @@ export interface AdminThreadListFilter extends ThreadListFilter {
   createdBy?: string;
   /** Only threads new to the responder team. */
   unread?: boolean;
+  /** Sender name / email / phone, thread id, or message text. */
+  search?: string;
 }
 
 export interface PageMeta {

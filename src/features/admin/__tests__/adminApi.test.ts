@@ -75,9 +75,12 @@ describe('adminApi — maps 1:1 to the backend admin surface', () => {
     expect(requestEnvelope).toHaveBeenCalledWith(
       expect.objectContaining({ url: '/admin/organizations' }),
     );
-    await adminApi.listPendingOrganizations(1, 20);
+    await adminApi.listPendingOrganizations({ page: 1, pageSize: 20, type: 'CLINIC', search: 'x' });
     expect(requestEnvelope).toHaveBeenCalledWith(
-      expect.objectContaining({ url: '/admin/organizations/pending' }),
+      expect.objectContaining({
+        url: '/admin/organizations/pending',
+        params: expect.objectContaining({ type: 'CLINIC', search: 'x' }),
+      }),
     );
     await adminApi.getOrganization('o1');
     expect(get).toHaveBeenCalledWith('/admin/organizations/o1');

@@ -1,216 +1,155 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-import { Card, Icon } from '@/components/content';
-import { EmptyState, ErrorState } from '@/components/feedback';
+import { EmptyState, ErrorState, Skeleton } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
-import { Row, SafeAreaScreen } from '@/components/layout';
-import { AppHeader } from '@/components/navigation';
-import { Caption, Label, Text } from '@/components/typography';
+import { SafeAreaScreen } from '@/components/layout';
+import { CenteredTitleHeader } from '@/components/navigation';
+import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { useContentCategories, useContentList } from '@/features/content';
+import { useContentCategories, useContentList, type ContentItem } from '@/features/content';
+import { useStoreGrid } from '@/features/storeShared';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { BookCard, BookCardSkeleton } from '../components';
-import { BOOKS_CATEGORY_SLUGS, BOOKS_SECTION_SIZE } from '../constants';
+import {
+  BookGridCard,
+  BooksCategoryTiles,
+  BooksSectionHeader,
+  BooksTrustBanner,
+  type BooksCategoryTile,
+} from '../components';
+import { BOOKS_CATEGORY_SLUGS } from '../constants';
 
-const CARD_WIDTH = 150;
+/** "الكل" shows two rows of three on the reference. */
+const ALL_PREVIEW = 6;
+const FAVORITES_PREVIEW = 3;
 
-/** Route `/veterinary-books` — "الكتب البيطرية" (Veterinarian Home). */
+/**
+ * Route `/veterinary-books` — "الكتب البيطرية", laid out after the reference:
+ * centred title, search, round category tiles (الكل / categories / المفضلة),
+ * a "الكل" section (two rows of three) and "الكتب المفضلة" (one row), each
+ * with "عرض الكل", and the trust banner. A search shows the matching books
+ * in the same 3-up grid.
+ */
 export default function BooksHomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryBooks');
+  const grid = useStoreGrid({ padding: 14, gap: 8 });
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
   const searching = search.trim().length > 0;
 
   const categories = useContentCategories();
-  const categoryChips = BOOKS_CATEGORY_SLUGS.map((c) => ({
-    ...c,
-    category: categories.data?.find((cat) => cat.slug === c.slug),
-  })).filter((c) => c.category);
+  const categoryTiles: BooksCategoryTile[] = BOOKS_CATEGORY_SLUGS.flatMap((c) => {
+    const category = categories.data?.find((cat) => cat.slug === c.slug);
+    return category ? [{ key: category.id, label: category.name, icon: c.icon }] : [];
+  });
+  const tiles: BooksCategoryTile[] = [
+    { key: 'all', label: t('home.allTile'), icon: 'grid' },
+    ...categoryTiles,
+    { key: 'favorites', label: t('home.favoritesChip'), icon: 'bookmark-outline' },
+  ];
 
   const searchResults = useContentList({ type: 'BOOK', search, enabled: searching });
   const all = useContentList({
     type: 'BOOK',
     sort: 'latest',
-    pageSize: BOOKS_SECTION_SIZE,
-    enabled: !searching,
-  });
-  const mostRead = useContentList({
-    type: 'BOOK',
-    sort: 'mostRead',
-    pageSize: BOOKS_SECTION_SIZE,
+    pageSize: ALL_PREVIEW,
     enabled: !searching,
   });
   const favorites = useContentList({
     type: 'BOOK',
     bookmarkedOnly: true,
-    pageSize: BOOKS_SECTION_SIZE,
+    pageSize: FAVORITES_PREVIEW,
     enabled: !searching,
   });
 
   const goToBook = (bookId: string) => router.push(Routes.veterinaryBooksDetail(bookId));
-  const goToCategory = (categoryId: string) => router.push(Routes.veterinaryBooksCategory(categoryId));
-  const goToSection = (mode: 'all' | 'mostRead' | 'favorites') =>
-    router.push(Routes.veterinaryBooksSection(mode));
+  const onTile = (key: string) => {
+    if (key === 'all') router.push(Routes.veterinaryBooksSection('all'));
+    else if (key === 'favorites') router.push(Routes.veterinaryBooksSection('favorites'));
+    else router.push(Routes.veterinaryBooksCategory(key));
+  };
 
-  const renderSection = (
-    titleKey: 'home.all' | 'home.mostRead' | 'home.favorites',
-    q: ReturnType<typeof useContentList>,
-    mode: 'all' | 'mostRead' | 'favorites',
-    emptyKey: 'home.emptyAll' | 'home.emptyMostRead' | 'home.emptyFavorites',
-  ) => (
-    <View style={{ rowGap: theme.spacing.sm }}>
-      <Row justify="space-between" align="center">
-        <Label>{t(titleKey)}</Label>
-        {q.total > BOOKS_SECTION_SIZE ? (
-          <Text
-            variant="label"
-            color="primary"
-            onPress={() => goToSection(mode)}
-            accessibilityRole="link"
-          >
-            {t('home.viewAll')}
-          </Text>
-        ) : null}
-      </Row>
-      {q.isLoading ? (
-        <Row gap="md">
-          {[0, 1, 2].map((i) => (
-            <BookCardSkeleton key={i} width={CARD_WIDTH} />
-          ))}
-        </Row>
-      ) : q.items.length === 0 ? (
-        <Caption>{t(emptyKey)}</Caption>
-      ) : (
-        <FlatList
-          data={q.items}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(b) => b.id}
-          ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-          renderItem={({ item }) => (
-            <BookCard book={item} width={CARD_WIDTH} onPress={() => goToBook(item.id)} />
-          )}
-        />
-      )}
-    </View>
-  );
+  const bookGrid = (q: ReturnType<typeof useContentList>, limit: number, empty: string) =>
+    q.isLoading ? (
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: grid.gap }}>
+        {Array.from({ length: Math.min(limit, grid.columns) }, (_, i) => (
+          <Skeleton key={i} width={grid.cardWidth} height={grid.cardWidth * 1.33 + 90} radius={8} />
+        ))}
+      </View>
+    ) : q.isError ? (
+      <ErrorState error={q.error} onRetry={() => void q.refetch()} />
+    ) : q.items.length === 0 ? (
+      <Caption>{empty}</Caption>
+    ) : (
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: grid.gap }}>
+        {q.items.slice(0, limit).map((book: ContentItem) => (
+          <View key={book.id} style={{ flexDirection: 'row' }}>
+            <BookGridCard book={book} width={grid.cardWidth} onPress={() => goToBook(book.id)} />
+          </View>
+        ))}
+      </View>
+    );
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('home.title')} subtitle={t('home.subtitle')} showBack backAlign="left" />
-
-      <View style={{ paddingHorizontal: theme.screenPadding, rowGap: theme.spacing.lg }}>
-        <SearchInput
-          value={rawSearch}
-          onChangeText={setRawSearch}
-          onClear={() => setRawSearch('')}
-          placeholder={t('search.placeholder')}
-          accessibilityLabel={t('search.placeholder')}
-        />
-
-        <FlatList
-          data={categoryChips}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(c) => c.slug}
-          ItemSeparatorComponent={() => <View style={{ width: theme.spacing.sm }} />}
-          ListHeaderComponent={
-            <View style={{ marginEnd: theme.spacing.sm }}>
-              <ChipButton
-                icon="heart-outline"
-                label={t('home.favoritesChip')}
-                onPress={() => goToSection('favorites')}
-              />
-            </View>
-          }
-          renderItem={({ item }) => (
-            <ChipButton
-              icon={item.icon}
-              label={item.category?.name ?? ''}
-              onPress={() => goToCategory(item.category?.id as string)}
-            />
-          )}
-        />
-      </View>
-
-      {searching ? (
-        <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.lg }}>
-          {searchResults.isLoading ? (
-            <View style={{ rowGap: theme.spacing.md }}>
-              {[0, 1, 2].map((i) => (
-                <BookCardSkeleton key={i} />
-              ))}
-            </View>
-          ) : searchResults.isError ? (
-            <ErrorState error={searchResults.error} onRetry={() => void searchResults.refetch()} />
-          ) : searchResults.items.length === 0 ? (
-            <EmptyState icon="search-outline" title={t('search.empty')} />
-          ) : (
-            <View style={{ rowGap: theme.spacing.md }}>
-              {searchResults.items.map((b) => (
-                <BookCard key={b.id} book={b} onPress={() => goToBook(b.id)} />
-              ))}
-            </View>
-          )}
-        </View>
-      ) : (
-        <View
-          style={{
-            paddingHorizontal: theme.screenPadding,
-            paddingTop: theme.spacing.lg,
-            paddingBottom: theme.spacing.huge,
-            rowGap: theme.spacing.xl,
-          }}
-        >
-          {renderSection('home.all', all, 'all', 'home.emptyAll')}
-          {renderSection('home.mostRead', mostRead, 'mostRead', 'home.emptyMostRead')}
-          {renderSection('home.favorites', favorites, 'favorites', 'home.emptyFavorites')}
-        </View>
-      )}
-    </SafeAreaScreen>
-  );
-}
-
-function ChipButton({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: Parameters<typeof Icon>[0]['name'];
-  label: string;
-  onPress: () => void;
-}) {
-  const theme = useTheme();
-  return (
-    <Card
-      variant="outlined"
-      padding="sm"
-      onPress={onPress}
-      accessibilityLabel={label}
-      style={{ alignItems: 'center', rowGap: 4, width: 76 }}
-    >
-      <View
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: theme.radius.pill,
-          backgroundColor: theme.colors.surfaceAccent,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+      <CenteredTitleHeader title={t('home.title')} subtitle={t('home.subtitle')} icon="book" />
+      <ScrollView
+        onLayout={grid.onLayout}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: theme.spacing.huge }}
       >
-        <Icon name={icon} size="iconMd" color="primary" />
-      </View>
-      <Caption numberOfLines={2} style={{ textAlign: 'center' }}>
-        {label}
-      </Caption>
-    </Card>
+        <View style={{ paddingHorizontal: 16, paddingVertical: 10 }}>
+          <SearchInput
+            value={rawSearch}
+            onChangeText={setRawSearch}
+            onClear={() => setRawSearch('')}
+            placeholder={t('search.placeholder')}
+            accessibilityLabel={t('search.placeholder')}
+          />
+        </View>
+        <BooksCategoryTiles tiles={tiles} activeKey="all" onSelect={onTile} />
+
+        <View style={{ paddingHorizontal: grid.padding, paddingTop: 12, rowGap: 20 }}>
+          {searching ? (
+            searchResults.isLoading || searchResults.items.length > 0 ? (
+              bookGrid(searchResults, searchResults.items.length || grid.columns, '')
+            ) : (
+              <EmptyState icon="search-outline" title={t('search.empty')} />
+            )
+          ) : (
+            <>
+              <View>
+                <BooksSectionHeader
+                  title={t('home.allSection')}
+                  icon="grid"
+                  actionLabel={all.total > 0 ? t('home.viewAll') : undefined}
+                  onAction={() => router.push(Routes.veterinaryBooksSection('all'))}
+                />
+                {bookGrid(all, ALL_PREVIEW, t('home.emptyAll'))}
+              </View>
+              <View>
+                <BooksSectionHeader
+                  title={t('home.favoritesSection')}
+                  icon="heart"
+                  actionLabel={favorites.total > 0 ? t('home.viewAll') : undefined}
+                  onAction={() => router.push(Routes.veterinaryBooksSection('favorites'))}
+                />
+                {bookGrid(favorites, FAVORITES_PREVIEW, t('home.emptyFavorites'))}
+              </View>
+            </>
+          )}
+        </View>
+
+        <View style={{ paddingHorizontal: 16, marginTop: 24 }}>
+          <BooksTrustBanner text={t('home.trust')} />
+        </View>
+      </ScrollView>
+    </SafeAreaScreen>
   );
 }

@@ -16,7 +16,9 @@ import type { ModerationStatus, Paginated, ServiceListing, ServiceRequest } from
 const PAGE = AppConfig.defaultPageSize;
 
 /** `GET /admin/vet-service-listings` — the listing moderation queue (defaults to PENDING). */
-export function useAdminVetServiceListings(filter: { status?: ModerationStatus } = {}) {
+export function useAdminVetServiceListings(
+  filter: { status?: ModerationStatus; search?: string } = {},
+) {
   const query = useInfiniteQuery<
     Paginated<ServiceListing>,
     unknown,
@@ -24,7 +26,7 @@ export function useAdminVetServiceListings(filter: { status?: ModerationStatus }
     ReturnType<typeof vetServiceKeys.adminListingList>,
     number
   >({
-    queryKey: vetServiceKeys.adminListingList(filter.status),
+    queryKey: vetServiceKeys.adminListingList(filter.status, filter.search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetServicesApi.listListings(pageParam, PAGE, filter),
     getNextPageParam: (last) =>
@@ -36,7 +38,9 @@ export function useAdminVetServiceListings(filter: { status?: ModerationStatus }
 }
 
 /** `GET /admin/vet-service-requests` — the pet-owner request moderation queue. */
-export function useAdminVetServiceRequests(filter: { status?: ModerationStatus } = {}) {
+export function useAdminVetServiceRequests(
+  filter: { status?: ModerationStatus; search?: string } = {},
+) {
   const query = useInfiniteQuery<
     Paginated<ServiceRequest>,
     unknown,
@@ -44,7 +48,7 @@ export function useAdminVetServiceRequests(filter: { status?: ModerationStatus }
     ReturnType<typeof vetServiceKeys.adminRequestList>,
     number
   >({
-    queryKey: vetServiceKeys.adminRequestList(filter.status),
+    queryKey: vetServiceKeys.adminRequestList(filter.status, filter.search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetServicesApi.listRequests(pageParam, PAGE, filter),
     getNextPageParam: (last) =>

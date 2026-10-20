@@ -15,6 +15,8 @@ export const contentKeys = {
   categories: () => [...contentKeys.all, 'categories'] as const,
   lists: () => [...contentKeys.all, 'list'] as const,
   list: (filter: Omit<ContentListFilter, 'page'>) => [...contentKeys.lists(), filter] as const,
+  /** One numbered page (books "عرض كل الكتب") — under `lists()` so the same invalidations apply. */
+  page: (filter: ContentListFilter) => [...contentKeys.lists(), 'page', filter] as const,
   details: () => [...contentKeys.all, 'detail'] as const,
   detail: (contentId: string) => [...contentKeys.details(), contentId] as const,
   file: (contentId: string, fileId: string) =>

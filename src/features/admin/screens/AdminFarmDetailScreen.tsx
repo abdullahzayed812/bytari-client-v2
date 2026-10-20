@@ -18,10 +18,12 @@ import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import {
+  AdminUserLink,
   ReasonPromptDialog,
   RenewalApproveDialog,
   RenewalRejectDialog,
   SubscriptionDatesDialog,
+  ViewUserProfileButton,
 } from '../components';
 import {
   useAdminFarmRenewals,
@@ -58,6 +60,7 @@ export default function AdminFarmDetailScreen() {
   const { t } = useTranslation('admin');
   const { t: tp } = useTranslation('poultry');
   const { t: tl } = useTranslation('sheepCattleFarm');
+  const { t: tOrg } = useTranslation('organizations');
   const theme = useTheme();
   const toast = useToast();
 
@@ -142,6 +145,10 @@ export default function AdminFarmDetailScreen() {
   const org = q.data;
   const farm = org?.farm;
   const supervisors = (membersQ.data ?? []).filter((m) => m.roleKey === 'SUPERVISOR');
+  // Everyone else linked to the farm (the owner has its own section above).
+  const otherMembers = (membersQ.data ?? []).filter(
+    (m) => m.roleKey !== 'SUPERVISOR' && m.userId !== org?.ownerUserId,
+  );
 
   return (
     <ScrollScreen>
@@ -279,6 +286,11 @@ export default function AdminFarmDetailScreen() {
                   label={t('farms.detail.memberCountLabel')}
                   value={membersQ.data ? membersQ.data.length : null}
                 />
+                {/* Primary owner by `owner_user_id` — never matched by name. */}
+                <ViewUserProfileButton
+                  userId={org.owner?.id ?? null}
+                  label={t('userLink.viewOwnerProfile')}
+                />
               </View>
             </Card>
           </Section>
@@ -351,9 +363,11 @@ export default function AdminFarmDetailScreen() {
               <View style={{ rowGap: theme.spacing.sm }}>
                 {supervisors.map((m) => (
                   <Card key={m.id} variant="outlined" padding="md">
-                    <Text variant="caption">
-                      {`${m.user.firstName} ${m.user.lastName}`.trim() || m.user.email}
-                    </Text>
+                    <AdminUserLink
+                      userId={m.userId}
+                      name={`${m.user.firstName} ${m.user.lastName}`.trim() || m.user.email}
+                      variant="caption"
+                    />
                   </Card>
                 ))}
               </View>
@@ -364,6 +378,40 @@ export default function AdminFarmDetailScreen() {
               onPress={() => router.push(Routes.organizationSupervisors(orgId))}
             />
           </Section>
+
+          {otherMembers.length > 0 ? (
+            <Section spacing="lg">
+              <Label>{t('userLink.linkedUsers')}</Label>
+              <View style={{ rowGap: theme.spacing.sm }}>
+                {otherMembers.map((m) => (
+                  <Card key={m.id} variant="outlined" padding="md">
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        columnGap: theme.spacing.sm,
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <AdminUserLink
+                          userId={m.userId}
+                          name={`${m.user.firstName} ${m.user.lastName}`.trim() || m.user.email}
+                          variant="caption"
+                          numberOfLines={1}
+                        />
+                      </View>
+                      <Badge
+                        label={tOrg(`role.${m.roleKey}`, { defaultValue: m.roleKey })}
+                        tone="neutral"
+                        size="sm"
+                      />
+                    </View>
+                  </Card>
+                ))}
+              </View>
+            </Section>
+          ) : null}
 
           {/* Subscription — separate from approval status. */}
           <Section spacing="lg">

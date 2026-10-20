@@ -22,8 +22,10 @@ import {
   AdminDetailModal,
   AdminListScreen,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   ReasonPromptDialog,
+  useAdminSearch,
 } from '../components';
 
 const STATUSES: ModerationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
@@ -63,7 +65,8 @@ export default function AdminVetServiceListingsScreen() {
   const toast = useToast();
 
   const [status, setStatus] = useState<ModerationStatus | undefined>('PENDING');
-  const q = useAdminVetServiceListings({ status });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminVetServiceListings({ search, status });
   const approve = useAdminApproveVetServiceListing();
   const reject = useAdminRejectVetServiceListing();
   const del = useAdminDeleteVetServiceListing();
@@ -143,15 +146,23 @@ export default function AdminVetServiceListingsScreen() {
         emptyTitle={t('vetServiceListings.empty')}
         emptyMessage={t('vetServiceListings.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
-          <FilterChips<ModerationStatus>
-            value={status}
-            onChange={setStatus}
-            options={[
-              { value: undefined, label: t('vetServiceListings.status.ALL') },
-              ...STATUSES.map((s) => ({ value: s, label: t(`vetServiceListings.status.${s}`) })),
-            ]}
-          />
+          <>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.serviceListings')}
+            />
+            <FilterChips<ModerationStatus>
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: undefined, label: t('vetServiceListings.status.ALL') },
+                ...STATUSES.map((s) => ({ value: s, label: t(`vetServiceListings.status.${s}`) })),
+              ]}
+            />
+          </>
         }
         renderItem={(l) => (
           <AdminRow

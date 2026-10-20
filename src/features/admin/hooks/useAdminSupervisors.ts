@@ -26,12 +26,17 @@ export function useAdminSupervisors(
   params: {
     domain?: SupervisorDomain;
     status?: SupervisorAssignmentStatus;
+    search?: string;
     pageSize?: number;
     enabled?: boolean;
   } = {},
 ) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
-  const filter = { domain: params.domain, status: params.status };
+  const filter = {
+    domain: params.domain,
+    status: params.status,
+    search: params.search || undefined,
+  };
 
   const query = useInfiniteQuery<
     Paginated<SupervisorAssignment>,

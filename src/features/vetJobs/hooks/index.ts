@@ -21,6 +21,7 @@ export {
   useVetJobApplication,
   useVetJobApplicationAction,
 } from './useVetJobs';
+export { useJobGridColumns } from './useJobGridColumns';
 export {
   useAdminVetJobOffers,
   useAdminVetJobSeekers,

@@ -26,8 +26,12 @@ export const vetStoreKeys = {
   adminProducts: () => [...vetStoreKeys.admin(), 'products'] as const,
   adminProduct: (productId: string) => [...vetStoreKeys.adminProducts(), productId] as const,
   adminCategories: () => [...vetStoreKeys.admin(), 'categories'] as const,
-  adminOrders: (status?: VetStoreOrderStatus, newOnly?: boolean) =>
-    [...vetStoreKeys.admin(), 'orders', { status: status ?? null, newOnly: !!newOnly }] as const,
+  adminOrders: (status?: VetStoreOrderStatus, newOnly?: boolean, search?: string) =>
+    [
+      ...vetStoreKeys.admin(),
+      'orders',
+      { status: status ?? null, newOnly: !!newOnly, search: search ?? null },
+    ] as const,
   adminOrdersSummary: () => [...vetStoreKeys.admin(), 'orders-summary'] as const,
   adminOrder: (orderId: string) => [...vetStoreKeys.admin(), 'order', orderId] as const,
 };

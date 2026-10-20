@@ -43,6 +43,8 @@ export function useMyThreads(kind: ThreadKind, params: ListParams = {}) {
 interface AdminListParams extends ListParams {
   createdBy?: string;
   unread?: boolean;
+  /** Sender name / email / phone, thread id, or message text (server-side). */
+  search?: string;
 }
 
 /** All threads for a supervisor / admin (`GET /admin/<slug>`). Caller must gate `enabled`. */
@@ -53,6 +55,7 @@ export function useAdminThreads(kind: ThreadKind, params: AdminListParams = {}) 
     status: params.status,
     createdBy: params.createdBy || undefined,
     unread,
+    search: params.search || undefined,
     pageSize,
   };
   const api = threadApi(kind);
@@ -73,6 +76,7 @@ export function useAdminThreads(kind: ThreadKind, params: AdminListParams = {}) 
         status: params.status,
         createdBy: params.createdBy || undefined,
         unread,
+        search: params.search || undefined,
       }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,

@@ -13,9 +13,10 @@ import type { Paginated, TraderApplicationSummary, TraderStatus } from '@/featur
 
 /** Trader registration applications — admin/moderator oversight (`trader.admin.*`). */
 export function useAdminTraderApplications(
-  params: { status?: TraderStatus; pageSize?: number; enabled?: boolean } = {},
+  params: { status?: TraderStatus; search?: string; pageSize?: number; enabled?: boolean } = {},
 ) {
   const pageSize = params.pageSize ?? AppConfig.defaultPageSize;
+  const search = params.search || undefined;
 
   const query = useInfiniteQuery<
     Paginated<TraderApplicationSummary>,
@@ -24,10 +25,10 @@ export function useAdminTraderApplications(
     ReturnType<typeof poultryMarketKeys.traderAdminList>,
     number
   >({
-    queryKey: poultryMarketKeys.traderAdminList(params.status),
+    queryKey: poultryMarketKeys.traderAdminList(params.status, search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      poultryMarketApi.traders.adminList(params.status, pageParam, pageSize),
+      poultryMarketApi.traders.adminList(params.status, pageParam, pageSize, search),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     enabled: params.enabled ?? true,

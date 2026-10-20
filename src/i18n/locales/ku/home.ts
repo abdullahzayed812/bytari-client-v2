@@ -1,6 +1,10 @@
 import type { KuNamespace } from './types';
 
 const home: KuNamespace<'home'> = {
+  featured: {
+    title: 'کلینیک و نووسینگە دیارەکان',
+    goTo: 'پیشاندانی کارتی {{index}} لە {{count}}',
+  },
   header: {
     searchA11y: 'گەڕان',
     accountA11y: 'پرۆفایل',

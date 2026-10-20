@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { Icon } from '@/components/content';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Caption, LinkifiedText, Text } from '@/components/typography';
+import { AdminUserLink } from '@/features/admin/components/AdminUserLink';
 import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -16,6 +17,8 @@ export interface MessageBubbleProps {
   message: ThreadMessage;
   /** The signed-in user's id — a `USER` message from them is right-aligned. */
   currentUserId: string | null;
+  /** Responder view: the sender's name opens their Admin profile (by `senderUserId`). */
+  linkSender?: boolean;
 }
 
 /**
@@ -26,7 +29,7 @@ export interface MessageBubbleProps {
  * Attachments (CONSULTATION / INQUIRY first message) render as thumbnails that
  * open the shared full-screen `ImageViewer`; a soft-deleted message hides them.
  */
-export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
+export function MessageBubble({ message, currentUserId, linkSender = false }: MessageBubbleProps) {
   const theme = useTheme();
   const { t } = useTranslation('support');
   const meta = MESSAGE_SOURCE_META[message.source];
@@ -56,7 +59,9 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
       {!mine ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
           <Icon name={meta.icon} size="iconXs" color="textSecondary" />
-          {message.source === 'USER' ? (
+          {message.source === 'USER' && linkSender ? (
+            <AdminUserLink userId={message.senderUserId} variant="caption" />
+          ) : message.source === 'USER' ? (
             <UserName userId={message.senderUserId} variant="caption" color="textSecondary" />
           ) : (
             <Caption>{t(`message.source.${message.source}`)}</Caption>

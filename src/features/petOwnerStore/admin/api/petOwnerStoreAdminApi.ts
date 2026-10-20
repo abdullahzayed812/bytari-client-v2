@@ -149,6 +149,8 @@ export const petOwnerStoreAdminService = {
     pageSize: number;
     status?: PetStoreOrderStatus;
     newOnly?: boolean;
+    /** Order number / id, recipient name / phone / address, or the buyer. */
+    search?: string;
   }): Promise<Paginated<PetStoreOrder>> {
     const envelope = await apiClient.requestEnvelope<PetStoreOrder[]>({
       method: 'GET',
@@ -158,6 +160,7 @@ export const petOwnerStoreAdminService = {
         pageSize: params.pageSize,
         status: params.status,
         newOnly: params.newOnly ? 'true' : undefined,
+        search: params.search,
       },
     });
     return {

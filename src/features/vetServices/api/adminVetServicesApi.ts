@@ -24,12 +24,12 @@ export const adminVetServicesApi = {
   async listListings(
     page: number,
     pageSize: number,
-    filter: { status?: ModerationStatus } = {},
+    filter: { status?: ModerationStatus; search?: string } = {},
   ): Promise<Paginated<ServiceListing>> {
     const env = await apiClient.requestEnvelope<ServiceListing[]>({
       method: 'GET',
       url: '/admin/vet-service-listings',
-      params: { page, pageSize, status: filter.status },
+      params: { page, pageSize, status: filter.status, search: filter.search },
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },
@@ -50,12 +50,12 @@ export const adminVetServicesApi = {
   async listRequests(
     page: number,
     pageSize: number,
-    filter: { status?: ModerationStatus } = {},
+    filter: { status?: ModerationStatus; search?: string } = {},
   ): Promise<Paginated<ServiceRequest>> {
     const env = await apiClient.requestEnvelope<ServiceRequest[]>({
       method: 'GET',
       url: '/admin/vet-service-requests',
-      params: { page, pageSize, status: filter.status },
+      params: { page, pageSize, status: filter.status, search: filter.search },
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },

@@ -145,6 +145,7 @@ export function makeThreadApi(kind: ThreadKind) {
           status: filter.status,
           createdBy: filter.createdBy,
           unread: filter.unread ? 'true' : undefined,
+          search: filter.search,
         },
       });
       return {

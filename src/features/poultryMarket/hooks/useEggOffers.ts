@@ -140,6 +140,7 @@ export function useAdminEggOffers(filter: ListEggOffersFilter) {
       governorate: filter.governorate,
       status: filter.status,
       moderationStatus: filter.moderationStatus,
+      search: filter.search,
       pageSize: filter.pageSize,
     }),
     initialPageParam: 1,

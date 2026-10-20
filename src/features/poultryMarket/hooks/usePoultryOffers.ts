@@ -144,6 +144,7 @@ export function useAdminPoultryOffers(filter: ListPoultryOffersFilter) {
       governorate: filter.governorate,
       status: filter.status,
       moderationStatus: filter.moderationStatus,
+      search: filter.search,
       pageSize: filter.pageSize,
     }),
     initialPageParam: 1,

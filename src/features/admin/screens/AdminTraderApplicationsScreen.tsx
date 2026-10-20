@@ -21,9 +21,11 @@ import {
   AdminDetailModal,
   AdminListScreen,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   ReasonPromptDialog,
   SubscriptionDatesDialog,
+  useAdminSearch,
 } from '../components';
 import { useAdminTraderApplications, useTraderDecisionMutation } from '../hooks';
 
@@ -48,7 +50,8 @@ export default function AdminTraderApplicationsScreen() {
   const toast = useToast();
   const [scope, setScope] = useState<Scope>('all');
 
-  const q = useAdminTraderApplications({ status: scopeToStatus(scope) });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminTraderApplications({ search, status: scopeToStatus(scope) });
   const decide = useTraderDecisionMutation();
 
   const [approving, setApproving] = useState<TraderApplicationSummary | null>(null);
@@ -201,18 +204,26 @@ export default function AdminTraderApplicationsScreen() {
         emptyTitle={t('traders.empty')}
         emptyMessage={t('traders.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
-          <FilterChips<Scope>
-            value={scope}
-            onChange={(v) => setScope(v ?? 'all')}
-            options={[
-              { value: 'all', label: t('traders.tab.all') },
-              { value: 'pending', label: t('traders.tab.pending') },
-              { value: 'approved', label: t('traders.tab.approved') },
-              { value: 'rejected', label: t('traders.tab.rejected') },
-              { value: 'suspended', label: t('traders.tab.suspended') },
-            ]}
-          />
+          <>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.traders')}
+            />
+            <FilterChips<Scope>
+              value={scope}
+              onChange={(v) => setScope(v ?? 'all')}
+              options={[
+                { value: 'all', label: t('traders.tab.all') },
+                { value: 'pending', label: t('traders.tab.pending') },
+                { value: 'approved', label: t('traders.tab.approved') },
+                { value: 'rejected', label: t('traders.tab.rejected') },
+                { value: 'suspended', label: t('traders.tab.suspended') },
+              ]}
+            />
+          </>
         }
         renderItem={(a) => (
           <AdminRow

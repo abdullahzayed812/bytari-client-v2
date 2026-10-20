@@ -4,17 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, View } from 'react-native';
 
 import { Chip } from '@/components/content';
-import { EmptyState, ErrorState, Loading } from '@/components/feedback';
+import { EmptyState, ErrorState, Loading, Skeleton } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { Row, SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useContentCategories, useContentList, type ContentSort } from '@/features/content';
+import { useStoreGrid } from '@/features/storeShared';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { ArticleCard, ArticleCardSkeleton } from '../components';
+import { ArticleGridCard } from '../components';
 import { MAGAZINE_SORT_OPTIONS } from '../constants';
 
 /**
@@ -41,7 +42,8 @@ export default function MagazineCategoryScreen() {
   const [sort, setSort] = useState<ContentSort>('latest');
 
   const bookmarkedOnly = mode === 'saved';
-  const effectiveSort: ContentSort | undefined = mode === 'mostRead' ? 'mostRead' : mode === 'saved' ? undefined : sort;
+  const effectiveSort: ContentSort | undefined =
+    mode === 'mostRead' ? 'mostRead' : mode === 'saved' ? undefined : sort;
 
   const q = useContentList({
     type: 'MAGAZINE',
@@ -51,7 +53,10 @@ export default function MagazineCategoryScreen() {
     bookmarkedOnly,
   });
 
-  const goToArticle = (articleId: string) => router.push(Routes.veterinaryMagazineArticle(articleId));
+  const goToArticle = (articleId: string) =>
+    router.push(Routes.veterinaryMagazineArticle(articleId));
+  // Same compact 3-up card grid as the magazine home ("جميع المقالات").
+  const grid = useStoreGrid({ padding: theme.screenPadding, gap: 10 });
 
   const title = category
     ? t('category.title', { name: category.name })
@@ -89,67 +94,79 @@ export default function MagazineCategoryScreen() {
         ) : null}
       </View>
 
-      {q.isLoading ? (
-        <View
-          style={{
-            paddingHorizontal: theme.screenPadding,
-            paddingTop: theme.spacing.lg,
-            rowGap: theme.spacing.md,
-          }}
-        >
-          {[0, 1, 2, 3].map((i) => (
-            <ArticleCardSkeleton key={i} />
-          ))}
-        </View>
-      ) : q.isError ? (
-        <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.lg }}>
-          <ErrorState error={q.error} onRetry={() => void q.refetch()} />
-        </View>
-      ) : (
-        <FlatList
-          data={q.items}
-          numColumns={2}
-          keyExtractor={(a) => a.id}
-          columnWrapperStyle={{ columnGap: theme.spacing.md }}
-          ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
-          renderItem={({ item }) => (
-            <View style={{ flex: 1 }}>
-              <ArticleCard article={item} onPress={() => goToArticle(item.id)} />
-            </View>
-          )}
-          ListHeaderComponent={
-            q.total > 0 ? <Caption>{t('category.resultsCount', { count: q.total })}</Caption> : null
-          }
-          ListHeaderComponentStyle={{ marginBottom: theme.spacing.sm }}
-          ListEmptyComponent={
-            <EmptyState
-              icon="newspaper-outline"
-              title={search ? t('category.emptySearch') : t('category.empty')}
-            />
-          }
-          ListFooterComponent={
-            q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null
-          }
-          contentContainerStyle={{
-            paddingHorizontal: theme.screenPadding,
-            paddingTop: theme.spacing.lg,
-            paddingBottom: theme.spacing.huge,
-            flexGrow: 1,
-          }}
-          onEndReachedThreshold={0.4}
-          onEndReached={() => {
-            if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
-          }}
-          refreshControl={
-            <RefreshControl
-              refreshing={q.isRefetching && !q.isFetchingNextPage}
-              onRefresh={() => void q.refetch()}
-              tintColor={theme.colors.primary}
-              colors={[theme.colors.primary]}
-            />
-          }
-        />
-      )}
+      <View style={{ flex: 1 }} onLayout={grid.onLayout}>
+        {q.isLoading ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: grid.gap,
+              paddingHorizontal: grid.padding,
+              paddingTop: theme.spacing.lg,
+            }}
+          >
+            {Array.from({ length: grid.columns * 2 }, (_, i) => (
+              <Skeleton key={i} width={grid.cardWidth} height={200} radius={12} />
+            ))}
+          </View>
+        ) : q.isError ? (
+          <View style={{ paddingHorizontal: theme.screenPadding, paddingTop: theme.spacing.lg }}>
+            <ErrorState error={q.error} onRetry={() => void q.refetch()} />
+          </View>
+        ) : (
+          <FlatList
+            // numColumns cannot change on a mounted FlatList — remount per column count.
+            key={`magazine-list-${grid.columns}`}
+            data={q.items}
+            numColumns={grid.columns}
+            keyExtractor={(a) => a.id}
+            columnWrapperStyle={{ gap: grid.gap }}
+            ItemSeparatorComponent={() => <View style={{ height: grid.gap }} />}
+            renderItem={({ item }) => (
+              <View style={{ flexDirection: 'row' }}>
+                <ArticleGridCard
+                  article={item}
+                  width={grid.cardWidth}
+                  onPress={() => goToArticle(item.id)}
+                />
+              </View>
+            )}
+            ListHeaderComponent={
+              q.total > 0 ? (
+                <Caption>{t('category.resultsCount', { count: q.total })}</Caption>
+              ) : null
+            }
+            ListHeaderComponentStyle={{ marginBottom: theme.spacing.sm }}
+            ListEmptyComponent={
+              <EmptyState
+                icon="newspaper-outline"
+                title={search ? t('category.emptySearch') : t('category.empty')}
+              />
+            }
+            ListFooterComponent={
+              q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null
+            }
+            contentContainerStyle={{
+              paddingHorizontal: theme.screenPadding,
+              paddingTop: theme.spacing.lg,
+              paddingBottom: theme.spacing.huge,
+              flexGrow: 1,
+            }}
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
+            }}
+            refreshControl={
+              <RefreshControl
+                refreshing={q.isRefetching && !q.isFetchingNextPage}
+                onRefresh={() => void q.refetch()}
+                tintColor={theme.colors.primary}
+                colors={[theme.colors.primary]}
+              />
+            }
+          />
+        )}
+      </View>
     </SafeAreaScreen>
   );
 }

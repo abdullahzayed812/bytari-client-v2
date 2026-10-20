@@ -1,9 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render, waitFor } from '@testing-library/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/features/auth/store';
 import { notificationsApi } from '@/features/notifications/api/notificationsApi';
-import { NotificationsGate } from '@/providers/NotificationsGate';
+import { LAST_OPENED_PUSH_KEY, NotificationsGate } from '@/providers/NotificationsGate';
 import { notificationService } from '@/services/notifications';
 import { makeTestQueryClient } from '@/test-utils/render';
 import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
@@ -20,7 +21,7 @@ jest.mock('@/services/notifications', () => ({
     unregisterDevice: jest.fn(),
     onTokenRefresh: jest.fn(() => () => undefined),
     onNotificationTap: jest.fn(() => () => undefined),
-    getInitialNotification: jest.fn().mockResolvedValue(null),
+    consumeInitialNotification: jest.fn().mockResolvedValue(null),
     setBadgeCount: jest.fn(),
   },
 }));
@@ -64,9 +65,10 @@ function mount() {
   );
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.clearAllMocks();
-  svc.getInitialNotification.mockResolvedValue(null);
+  svc.consumeInitialNotification.mockResolvedValue(null);
+  await AsyncStorage.clear();
 });
 afterEach(() => useAuthStore.setState({ session: null, user: null, status: 'unauthenticated' }));
 
@@ -158,5 +160,58 @@ describe('NotificationsGate — device lifecycle', () => {
         platform: 'android',
       }),
     );
+  });
+});
+
+describe('NotificationsGate — launch never lands on Notifications by accident', () => {
+  beforeEach(() => {
+    svc.getDevicePushToken.mockResolvedValue(null);
+    resetRouterMock();
+  });
+
+  it('a normal launch (no launching tap) does not navigate', async () => {
+    authed();
+    mount();
+    await waitFor(() => expect(svc.consumeInitialNotification).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 400));
+    expect(routerMock.push).not.toHaveBeenCalled();
+  });
+
+  it('a genuine launching tap opens its destination once', async () => {
+    jest
+      .spyOn(notificationsApi, 'markRead')
+      .mockResolvedValue({} as Awaited<ReturnType<typeof notificationsApi.markRead>>);
+    svc.consumeInitialNotification.mockResolvedValue({
+      id: 'os-1',
+      data: { type: 'VET_COURSE_APPROVED', entityId: 'course-1', notificationId: 'n-1' },
+    });
+    authed();
+    mount();
+    await waitFor(() =>
+      expect(routerMock.push).toHaveBeenCalledWith('/(app)/vet-courses/course-1'),
+    );
+    expect(await AsyncStorage.getItem(LAST_OPENED_PUSH_KEY)).toBe('os-1');
+  });
+
+  it('an already-opened tap replayed by the OS is ignored', async () => {
+    await AsyncStorage.setItem(LAST_OPENED_PUSH_KEY, 'os-1');
+    svc.consumeInitialNotification.mockResolvedValue({
+      id: 'os-1',
+      data: { type: 'VET_COURSE_APPROVED', entityId: 'course-1', notificationId: 'n-1' },
+    });
+    authed();
+    mount();
+    await waitFor(() => expect(svc.consumeInitialNotification).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 400));
+    expect(routerMock.push).not.toHaveBeenCalled();
+  });
+
+  it('a launch payload with no destination does not fall back to the inbox', async () => {
+    svc.consumeInitialNotification.mockResolvedValue({ id: 'os-2', data: {} });
+    authed();
+    mount();
+    await waitFor(() => expect(svc.consumeInitialNotification).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 400));
+    expect(routerMock.push).not.toHaveBeenCalled();
   });
 });

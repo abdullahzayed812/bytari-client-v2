@@ -29,6 +29,7 @@ export interface AdminFarmsParams {
   subscriptionStatus?: FarmSubscriptionStatus;
   /** Scope the list to poultry or to sheep/cattle farms. */
   speciesGroup?: FarmSpeciesGroup;
+  search?: string;
   pageSize?: number;
   enabled?: boolean;
 }
@@ -40,6 +41,7 @@ export function useAdminFarms(params: AdminFarmsParams = {}) {
     status: params.status,
     subscriptionStatus: params.subscriptionStatus,
     speciesGroup: params.speciesGroup,
+    search: params.search || undefined,
   };
 
   const query = useInfiniteQuery<
@@ -78,6 +80,7 @@ export function useAdminFarmRenewals(organizationId: string, options: { enabled?
 export interface AdminPendingRenewalsParams {
   /** Scope to one organization type — omit for every type mixed together. */
   organizationType?: OrganizationType;
+  search?: string;
   pageSize?: number;
   enabled?: boolean;
 }
@@ -98,11 +101,12 @@ export function useAdminPendingRenewals(params: AdminPendingRenewalsParams = {})
     ReturnType<typeof adminKeys.organizations.pendingRenewals>,
     number
   >({
-    queryKey: adminKeys.organizations.pendingRenewals(params.organizationType),
+    queryKey: adminKeys.organizations.pendingRenewals(params.organizationType, params.search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       adminApi.listPendingRenewals({
         organizationType: params.organizationType,
+        search: params.search || undefined,
         page: pageParam,
         pageSize,
       }),

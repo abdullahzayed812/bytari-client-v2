@@ -151,6 +151,8 @@ export const veterinarianStoreAdminService = {
     pageSize: number;
     status?: VetStoreOrderStatus;
     newOnly?: boolean;
+    /** Order number / id, recipient name / phone / address, or the buyer. */
+    search?: string;
   }): Promise<Paginated<VetStoreOrder>> {
     const envelope = await apiClient.requestEnvelope<VetStoreOrder[]>({
       method: 'GET',
@@ -160,6 +162,7 @@ export const veterinarianStoreAdminService = {
         pageSize: params.pageSize,
         status: params.status,
         newOnly: params.newOnly ? 'true' : undefined,
+        search: params.search,
       },
     });
     return {

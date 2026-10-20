@@ -20,10 +20,12 @@ import { useTheme } from '@/theme';
 import { formatDate, formatDateTime, fullName } from '@/utils';
 
 import {
+  AdminUserLink,
   ReasonPromptDialog,
   RenewalApproveDialog,
   RenewalRejectDialog,
   SubscriptionDatesDialog,
+  ViewUserProfileButton,
 } from '../components';
 import {
   useAdminFarmRenewals,
@@ -195,11 +197,13 @@ export default function AdminOrganizationDetailScreen() {
             </Section>
           ) : null}
 
+          {/* Primary owner = `organizations.owner_user_id` (the real relation). */}
           {org.owner ? (
             <Section spacing="lg">
               <Label>{t('orgs.detail.ownerSection')}</Label>
               <Card variant="outlined" padding="md">
                 <View style={{ rowGap: theme.spacing.sm }}>
+                  <Badge label={t('userLink.primaryOwner')} tone="info" size="sm" />
                   <Row label={t('orgs.detail.ownerName')} value={ownerName ?? notProvided} />
                   <Row label={t('orgs.detail.ownerEmail')} value={org.owner.email} />
                   <Row label={t('orgs.detail.ownerPhone')} value={org.owner.phone ?? notProvided} />
@@ -209,10 +213,19 @@ export default function AdminOrganizationDetailScreen() {
                       value={[org.owner.governorate, org.owner.country].filter(Boolean).join('، ')}
                     />
                   ) : null}
+                  <ViewUserProfileButton
+                    userId={org.owner.id}
+                    label={t('userLink.viewOwnerProfile')}
+                  />
                 </View>
               </Card>
             </Section>
-          ) : null}
+          ) : (
+            <Section spacing="lg">
+              <Label>{t('orgs.detail.ownerSection')}</Label>
+              <Caption>{t('userLink.noOwner')}</Caption>
+            </Section>
+          )}
 
           {d && PROFILE_TYPES.has(org.type) ? (
             <Section spacing="lg">
@@ -398,10 +411,23 @@ export default function AdminOrganizationDetailScreen() {
               <View style={{ rowGap: theme.spacing.sm }}>
                 {membersQ.data.map((m) => (
                   <Card key={m.id} variant="outlined" padding="md">
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text variant="caption" style={{ flex: 1 }} numberOfLines={1}>
-                        {`${m.user.firstName} ${m.user.lastName}`.trim() || m.user.email}
-                      </Text>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        columnGap: theme.spacing.sm,
+                      }}
+                    >
+                      {/* Linked user → their Admin profile (by membership user id). */}
+                      <View style={{ flex: 1 }}>
+                        <AdminUserLink
+                          userId={m.userId}
+                          name={`${m.user.firstName} ${m.user.lastName}`.trim() || m.user.email}
+                          variant="caption"
+                          numberOfLines={1}
+                        />
+                      </View>
                       <Badge
                         label={tOrg(`role.${m.roleKey}`, { defaultValue: m.roleKey })}
                         tone="neutral"

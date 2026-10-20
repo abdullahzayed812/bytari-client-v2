@@ -27,7 +27,7 @@ const PAGE = AppConfig.defaultPageSize;
  * never mix in the same list — `AdminVetCoursesScreen` always passes it.
  */
 export function useAdminVetCourses(
-  filter: { status?: VetCourseModerationStatus; type?: VetCourseType } = {},
+  filter: { status?: VetCourseModerationStatus; type?: VetCourseType; search?: string } = {},
 ) {
   const query = useInfiniteQuery<
     Paginated<VetCourse>,
@@ -36,7 +36,7 @@ export function useAdminVetCourses(
     ReturnType<typeof vetCourseKeys.adminCourseList>,
     number
   >({
-    queryKey: vetCourseKeys.adminCourseList(filter.status, filter.type),
+    queryKey: vetCourseKeys.adminCourseList(filter.status, filter.type, filter.search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminVetCoursesApi.listCourses(pageParam, PAGE, filter),
     getNextPageParam: (last) =>

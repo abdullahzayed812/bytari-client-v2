@@ -1,6 +1,7 @@
 export default {
   common: {
     price: '{{value}} د.ع',
+    currencyShort: 'د.ع',
     back: 'رجوع',
     delete: 'حذف',
     cancel: 'إلغاء',
@@ -20,6 +21,7 @@ export default {
     title: 'المنتجات',
     subtitle: 'تسوّق مجموعة منتجاتنا',
     searchPlaceholder: 'ابحث عن منتج، ماركة، أو فئة…',
+    searchInPlaceholder: 'ابحث في {{name}}…',
     empty: 'لا توجد منتجات',
     emptyHint: 'ستظهر المنتجات هنا عند إضافتها.',
     emptySearch: 'لا نتائج',
@@ -36,6 +38,7 @@ export default {
   product: {
     title: 'تفاصيل المنتج',
     addToCart: 'أضف للسلة',
+    shop: 'تسوق',
     outOfStock: 'غير متوفر',
     notFound: 'المنتج غير متاح',
     specs: 'المواصفات',

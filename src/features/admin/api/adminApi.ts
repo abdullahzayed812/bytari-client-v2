@@ -144,8 +144,11 @@ export const adminApi = {
   listPendingVetApplications(
     page: number,
     pageSize: number,
+    search?: string,
   ): Promise<Paginated<PendingVetApplication>> {
-    return listPaged<PendingVetApplication>('/admin/veterinarians/pending', page, pageSize, {});
+    return listPaged<PendingVetApplication>('/admin/veterinarians/pending', page, pageSize, {
+      search,
+    });
   },
 
   approveVetApplication(userId: string): Promise<unknown> {
@@ -165,8 +168,12 @@ export const adminApi = {
     });
   },
 
-  listPendingOrganizations(page: number, pageSize: number): Promise<Paginated<Organization>> {
-    return listPaged<Organization>('/admin/organizations/pending', page, pageSize, {});
+  /** `type` keeps the queue to the section's own type (and its supervisor's scope). */
+  listPendingOrganizations(f: Omit<OrgListFilter, 'status'>): Promise<Paginated<Organization>> {
+    return listPaged<Organization>('/admin/organizations/pending', f.page, f.pageSize, {
+      type: f.type,
+      search: f.search,
+    });
   },
 
   getOrganization(organizationId: string): Promise<AdminOrganizationFile> {
@@ -224,6 +231,7 @@ export const adminApi = {
       status: f.status,
       subscriptionStatus: f.subscriptionStatus,
       speciesGroup: f.speciesGroup,
+      search: f.search,
     });
   },
 
@@ -275,6 +283,7 @@ export const adminApi = {
    */
   listPendingRenewals(f: {
     organizationType?: OrganizationType;
+    search?: string;
     page: number;
     pageSize: number;
   }): Promise<Paginated<AdminPendingRenewalRequest>> {
@@ -282,7 +291,7 @@ export const adminApi = {
       '/admin/organizations/subscription-renewals/pending',
       f.page,
       f.pageSize,
-      { type: f.organizationType },
+      { type: f.organizationType, search: f.search },
     );
   },
 
@@ -292,6 +301,7 @@ export const adminApi = {
       domain: f.domain,
       status: f.status,
       userId: f.userId,
+      search: f.search,
     });
   },
 
@@ -338,6 +348,7 @@ export const adminApi = {
       entityType: f.entityType,
       entityId: f.entityId,
       actorUserId: f.actorUserId,
+      search: f.search,
     });
   },
 
@@ -367,7 +378,11 @@ export const adminApi = {
 
   // --- chat oversight ("الدردشات") ----------------------
   listChatConversations(f: AdminChatListFilter): Promise<Paginated<AdminChatConversation>> {
-    return listPaged<AdminChatConversation>('/admin/chat/conversations', f.page, f.pageSize, {});
+    return listPaged<AdminChatConversation>('/admin/chat/conversations', f.page, f.pageSize, {
+      q: f.search || undefined,
+      type: f.type,
+      status: f.status,
+    });
   },
   /** Read-only viewer — any conversation, even one the admin is not part of (audited server-side). */
   getChatConversation(conversationId: string): Promise<AdminChatConversationDetail> {

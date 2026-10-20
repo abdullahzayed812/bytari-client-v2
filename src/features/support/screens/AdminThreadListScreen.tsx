@@ -10,6 +10,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { AdminSearchBar, useAdminSearch } from '@/features/admin/components/AdminSearchBar';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
@@ -39,9 +40,12 @@ export default function AdminThreadListScreen() {
 
   const [status, setStatus] = useState<ThreadStatus | undefined>(undefined);
   const [onlyNew, setOnlyNew] = useState(false);
+  const { t: tAdmin } = useTranslation('admin');
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
   const q = useAdminThreads(kind ?? 'CONSULTATION', {
     status,
     unread: onlyNew,
+    search,
     enabled: authorized,
   });
   const unread = useAdminUnreadCount(kind ?? 'CONSULTATION', { enabled: authorized });
@@ -150,6 +154,12 @@ export default function AdminThreadListScreen() {
   return (
     <SafeAreaScreen>
       <AppHeader title={t(`manage.title.${kind}`)} showBack />
+      {/* Outside the list so typing never remounts the field / drops focus. */}
+      <AdminSearchBar
+        value={rawSearch}
+        onChangeText={setRawSearch}
+        placeholder={tAdmin('search.placeholders.threads')}
+      />
 
       {q.isLoading ? (
         <View
@@ -173,21 +183,30 @@ export default function AdminThreadListScreen() {
         <FlatList
           data={q.threads}
           keyExtractor={(x) => x.id}
+          keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => (
             <ThreadCard thread={item} showCreator onPress={() => goDetail(item)} />
           )}
           ListHeaderComponent={header}
           ListEmptyComponent={
-            <EmptyState
-              icon={meta.icon}
-              title={
-                onlyNew
-                  ? t('manage.emptyNew')
-                  : status
-                    ? t('list.emptyFiltered')
-                    : t('manage.empty')
-              }
-            />
+            search ? (
+              <EmptyState
+                icon="search-outline"
+                title={tAdmin('search.noResults', { term: search })}
+                message={tAdmin('search.noResultsHint')}
+              />
+            ) : (
+              <EmptyState
+                icon={meta.icon}
+                title={
+                  onlyNew
+                    ? t('manage.emptyNew')
+                    : status
+                      ? t('list.emptyFiltered')
+                      : t('manage.empty')
+                }
+              />
+            )
           }
           ListFooterComponent={
             q.isFetchingNextPage ? <Loading label={t('common.loadingMore')} /> : null

@@ -157,7 +157,11 @@ export function useVetStoreAdminOrdersSummary(options: { enabled?: boolean } = {
   });
 }
 
-export function useVetStoreAdminOrders(status?: VetStoreOrderStatus, newOnly?: boolean) {
+export function useVetStoreAdminOrders(
+  status?: VetStoreOrderStatus,
+  newOnly?: boolean,
+  search?: string,
+) {
   const pageSize = AppConfig.defaultPageSize;
   const query = useInfiniteQuery<
     Paginated<VetStoreOrder>,
@@ -166,10 +170,16 @@ export function useVetStoreAdminOrders(status?: VetStoreOrderStatus, newOnly?: b
     readonly unknown[],
     number
   >({
-    queryKey: vetStoreKeys.adminOrders(status, newOnly),
+    queryKey: vetStoreKeys.adminOrders(status, newOnly, search),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      veterinarianStoreAdminService.listOrders({ page: pageParam, pageSize, status, newOnly }),
+      veterinarianStoreAdminService.listOrders({
+        page: pageParam,
+        pageSize,
+        status,
+        newOnly,
+        search,
+      }),
     getNextPageParam: (last) =>
       last.meta.page < last.meta.totalPages ? last.meta.page + 1 : undefined,
     staleTime: 10_000,

@@ -31,12 +31,12 @@ export const adminVetJobsApi = {
   async listOffers(
     page: number,
     pageSize: number,
-    filter: { status?: VetJobModerationStatus } = {},
+    filter: { status?: VetJobModerationStatus; search?: string } = {},
   ): Promise<Paginated<VetJobOffer>> {
     const env = await apiClient.requestEnvelope<VetJobOffer[]>({
       method: 'GET',
       url: '/admin/vet-job-offers',
-      params: { page, pageSize, status: filter.status },
+      params: { page, pageSize, status: filter.status, search: filter.search },
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },
@@ -57,12 +57,12 @@ export const adminVetJobsApi = {
   async listSeekers(
     page: number,
     pageSize: number,
-    filter: { status?: VetJobModerationStatus } = {},
+    filter: { status?: VetJobModerationStatus; search?: string } = {},
   ): Promise<Paginated<VetJobSeekerProfile>> {
     const env = await apiClient.requestEnvelope<VetJobSeekerProfile[]>({
       method: 'GET',
       url: '/admin/vet-job-seekers',
-      params: { page, pageSize, status: filter.status },
+      params: { page, pageSize, status: filter.status, search: filter.search },
     });
     return { items: env.data, meta: readMeta(env.meta, page, pageSize, env.data.length) };
   },

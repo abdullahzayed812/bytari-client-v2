@@ -27,3 +27,12 @@ export {
   deleteBlockedReason,
   type DeleteUserDialogProps,
 } from './DeleteUserDialog';
+export { AdminSearchBar, useAdminSearch, type AdminSearchBarProps } from './AdminSearchBar';
+export {
+  AdminUserLink,
+  ViewUserProfileButton,
+  useCanOpenAdminUser,
+  DELETED_USER_ID,
+  type AdminUserLinkProps,
+  type ViewUserProfileButtonProps,
+} from './AdminUserLink';

@@ -7,3 +7,5 @@ export { Chip, type ChipProps } from './Chip';
 export { Divider, type DividerProps } from './Divider';
 export { Banner, type BannerProps } from './Banner';
 export { ContactActionRow, type ContactActionRowProps, type ContactKind } from './ContactActionRow';
+export { ContentGridCard, type ContentGridCardProps } from './ContentGridCard';
+export { ContentHighlightBanner, type ContentHighlightBannerProps } from './ContentHighlightBanner';

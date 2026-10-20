@@ -6,3 +6,4 @@ export {
   type HeaderIconButtonProps,
   type HomeHeaderLayoutProps,
 } from './HomeHeader';
+export { OrganizationsCarousel } from './OrganizationsCarousel';

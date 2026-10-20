@@ -62,6 +62,8 @@ export const publicVeterinaryOfficeProductsApi = {
     productType?: VeterinaryOfficeProductListFilter['productType'];
     brand?: string;
     country?: string;
+    sort?: 'name' | 'price' | 'createdAt';
+    order?: 'asc' | 'desc';
   }): Promise<Paginated<OfficeProductSearchHit>> {
     const envelope = await apiClient.requestEnvelope<OfficeProductSearchHit[]>({
       method: 'GET',
@@ -73,6 +75,8 @@ export const publicVeterinaryOfficeProductsApi = {
         type: filter.productType,
         brand: filter.brand,
         country: filter.country,
+        sort: filter.sort,
+        order: filter.order,
       },
     });
     return {

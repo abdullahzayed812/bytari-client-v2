@@ -33,9 +33,11 @@ import {
   AdminDetailModal,
   AdminListScreen,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   MessageUserDialog,
   ReasonPromptDialog,
+  useAdminSearch,
 } from '../components';
 
 const STATUSES: VetCourseModerationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
@@ -87,7 +89,8 @@ export default function AdminVetCoursesScreen() {
   const [type, setType] = useState<VetCourseType>(params.type === 'SEMINAR' ? 'SEMINAR' : 'COURSE');
 
   const [status, setStatus] = useState<VetCourseModerationStatus | undefined>('PENDING');
-  const q = useAdminVetCourses({ status, type });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminVetCourses({ search, status, type });
 
   const title = t('vetCourses.titleUnified');
   const addLabel = type === 'SEMINAR' ? t('vetCourses.addSeminar') : t('vetCourses.addCourse');
@@ -195,25 +198,33 @@ export default function AdminVetCoursesScreen() {
         emptyTitle={t('vetCourses.empty')}
         emptyMessage={t('vetCourses.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
-          <View style={{ rowGap: theme.spacing.sm }}>
-            <SegmentedControl<VetCourseType>
-              value={type}
-              onChange={setType}
-              options={[
-                { value: 'COURSE', label: t('vetCourses.tabCourses') },
-                { value: 'SEMINAR', label: t('vetCourses.tabSeminars') },
-              ]}
+          <>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.courses')}
             />
-            <FilterChips<VetCourseModerationStatus>
-              value={status}
-              onChange={setStatus}
-              options={[
-                { value: undefined, label: t('vetCourses.status.ALL') },
-                ...STATUSES.map((s) => ({ value: s, label: t(`vetCourses.status.${s}`) })),
-              ]}
-            />
-          </View>
+            <View style={{ rowGap: theme.spacing.sm }}>
+              <SegmentedControl<VetCourseType>
+                value={type}
+                onChange={setType}
+                options={[
+                  { value: 'COURSE', label: t('vetCourses.tabCourses') },
+                  { value: 'SEMINAR', label: t('vetCourses.tabSeminars') },
+                ]}
+              />
+              <FilterChips<VetCourseModerationStatus>
+                value={status}
+                onChange={setStatus}
+                options={[
+                  { value: undefined, label: t('vetCourses.status.ALL') },
+                  ...STATUSES.map((s) => ({ value: s, label: t(`vetCourses.status.${s}`) })),
+                ]}
+              />
+            </View>
+          </>
         }
         renderItem={(c) => (
           <AdminRow

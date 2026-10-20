@@ -18,6 +18,7 @@
 export { contentApi, contentKeys, type ContentApi } from './api';
 export {
   useContentList,
+  useContentPage,
   useContentItem,
   useContentCategories,
   useContentFileUrl,

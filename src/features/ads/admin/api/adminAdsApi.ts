@@ -43,6 +43,7 @@ export const adminAdsApi = {
         placement: params.placement,
         type: params.type,
         includeDeleted: params.includeDeleted,
+        search: params.search,
       },
     });
     return {
@@ -114,10 +115,7 @@ export const adminAdsApi = {
     slideId: string,
     input: { storageKey: string; mimeType: string },
   ): Promise<AdSlide> {
-    return apiClient.post<AdSlide>(
-      `/admin/ads/${campaignId}/slides/${slideId}/image`,
-      input,
-    );
+    return apiClient.post<AdSlide>(`/admin/ads/${campaignId}/slides/${slideId}/image`, input);
   },
 
   removeSlideImage(campaignId: string, slideId: string): Promise<AdSlide> {

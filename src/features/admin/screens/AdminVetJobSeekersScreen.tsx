@@ -23,8 +23,10 @@ import {
   AdminDetailModal,
   AdminListScreen,
   AdminRow,
+  AdminSearchBar,
   FilterChips,
   ReasonPromptDialog,
+  useAdminSearch,
 } from '../components';
 
 const STATUSES: VetJobModerationStatus[] = ['PENDING', 'APPROVED', 'REJECTED'];
@@ -57,7 +59,8 @@ export default function AdminVetJobSeekersScreen() {
   const toast = useToast();
 
   const [status, setStatus] = useState<VetJobModerationStatus | undefined>('PENDING');
-  const q = useAdminVetJobSeekers({ status });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminVetJobSeekers({ search, status });
   const approve = useAdminApproveVetJobSeeker();
   const reject = useAdminRejectVetJobSeeker();
   const del = useAdminDeleteVetJobSeeker();
@@ -129,15 +132,23 @@ export default function AdminVetJobSeekersScreen() {
         emptyTitle={t('vetJobSeekers.empty')}
         emptyMessage={t('vetJobSeekers.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
-          <FilterChips<VetJobModerationStatus>
-            value={status}
-            onChange={setStatus}
-            options={[
-              { value: undefined, label: t('vetJobSeekers.status.ALL') },
-              ...STATUSES.map((s) => ({ value: s, label: t(`vetJobSeekers.status.${s}`) })),
-            ]}
-          />
+          <>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.jobSeekers')}
+            />
+            <FilterChips<VetJobModerationStatus>
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: undefined, label: t('vetJobSeekers.status.ALL') },
+                ...STATUSES.map((s) => ({ value: s, label: t(`vetJobSeekers.status.${s}`) })),
+              ]}
+            />
+          </>
         }
         renderItem={(p) => (
           <AdminRow

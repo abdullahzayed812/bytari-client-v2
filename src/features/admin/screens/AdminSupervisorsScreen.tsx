@@ -11,7 +11,13 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 
-import { AdminListScreen, AdminRow, FilterChips } from '../components';
+import {
+  AdminListScreen,
+  AdminRow,
+  AdminSearchBar,
+  FilterChips,
+  useAdminSearch,
+} from '../components';
 import { adminApi } from '../api';
 import {
   useAdminSupervisors,
@@ -29,7 +35,8 @@ export default function AdminSupervisorsScreen() {
   const toast = useToast();
 
   const [domain, setDomain] = useState<SupervisorDomain | undefined>(undefined);
-  const q = useAdminSupervisors({ domain, status: 'ACTIVE' });
+  const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
+  const q = useAdminSupervisors({ search, domain, status: 'ACTIVE' });
   const assignMut = useSetSupervisorDomainsMutation();
   const removeMut = useRemoveSupervisorMutation();
   // The sections come from the server catalogue (every assignable Admin
@@ -135,18 +142,26 @@ export default function AdminSupervisorsScreen() {
         emptyTitle={t('supervisors.empty')}
         emptyMessage={t('supervisors.emptyHint')}
         loadingMoreLabel={t('common.loadingMore')}
+        searchTerm={search}
         filterBar={
-          <FilterChips<SupervisorDomain>
-            value={domain}
-            onChange={setDomain}
-            options={[
-              { value: undefined, label: t('users.filter.all') },
-              ...allDomains.map((d) => ({
-                value: d,
-                label: t(`supervisors.domain.${d}`),
-              })),
-            ]}
-          />
+          <>
+            <AdminSearchBar
+              value={rawSearch}
+              onChangeText={setRawSearch}
+              placeholder={t('search.placeholders.supervisors')}
+            />
+            <FilterChips<SupervisorDomain>
+              value={domain}
+              onChange={setDomain}
+              options={[
+                { value: undefined, label: t('users.filter.all') },
+                ...allDomains.map((d) => ({
+                  value: d,
+                  label: t(`supervisors.domain.${d}`),
+                })),
+              ]}
+            />
+          </>
         }
         renderItem={(a) => (
           <AdminRow

@@ -269,6 +269,15 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     show: (c) => c.isAdmin || c.can('home_section.manage'),
   },
   {
+    // "العيادات والمكاتب المميزة" — the home carousels' featured entries.
+    id: 'featuredOrganizations',
+    icon: 'star-outline',
+    tint: dashboardTint(2),
+    palette: { bg: '#fff8eb', border: '#fdecc8', accent: '#f59e0b' },
+    route: Routes.adminFeaturedOrganizations,
+    show: (c) => c.isAdmin || c.can('home_section.manage'),
+  },
+  {
     id: 'broadcasts',
     icon: 'navigate-outline',
     tint: dashboardTint(3),

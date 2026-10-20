@@ -21,6 +21,8 @@ export default {
   list: {
     title: 'آخر الأخبار',
     section: 'أحدث الأخبار',
+    all: 'الكل',
+    allWithCount: 'الكل ({{count}})',
     searchPlaceholder: 'ابحث عن خبر…',
     empty: 'لا توجد أخبار بعد',
     emptyHint: 'ستظهر الأخبار المنشورة هنا.',

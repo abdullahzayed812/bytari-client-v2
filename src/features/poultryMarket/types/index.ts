@@ -190,6 +190,8 @@ export interface ListPoultryOffersFilter {
   status?: PoultryOfferStatus;
   /** Admin listing only. */
   moderationStatus?: MarketModerationStatus;
+  /** Admin listing only — offer / seller search. */
+  search?: string;
 }
 
 // --- egg offers --------------------------------------------------
@@ -248,6 +250,8 @@ export interface ListEggOffersFilter {
   governorate?: string;
   status?: EggOfferStatus;
   moderationStatus?: MarketModerationStatus;
+  /** Admin listing only — offer / seller search. */
+  search?: string;
 }
 
 // --- exchange rates ("bourse") -------------------------------------

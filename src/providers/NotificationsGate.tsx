@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -7,7 +8,7 @@ import { onBeforeLogout } from '@/features/auth/store/authStore';
 import { chatKeys } from '@/features/chat/api';
 import { useChatListRealtime } from '@/features/chat/hooks';
 import { notificationKeys } from '@/features/notifications/api';
-import { notificationDestination } from '@/features/notifications/constants';
+import { notificationDestination, notificationHref } from '@/features/notifications/constants';
 import {
   useMarkNotificationRead,
   useNotificationRealtime,
@@ -20,6 +21,23 @@ import { notificationService } from '@/services/notifications';
 import type { ReceivedNotification } from '@/services/notifications';
 
 const log = createLogger('notifications-gate');
+
+/** OS identifier of the last push tap we navigated for (dedupes launch replays). */
+export const LAST_OPENED_PUSH_KEY = 'bytari.notifications.lastOpenedPush';
+
+function payloadOf(n: ReceivedNotification) {
+  const notificationId =
+    typeof n.data.notificationId === 'string' && n.data.notificationId
+      ? n.data.notificationId
+      : null;
+  return {
+    id: notificationId,
+    type: (n.data.type as AppNotification['type']) ?? 'ADMIN_ANNOUNCEMENT',
+    entityType: (n.data.entityType as string | null) ?? null,
+    entityId: (n.data.entityId as string | null) ?? null,
+    data: n.data,
+  };
+}
 
 /**
  * App-wide notifications wiring. Renders nothing.
@@ -120,32 +138,34 @@ export function NotificationsGate() {
   // --- push taps → deep link ---
   useEffect(() => {
     const go = (n: ReceivedNotification): void => {
-      const notificationId =
-        typeof n.data.notificationId === 'string' && n.data.notificationId
-          ? n.data.notificationId
-          : null;
-      if (notificationId) markRead(notificationId);
-      router.push(
-        notificationDestination({
-          id: notificationId,
-          type: (n.data.type as AppNotification['type']) ?? 'ADMIN_ANNOUNCEMENT',
-          entityType: (n.data.entityType as string | null) ?? null,
-          entityId: (n.data.entityId as string | null) ?? null,
-          data: n.data,
-        }) as never,
-      );
+      const payload = payloadOf(n);
+      if (payload.id) markRead(payload.id);
+      if (n.id) void AsyncStorage.setItem(LAST_OPENED_PUSH_KEY, n.id).catch(() => undefined);
+      router.push(notificationDestination(payload) as never);
     };
 
     const sub = notificationService.onNotificationTap((n) => {
       if (isAuthenticated) go(n);
     });
 
-    // Cold start: the app was launched by tapping a notification.
+    // Cold start: the app was launched by tapping a notification. Only a
+    // genuine, not-yet-handled tap that points somewhere real navigates — the
+    // app otherwise opens on Home like any normal launch:
+    //  - the OS response is consumed (cleared) so it can't replay later;
+    //  - one we already opened (same OS identifier) is ignored;
+    //  - a payload with neither a notification row nor an in-app destination
+    //    would only fall back to the inbox, so it is ignored too.
     if (isAuthenticated && !coldStartHandled.current) {
       coldStartHandled.current = true;
-      void notificationService.getInitialNotification().then((n) => {
-        if (n) setTimeout(() => go(n), 300); // let the navigator settle first
-      });
+      void (async () => {
+        const n = await notificationService.consumeInitialNotification();
+        if (!n) return;
+        const lastOpened = await AsyncStorage.getItem(LAST_OPENED_PUSH_KEY).catch(() => null);
+        if (n.id && n.id === lastOpened) return;
+        const payload = payloadOf(n);
+        if (!payload.id && !notificationHref(payload)) return;
+        setTimeout(() => go(n), 300); // let the navigator settle first
+      })();
     }
 
     return sub;

@@ -1,5 +1,6 @@
 export {
   useContentList,
+  useContentPage,
   useContentItem,
   useContentCategories,
   useContentFileUrl,

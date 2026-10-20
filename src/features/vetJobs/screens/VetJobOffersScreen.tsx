@@ -14,7 +14,7 @@ import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import { JobOfferCard } from '../components';
-import { useVetJobOffers } from '../hooks';
+import { useJobGridColumns, useVetJobOffers } from '../hooks';
 import {
   VET_JOB_EMPLOYMENT_TYPES,
   type OfferBrowseFilter,
@@ -34,6 +34,8 @@ export default function VetJobOffersScreen() {
     [search, employmentType],
   );
   const q = useVetJobOffers(filter);
+  // Two columns once each offer card gets ≥ 300px (tablet / desktop), else one.
+  const grid = useJobGridColumns(300, theme.spacing.md, theme.screenPadding);
 
   return (
     <SafeAreaScreen>
@@ -91,10 +93,19 @@ export default function VetJobOffersScreen() {
         </View>
       ) : (
         <FlatList
+          // numColumns cannot change on a mounted FlatList — remount per column count.
+          key={`offers-${grid.columns}`}
+          onLayout={grid.onLayout}
           data={q.offers}
           keyExtractor={(o) => o.id}
+          numColumns={grid.columns}
+          columnWrapperStyle={grid.columns === 2 ? { gap: theme.spacing.md } : undefined}
           renderItem={({ item }) => (
-            <JobOfferCard offer={item} onPress={() => router.push(Routes.vetJobOffer(item.id))} />
+            // Equal-height cells only in the 2-up grid (a 1-column `flex: 1`
+            // would stretch short lists inside the growing content container).
+            <View style={grid.columns === 2 ? { flex: 1 } : undefined}>
+              <JobOfferCard offer={item} onPress={() => router.push(Routes.vetJobOffer(item.id))} />
+            </View>
           )}
           ListEmptyComponent={
             <EmptyState

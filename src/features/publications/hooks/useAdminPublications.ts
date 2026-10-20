@@ -25,7 +25,7 @@ import type {
  * sees the requests awaiting action first.
  */
 export function useAdminAnimalPublications(
-  filter: { kind?: PublicationKind; status?: PublicationStatus } = {},
+  filter: { kind?: PublicationKind; status?: PublicationStatus; search?: string } = {},
 ) {
   const pageSize = AppConfig.defaultPageSize;
   const query = useInfiniteQuery<
@@ -35,7 +35,11 @@ export function useAdminAnimalPublications(
     ReturnType<typeof publicationKeys.adminList>,
     number
   >({
-    queryKey: publicationKeys.adminList({ kind: filter.kind, status: filter.status }),
+    queryKey: publicationKeys.adminList({
+      kind: filter.kind,
+      status: filter.status,
+      search: filter.search,
+    }),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => adminPublicationsApi.list(pageParam, pageSize, filter),
     getNextPageParam: (last) =>

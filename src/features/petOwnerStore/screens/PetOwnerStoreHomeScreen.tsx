@@ -9,33 +9,44 @@ import { SafeAreaScreen } from '@/components/layout';
 import { Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { Advertisement } from '@/features/ads';
+import {
+  StoreGridProductCard,
+  StoreGridProductCardSkeleton,
+  StoreHomeCategories,
+  StoreLogoMark,
+  StoreTopBar,
+  storeCategoryStyle,
+  useStoreGrid,
+} from '@/features/storeShared';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import {
-  HomeCategoryCircle,
-  StoreHeader,
-  StoreProductCard,
-  StoreProductCardSkeleton,
-} from '../components';
-import {
+  usePetOwnerStore,
   usePetOwnerStoreCartMutations,
   usePetOwnerStoreCategories,
   usePetOwnerStoreProducts,
 } from '../hooks';
+import { formatAmount } from '../utils';
 
-/** Route `/pet-owner-store` — the store home. Also the Pet Owner mode's 3rd tab. */
+/**
+ * Route `/pet-owner-store` — the store home (also the Pet Owner mode's 3rd
+ * tab), laid out after the "متجر أصحاب الحيوانات" reference: brand bar with
+ * the cart badge, search, the admin promo carousel, the category cards
+ * (first one full width), then the store's picks as compact 3-up cards.
+ */
 export default function PetOwnerStoreHomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('petOwnerStore');
   const toast = useToast();
   const [search, setSearch] = useState('');
+  const grid = useStoreGrid({ padding: 20, gap: 8 });
 
+  const { itemCount } = usePetOwnerStore();
   const homeCats = usePetOwnerStoreCategories({ homeOnly: true });
-  const products = usePetOwnerStoreProducts({ pageSize: 6 });
+  const allCats = usePetOwnerStoreCategories();
+  const products = usePetOwnerStoreProducts({ pageSize: grid.columns * 2 });
   const { addItem } = usePetOwnerStoreCartMutations();
-
-  const cardWidth = 175;
 
   const submitSearch = (): void => {
     const q = search.trim();
@@ -56,18 +67,25 @@ export default function PetOwnerStoreHomeScreen() {
     );
   };
 
+  const categories = allCats.data ?? [];
+
   return (
     <SafeAreaScreen>
-      <StoreHeader title={t('home.title')} subtitle={t('home.subtitle')} />
+      <StoreTopBar
+        title={t('home.title')}
+        subtitle={t('home.subtitle')}
+        logo={<StoreLogoMark icon="paw" />}
+        cartCount={itemCount}
+        onCartPress={() => router.push(Routes.petOwnerStoreCart)}
+        cartA11yLabel={t('cart.open')}
+      />
 
       <ScrollView
-        contentContainerStyle={{
-          paddingBottom: theme.spacing.huge,
-          rowGap: theme.spacing.lg,
-        }}
+        onLayout={grid.onLayout}
+        contentContainerStyle={{ paddingBottom: theme.spacing.huge, rowGap: 12 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ paddingHorizontal: theme.screenPadding }}>
+        <View style={{ paddingHorizontal: 20 }}>
           <SearchInput
             value={search}
             onChangeText={setSearch}
@@ -78,69 +96,61 @@ export default function PetOwnerStoreHomeScreen() {
           />
         </View>
 
-        <View style={{ paddingHorizontal: theme.screenPadding }}>
+        <View style={{ paddingHorizontal: 20 }}>
           <Advertisement placement="PET_OWNER_STORE" />
         </View>
 
         {homeCats.data && homeCats.data.length > 0 ? (
-          <View style={{ rowGap: theme.spacing.sm }}>
-            <Label style={{ paddingHorizontal: theme.screenPadding }}>
-              {t('home.shopByAnimal')}
-            </Label>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                columnGap: theme.spacing.md,
-                paddingHorizontal: theme.screenPadding,
-              }}
-            >
-              {homeCats.data.map((c) => (
-                <HomeCategoryCircle
-                  key={c.id}
-                  category={c}
-                  onPress={() =>
-                    router.push({
-                      pathname: Routes.petOwnerStoreProducts,
-                      params: { categoryId: c.id },
-                    })
-                  }
-                />
-              ))}
-            </ScrollView>
+          <View style={{ paddingHorizontal: 20 }}>
+            <StoreHomeCategories
+              categories={homeCats.data}
+              allCategories={categories}
+              layout="featured"
+              onOpen={(c) =>
+                router.push({
+                  pathname: Routes.petOwnerStoreProducts,
+                  params: { categoryId: c.id },
+                })
+              }
+            />
           </View>
         ) : null}
 
-        <View style={{ rowGap: theme.spacing.md, paddingHorizontal: theme.screenPadding }}>
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <Label>{t('home.picks')}</Label>
-          </View>
+        <View style={{ rowGap: 10, paddingHorizontal: 20 }}>
+          <Label>{t('home.picks')}</Label>
 
           {products.isError ? (
             <ErrorState error={products.error} onRetry={() => void products.refetch()} />
           ) : (
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                rowGap: theme.spacing.md,
-              }}
-            >
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: grid.gap }}>
               {products.isLoading
-                ? [0, 1, 2, 3].map((i) => <StoreProductCardSkeleton key={i} width={cardWidth} />)
-                : products.products.map((p) => (
-                    <StoreProductCard
-                      key={p.id}
-                      product={p}
-                      width={cardWidth}
-                      adding={addItem.isPending && addItem.variables?.productId === p.id}
-                      onPress={() => router.push(Routes.petOwnerStoreProduct(p.id))}
-                      onAddToCart={() => onAdd(p.id)}
-                    />
-                  ))}
+                ? Array.from({ length: grid.columns }, (_, i) => (
+                    <StoreGridProductCardSkeleton key={i} width={grid.cardWidth} />
+                  ))
+                : products.products.map((p) => {
+                    const category = categories.find((c) => c.id === p.categoryId);
+                    const section = category?.parentId
+                      ? categories.find((c) => c.id === category.parentId)
+                      : undefined;
+                    return (
+                      <StoreGridProductCard
+                        key={p.id}
+                        width={grid.cardWidth}
+                        title={p.name}
+                        subtitle={p.categoryName}
+                        imageUrl={p.primaryImageUrl}
+                        price={formatAmount(p.price)}
+                        currency={t('common.currencyShort')}
+                        rating={{ average: p.ratingAverage, count: p.ratingCount }}
+                        accent={storeCategoryStyle(category, section).accent}
+                        actionLabel={p.inStock ? t('product.shop') : t('product.outOfStock')}
+                        actionDisabled={!p.inStock}
+                        actionLoading={addItem.isPending && addItem.variables?.productId === p.id}
+                        onAction={() => onAdd(p.id)}
+                        onPress={() => router.push(Routes.petOwnerStoreProduct(p.id))}
+                      />
+                    );
+                  })}
               {!products.isLoading && products.products.length === 0 ? (
                 <EmptyState icon="pricetags-outline" title={t('home.emptyPicks')} />
               ) : null}

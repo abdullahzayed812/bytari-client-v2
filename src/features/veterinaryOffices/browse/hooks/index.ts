@@ -4,5 +4,6 @@ export {
   useOfficeProductFacetsAll,
   usePublicVeterinaryOfficeProduct,
   useOfficeProductSearch,
+  useLatestOfficeProducts,
   type UsePublicVeterinaryOfficeProductsParams,
 } from './usePublicVeterinaryOfficeProducts';
