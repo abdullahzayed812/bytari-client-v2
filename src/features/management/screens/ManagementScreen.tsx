@@ -210,7 +210,9 @@ export default function ManagementScreen() {
                       })
                     : undefined
               }
-              loading={summary.isLoading}
+              // No summary (still loading, or the read failed): show "—", never a
+              // misleading 0 / missing renewal pill. The error + retry is below.
+              loading={!summary.data}
               onPress={() => openCard(card)}
             />
           ))}

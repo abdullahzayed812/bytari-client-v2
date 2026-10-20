@@ -2331,7 +2331,7 @@ export const en: TranslationResources = {
   },
   home: {
     featured: {
-      title: 'Featured clinics & offices',
+      title: 'Featured clinics',
       goTo: 'Show card {{index}} of {{count}}',
     },
     header: {
@@ -2449,7 +2449,7 @@ export const en: TranslationResources = {
         viewAll: 'View all',
         emptyTitle: 'No veterinary offices available right now',
       },
-      featuredOrganizations: 'Featured clinics & offices',
+      featuredOrganizations: 'Featured veterinary offices & companies',
       officeProducts: {
         title: 'Veterinary office products',
         viewAll: 'View all',
@@ -6757,7 +6757,7 @@ export const en: TranslationResources = {
     },
     featuredOrgs: {
       title: 'Featured clinics & offices',
-      hint: 'Choose which clinics and veterinary offices appear in the moving carousel on the home page, and when. Only enabled entries show, only inside their dates, and only while the organization itself is publicly visible.',
+      hint: 'Choose which clinics (Pet Owner home) and veterinary offices & companies (Veterinarian home) appear in the moving carousel, and when. Only enabled entries show, only inside their dates, and only while the organization itself is publicly visible.',
       add: 'Add a clinic or office',
       addTitle: 'Add featured entry',
       editTitle: 'Edit featured entry',
@@ -6775,6 +6775,17 @@ export const en: TranslationResources = {
       order: 'Order {{value}}',
       orgHidden:
         'The organization is not publicly visible right now (inactive or subscription expired) — it will not appear.',
+      pageType: {
+        PET_OWNER_HOME: 'The Pet Owner home shows “Featured clinics” — clinics only.',
+        VETERINARIAN_HOME:
+          'The Veterinarian home shows “Featured veterinary offices & companies” — offices only.',
+      },
+      wrongPage: {
+        PET_OWNER_HOME:
+          'The Pet Owner home only shows clinics — this entry will not appear. Remove it.',
+        VETERINARIAN_HOME:
+          'The Veterinarian home only shows veterinary offices & companies — this entry will not appear. Remove it.',
+      },
       enabled: 'Enabled',
       page: 'Page',
       organization: 'Organization',
@@ -7006,6 +7017,8 @@ export const en: TranslationResources = {
         setPasswordBody: 'The user is signed out of every device. Share the new password securely.',
         newPasswordLabel: 'New password (at least 10 characters)',
         passwordTooShort: 'The password must be at least 10 characters.',
+        confirmPasswordLabel: 'Confirm the new password',
+        passwordMismatch: 'The passwords do not match.',
         sendResetCta: 'Send reset code',
         sendResetTitle: 'Send reset code',
         sendResetBody: 'A one-time code is emailed to the user so they can choose a new password.',

@@ -29,7 +29,12 @@ import {
 } from '@/utils/localDate';
 
 import { useAdminFeaturedOrganizations, useFeaturedOrganizationMutations } from '../hooks';
-import type { AdminFeaturedOrganization, FeaturedPlacement, FeaturedState } from '../types';
+import {
+  FEATURED_TYPE_BY_PLACEMENT,
+  type AdminFeaturedOrganization,
+  type FeaturedPlacement,
+  type FeaturedState,
+} from '../types';
 
 const PLACEMENTS: FeaturedPlacement[] = ['PET_OWNER_HOME', 'VETERINARIAN_HOME'];
 type FeaturableType = 'CLINIC' | 'VETERINARY_OFFICE';
@@ -160,7 +165,11 @@ export default function AdminFeaturedOrganizationsScreen() {
                 {!e.organization.publiclyVisible ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 6 }}>
                     <Icon name="eye-off-outline" size="iconXs" color="warning" />
-                    <Caption color="warning">{t('featuredOrgs.orgHidden')}</Caption>
+                    <Caption color="warning" style={{ flex: 1 }}>
+                      {e.organization.type !== FEATURED_TYPE_BY_PLACEMENT[e.placement]
+                        ? t(`featuredOrgs.wrongPage.${e.placement}`)
+                        : t('featuredOrgs.orgHidden')}
+                    </Caption>
                   </View>
                 ) : null}
 
@@ -297,7 +306,8 @@ function FeaturedForm({
   );
   const set = (patch: Partial<FormState>) => setForm((f) => ({ ...f, ...patch }));
 
-  const [orgType, setOrgType] = useState<FeaturableType>('CLINIC');
+  // Each page features one type — clinics for Pet Owners, offices for Veterinarians.
+  const orgType: FeaturableType = FEATURED_TYPE_BY_PLACEMENT[form.placement];
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch, 300);
   const orgs = useAdminOrganizations({
@@ -335,24 +345,19 @@ function FeaturedForm({
             <Label>{t('featuredOrgs.page')}</Label>
             <SegmentedControl<FeaturedPlacement>
               value={form.placement}
-              onChange={(placement) => set({ placement })}
+              onChange={(placement) =>
+                // the picked organization belongs to the other page's type
+                set({ placement, organization: null })
+              }
               options={[
                 { value: PLACEMENTS[0]!, label: t('featuredOrgs.pageShort.PET_OWNER_HOME') },
                 { value: PLACEMENTS[1]!, label: t('featuredOrgs.pageShort.VETERINARIAN_HOME') },
               ]}
             />
-            <Label>{t('featuredOrgs.organization')}</Label>
-            <SegmentedControl<FeaturableType>
-              value={orgType}
-              onChange={(v) => {
-                setOrgType(v);
-                set({ organization: null });
-              }}
-              options={[
-                { value: 'CLINIC', label: t('featuredOrgs.type.CLINIC') },
-                { value: 'VETERINARY_OFFICE', label: t('featuredOrgs.type.VETERINARY_OFFICE') },
-              ]}
-            />
+            <Caption>{t(`featuredOrgs.pageType.${form.placement}`)}</Caption>
+            <Label>
+              {t('featuredOrgs.organization')} · {t(`featuredOrgs.type.${orgType}`)}
+            </Label>
             <SearchInput
               value={rawSearch}
               onChangeText={setRawSearch}

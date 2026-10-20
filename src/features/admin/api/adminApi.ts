@@ -231,6 +231,7 @@ export const adminApi = {
       status: f.status,
       subscriptionStatus: f.subscriptionStatus,
       speciesGroup: f.speciesGroup,
+      renewal: f.renewal,
       search: f.search,
     });
   },

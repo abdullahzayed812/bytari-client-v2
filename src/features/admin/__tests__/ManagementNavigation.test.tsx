@@ -2,7 +2,7 @@ import { adminApi } from '@/features/admin/api';
 import { useAuthStore } from '@/features/auth/store';
 import type { SessionSnapshot } from '@/features/auth/types';
 import ManagementScreen from '@/features/management/screens/ManagementScreen';
-import { renderWithProviders, screen, fireEvent } from '@/test-utils/render';
+import { renderWithProviders, screen, fireEvent, waitFor } from '@/test-utils/render';
 import { resetRouterMock, expoRouter } from '@/test-utils/routerMock';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
@@ -155,5 +155,35 @@ describe('Admin dashboard — role/permission-gated navigation', () => {
     renderWithProviders(<ManagementScreen />);
     expect(screen.getByText('الكتب والمجلات')).toBeTruthy();
     expect(screen.queryByText('التبني والتزاوج والحيوانات المفقودة')).toBeNull();
+  });
+
+  it('renewal counters: poultry / clinics / offices each show their own server total', async () => {
+    getDashboardSummary.mockResolvedValue({
+      cards: [
+        { id: 'poultry', count: 0, activeCount: 7, pendingRenewals: 2 },
+        { id: 'clinics', count: 0, activeCount: 8, pendingRenewals: 3 },
+        { id: 'offices', count: 0, activeCount: 9, pendingRenewals: 0 },
+      ],
+      recentActivity: [],
+      pendingTasks: [],
+    });
+    useAuthStore.setState({ session: session({ isAdmin: true, roles: ['ADMIN', 'PET_OWNER'] }) });
+    renderWithProviders(<ManagementScreen />);
+
+    expect(await screen.findByText('طلبات تجديد: 2')).toBeTruthy();
+    expect(screen.getByText('طلبات تجديد: 3')).toBeTruthy();
+    // zero → no pill at all
+    expect(screen.queryByText('طلبات تجديد: 0')).toBeNull();
+  });
+
+  it('a failed summary shows "—" + retry, never misleading zero counts', async () => {
+    getDashboardSummary.mockRejectedValue(new Error('offline'));
+    useAuthStore.setState({ session: session({ isAdmin: true, roles: ['ADMIN', 'PET_OWNER'] }) });
+    renderWithProviders(<ManagementScreen />);
+
+    await waitFor(() => expect(getDashboardSummary).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getAllByText('—').length).toBeGreaterThan(5));
+    expect(screen.queryByText('0')).toBeNull();
+    expect(screen.queryByText(/طلبات تجديد/)).toBeNull();
   });
 });

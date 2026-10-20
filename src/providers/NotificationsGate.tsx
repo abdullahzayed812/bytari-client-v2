@@ -39,6 +39,17 @@ function payloadOf(n: ReceivedNotification) {
   };
 }
 
+/** One of OUR pushes: it names a notification row or an in-app destination. */
+export function isGenuinePush(n: ReceivedNotification): boolean {
+  const payload = payloadOf(n);
+  return Boolean(payload.id || notificationHref(payload));
+}
+
+/** Dedupe key of a tap — the OS identifier, else the notification row id. */
+function openedKeyOf(n: ReceivedNotification): string | null {
+  return n.id || payloadOf(n).id || null;
+}
+
 /**
  * App-wide notifications wiring. Renders nothing.
  *
@@ -140,31 +151,42 @@ export function NotificationsGate() {
     const go = (n: ReceivedNotification): void => {
       const payload = payloadOf(n);
       if (payload.id) markRead(payload.id);
-      if (n.id) void AsyncStorage.setItem(LAST_OPENED_PUSH_KEY, n.id).catch(() => undefined);
+      const key = openedKeyOf(n);
+      if (key) void AsyncStorage.setItem(LAST_OPENED_PUSH_KEY, key).catch(() => undefined);
       router.push(notificationDestination(payload) as never);
     };
 
+    // Only a genuine, not-yet-handled tap that points somewhere real navigates;
+    // anything else leaves the app where it is (Home on a normal launch).
+    // On Android `expo-notifications` turns ANY launch-intent extras into a
+    // "tap" (`ExpoNotificationLifecycleListener` → `toResponseBundleFromExtras`):
+    // launcher icons that add extras (e.g. MIUI) and an Activity recreated from
+    // its stored task intent both fire a fake response with no notification
+    // row and no destination — which used to fall back to the inbox, so
+    // re-opening the app from its icon landed on Notifications.
+    //  - a payload with neither a notification row nor an in-app destination
+    //    is not one of our pushes → ignored;
+    //  - one we already opened (same OS / notification id) is a replay → ignored.
+    const openIfGenuine = async (n: ReceivedNotification, delayMs: number): Promise<void> => {
+      if (!isGenuinePush(n)) return;
+      const lastOpened = await AsyncStorage.getItem(LAST_OPENED_PUSH_KEY).catch(() => null);
+      const key = openedKeyOf(n);
+      if (key && key === lastOpened) return;
+      if (delayMs > 0) setTimeout(() => go(n), delayMs);
+      else go(n);
+    };
+
     const sub = notificationService.onNotificationTap((n) => {
-      if (isAuthenticated) go(n);
+      if (isAuthenticated) void openIfGenuine(n, 0);
     });
 
-    // Cold start: the app was launched by tapping a notification. Only a
-    // genuine, not-yet-handled tap that points somewhere real navigates — the
-    // app otherwise opens on Home like any normal launch:
-    //  - the OS response is consumed (cleared) so it can't replay later;
-    //  - one we already opened (same OS identifier) is ignored;
-    //  - a payload with neither a notification row nor an in-app destination
-    //    would only fall back to the inbox, so it is ignored too.
+    // Cold start: the app was launched by tapping a notification. The OS
+    // response is consumed (cleared) so it can't replay later.
     if (isAuthenticated && !coldStartHandled.current) {
       coldStartHandled.current = true;
       void (async () => {
         const n = await notificationService.consumeInitialNotification();
-        if (!n) return;
-        const lastOpened = await AsyncStorage.getItem(LAST_OPENED_PUSH_KEY).catch(() => null);
-        if (n.id && n.id === lastOpened) return;
-        const payload = payloadOf(n);
-        if (!payload.id && !notificationHref(payload)) return;
-        setTimeout(() => go(n), 300); // let the navigator settle first
+        if (n) await openIfGenuine(n, 300); // let the navigator settle first
       })();
     }
 

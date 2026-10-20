@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, useWindowDimensions, View } from 'react-native';
+import { FlatList, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Chip, type IconName } from '@/components/content';
@@ -26,8 +26,20 @@ import {
   usePublicVeterinaryOfficeProducts,
 } from '../hooks';
 
-const NUM_COLUMNS = 2;
 const GRID_GAP = 12;
+/** Narrowest card that still fits a two-line name + price without clipping. */
+const MIN_CARD_WIDTH = 150;
+const MAX_COLUMNS = 3;
+
+/** Three across on tablet / desktop widths, two on phones, one on very narrow screens. */
+export function officeProductColumns(gridWidth: number): number {
+  for (let n = MAX_COLUMNS; n > 1; n--) {
+    if ((gridWidth - GRID_GAP * (n - 1)) / n >= MIN_CARD_WIDTH * (n === MAX_COLUMNS ? 1.2 : 1)) {
+      return n;
+    }
+  }
+  return 1;
+}
 
 /** Full public product catalog for one veterinary office/store. */
 export default function PublicVeterinaryOfficeProductsScreen() {
@@ -53,9 +65,17 @@ export default function PublicVeterinaryOfficeProductsScreen() {
   });
   const facets = usePublicVeterinaryOfficeProductFacets(officeId);
 
+  // The grid's real width (a web/desktop shell can be narrower than the
+  // window); the window is only the first-frame estimate.
   const { width: windowWidth } = useWindowDimensions();
-  const columnWidth =
-    (windowWidth - theme.screenPadding * 2 - GRID_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
+  const [measuredWidth, setMeasuredWidth] = useState(0);
+  const gridWidth = (measuredWidth || windowWidth) - theme.screenPadding * 2;
+  const columns = officeProductColumns(gridWidth);
+  const columnWidth = Math.floor((gridWidth - GRID_GAP * (columns - 1)) / columns);
+  const onGridLayout = (e: LayoutChangeEvent) => {
+    const next = Math.round(e.nativeEvent.layout.width);
+    setMeasuredWidth((prev) => (prev === next ? prev : next));
+  };
 
   return (
     <SafeAreaScreen>
@@ -128,10 +148,13 @@ export default function PublicVeterinaryOfficeProductsScreen() {
         </View>
       ) : (
         <FlatList
+          // numColumns cannot change on a mounted FlatList — remount per count.
+          key={`grid-${columns}`}
+          onLayout={onGridLayout}
           data={q.products}
           keyExtractor={(p) => p.id}
-          numColumns={NUM_COLUMNS}
-          columnWrapperStyle={{ columnGap: GRID_GAP }}
+          numColumns={columns}
+          columnWrapperStyle={columns > 1 ? { columnGap: GRID_GAP } : undefined}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
           renderItem={({ item }) => (
             <PublicVeterinaryOfficeProductCard

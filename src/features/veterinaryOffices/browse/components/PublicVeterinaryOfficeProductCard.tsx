@@ -44,7 +44,8 @@ export function PublicVeterinaryOfficeProductCard({
     >
       <View
         style={{
-          height: width * 0.82,
+          // Square-ish on phones; capped so wide desktop cards stay proportionate.
+          height: Math.min(width * 0.82, 260),
           backgroundColor: theme.colors.surfaceAccent,
           alignItems: 'center',
           justifyContent: 'center',
@@ -62,7 +63,7 @@ export function PublicVeterinaryOfficeProductCard({
       </View>
 
       <View style={{ padding: theme.spacing.md, rowGap: theme.spacing.xs }}>
-        <Text variant="bodyMedium" numberOfLines={1}>
+        <Text variant="bodyMedium" numberOfLines={2}>
           {product.name}
         </Text>
         {product.description ? <Caption numberOfLines={1}>{product.description}</Caption> : null}

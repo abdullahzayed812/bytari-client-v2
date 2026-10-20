@@ -101,8 +101,8 @@ export default function HomeScreen() {
   const featured = useFeaturedOrganizations('PET_OWNER_HOME');
   const clinics = useDiscoverOrganizations({ type: 'CLINIC', pageSize: 10 });
   const sectionImages = useHomeSectionImages();
-  // Admin-featured clinics / offices first; with none active right now the
-  // carousel shows the available clinics, as this section always did.
+  // Admin-featured clinics ("العيادات المميزة") first; with none active right
+  // now the carousel shows the available clinics, as this section always did.
   const hasFeatured = (featured.data?.length ?? 0) > 0;
   const carouselItems = hasFeatured ? (featured.data ?? []) : clinics.organizations;
   const openOrganization = (org: PublicOrganization): void => {
@@ -201,7 +201,7 @@ export default function HomeScreen() {
         )}
       </Section>
 
-      {/* Featured clinics & offices (admin-curated) — auto-moving carousel. */}
+      {/* Featured clinics (admin-curated) — auto-moving carousel. */}
       <Section spacing="xl">
         <HomeSectionHeader
           title={hasFeatured ? t('featured.title') : torg('home.clinicsTitle')}

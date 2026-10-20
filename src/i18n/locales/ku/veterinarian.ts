@@ -63,7 +63,7 @@ const veterinarian: KuNamespace<'veterinarian'> = {
       viewAll: 'بینینی هەموو',
       emptyTitle: 'لە ئێستادا هیچ نووسینگەیەکی ڤێتێرنەری بەردەست نییە',
     },
-    featuredOrganizations: 'کلینیک و نووسینگە دیارەکان',
+    featuredOrganizations: 'نووسینگە و کۆمپانیا ڤێتێرنەرییە دیارەکان',
     officeProducts: {
       title: 'بەرهەمەکانی نووسینگە ڤێتێرنەرییەکان',
       viewAll: 'بینینی هەموو',

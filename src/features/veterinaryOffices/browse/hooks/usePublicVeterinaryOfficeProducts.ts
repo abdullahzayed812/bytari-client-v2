@@ -166,9 +166,10 @@ export function useOfficeProductSearch(params: {
  * preview ("منتجات المكاتب"). Same visibility as the cross-office search
  * (ACTIVE office with a valid subscription, ACTIVE + not hidden product).
  */
-export function useLatestOfficeProducts(limit: number) {
+export function useLatestOfficeProducts(limit: number, options: { enabled?: boolean } = {}) {
   return useQuery<OfficeProductSearchHit[], ApiError>({
     queryKey: publicVeterinaryOfficeProductKeys.latest(limit),
+    enabled: options.enabled ?? true,
     queryFn: async () =>
       (
         await publicVeterinaryOfficeProductsApi.searchAll({

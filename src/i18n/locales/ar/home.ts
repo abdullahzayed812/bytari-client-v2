@@ -1,7 +1,7 @@
 export default {
   /** Home carousel of admin-featured clinics / veterinary offices. */
   featured: {
-    title: 'عيادات ومكاتب مميزة',
+    title: 'العيادات المميزة',
     goTo: 'عرض البطاقة {{index}} من {{count}}',
   },
   header: {

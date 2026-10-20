@@ -29,6 +29,8 @@ export interface AdminFarmsParams {
   subscriptionStatus?: FarmSubscriptionStatus;
   /** Scope the list to poultry or to sheep/cattle farms. */
   speciesGroup?: FarmSpeciesGroup;
+  /** Only farms with an open renewal request — same definition as the dashboard counter. */
+  renewal?: 'PENDING';
   search?: string;
   pageSize?: number;
   enabled?: boolean;
@@ -41,6 +43,7 @@ export function useAdminFarms(params: AdminFarmsParams = {}) {
     status: params.status,
     subscriptionStatus: params.subscriptionStatus,
     speciesGroup: params.speciesGroup,
+    renewal: params.renewal,
     search: params.search || undefined,
   };
 
@@ -157,6 +160,8 @@ export function useFarmRenewalDecisionMutation(organizationId: string, requestId
       void qc.invalidateQueries({ queryKey: adminKeys.organizations.detail(organizationId) });
       void qc.invalidateQueries({ queryKey: adminKeys.organizations.pendingRenewalsAll() });
       void qc.invalidateQueries({ queryKey: adminKeys.farms.lists() });
+      // ManagementScreen renewal counters + "المهام المطلوبة" (it stays mounted underneath).
+      void qc.invalidateQueries({ queryKey: adminKeys.dashboard.summary() });
     },
   });
 }

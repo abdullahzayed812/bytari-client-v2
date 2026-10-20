@@ -214,4 +214,43 @@ describe('NotificationsGate — launch never lands on Notifications by accident'
     await new Promise((r) => setTimeout(r, 400));
     expect(routerMock.push).not.toHaveBeenCalled();
   });
+
+  // Android: expo-notifications turns ANY launch-intent extras into a "tap"
+  // event on the live listener (launcher icon extras, Activity recreated from
+  // its stored task intent) — re-opening the app from its icon must stay put.
+  it('a fake tap from launcher-intent extras (no row, no destination) does not open the inbox', async () => {
+    let tap: ((n: { id?: string; data: Record<string, unknown> }) => void) | undefined;
+    svc.onNotificationTap.mockImplementation((handler) => {
+      tap = handler as typeof tap;
+      return () => undefined;
+    });
+    authed();
+    mount();
+    await waitFor(() => expect(tap).toBeDefined());
+
+    tap?.({ data: { profile: 0, 'android.intent.extra.REFERRER_NAME': 'launcher' } });
+    tap?.({ id: undefined, data: {} });
+
+    await new Promise((r) => setTimeout(r, 100));
+    expect(routerMock.push).not.toHaveBeenCalled();
+  });
+
+  it('the live listener ignores a replay of an already-opened tap', async () => {
+    await AsyncStorage.setItem(LAST_OPENED_PUSH_KEY, 'os-9');
+    let tap: ((n: { id?: string; data: Record<string, unknown> }) => void) | undefined;
+    svc.onNotificationTap.mockImplementation((handler) => {
+      tap = handler as typeof tap;
+      return () => undefined;
+    });
+    authed();
+    mount();
+    await waitFor(() => expect(tap).toBeDefined());
+
+    tap?.({
+      id: 'os-9',
+      data: { type: 'VET_COURSE_APPROVED', entityId: 'course-1', notificationId: 'n-9' },
+    });
+    await new Promise((r) => setTimeout(r, 100));
+    expect(routerMock.push).not.toHaveBeenCalled();
+  });
 });

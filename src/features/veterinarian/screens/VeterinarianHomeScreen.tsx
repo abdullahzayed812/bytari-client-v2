@@ -34,6 +34,12 @@ import { VeterinarianHomeHeader } from '../components';
 import { useVeterinarianApplicationStatus } from '../hooks';
 
 const PREVIEW_COUNT = 3;
+/**
+ * "منتجات المكاتب والشركات البيطرية" preview — hidden for now (product
+ * decision). Flip back to `true` to restore it: the section, its query and
+ * every office-product page / search stay implemented and reachable elsewhere.
+ */
+const SHOW_OFFICE_PRODUCTS_SECTION = false;
 const INQUIRY_CARD_WIDTH = 260;
 
 interface QuickLinkCardProps {
@@ -134,8 +140,8 @@ export default function VeterinarianHomeScreen() {
 
   const inquiries = useMyThreads('INQUIRY', { pageSize: PREVIEW_COUNT, enabled: vet.isApproved });
   const inquiryPreview = inquiries.threads.slice(0, PREVIEW_COUNT);
-  // Admin-featured clinics / offices; with none active right now the carousel
-  // shows the veterinary offices, as this section always did.
+  // Admin-featured veterinary offices / companies; with none active right now
+  // the carousel shows the veterinary offices, as this section always did.
   const featured = useFeaturedOrganizations('VETERINARIAN_HOME');
   const offices = useDiscoverOrganizations({ type: 'VETERINARY_OFFICE', pageSize: 10 });
   const hasFeatured = (featured.data?.length ?? 0) > 0;
@@ -148,7 +154,9 @@ export default function VeterinarianHomeScreen() {
     );
   };
   // Exactly three newest office products (the full search stays one tap away).
-  const officeProducts = useLatestOfficeProducts(PREVIEW_COUNT);
+  const officeProducts = useLatestOfficeProducts(PREVIEW_COUNT, {
+    enabled: SHOW_OFFICE_PRODUCTS_SECTION,
+  });
   const { t: tvo } = useTranslation('veterinaryOffices');
   const [productsWidth, setProductsWidth] = useState(0);
   // Three across on every screen; capped so desktop cards keep the store proportions.
@@ -292,7 +300,7 @@ export default function VeterinarianHomeScreen() {
         </Section>
       ) : null}
 
-      {/* Featured clinics & offices (admin-curated) — auto-moving carousel. */}
+      {/* Featured veterinary offices & companies (admin-curated) — auto-moving carousel. */}
       <Section spacing="xl">
         <HomeSectionHeader
           title={hasFeatured ? t('home.featuredOrganizations') : t('home.organizations.title')}
@@ -310,53 +318,57 @@ export default function VeterinarianHomeScreen() {
       </Section>
 
       {/* Veterinary-office products — three newest, card of the store references. */}
-      <Section spacing="xl">
-        <HomeSectionHeader
-          title={t('home.officeProducts.title')}
-          actionLabel={t('home.officeProducts.viewAll')}
-          onAction={() => router.push(Routes.veterinaryOfficeProductSearch)}
-        />
-        <View
-          onLayout={(e) => {
-            const w = Math.round(e.nativeEvent.layout.width);
-            setProductsWidth((prev) => (prev === w ? prev : w));
-          }}
-          style={{ flexDirection: 'row', gap: 8 }}
-        >
-          {productCardWidth === 0 ? null : officeProducts.isLoading ? (
-            [0, 1, 2].map((i) => <StoreGridProductCardSkeleton key={i} width={productCardWidth} />)
-          ) : (officeProducts.data ?? []).length === 0 ? (
-            <View style={{ flex: 1 }}>
-              <EmptyState icon="cube-outline" title={t('home.officeProducts.empty')} />
-            </View>
-          ) : (
-            (officeProducts.data ?? []).slice(0, PREVIEW_COUNT).map(({ product, office }) => {
-              const open = () =>
-                router.push(Routes.veterinaryOfficeProductDetail(office.id, product.id));
-              return (
-                <StoreGridProductCard
-                  key={product.id}
-                  width={productCardWidth}
-                  title={product.name}
-                  subtitle={office.name}
-                  imageUrl={product.primaryImageUrl}
-                  price={product.price != null ? formatProductPrice(product.price) : null}
-                  currency={tvo(`currency.${productCurrency(product)}`)}
-                  noPriceLabel={tvo('product.noPrice')}
-                  footnote={
-                    product.stockQuantity === 0 ? t('home.officeProducts.outOfStock') : null
-                  }
-                  accent={STORE_ACCENTS.green}
-                  actionLabel={t('home.officeProducts.view')}
-                  actionIcon="eye-outline"
-                  onAction={open}
-                  onPress={open}
-                />
-              );
-            })
-          )}
-        </View>
-      </Section>
+      {SHOW_OFFICE_PRODUCTS_SECTION ? (
+        <Section spacing="xl">
+          <HomeSectionHeader
+            title={t('home.officeProducts.title')}
+            actionLabel={t('home.officeProducts.viewAll')}
+            onAction={() => router.push(Routes.veterinaryOfficeProductSearch)}
+          />
+          <View
+            onLayout={(e) => {
+              const w = Math.round(e.nativeEvent.layout.width);
+              setProductsWidth((prev) => (prev === w ? prev : w));
+            }}
+            style={{ flexDirection: 'row', gap: 8 }}
+          >
+            {productCardWidth === 0 ? null : officeProducts.isLoading ? (
+              [0, 1, 2].map((i) => (
+                <StoreGridProductCardSkeleton key={i} width={productCardWidth} />
+              ))
+            ) : (officeProducts.data ?? []).length === 0 ? (
+              <View style={{ flex: 1 }}>
+                <EmptyState icon="cube-outline" title={t('home.officeProducts.empty')} />
+              </View>
+            ) : (
+              (officeProducts.data ?? []).slice(0, PREVIEW_COUNT).map(({ product, office }) => {
+                const open = () =>
+                  router.push(Routes.veterinaryOfficeProductDetail(office.id, product.id));
+                return (
+                  <StoreGridProductCard
+                    key={product.id}
+                    width={productCardWidth}
+                    title={product.name}
+                    subtitle={office.name}
+                    imageUrl={product.primaryImageUrl}
+                    price={product.price != null ? formatProductPrice(product.price) : null}
+                    currency={tvo(`currency.${productCurrency(product)}`)}
+                    noPriceLabel={tvo('product.noPrice')}
+                    footnote={
+                      product.stockQuantity === 0 ? t('home.officeProducts.outOfStock') : null
+                    }
+                    accent={STORE_ACCENTS.green}
+                    actionLabel={t('home.officeProducts.view')}
+                    actionIcon="eye-outline"
+                    onAction={open}
+                    onPress={open}
+                  />
+                );
+              })
+            )}
+          </View>
+        </Section>
+      ) : null}
 
       {/* Quick links — chat, services, magazine, books. */}
       <Section spacing="xl">

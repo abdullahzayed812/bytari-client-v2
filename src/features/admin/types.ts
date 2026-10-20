@@ -404,6 +404,8 @@ export interface AdminListFarmsFilter {
   subscriptionStatus?: FarmSubscriptionStatus;
   /** `POULTRY` → poultry farms; `LIVESTOCK` → sheep + cattle farms. */
   speciesGroup?: FarmSpeciesGroup;
+  /** `PENDING` → only farms with an open renewal request ("طلبات التجديد"). */
+  renewal?: 'PENDING';
   /** Farm name / code / location / contact, or the owner. */
   search?: string;
 }
@@ -646,7 +648,11 @@ export interface AdminDashboardCardCount {
   count: number;
   /** How many items in this section are currently active/approved/live. */
   activeCount: number;
-  /** Open (PENDING) subscription renewal requests — backend total; `clinics`/`offices` only. */
+  /**
+   * Open (PENDING) subscription renewal requests — backend total, same definition as the
+   * section's "طلبات التجديد" tab (`clinics` / `offices` / `poultry` / `livestock`). Absent when
+   * the caller may not open that queue.
+   */
   pendingRenewals?: number;
   /** Course / seminar registrants awaiting review (`courses` / `seminars` cards). */
   pendingRegistrations?: number;

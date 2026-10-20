@@ -23,13 +23,16 @@ import {
 import { useAdminFarms } from '../hooks';
 import type { AdminFarmListItem, FarmSpeciesGroup, OrganizationStatus } from '../types';
 
-type Scope = 'all' | 'pending' | 'active' | 'rejected' | 'expired' | 'deleted';
+type Scope = 'all' | 'pending' | 'active' | 'rejected' | 'expired' | 'deleted' | 'renewals';
 
 function scopeFilter(scope: Scope): {
   status?: OrganizationStatus;
   subscriptionStatus?: 'EXPIRED';
+  renewal?: 'PENDING';
 } {
   if (scope === 'pending') return { status: 'PENDING' };
+  // Farms with an open renewal request — exactly the dashboard card's counter.
+  if (scope === 'renewals') return { renewal: 'PENDING' };
   if (scope === 'active') return { status: 'ACTIVE' };
   if (scope === 'rejected') return { status: 'REJECTED' };
   if (scope === 'expired') return { subscriptionStatus: 'EXPIRED' };
@@ -123,6 +126,7 @@ export default function AdminFarmsScreen() {
                 { value: 'active', label: t('farms.tab.active') },
                 { value: 'rejected', label: t('orgs.status.REJECTED') },
                 { value: 'expired', label: t('farms.tab.expired') },
+                { value: 'renewals', label: t('farms.tab.renewals') },
                 { value: 'deleted', label: t('farms.tab.deleted') },
               ]}
             />

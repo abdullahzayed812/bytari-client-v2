@@ -29,6 +29,16 @@ export interface HomeSectionImage {
 /** `/home-sections/featured-organizations` — one carousel per home page. */
 export type FeaturedPlacement = HomeSectionPage;
 
+/**
+ * The organization type each home page features (mirrors the server's
+ * `FEATURED_TYPES_BY_PLACEMENT`): clinics for Pet Owners, veterinary offices /
+ * companies for Veterinarians.
+ */
+export const FEATURED_TYPE_BY_PLACEMENT = {
+  PET_OWNER_HOME: 'CLINIC',
+  VETERINARIAN_HOME: 'VETERINARY_OFFICE',
+} as const satisfies Record<FeaturedPlacement, 'CLINIC' | 'VETERINARY_OFFICE'>;
+
 /** Derived server-side from the switch + window (business date). */
 export type FeaturedState = 'DISABLED' | 'SCHEDULED' | 'ACTIVE' | 'EXPIRED';
 
@@ -50,7 +60,10 @@ export interface AdminFeaturedOrganization {
     name: string;
     type: string;
     status: string;
-    /** `false` while the organization itself is hidden (not active / subscription expired). */
+    /**
+     * `false` while the organization itself is hidden (not active / subscription
+     * expired) or its type does not belong on this page (a legacy entry).
+     */
     publiclyVisible: boolean;
   };
 }

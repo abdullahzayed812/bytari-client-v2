@@ -60,7 +60,7 @@ export default {
       viewAll: 'عرض الكل',
       emptyTitle: 'لا توجد مكاتب أو شركات بيطرية متاحة حالياً',
     },
-    featuredOrganizations: 'عيادات ومكاتب مميزة',
+    featuredOrganizations: 'المكاتب والشركات البيطرية المميزة',
     officeProducts: {
       title: 'منتجات المكاتب والشركات البيطرية',
       viewAll: 'عرض الكل',

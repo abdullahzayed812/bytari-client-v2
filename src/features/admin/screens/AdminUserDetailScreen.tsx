@@ -18,9 +18,10 @@ import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
+import { Permission } from '@/constants/permissions';
 import { Routes } from '@/constants/routes';
 import { countryDisplayName } from '@/features/registration';
-import { useAuth } from '@/hooks';
+import { useAuth, useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -78,6 +79,10 @@ export default function AdminUserDetailScreen() {
   const [avatarViewer, setAvatarViewer] = useState(false);
   const [docViewer, setDocViewer] = useState<{ images: string[]; index: number } | null>(null);
   const isSelf = session?.user.id === userId;
+  // Mirrors the server gate of both password endpoints (`user.update`); your
+  // own password goes through Settings → change password instead.
+  const caps = useCapabilities();
+  const canManagePassword = !isSelf && (caps.isAdmin || caps.can(Permission.USER_UPDATE));
 
   const runStatus = (reason?: string) => {
     if (!pendingAction) return;
@@ -380,7 +385,7 @@ export default function AdminUserDetailScreen() {
             </View>
           </Section>
 
-          {!isSelf ? (
+          {canManagePassword ? (
             <Section spacing="lg">
               <Label>{t('users.detail.passwordSection')}</Label>
               <Caption style={{ marginBottom: theme.spacing.sm }}>
@@ -595,13 +600,20 @@ function SetPasswordDialog({
   const { t } = useTranslation('admin');
   const theme = useTheme();
   const [value, setValue] = useState('');
+  const [confirm, setConfirm] = useState('');
   const tooShort = value.length > 0 && value.length < 10;
+  const mismatch = confirm.length > 0 && confirm !== value;
+  const valid = value.length >= 10 && confirm === value;
+  const clear = () => {
+    setValue('');
+    setConfirm('');
+  };
 
   return (
     <Modal
       visible={visible}
       onClose={() => {
-        setValue('');
+        clear();
         onCancel();
       }}
       title={t('users.detail.setPasswordTitle')}
@@ -611,10 +623,18 @@ function SetPasswordDialog({
         <Caption>{t('users.detail.setPasswordBody')}</Caption>
         <PasswordInput
           label={t('users.detail.newPasswordLabel')}
+          accessibilityLabel={t('users.detail.newPasswordLabel')}
           value={value}
           onChangeText={setValue}
           error={tooShort ? t('users.detail.passwordTooShort') : undefined}
           autoFocus
+        />
+        <PasswordInput
+          label={t('users.detail.confirmPasswordLabel')}
+          accessibilityLabel={t('users.detail.confirmPasswordLabel')}
+          value={confirm}
+          onChangeText={setConfirm}
+          error={mismatch ? t('users.detail.passwordMismatch') : undefined}
         />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.md }}>
           <View style={{ flex: 1 }}>
@@ -624,7 +644,7 @@ function SetPasswordDialog({
               fullWidth
               disabled={loading}
               onPress={() => {
-                setValue('');
+                clear();
                 onCancel();
               }}
             />
@@ -635,10 +655,10 @@ function SetPasswordDialog({
               variant="danger"
               fullWidth
               loading={loading}
-              disabled={loading || value.length < 10}
+              disabled={loading || !valid}
               onPress={() => {
                 const v = value;
-                setValue('');
+                clear();
                 onConfirm(v);
               }}
             />

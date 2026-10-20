@@ -4,18 +4,25 @@ import type { PublicOrganization } from '@/features/organizations/types';
 import type { ApiError } from '@/services/api';
 
 import { homeSectionKeys, homeSectionsApi } from '../api';
-import type {
-  AdminFeaturedOrganization,
-  CreateFeaturedOrganizationInput,
-  FeaturedPlacement,
-  UpdateFeaturedOrganizationInput,
+import {
+  FEATURED_TYPE_BY_PLACEMENT,
+  type AdminFeaturedOrganization,
+  type CreateFeaturedOrganizationInput,
+  type FeaturedPlacement,
+  type UpdateFeaturedOrganizationInput,
 } from '../types';
 
-/** Today's featured clinics / offices for one home page (server applies window + visibility). */
+/**
+ * Today's featured organizations for one home page — clinics on the Pet Owner
+ * home, veterinary offices / companies on the Veterinarian home. The server
+ * applies window + visibility + the page's type; the type is re-checked here
+ * so a page can never render the other audience's organizations.
+ */
 export function useFeaturedOrganizations(placement: FeaturedPlacement) {
   return useQuery<PublicOrganization[], ApiError>({
     queryKey: homeSectionKeys.featured(placement),
     queryFn: () => homeSectionsApi.listFeatured(placement),
+    select: (orgs) => orgs.filter((o) => o.type === FEATURED_TYPE_BY_PLACEMENT[placement]),
     staleTime: 60_000,
   });
 }

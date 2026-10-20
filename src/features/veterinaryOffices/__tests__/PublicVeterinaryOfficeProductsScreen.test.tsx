@@ -3,7 +3,9 @@ import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/re
 import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { publicVeterinaryOfficeProductsApi } from '../browse/api';
-import PublicVeterinaryOfficeProductsScreen from '../browse/screens/PublicVeterinaryOfficeProductsScreen';
+import PublicVeterinaryOfficeProductsScreen, {
+  officeProductColumns,
+} from '../browse/screens/PublicVeterinaryOfficeProductsScreen';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -106,5 +108,15 @@ describe('PublicVeterinaryOfficeProductsScreen', () => {
     await waitFor(() => expect(screen.getByText('أنتي بيك')).toBeOnTheScreen());
     fireEvent.press(screen.getByText('أنتي بيك'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/o1/products/p1');
+  });
+
+  it('grid: three cards per row on tablet / desktop, two on phones, one on very narrow screens', () => {
+    // grid width = viewport − 2 × screen padding
+    expect(officeProductColumns(1280 - 32)).toBe(3); // desktop
+    expect(officeProductColumns(768 - 32)).toBe(3); // tablet
+    expect(officeProductColumns(600 - 32)).toBe(3);
+    expect(officeProductColumns(430 - 32)).toBe(2); // large phone
+    expect(officeProductColumns(360 - 32)).toBe(2); // phone
+    expect(officeProductColumns(320 - 32)).toBe(1); // very narrow
   });
 });
