@@ -105,6 +105,20 @@ describe('ClinicDashboardHomeScreen', () => {
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
   });
 
+  it('expired subscription, staff member → working notice, no renewal CTA, tiles still open', async () => {
+    getOrg.mockResolvedValue({
+      ...clinic,
+      myRole: 'VETERINARIAN',
+      details: { ...clinic.details, subscriptionStatus: 'EXPIRED' },
+    } as never);
+    renderWithProviders(<ClinicDashboardHomeScreen />);
+    await waitFor(() => expect(screen.getByText('انتهى اشتراك العيادة')).toBeOnTheScreen());
+    expect(screen.getByText(/يمكنك متابعة عملك المعتاد/)).toBeOnTheScreen();
+    expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
+    fireEvent.press(screen.getByRole('button', { name: /^المواعيد/ }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/appointments');
+  });
+
   it('routes the quick-access tiles to the existing v2 screens', async () => {
     renderWithProviders(<ClinicDashboardHomeScreen />);
     await waitFor(() => expect(screen.getByText('عيادة الرحمة')).toBeOnTheScreen());

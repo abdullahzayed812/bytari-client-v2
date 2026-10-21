@@ -19,9 +19,12 @@ import { useTheme } from '@/theme';
  * Wraps every clinic-operation route (the Clinic Dashboard group and the
  * clinic animal / medical routes) via their Expo Router layouts, so a deep link
  * or back-navigation can never render clinic screens while the clinic may not
- * operate. Mirrors the backend rule (`computeOrganizationOperability`):
- * status must be ACTIVE and the subscription not EXPIRED — for the owner and
- * staff alike. UX only: the backend refuses every call regardless.
+ * operate. Mirrors the backend rule (`OrganizationOperabilityService.assessForUser`):
+ * status must be ACTIVE for everyone; an EXPIRED subscription locks out only
+ * the OWNER (renewal / contact-administration screen) — the clinic's
+ * veterinarians and employees keep working within their role permissions.
+ * `myRole` comes from the server's membership record. UX only: the backend
+ * enforces the same rule on every call.
  *
  * The organization is always refetched on entry, so a cached "ACTIVE" profile
  * cannot keep an expired / suspended clinic's dashboard open.
@@ -113,7 +116,9 @@ export function ClinicOperationalGate({
       </View>,
     );
   }
-  if (data.details.subscriptionStatus === 'EXPIRED') {
+  // Staff of an expired clinic keep working (the dashboard shows them a notice).
+  const isStaff = data.myRole != null && data.myRole !== 'OWNER';
+  if (data.details.subscriptionStatus === 'EXPIRED' && !isStaff) {
     return shell(
       <View style={{ rowGap: theme.spacing.md }}>
         <EmptyState

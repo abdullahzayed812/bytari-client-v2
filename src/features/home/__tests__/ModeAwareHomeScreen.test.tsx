@@ -4,8 +4,8 @@ import { organizationsApi } from '@/features/organizations';
 import { petsApi } from '@/features/pets';
 import { veterinarianApi } from '@/features/veterinarian';
 import { useAppModeStore } from '@/store';
-import { renderWithProviders, screen, waitFor } from '@/test-utils/render';
-import { resetRouterMock } from '@/test-utils/routerMock';
+import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
+import { resetRouterMock, routerMock } from '@/test-utils/routerMock';
 
 import ModeAwareHomeScreen from '../screens/ModeAwareHomeScreen';
 
@@ -62,6 +62,29 @@ describe('ModeAwareHomeScreen — APP MODE ≠ ROLE; Pet Owner features never re
     useAppModeStore.setState({ activeMode: 'owner' });
     renderWithProviders(<ModeAwareHomeScreen />);
     await waitFor(() => expect(screen.getByText('أرسل استشارتك وسنجيبك فوراً')).toBeOnTheScreen());
+  });
+
+  it('owner Home lists "الخدمات" in its Sections (beside poultry), opening the services screen', async () => {
+    seed('NOT_APPLIED');
+    useAppModeStore.setState({ activeMode: 'owner' });
+    renderWithProviders(<ModeAwareHomeScreen />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'الخدمات' })).toBeOnTheScreen());
+    for (const name of ['الاستشارات', 'العيادات', 'المتجر', 'المواعيد', 'تواصل معنا', 'الرئيسية']) {
+      expect(screen.queryByRole('button', { name })).toBeNull();
+    }
+    expect(screen.queryByText('كل الأقسام')).toBeNull();
+    expect(screen.getByText('خدمات بيطرية متنوعة')).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: 'الخدمات' }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/vet-services');
+  });
+
+  it('veterinarian Home does not get the Pet Owner services card', async () => {
+    seed('APPROVED');
+    useAppModeStore.setState({ activeMode: 'veterinarian' });
+    renderWithProviders(<ModeAwareHomeScreen />);
+    await waitFor(() => expect(screen.getByText('المكاتب أو الشركات البيطرية')).toBeOnTheScreen());
+    // Its own "الخدمات" shortcut is unchanged; the Pet Owner card (with its hint) is absent.
+    expect(screen.queryByText('خدمات بيطرية متنوعة')).toBeNull();
   });
 
   it('veterinarian mode renders the Veterinarian Home', async () => {

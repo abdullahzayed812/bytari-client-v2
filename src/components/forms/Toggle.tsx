@@ -128,9 +128,12 @@ export function Switch({ value, onValueChange, label, disabled }: SwitchProps) {
         alignItems: 'center',
         justifyContent: 'space-between',
         columnGap: theme.spacing.md,
+        // Shrink, never grow: a `flex: 1` label makes Yoga (native) widen this row
+        // to the parent's full width when it sits inline next to other controls.
+        flexShrink: 1,
       }}
     >
-      <Text variant="bodyMedium" style={{ flex: 1 }}>
+      <Text variant="bodyMedium" style={{ flexShrink: 1 }}>
         {label}
       </Text>
       {control}

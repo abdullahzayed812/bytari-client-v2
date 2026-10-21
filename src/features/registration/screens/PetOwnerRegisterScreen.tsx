@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -13,7 +13,7 @@ import { LocalImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import { authErrorMessage, fieldErrors, useRegisterMutation } from '@/features/auth';
+import { authErrorMessage, fieldErrors, useAuth, useRegisterMutation } from '@/features/auth';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import type { LocalFile } from '@/services/files/types';
@@ -39,14 +39,25 @@ import { buildPetOwnerSchema, type PetOwnerFormValues } from '../validation/sche
  * uploaded right after that succeeds, using the token `register()` DOES
  * return (real, but scoped to registration self-service — see
  * `AuthResult`'s doc comment); a failed upload is a non-blocking toast, never
- * a reason to fail the whole registration. `AuthRedirector` takes it from
- * here to the verify-email screen once `register()` resolves.
+ * a reason to fail the whole registration. The verify-email screen is then
+ * PUSHED on top of this form, so Back returns here with every field intact.
+ *
+ * Returning here with the still-unverified registration session signs that
+ * session out (the form starts a new attempt; `AuthRedirector` allows this
+ * screen for a pending session so Back is not bounced). Re-submitting the
+ * same email + password resumes that pending account server-side and lands
+ * on verify-email again — never a duplicate account. `?email=` pre-fills the
+ * email when the verify screen re-opens this form (nothing to pop back to).
  */
 export default function PetOwnerRegisterScreen() {
   const theme = useTheme();
   const { t } = useTranslation('registration');
   const { t: tAuth } = useTranslation('auth');
   const toast = useToast();
+  const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
+  const { requiresEmailVerification, logout } = useAuth();
+  const pendingRef = useRef(requiresEmailVerification);
+  pendingRef.current = requiresEmailVerification;
   const schema = useMemo(() => buildPetOwnerSchema(t), [t]);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
@@ -58,11 +69,11 @@ export default function PetOwnerRegisterScreen() {
     // DEV-ONLY: pre-filled so the form doesn't need retyping on every test
     // run. Never covers the avatar — that needs a real uploaded image.
     defaultValues: devDataEnabled
-      ? devPetOwnerDefaults()
+      ? { ...devPetOwnerDefaults(), ...(emailParam ? { email: emailParam } : {}) }
       : {
           firstName: '',
           lastName: '',
-          email: '',
+          email: emailParam ?? '',
           phone: '',
           password: '',
           confirmPassword: '',
@@ -76,7 +87,16 @@ export default function PetOwnerRegisterScreen() {
 
   const register = useRegisterMutation();
 
+  // Back from verify-email: drop the scoped, still-unverified session. Runs
+  // per focus only (not while this screen's own submit flips the status).
+  useFocusEffect(
+    useCallback(() => {
+      if (pendingRef.current) void logout();
+    }, [logout]),
+  );
+
   const onSubmit = handleSubmit((values) => {
+    if (register.isPending) return;
     setFormError(null);
     setServerFields({});
     register.mutate(
@@ -99,9 +119,11 @@ export default function PetOwnerRegisterScreen() {
               toast.show({ message: apiErrorMessage(error), tone: 'warning' });
             }
           }
-          // `AuthRedirector` takes it from here — the store already flipped
-          // to `pending-verification` inside `register.mutate`'s promise.
-          router.replace({ pathname: Routes.authVerifyEmail, params: { outcome: 'owner' } });
+          // push, not replace: Back on the verify screen returns to this form.
+          router.push({
+            pathname: Routes.authVerifyEmail,
+            params: { outcome: 'owner', email: values.email.trim() },
+          });
         },
         onError: (error) => {
           setServerFields(fieldErrors(error));

@@ -107,16 +107,27 @@ describe('ClinicOperationalGate', () => {
     });
   });
 
-  it('expired subscription for a staff member → locked, without the owner-only renewal CTA', async () => {
-    get.mockResolvedValue(clinic({ myRole: 'VETERINARIAN' }, { subscriptionStatus: 'EXPIRED' }));
+  it.each(['VETERINARIAN', 'STAFF', 'SUPERVISOR'])(
+    'expired subscription for a %s (staff) → keeps working: the dashboard renders',
+    async (myRole) => {
+      get.mockResolvedValue(clinic({ myRole }, { subscriptionStatus: 'EXPIRED' }));
+      renderGate();
+      await waitFor(() => expect(screen.getByText('DASHBOARD CONTENT')).toBeOnTheScreen());
+      expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
+    },
+  );
+
+  it('expired subscription for a non-member (no myRole) → still locked', async () => {
+    get.mockResolvedValue(clinic({ myRole: null }, { subscriptionStatus: 'EXPIRED' }));
     renderGate();
     await waitFor(() => expect(screen.getByText('انتهى اشتراك العيادة')).toBeOnTheScreen());
-    expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
-    expect(screen.queryByText('التواصل مع الإدارة')).toBeNull();
     expect(screen.queryByText('DASHBOARD CONTENT')).toBeNull();
-    // …but is told how to get access back: the owner renews, or contact us.
-    expect(screen.getByText(/تواصل مع مالك العيادة لتجديد الاشتراك/)).toBeOnTheScreen();
-    expect(screen.getByText('تواصل معنا')).toBeOnTheScreen();
+  });
+
+  it('renewal restores the owner: an ACTIVE refetch opens the dashboard', async () => {
+    get.mockResolvedValue(clinic({}, { subscriptionStatus: 'ACTIVE' }));
+    renderGate();
+    await waitFor(() => expect(screen.getByText('DASHBOARD CONTENT')).toBeOnTheScreen());
   });
 
   it('a staff member of a suspended clinic sees the inactive state with the contact path', async () => {

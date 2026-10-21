@@ -56,6 +56,10 @@ export default function ClinicDashboardHomeScreen() {
   const perms = summary.data?.permissions;
   const isActive = org.data?.status === 'ACTIVE';
   const isExpired = org.data?.details.subscriptionStatus === 'EXPIRED';
+  // An expired subscription locks only the owner (and non-members); staff keep working.
+  const myRole = org.data?.myRole;
+  const isStaff = myRole != null && myRole !== 'OWNER';
+  const expiredLocked = isExpired && !isStaff;
   const recent = useOrganizationAnimals(orgId, { enabled: Boolean(perms?.canViewAnimals) });
   const unread = useConversationUnreadSummary(orgId, { enabled: Boolean(orgId) && isActive });
   const unreadMessages = unread.data?.unreadMessages ?? 0;
@@ -189,7 +193,7 @@ export default function ClinicDashboardHomeScreen() {
               <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.sm }}>
                 {t('search.title')}
               </Text>
-              <ClinicPetSearch organizationId={orgId} canOpen={isActive && !isExpired} />
+              <ClinicPetSearch organizationId={orgId} canOpen={isActive && !expiredLocked} />
             </Section>
           ) : null}
 
@@ -200,7 +204,11 @@ export default function ClinicDashboardHomeScreen() {
           ) : null}
           {isExpired ? (
             <Section spacing="sm">
-              <Alert tone="danger" title={t('expiredTitle')} message={t('expiredBody')} />
+              <Alert
+                tone={isStaff ? 'warning' : 'danger'}
+                title={t('expiredTitle')}
+                message={t(isStaff ? 'expiredStaffNotice' : 'expiredBody')}
+              />
               {org.data.myRole === 'OWNER' ? (
                 <View style={{ marginTop: theme.spacing.sm }}>
                   <Button
@@ -361,7 +369,7 @@ export default function ClinicDashboardHomeScreen() {
                   onPress={() => go(Routes.clinicReminders(orgId))}
                 />
               ) : null}
-              {perms?.canSendBroadcast && isActive && !isExpired ? (
+              {perms?.canSendBroadcast && isActive && !expiredLocked ? (
                 <QuickTile
                   icon="megaphone-outline"
                   tone={TONES.rose}
@@ -417,7 +425,7 @@ export default function ClinicDashboardHomeScreen() {
                 badgeLabel={t('quick.unreadBadge', { count: unreadMessages })}
                 onPress={() => go(Routes.clinicDashboardConversations(orgId))}
               />
-              {perms?.canSendBroadcast && isActive && !isExpired ? (
+              {perms?.canSendBroadcast && isActive && !expiredLocked ? (
                 <QuickTile
                   icon="paper-plane-outline"
                   tone={TONES.violet}

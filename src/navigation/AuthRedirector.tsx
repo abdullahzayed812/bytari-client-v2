@@ -12,8 +12,11 @@ import { useAuth } from '@/hooks';
 /**
  * The single authentication routing seam (§11, §24).
  *
- * - `pending-verification` (anywhere but the verify screen itself) → send to
- *   `/(auth)/verify-email`. Checked FIRST, ahead of the other two rules, so a
+ * - `pending-verification` (anywhere but the verify screen itself or the Pet
+ *   Owner registration form it returns to) → send to `/(auth)/verify-email`.
+ *   The form is allowed so "Back" from the verify screen can reach it without
+ *   being bounced straight back (the form signs that scoped session out when
+ *   it regains focus; the backend gates the token either way). Checked FIRST, ahead of the other two rules, so a
  *   `PENDING_VERIFICATION` session parked inside `(app)` (a stale token from
  *   before this flow existed, or one that outlives an app restart) can never
  *   fall through to "authenticated → let them stay" — the backend already
@@ -102,10 +105,11 @@ export function AuthRedirector() {
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inAppGroup = group === '(app)';
-    const onVerifyEmailScreen = inAuthGroup && segments[1] === 'verify-email';
+    const onVerificationFlow =
+      inAuthGroup && (segments[1] === 'verify-email' || segments[1] === 'register');
 
     if (requiresEmailVerification) {
-      if (!onVerifyEmailScreen) router.replace('/(auth)/verify-email');
+      if (!onVerificationFlow) router.replace('/(auth)/verify-email');
     } else if (requiresVeterinarianApproval) {
       const allowed =
         (inAuthGroup &&

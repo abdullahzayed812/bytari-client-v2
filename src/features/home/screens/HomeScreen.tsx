@@ -85,7 +85,8 @@ function CategoryCard({ icon, imageUrl, title, subtitle, onPress, flex }: Catego
  * Pet Owner Home — matches the reference design: header (avatar/greeting +
  * search/notifications/chat), the admin-curated ad carousel, a "send a
  * consultation now" CTA, a preview of the caller's own consultations, nearby
- * clinics, and a static "Sections" grid. Sections that used to live here
+ * clinics and a static "Sections" grid (pets, livestock, poultry and the
+ * "الخدمات" services screen). Sections that used to live here
  * inline (notifications, chat, my-pets preview, community, knowledge,
  * services hub) are all still reachable — via the header icons or the
  * Services tab — just no longer duplicated on Home.
@@ -95,6 +96,7 @@ export default function HomeScreen() {
   const { t } = useTranslation('home');
   const { t: ts } = useTranslation('support');
   const { t: torg } = useTranslation('organizations');
+  const { t: tnav } = useTranslation('nav');
 
   const consultations = useMyThreads('CONSULTATION', { pageSize: PREVIEW_COUNT });
   const consultationPreview = consultations.threads.slice(0, PREVIEW_COUNT);
@@ -240,13 +242,24 @@ export default function HomeScreen() {
               onPress={() => router.push(Routes.sheepCattleFarms)}
             />
           </Row>
-          <CategoryCard
-            icon="egg-outline"
-            imageUrl={sectionImages.PET_OWNER_POULTRY}
-            title={t('categories.poultry.title')}
-            subtitle={t('categories.poultry.subtitle')}
-            onPress={() => router.push(Routes.poultryFarms)}
-          />
+          <Row gap="md" align="stretch">
+            <CategoryCard
+              flex={1}
+              icon="egg-outline"
+              imageUrl={sectionImages.PET_OWNER_POULTRY}
+              title={t('categories.poultry.title')}
+              subtitle={t('categories.poultry.subtitle')}
+              onPress={() => router.push(Routes.poultryFarms)}
+            />
+            {/* Same entry / destination as "الخدمات" in the "كل الأقسام" tab. */}
+            <CategoryCard
+              flex={1}
+              icon="briefcase-outline"
+              title={tnav('categories.items.services')}
+              subtitle={tnav('categories.items.servicesHint')}
+              onPress={() => router.push(Routes.vetServices)}
+            />
+          </Row>
         </View>
       </Section>
     </ScrollScreen>

@@ -34,8 +34,9 @@ export default function VetJobOffersScreen() {
     [search, employmentType],
   );
   const q = useVetJobOffers(filter);
-  // Two columns once each offer card gets ≥ 300px (tablet / desktop), else one.
-  const grid = useJobGridColumns(300, theme.spacing.md, theme.screenPadding);
+  // Two compact cards per row (like the Services grid) once each gets ≥ 150px —
+  // i.e. on regular phones and up; one full card per row on very narrow screens.
+  const grid = useJobGridColumns(150, theme.spacing.md, theme.screenPadding);
 
   return (
     <SafeAreaScreen>
@@ -104,7 +105,11 @@ export default function VetJobOffersScreen() {
             // Equal-height cells only in the 2-up grid (a 1-column `flex: 1`
             // would stretch short lists inside the growing content container).
             <View style={grid.columns === 2 ? { flex: 1 } : undefined}>
-              <JobOfferCard offer={item} onPress={() => router.push(Routes.vetJobOffer(item.id))} />
+              <JobOfferCard
+                offer={item}
+                variant={grid.columns === 2 ? 'grid' : 'list'}
+                onPress={() => router.push(Routes.vetJobOffer(item.id))}
+              />
             </View>
           )}
           ListEmptyComponent={

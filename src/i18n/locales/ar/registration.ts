@@ -72,6 +72,7 @@ export default {
     resend: 'إعادة الإرسال',
     resendIn: 'إعادة الإرسال بعد {{seconds}} ث',
     resendSuccess: 'تم إرسال رمز جديد إلى بريدك الإلكتروني.',
+    editRegistration: 'تعديل بيانات التسجيل',
     errors: {
       invalidCode: 'الرمز الذي أدخلته غير صحيح.',
       expiredCode: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.',

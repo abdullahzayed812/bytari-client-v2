@@ -5252,7 +5252,9 @@ export const en: TranslationResources = {
     inactiveBody: 'The clinic dashboard is unavailable because the clinic is not active.',
     expiredTitle: 'The clinic’s subscription has expired',
     expiredBody:
-      'Neither the owner nor the staff can use the clinic dashboard or manage animals, records, appointments or conversations until the subscription is renewed.',
+      'The clinic owner can’t use the clinic dashboard or manage animals, records or appointments until the subscription is renewed. The clinic’s veterinarians and staff can keep working within their permissions.',
+    expiredStaffNotice:
+      'You can continue your usual clinic work within your permissions. Renewing the subscription is the clinic owner’s responsibility.',
     renewCta: 'Request subscription renewal',
     contactAdminCta: 'Contact administration',
     staffRestrictionHint:
@@ -8118,6 +8120,7 @@ export const en: TranslationResources = {
       resend: 'Resend',
       resendIn: 'Resend in {{seconds}}s',
       resendSuccess: 'A new code was sent to your email.',
+      editRegistration: 'Edit registration details',
       errors: {
         invalidCode: 'The code you entered is incorrect.',
         expiredCode: 'That code has expired. Request a new one.',

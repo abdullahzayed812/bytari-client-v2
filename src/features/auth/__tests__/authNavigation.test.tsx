@@ -181,6 +181,27 @@ describe('AuthRedirector — veterinarian pending-approval gate', () => {
     expect(mockReplace).toHaveBeenCalledWith('/(auth)/verify-email');
   });
 
+  it('unverified pet owner Back to the registration form → not bounced to verify-email', () => {
+    setAuth('pending-verification', session({ accessState: 'EMAIL_VERIFICATION_REQUIRED' }));
+    for (const screen of ['register', 'verify-email']) {
+      mockReplace.mockClear();
+      mockSegments = ['(auth)', screen];
+      render(<AuthRedirector />);
+      expect(mockReplace).not.toHaveBeenCalled();
+    }
+  });
+
+  it.each([
+    ['(auth)', 'welcome'],
+    ['(auth)', 'sign-in'],
+    ['(auth)', 'register-veterinarian'],
+  ])('unverified pet owner on %s/%s → still pinned to verify-email', (...segments) => {
+    setAuth('pending-verification', session({ accessState: 'EMAIL_VERIFICATION_REQUIRED' }));
+    mockSegments = segments;
+    render(<AuthRedirector />);
+    expect(mockReplace).toHaveBeenCalledWith('/(auth)/verify-email');
+  });
+
   it('"تسجيل الخروج" on the pending screen clears tokens + session and lands on sign-in', async () => {
     const logoutCall = jest.spyOn(authApi, 'logout').mockResolvedValue({ success: true });
     setAuth('pending-approval', pendingVet());

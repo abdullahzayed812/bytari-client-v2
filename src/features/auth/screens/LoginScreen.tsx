@@ -61,7 +61,8 @@ export default function LoginScreen() {
             error instanceof ApiError &&
             error.code === ApiErrorCode.EMAIL_VERIFICATION_REQUIRED
           ) {
-            router.replace({ pathname: Routes.authVerifyEmail, params: { email } });
+            // push, not replace: Back on the verify screen returns here.
+            router.push({ pathname: Routes.authVerifyEmail, params: { email } });
             return;
           }
           setServerFields(fieldErrors(error));

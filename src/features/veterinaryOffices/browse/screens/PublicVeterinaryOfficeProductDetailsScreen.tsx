@@ -218,14 +218,14 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
                 fullWidth
               />
             ) : null}
-            {officeWhatsapp ? (
+            {/* {officeWhatsapp ? (
               <Button
                 label={t('product.whatsapp')}
                 leftIcon="logo-whatsapp"
                 onPress={onWhatsapp}
                 fullWidth
               />
-            ) : null}
+            ) : null} */}
           </Row>
         </Section>
       </View>

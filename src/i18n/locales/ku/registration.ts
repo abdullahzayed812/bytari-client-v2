@@ -75,6 +75,7 @@ const registration: KuNamespace<'registration'> = {
     resend: 'دووبارە ناردنەوە',
     resendIn: 'دووبارە ناردنەوە دوای {{seconds}} چ',
     resendSuccess: 'کۆدێکی نوێ نێردرا بۆ ئیمەیڵەکەت.',
+    editRegistration: 'دەستکاریکردنی زانیاریی تۆمارکردن',
     errors: {
       invalidCode: 'ئەو کۆدەی نووسیوتە هەڵەیە.',
       expiredCode: 'ماوەی کۆدەکە بەسەرچوو. کۆدێکی نوێ داوا بکە.',
