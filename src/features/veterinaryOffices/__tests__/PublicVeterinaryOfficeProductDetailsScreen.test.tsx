@@ -99,8 +99,10 @@ describe('PublicVeterinaryOfficeProductDetailsScreen', () => {
     renderWithProviders(<PublicVeterinaryOfficeProductDetailsScreen />);
     await waitFor(() => expect(screen.getByText('أنتي بيك')).toBeOnTheScreen());
     await waitFor(() => expect(screen.getByText('تواصل مع المكتب أو الشركة')).toBeOnTheScreen());
+    expect(screen.getByText('مراسلة')).toBeOnTheScreen();
     expect(screen.getByText('اتصال')).toBeOnTheScreen();
-    expect(screen.getByText('تواصل واتساب')).toBeOnTheScreen();
+    // The WhatsApp button is currently disabled in the screen.
+    expect(screen.queryByText('تواصل واتساب')).toBeNull();
   });
 
   it('the favorite heart shows a coming-soon toast (no product-favorites backend yet)', async () => {

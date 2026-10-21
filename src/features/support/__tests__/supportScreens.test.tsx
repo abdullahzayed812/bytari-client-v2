@@ -339,6 +339,7 @@ describe('AdminThreadListScreen — "رسائل المستخدمين" new-messag
   it('says so when everything has been reviewed', async () => {
     seed({ isAdmin: true });
     setSearchParams({ kind: 'support-messages' });
+    jest.spyOn(supportMessageApi, 'adminUnreadCount').mockResolvedValue({ count: 0 });
     const listAdmin = jest.spyOn(supportMessageApi, 'listAdmin').mockResolvedValue(emptyPage);
     renderWithProviders(<AdminThreadListScreen />);
     await waitFor(() => expect(listAdmin).toHaveBeenCalled(), { timeout: 5000 });
