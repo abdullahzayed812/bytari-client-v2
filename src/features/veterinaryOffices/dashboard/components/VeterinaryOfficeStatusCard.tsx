@@ -18,6 +18,7 @@ export interface VeterinaryOfficeStatusCardProps {
   subscriptionEndDate?: string | null;
   /** An open (PENDING) renewal request already exists — server-sourced. */
   hasPendingRenewal?: boolean;
+  /** Owner only — when omitted (vets / employees) no renewal copy or action is shown. */
   onRequestRenewal?: () => void;
 }
 
@@ -79,21 +80,19 @@ export function VeterinaryOfficeStatusCard({
         tone="danger"
         title={t('status.subscriptionExpiredTitle')}
       >
-        {hasPendingRenewal ? (
+        {!onRequestRenewal ? null : hasPendingRenewal ? (
           <Caption>{t('status.subscriptionRenewalPending')}</Caption>
         ) : (
           <>
             <Caption>{t('status.subscriptionRenewalCta')}</Caption>
-            {onRequestRenewal ? (
-              <View style={{ marginTop: theme.spacing.sm, alignItems: 'flex-start' }}>
-                <Button
-                  label={t('status.requestRenewal')}
-                  variant="primary"
-                  size="sm"
-                  onPress={onRequestRenewal}
-                />
-              </View>
-            ) : null}
+            <View style={{ marginTop: theme.spacing.sm, alignItems: 'flex-start' }}>
+              <Button
+                label={t('status.requestRenewal')}
+                variant="primary"
+                size="sm"
+                onPress={onRequestRenewal}
+              />
+            </View>
           </>
         )}
       </StatusBody>

@@ -627,6 +627,7 @@ export const en: TranslationResources = {
       submit: 'Submit renewal request',
       success: 'The renewal request was submitted successfully.',
       alreadyPending: 'You already have a renewal request under review.',
+      ownerOnly: 'Only the account owner can request a subscription renewal.',
       historyTitle: 'Previous requests',
       historyEmpty: 'No previous renewal requests.',
       requestStatus: {
@@ -2661,6 +2662,7 @@ export const en: TranslationResources = {
       submit: 'Send renewal request',
       success: 'Renewal request sent successfully.',
       alreadyPending: 'You already have a renewal request under review.',
+      ownerOnly: 'Only the account owner can request a subscription renewal.',
       historyTitle: 'Previous requests',
       historyEmpty: 'No previous renewal requests.',
       requestStatus: {

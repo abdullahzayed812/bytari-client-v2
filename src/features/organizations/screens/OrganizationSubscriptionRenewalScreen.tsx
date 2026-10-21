@@ -5,7 +5,7 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Badge, Card } from '@/components/content';
-import { ErrorState, Loading, useToast } from '@/components/feedback';
+import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Input } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -69,6 +69,10 @@ export default function OrganizationSubscriptionRenewalScreen() {
         <Loading fill />
       ) : detail.isError ? (
         <ErrorState error={detail.error} onRetry={() => void detail.refetch()} />
+      ) : detail.data?.myRole !== 'OWNER' ? (
+        // Renewal is the owner's alone (the backend enforces it too) — vets,
+        // supervisors and employees never see the form.
+        <EmptyState icon="lock-closed-outline" title={t('renewal.ownerOnly')} />
       ) : (
         <>
           <Section spacing="lg">

@@ -18,6 +18,7 @@ export interface FarmStatusCardProps {
   subscriptionEndDate?: string | null;
   /** An open (PENDING) renewal request already exists — server-sourced. */
   hasPendingRenewal?: boolean;
+  /** Owner only — when omitted (vets / employees) no renewal copy or action is shown. */
   onRequestRenewal?: () => void;
 }
 
@@ -78,21 +79,19 @@ export function FarmStatusCard({
         tone="danger"
         title={t('status.subscriptionExpiredTitle')}
       >
-        {hasPendingRenewal ? (
+        {!onRequestRenewal ? null : hasPendingRenewal ? (
           <Caption>{t('status.subscriptionRenewalPending')}</Caption>
         ) : (
           <>
             <Caption>{t('status.subscriptionRenewalCta')}</Caption>
-            {onRequestRenewal ? (
-              <View style={{ marginTop: theme.spacing.sm, alignItems: 'flex-start' }}>
-                <Button
-                  label={t('status.requestRenewal')}
-                  variant="primary"
-                  size="sm"
-                  onPress={onRequestRenewal}
-                />
-              </View>
-            ) : null}
+            <View style={{ marginTop: theme.spacing.sm, alignItems: 'flex-start' }}>
+              <Button
+                label={t('status.requestRenewal')}
+                variant="primary"
+                size="sm"
+                onPress={onRequestRenewal}
+              />
+            </View>
           </>
         )}
       </StatusBody>
@@ -114,7 +113,11 @@ export function FarmStatusCard({
   // NOT_STARTED (or subscription info not applicable/loaded yet) — the farm is
   // approved but admin hasn't set a subscription period yet.
   return (
-    <StatusBody icon="information-circle-outline" tone="primary" title={t('status.notStartedTitle')}>
+    <StatusBody
+      icon="information-circle-outline"
+      tone="primary"
+      title={t('status.notStartedTitle')}
+    >
       <Caption>{t('status.notStartedBody')}</Caption>
     </StatusBody>
   );

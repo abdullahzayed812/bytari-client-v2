@@ -171,7 +171,8 @@ export function OwnedOrganizationCard({
           </View>
         ) : null}
 
-        {org.subscriptionStatus === 'EXPIRED' || org.subscriptionStatus === 'NOT_STARTED' ? (
+        {isOwner &&
+        (org.subscriptionStatus === 'EXPIRED' || org.subscriptionStatus === 'NOT_STARTED') ? (
           <TextButton
             label={t('renewal.title')}
             icon="refresh-outline"

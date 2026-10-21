@@ -178,6 +178,7 @@ export default {
     submit: 'إرسال طلب التجديد',
     success: 'تم إرسال طلب التجديد بنجاح.',
     alreadyPending: 'لديك طلب تجديد قيد المراجعة بالفعل.',
+    ownerOnly: 'طلب تجديد الاشتراك متاح لمالك الحساب فقط.',
     historyTitle: 'طلبات سابقة',
     historyEmpty: 'لا توجد طلبات تجديد سابقة.',
     requestStatus: {
