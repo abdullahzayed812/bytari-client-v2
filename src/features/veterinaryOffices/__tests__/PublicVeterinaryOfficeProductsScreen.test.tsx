@@ -110,13 +110,14 @@ describe('PublicVeterinaryOfficeProductsScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/veterinary-offices/o1/products/p1');
   });
 
-  it('grid: three cards per row on tablet / desktop, two on phones, one on very narrow screens', () => {
+  it('grid: three cards per row on phones, tablets and desktop; fewer only on very narrow widths', () => {
     // grid width = viewport − 2 × screen padding
     expect(officeProductColumns(1280 - 32)).toBe(3); // desktop
     expect(officeProductColumns(768 - 32)).toBe(3); // tablet
-    expect(officeProductColumns(600 - 32)).toBe(3);
-    expect(officeProductColumns(430 - 32)).toBe(2); // large phone
-    expect(officeProductColumns(360 - 32)).toBe(2); // phone
-    expect(officeProductColumns(320 - 32)).toBe(1); // very narrow
+    expect(officeProductColumns(430 - 32)).toBe(3); // large phone
+    expect(officeProductColumns(360 - 32)).toBe(3); // phone
+    expect(officeProductColumns(320 - 32)).toBe(3); // small phone
+    expect(officeProductColumns(200)).toBe(2);
+    expect(officeProductColumns(150)).toBe(1);
   });
 });

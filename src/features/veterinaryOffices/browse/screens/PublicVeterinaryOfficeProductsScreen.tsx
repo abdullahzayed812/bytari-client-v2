@@ -28,13 +28,13 @@ import {
 
 const GRID_GAP = 12;
 /** Narrowest card that still fits a two-line name + price without clipping. */
-const MIN_CARD_WIDTH = 20;
+const MIN_CARD_WIDTH = 80;
 const MAX_COLUMNS = 3;
 
-/** Three across on tablet / desktop widths, two on phones, one on very narrow screens. */
+/** Three across on phones, tablets and desktop; fewer only when a card would drop below MIN_CARD_WIDTH. */
 export function officeProductColumns(gridWidth: number): number {
   for (let n = MAX_COLUMNS; n > 1; n--) {
-    if ((gridWidth - GRID_GAP * (n - 1)) / n >= MIN_CARD_WIDTH * (n === MAX_COLUMNS ? 1.2 : 1)) {
+    if ((gridWidth - GRID_GAP * (n - 1)) / n >= MIN_CARD_WIDTH) {
       return n;
     }
   }
