@@ -28,7 +28,7 @@ import {
 
 const GRID_GAP = 12;
 /** Narrowest card that still fits a two-line name + price without clipping. */
-const MIN_CARD_WIDTH = 150;
+const MIN_CARD_WIDTH = 20;
 const MAX_COLUMNS = 3;
 
 /** Three across on tablet / desktop widths, two on phones, one on very narrow screens. */
