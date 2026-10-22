@@ -17,6 +17,8 @@ export interface ClinicDashboardPermissions {
   canCreateMedicalRecords: boolean;
   canViewVaccinations: boolean;
   canCreateVaccinations: boolean;
+  canDeleteMedicalRecords: boolean;
+  canDeleteVaccinations: boolean;
   canViewAppointments: boolean;
   canManageAppointments: boolean;
   canSendBroadcast: boolean;

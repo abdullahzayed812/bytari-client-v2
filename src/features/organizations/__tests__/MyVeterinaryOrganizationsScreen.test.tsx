@@ -133,3 +133,50 @@ describe('MyVeterinaryOrganizationsScreen — leaving an organization', () => {
     expect(screen.getByText('عيادة الرحمة')).toBeOnTheScreen();
   });
 });
+
+describe('MyVeterinaryOrganizationsScreen — "طلب تجديد الاشتراك" is owner-only', () => {
+  let list: jest.SpyInstance;
+  beforeEach(() => {
+    resetRouterMock();
+    list = jest.spyOn(organizationsApi, 'listMine');
+  });
+  afterEach(() => list.mockRestore());
+
+  it('never shows renewal to a clinic / office veterinarian, supervisor or employee — even when expired', async () => {
+    const roles = ['VETERINARIAN', 'SUPERVISOR', 'STAFF'] as const;
+    const items = roles.flatMap((role) =>
+      (['CLINIC', 'VETERINARY_OFFICE'] as const).map((type) =>
+        org({ id: `${type}-${role}`, type, name: `${type}-${role}`, myRole: role }),
+      ),
+    );
+    list.mockResolvedValue({
+      items: items.map((o) => ({ ...o, subscriptionStatus: 'EXPIRED' })),
+      meta: { page: 1, pageSize: 50, total: items.length, totalPages: 1 },
+    });
+    renderWithProviders(<MyVeterinaryOrganizationsScreen />);
+    await waitFor(() => expect(screen.getByText('CLINIC-STAFF')).toBeOnTheScreen());
+    expect(screen.getAllByText('منتهي').length).toBe(items.length);
+    expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
+  });
+
+  it('the owner of an expired clinic / office does get it, and it opens the renewal screen', async () => {
+    list.mockResolvedValue({
+      items: [
+        { ...org({ id: 'c1', type: 'CLINIC', name: 'عيادتي' }), subscriptionStatus: 'EXPIRED' },
+        {
+          ...org({ id: 'v1', type: 'VETERINARY_OFFICE', name: 'مكتبي' }),
+          subscriptionStatus: 'EXPIRED',
+        },
+      ],
+      meta: { page: 1, pageSize: 50, total: 2, totalPages: 1 },
+    });
+    renderWithProviders(<MyVeterinaryOrganizationsScreen />);
+    await waitFor(() => expect(screen.getByText('عيادتي')).toBeOnTheScreen());
+    const renew = screen.getAllByText('طلب تجديد الاشتراك');
+    expect(renew).toHaveLength(2);
+    fireEvent.press(renew[0]!);
+    expect(routerMock.push).toHaveBeenCalledWith(
+      expect.stringContaining('/organizations/c1/subscription-renewal'),
+    );
+  });
+});

@@ -197,6 +197,7 @@ export function ClinicRemindersScreen() {
   const orgId = organizationId ?? '';
   const perms = useClinicPermissions(orgId);
   const canManage = perms?.canCreateMedicalRecords ?? false;
+  const canDelete = perms?.canDeleteMedicalRecords ?? false;
   const [filter, setFilter] = useState<ClinicReminderFilter>('TODAY');
   const q = useClinicReminders(orgId, filter);
   const sendToday = useNotifyTodayReminders(orgId);
@@ -294,6 +295,7 @@ export function ClinicRemindersScreen() {
                   reminder={item.reminder}
                   organizationId={orgId}
                   canManage={canManage}
+                  canDelete={canDelete}
                 />
               </View>
             </Card>

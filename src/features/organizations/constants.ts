@@ -202,17 +202,22 @@ export interface OrgCapabilities {
   /**
    * Phase 6 — may read an animal's medical records + vaccinations
    * (`medical_record.read` / `vaccination.read`, seeded to the VETERINARIAN
-   * org role). Gated to CLINIC org types + an ACTIVE veterinary-access grant
+   * and STAFF org roles). Gated to CLINIC org types + an ACTIVE veterinary-access grant
    * by the backend.
    */
   canViewOrganizationMedical: boolean;
   /**
-   * Phase 6 — may create / edit / delete medical records + vaccinations
-   * (`medical_record.{create,update,delete}` / `vaccination.{create,update,delete}`,
-   * seeded to the VETERINARIAN org role). A clinic may only edit / delete
-   * entries IT recorded (backend returns 404 otherwise).
+   * Phase 6 — may create / edit medical records, vaccinations + reminders
+   * (`medical_record.{create,update}` / `vaccination.{create,update}`, seeded
+   * to the VETERINARIAN and STAFF org roles). A clinic may only edit entries
+   * IT recorded (backend returns 404 otherwise).
    */
   canManageOrganizationMedical: boolean;
+  /**
+   * May delete them (`medical_record.delete` / `vaccination.delete`) —
+   * VETERINARIAN only by role; clinic STAFF create / update but never delete.
+   */
+  canDeleteOrganizationMedical: boolean;
   /**
    * Phase 7 — may list a FARM's poultry flocks (`farm.poultry.read`, seeded to
    * OWNER-override / VETERINARIAN / SUPERVISOR / STAFF org roles). Gated to FARM
@@ -274,7 +279,8 @@ export interface OrgCapabilities {
  * The backend `GET /organizations/:id` response gives us `myRole` but NOT the
  * resolved permission set, so this mirrors the seeded role → permission grants
  * (`ORG_ROLE_PERMISSIONS`): OWNER (and ADMIN) get everything via the owner
- * override; VETERINARIAN can read members; STAFF can only read the profile; a
+ * override; VETERINARIAN can read members; clinic STAFF read members and enter
+ * (but never delete) medical records; a
  * SUPERVISOR's real permissions are owner-selected and unknown to the client,
  * so we show them a read-only view and let the backend authorise (or 403) any
  * action they attempt. Every mutation is still gated server-side.
@@ -298,10 +304,11 @@ export function orgCapabilities(
     canManageMembers: privileged,
     canViewSupervisors: privileged || isSupervisor,
     canManageSupervisors: privileged,
-    canViewOrganizationAnimals: privileged || isVet || isSupervisor,
+    canViewOrganizationAnimals: privileged || isVet || isSupervisor || isStaff,
     canManageOrganizationAnimalAccess: privileged,
-    canViewOrganizationMedical: privileged || isVet || isSupervisor,
-    canManageOrganizationMedical: privileged || isVet || isSupervisor,
+    canViewOrganizationMedical: privileged || isVet || isSupervisor || isStaff,
+    canManageOrganizationMedical: privileged || isVet || isSupervisor || isStaff,
+    canDeleteOrganizationMedical: privileged || isVet || isSupervisor,
     canViewFarmPoultry: privileged || isVet || isSupervisor || isStaff,
     canManageFarmPoultry: privileged || isVet || isSupervisor || isStaff,
     canDeleteFarmRecords: privileged || isVet || isSupervisor,

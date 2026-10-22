@@ -23,6 +23,8 @@ const permissions: ClinicDashboardSummary['permissions'] = {
   canCreateMedicalRecords: true,
   canViewVaccinations: true,
   canCreateVaccinations: true,
+  canDeleteMedicalRecords: true,
+  canDeleteVaccinations: true,
   canViewAppointments: true,
   canManageAppointments: true,
   canSendBroadcast: true,

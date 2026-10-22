@@ -144,6 +144,9 @@ export default function OrganizationAnimalDetailScreen() {
     viewVaccinations: perms ? perms.canViewVaccinations : caps.canViewOrganizationMedical,
     createRecord: perms ? perms.canCreateMedicalRecords : caps.canManageOrganizationMedical,
     createVaccination: perms ? perms.canCreateVaccinations : caps.canManageOrganizationMedical,
+    // clinic STAFF create / edit but never delete — re-checked server-side
+    deleteRecord: perms ? perms.canDeleteMedicalRecords : caps.canDeleteOrganizationMedical,
+    deleteVaccination: perms ? perms.canDeleteVaccinations : caps.canDeleteOrganizationMedical,
     manageAppointments: perms?.canManageAppointments ?? false,
     // owner / supervisor only (`animal.veterinary.access.manage`) — re-checked server-side
     removePet: perms ? perms.canManageAnimalAccess : caps.canManageOrganizationAnimalAccess,
@@ -451,6 +454,8 @@ export default function OrganizationAnimalDetailScreen() {
                 clinicName={clinicName}
                 canWriteRecords={isActiveAnimal && can.createRecord}
                 canWriteVaccinations={isActiveAnimal && can.createVaccination}
+                canDeleteRecords={isActiveAnimal && can.deleteRecord}
+                canDeleteVaccinations={isActiveAnimal && can.deleteVaccination}
                 createRecord={createRecord}
               />
             </>
@@ -908,6 +913,8 @@ function TabPanel({
   clinicName,
   canWriteRecords,
   canWriteVaccinations,
+  canDeleteRecords,
+  canDeleteVaccinations,
   createRecord,
 }: {
   tab: TabKey;
@@ -916,6 +923,8 @@ function TabPanel({
   clinicName: string;
   canWriteRecords: boolean;
   canWriteVaccinations: boolean;
+  canDeleteRecords: boolean;
+  canDeleteVaccinations: boolean;
   createRecord: (type?: 'FULL_EXAM' | 'LAB' | 'FILE') => void;
 }) {
   const scope = { animalId, organizationId };
@@ -932,6 +941,7 @@ function TabPanel({
         animalId={animalId}
         clinicName={clinicName}
         canWrite={canWriteVaccinations}
+        canDelete={canDeleteVaccinations}
       />
     );
   }
@@ -943,6 +953,7 @@ function TabPanel({
         animalId={animalId}
         clinicName={clinicName}
         canWrite={canWriteRecords}
+        canDelete={canDeleteRecords}
       />
     );
   }
@@ -954,6 +965,7 @@ function TabPanel({
       animalId={animalId}
       clinicName={clinicName}
       canWrite={canWriteRecords}
+      canDelete={canDeleteRecords}
       createRecord={createRecord}
     />
   );
@@ -1286,6 +1298,7 @@ function RecordsPanel({
   animalId,
   clinicName,
   canWrite,
+  canDelete,
   createRecord,
 }: {
   view: 'records' | 'lab' | 'files' | 'notes';
@@ -1294,6 +1307,7 @@ function RecordsPanel({
   animalId: string;
   clinicName: string;
   canWrite: boolean;
+  canDelete: boolean;
   createRecord: (type?: 'FULL_EXAM' | 'LAB' | 'FILE') => void;
 }) {
   const { t } = useTranslation('orgAnimals');
@@ -1406,7 +1420,7 @@ function RecordsPanel({
             ? () => router.push(Routes.orgAnimalMedicalRecordEdit(organizationId, animalId, r.id))
             : undefined
         }
-        onDelete={canWrite ? () => confirm.ask(r.id) : undefined}
+        onDelete={canDelete ? () => confirm.ask(r.id) : undefined}
         editLabel={tm('records.editCta')}
         deleteLabel={tm('records.deleteCta')}
       />
@@ -1462,12 +1476,14 @@ function VaccinationsPanel({
   animalId,
   clinicName,
   canWrite,
+  canDelete,
 }: {
   q: ReturnType<typeof useVaccinations>;
   organizationId: string;
   animalId: string;
   clinicName: string;
   canWrite: boolean;
+  canDelete: boolean;
 }) {
   const { t } = useTranslation('orgAnimals');
   const { t: tm } = useTranslation('medical');
@@ -1513,7 +1529,7 @@ function VaccinationsPanel({
             ? () => router.push(Routes.orgAnimalVaccinationEdit(organizationId, animalId, v.id))
             : undefined
         }
-        onDelete={canWrite && mine ? () => confirm.ask(v.id) : undefined}
+        onDelete={canDelete && mine ? () => confirm.ask(v.id) : undefined}
         editLabel={tm('vaccinations.editCta')}
         deleteLabel={tm('vaccinations.deleteCta')}
       />
@@ -1574,12 +1590,14 @@ function RemindersPanel({
   animalId,
   clinicName,
   canWrite,
+  canDelete,
 }: {
   q: ReturnType<typeof useAnimalReminders>;
   organizationId: string;
   animalId: string;
   clinicName: string;
   canWrite: boolean;
+  canDelete: boolean;
 }) {
   const { t } = useTranslation('orgAnimals');
   const { t: tm } = useTranslation('medical');
@@ -1631,7 +1649,7 @@ function RemindersPanel({
             ? () => router.push(Routes.orgAnimalReminderEdit(organizationId, animalId, r.id))
             : undefined
         }
-        onDelete={canWrite && mine ? () => confirm.ask(r.id) : undefined}
+        onDelete={canDelete && mine ? () => confirm.ask(r.id) : undefined}
         editLabel={tm('records.editCta')}
         deleteLabel={tm('reminders.deleteCta')}
       />

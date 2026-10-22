@@ -15,7 +15,8 @@ import { RescheduleSheet } from './RescheduleSheet';
 
 /**
  * Clinic reminder actions (the creating clinic only): edit · complete /
- * reopen · reschedule · notify owner · delete. Nothing renders for the owner —
+ * reopen · reschedule · notify owner · delete (delete only with `canDelete` —
+ * clinic STAFF edit but never delete). Nothing renders for the owner —
  * clinic-created reminders are read-only for them. Every call is re-authorized
  * by the backend.
  */
@@ -23,11 +24,13 @@ export function ReminderActions({
   reminder,
   organizationId,
   canManage,
+  canDelete = canManage,
 }: {
   reminder: AnimalReminder;
   /** The clinic context — without it nothing is rendered. */
   organizationId?: string;
   canManage: boolean;
+  canDelete?: boolean;
 }) {
   const { t } = useTranslation('medical');
   const toast = useToast();
@@ -104,14 +107,16 @@ export function ReminderActions({
             />
           </>
         ) : null}
-        <Button
-          label={t('reminders.deleteCta')}
-          size="sm"
-          variant="ghost"
-          leftIcon="trash-outline"
-          disabled={busy}
-          onPress={() => setConfirmDelete(true)}
-        />
+        {canDelete ? (
+          <Button
+            label={t('reminders.deleteCta')}
+            size="sm"
+            variant="ghost"
+            leftIcon="trash-outline"
+            disabled={busy}
+            onPress={() => setConfirmDelete(true)}
+          />
+        ) : null}
       </Row>
 
       <RescheduleSheet

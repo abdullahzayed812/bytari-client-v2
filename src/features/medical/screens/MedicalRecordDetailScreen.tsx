@@ -198,15 +198,17 @@ export default function MedicalRecordDetailScreen() {
                   )
                 }
               />
-              <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
-                <TextButton
-                  label={t('records.deleteCta')}
-                  tone="danger"
-                  icon="trash-outline"
-                  disabled={del.isPending}
-                  onPress={() => setConfirmDelete(true)}
-                />
-              </View>
+              {caps.canDeleteOrganizationMedical ? (
+                <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
+                  <TextButton
+                    label={t('records.deleteCta')}
+                    tone="danger"
+                    icon="trash-outline"
+                    disabled={del.isPending}
+                    onPress={() => setConfirmDelete(true)}
+                  />
+                </View>
+              ) : null}
             </>
           ) : isClinic && !mine ? (
             <Caption>{t('records.otherClinicNote')}</Caption>

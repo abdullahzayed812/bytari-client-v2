@@ -170,15 +170,17 @@ export default function VaccinationDetailScreen() {
                   )
                 }
               />
-              <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
-                <TextButton
-                  label={t('vaccinations.deleteCta')}
-                  tone="danger"
-                  icon="trash-outline"
-                  disabled={del.isPending}
-                  onPress={() => setConfirmDelete(true)}
-                />
-              </View>
+              {caps.canDeleteOrganizationMedical ? (
+                <View style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}>
+                  <TextButton
+                    label={t('vaccinations.deleteCta')}
+                    tone="danger"
+                    icon="trash-outline"
+                    disabled={del.isPending}
+                    onPress={() => setConfirmDelete(true)}
+                  />
+                </View>
+              ) : null}
             </>
           ) : isClinic && !mine ? (
             <Caption>{t('vaccinations.otherClinicNote')}</Caption>

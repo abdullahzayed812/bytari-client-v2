@@ -27,11 +27,11 @@ describe('animals feature — org-type rule + capability gates', () => {
     expect(vet.canManageOrganizationAnimalAccess).toBe(false);
   });
 
-  it('orgCapabilities: OWNER / ADMIN can manage access; STAFF can do neither', () => {
+  it('orgCapabilities: OWNER / ADMIN can manage access; STAFF views but cannot manage access', () => {
     expect(orgCapabilities('OWNER', false).canManageOrganizationAnimalAccess).toBe(true);
     expect(orgCapabilities(null, true).canManageOrganizationAnimalAccess).toBe(true);
     const staff = orgCapabilities('STAFF', false);
-    expect(staff.canViewOrganizationAnimals).toBe(false);
+    expect(staff.canViewOrganizationAnimals).toBe(true);
     expect(staff.canManageOrganizationAnimalAccess).toBe(false);
   });
 });

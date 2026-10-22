@@ -38,6 +38,8 @@ function summary(canManage: boolean): ClinicDashboardSummary {
       canCreateMedicalRecords: true,
       canViewVaccinations: true,
       canCreateVaccinations: true,
+      canDeleteMedicalRecords: true,
+      canDeleteVaccinations: true,
       canViewAppointments: true,
       canManageAppointments: canManage,
       canSendBroadcast: false,

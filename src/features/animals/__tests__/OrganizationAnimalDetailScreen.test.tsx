@@ -91,6 +91,8 @@ const allowAll: ClinicDashboardSummary['permissions'] = {
   canCreateMedicalRecords: true,
   canViewVaccinations: true,
   canCreateVaccinations: true,
+  canDeleteMedicalRecords: true,
+  canDeleteVaccinations: true,
   canViewAppointments: true,
   canManageAppointments: true,
   canSendBroadcast: true,
@@ -302,6 +304,19 @@ describe('OrganizationAnimalDetailScreen (clinic pet details)', () => {
     expect(screen.queryByLabelText('تعديل السجل')).toBeNull();
     expect(screen.queryByLabelText('مراجعة سريعة')).toBeNull();
     expect(screen.queryByText('إزالة الحيوان من العيادة')).toBeNull();
+  });
+
+  it('clinic STAFF (create / update, no delete): edit stays, delete is hidden', async () => {
+    getSummary.mockResolvedValue(
+      summaryWith({ canDeleteMedicalRecords: false, canDeleteVaccinations: false }),
+    );
+    getProfile.mockResolvedValue(profile);
+    listRecords.mockResolvedValue(page([record({ diagnosis: 'Otitis' })]));
+    renderWithProviders(<OrganizationAnimalDetailScreen />);
+    await waitFor(() => expect(screen.getByText('Otitis')).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText('+ إضافة سجل طبي جديد')).toBeOnTheScreen());
+    expect(screen.getByLabelText('تعديل السجل')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('حذف السجل')).toBeNull();
   });
 
   it('renders a plain "not found" state on a 404 (unknown pet)', async () => {

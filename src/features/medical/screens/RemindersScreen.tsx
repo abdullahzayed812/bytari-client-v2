@@ -101,6 +101,11 @@ export default function RemindersScreen() {
                     caps.canManageOrganizationMedical &&
                     recordedByThisClinic(item, organizationId)
                   }
+                  canDelete={
+                    isClinic &&
+                    caps.canDeleteOrganizationMedical &&
+                    recordedByThisClinic(item, organizationId)
+                  }
                 />
               }
             />

@@ -50,6 +50,16 @@ describe('orgCapabilities — UX-only gates derived from myRole (backend stays a
     expect(c.canLeave).toBe(true);
   });
 
+  it('clinic STAFF enter medical records (view + create / edit) but never delete them', () => {
+    const c = orgCapabilities('STAFF', false);
+    expect(c.canViewOrganizationAnimals).toBe(true);
+    expect(c.canViewOrganizationMedical).toBe(true);
+    expect(c.canManageOrganizationMedical).toBe(true);
+    expect(c.canDeleteOrganizationMedical).toBe(false);
+    expect(c.canManageOrganizationAnimalAccess).toBe(false);
+    expect(orgCapabilities('VETERINARIAN', false).canDeleteOrganizationMedical).toBe(true);
+  });
+
   it('the mobile permission catalogue is a subset of the backend org-management keys', () => {
     // The 11 organization-management permissions, copied verbatim from the backend.
     expect(ORG_MANAGEMENT_PERMISSION_KEYS).toEqual([
