@@ -10,6 +10,9 @@ import { canEnterVeterinarianModeFor } from './useCapabilities';
 /** The one icon every interface-switch button uses (Pet Owner ⇄ Veterinarian). */
 export const INTERFACE_SWITCH_ICON = 'swap-horizontal-outline' as const;
 
+/** How long the "switched interface" success toast stays up (default toasts: 3.5s). */
+export const SWITCH_TOAST_DURATION_MS = 1_500;
+
 export interface UseInterfaceSwitch {
   /** Whether the switch control should be shown at all (approved vet / admin only). */
   canSwitch: boolean;
@@ -60,6 +63,8 @@ export function useInterfaceSwitch(): UseInterfaceSwitch {
       toast.show({
         tone: 'success',
         message: target === 'veterinarian' ? t('mode.switchedToVet') : t('mode.switchedToOwner'),
+        // Brief confirmation — the new interface is already on screen.
+        durationMs: SWITCH_TOAST_DURATION_MS,
       });
       return true;
     },
