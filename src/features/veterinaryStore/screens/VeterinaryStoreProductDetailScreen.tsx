@@ -34,7 +34,10 @@ import {
   useVeterinaryStoreProductImagePresignProvider,
   useUpdateVeterinaryStoreProduct,
 } from '../hooks';
-import { veterinaryStoreErrorMessage, type AdjustVeterinaryStoreStockFormValues } from '../validation/schemas';
+import {
+  veterinaryStoreErrorMessage,
+  type AdjustVeterinaryStoreStockFormValues,
+} from '../validation/schemas';
 
 const MAX_PRODUCT_IMAGES = 6;
 
@@ -56,7 +59,7 @@ export default function VeterinaryStoreProductDetailScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const q = useVeterinaryStoreProduct(orgId, productId);
   const update = useUpdateVeterinaryStoreProduct(orgId);
   const del = useDeleteVeterinaryStoreProduct(orgId);
@@ -106,7 +109,8 @@ export default function VeterinaryStoreProductDetailScreen() {
       { productId: product.id, body: { status: 'ACTIVE' } },
       {
         onSuccess: () => toast.show({ tone: 'success', message: t('detail.reactivated') }),
-        onError: (error) => toast.show({ tone: 'danger', message: veterinaryStoreErrorMessage(error, t) }),
+        onError: (error) =>
+          toast.show({ tone: 'danger', message: veterinaryStoreErrorMessage(error, t) }),
       },
     );
   };
@@ -243,7 +247,9 @@ export default function VeterinaryStoreProductDetailScreen() {
               ) : null}
             </View>
             {canManage && product.images.length >= MAX_PRODUCT_IMAGES ? (
-              <Caption style={{ marginTop: theme.spacing.xs }}>{t('detail.imageLimitReached')}</Caption>
+              <Caption style={{ marginTop: theme.spacing.xs }}>
+                {t('detail.imageLimitReached')}
+              </Caption>
             ) : null}
           </Section>
 

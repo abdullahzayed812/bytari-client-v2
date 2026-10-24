@@ -158,7 +158,7 @@ describe('VeterinarianApplyScreen', () => {
 
     fireEvent.press(screen.getByRole('button', { name: 'تقديم طلب الاعتماد' }));
     await waitFor(() => {
-      expect(screen.getByText('صورة مزاولة المهنة أو الهوية الرسمية مطلوبة.')).toBeOnTheScreen();
+      expect(screen.getByText('صورة مزاولة المهنة أو هوية الطبيب مطلوبة.')).toBeOnTheScreen();
     });
     expect(applySpy).not.toHaveBeenCalled();
   });

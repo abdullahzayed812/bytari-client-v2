@@ -39,7 +39,7 @@ export default function VaccinationDetailScreen() {
   const { isAdmin } = useCapabilities();
 
   const orgDetail = useOrganization(organizationId, { enabled: isClinic });
-  const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin, orgDetail.data?.myPermissions);
   const q = useVaccination({ animalId, organizationId }, vaccinationId);
   const del = useDeleteVaccination(organizationId ?? '', animalId);
   const [confirmDelete, setConfirmDelete] = useState(false);

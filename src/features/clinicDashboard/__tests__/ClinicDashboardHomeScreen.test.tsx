@@ -107,7 +107,7 @@ describe('ClinicDashboardHomeScreen', () => {
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
   });
 
-  it('expired subscription, staff member → working notice, no renewal CTA, tiles still open', async () => {
+  it('expired subscription (cached profile), staff member → same lock notice as the owner, no renewal CTA, no broadcast', async () => {
     getOrg.mockResolvedValue({
       ...clinic,
       myRole: 'VETERINARIAN',
@@ -115,10 +115,9 @@ describe('ClinicDashboardHomeScreen', () => {
     } as never);
     renderWithProviders(<ClinicDashboardHomeScreen />);
     await waitFor(() => expect(screen.getByText('انتهى اشتراك العيادة')).toBeOnTheScreen());
-    expect(screen.getByText(/يمكنك متابعة عملك المعتاد/)).toBeOnTheScreen();
+    expect(screen.getByText(/طلب التجديد متاح لمالك العيادة فقط/)).toBeOnTheScreen();
     expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
-    fireEvent.press(screen.getByRole('button', { name: /^المواعيد/ }));
-    expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/appointments');
+    expect(screen.queryByText('إرسال رسالة للمتابعين')).toBeNull();
   });
 
   it('routes the quick-access tiles to the existing v2 screens', async () => {

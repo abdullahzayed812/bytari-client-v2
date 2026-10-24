@@ -60,7 +60,7 @@ export default function VeterinaryOfficeProductDetailScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const q = useVeterinaryOfficeProduct(orgId, productId);
   const update = useUpdateVeterinaryOfficeProduct(orgId);
   const del = useDeleteVeterinaryOfficeProduct(orgId);

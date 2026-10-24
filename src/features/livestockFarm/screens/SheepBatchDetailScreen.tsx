@@ -45,7 +45,7 @@ export default function SheepBatchDetailScreen() {
   // only — the server enforces `farm.batch.sell` / `farm.*.delete` too.
   const { isAdmin } = useCapabilities();
   const org = useOrganization(orgId);
-  const caps = orgCapabilities(org.data?.myRole, isAdmin);
+  const caps = orgCapabilities(org.data?.myRole, isAdmin, org.data?.myPermissions);
 
   const notFound =
     q.error instanceof ApiError && (q.error.status === 404 || q.error.status === 403);

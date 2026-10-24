@@ -50,7 +50,7 @@ export default function OrganizationMembersScreen() {
   const update = useUpdateOrganizationMember(orgId);
   const remove = useRemoveOrganizationMember(orgId);
 
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pendingRemove, setPendingRemove] = useState<OrganizationMember | null>(null);
 
@@ -118,7 +118,7 @@ export default function OrganizationMembersScreen() {
         title={roleFilter ? t('veterinarians.title') : t('members.title')}
         showBack
         right={
-          caps.canManageMembers ? (
+          caps.canAddMembers ? (
             <IconButton
               icon="person-add"
               variant="soft"

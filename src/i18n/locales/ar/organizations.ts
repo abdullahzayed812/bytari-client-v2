@@ -431,6 +431,17 @@ export default {
     veterinarians: 'الأطباء البيطريون',
     chat_room: 'إدارة الغرفة',
     syndicate: 'إدارة النقابة',
+    clinic_animals: 'حيوانات العيادة',
+    clinic_medical: 'السجلات الطبية',
+    clinic_vaccinations: 'التطعيمات والتذكيرات',
+    clinic_appointments: 'المواعيد',
+    farm_batches: 'الدفعات',
+    farm_daily_records: 'السجلات اليومية',
+    farm_health_events: 'العلاجات والتطعيمات',
+    farm_cases: 'الحالات الفردية',
+    farm_appointments: 'مواعيد الحقل',
+    farm_expenses: 'المصاريف',
+    farm_owner: 'الأرباح والبيع والاشتراك',
   },
   permissions: {
     'product.read': {
@@ -536,6 +547,194 @@ export default {
     'syndicate.member.message': {
       label: 'مراسلة الأعضاء',
       hint: 'مراسلة عضو مباشرةً أو إرسال رسالة لجميع الأعضاء.',
+    },
+    'animal.veterinary.access.read': {
+      label: 'عرض حيوانات العيادة',
+      hint: 'الاطلاع على حيوانات العيادة وفتح حيوان برقم المعرّف.',
+    },
+    'animal.veterinary.access.manage': {
+      label: 'إدارة حيوانات العيادة',
+      hint: 'إزالة حيوان من قائمة العيادة.',
+    },
+    'medical_record.read': {
+      label: 'عرض السجلات الطبية',
+      hint: 'الاطلاع على السجلات الطبية.',
+    },
+    'medical_record.create': {
+      label: 'إضافة السجلات الطبية',
+      hint: 'إضافة عناصر جديدة إلى السجلات الطبية.',
+    },
+    'medical_record.update': {
+      label: 'تعديل السجلات الطبية',
+      hint: 'تعديل السجلات الطبية.',
+    },
+    'medical_record.delete': {
+      label: 'حذف السجلات الطبية',
+      hint: 'حذف السجلات الطبية.',
+    },
+    'vaccination.read': {
+      label: 'عرض التطعيمات والتذكيرات',
+      hint: 'الاطلاع على التطعيمات والتذكيرات.',
+    },
+    'vaccination.create': {
+      label: 'إضافة التطعيمات والتذكيرات',
+      hint: 'إضافة عناصر جديدة إلى التطعيمات والتذكيرات.',
+    },
+    'vaccination.update': {
+      label: 'تعديل التطعيمات والتذكيرات',
+      hint: 'تعديل التطعيمات والتذكيرات.',
+    },
+    'vaccination.delete': {
+      label: 'حذف التطعيمات والتذكيرات',
+      hint: 'حذف التطعيمات والتذكيرات.',
+    },
+    'clinic.appointment.read': {
+      label: 'عرض المواعيد',
+      hint: 'الاطلاع على طلبات المواعيد المحجوزة في العيادة.',
+    },
+    'clinic.appointment.manage': {
+      label: 'إدارة المواعيد',
+      hint: 'قبول المواعيد ورفضها وإعادة جدولتها وإكمالها.',
+    },
+    'farm.poultry.read': {
+      label: 'عرض دفعات الدواجن',
+      hint: 'الاطلاع على دفعات الدواجن.',
+    },
+    'farm.poultry.create': {
+      label: 'إضافة دفعات الدواجن',
+      hint: 'إضافة عناصر جديدة إلى دفعات الدواجن.',
+    },
+    'farm.poultry.update': {
+      label: 'تعديل دفعات الدواجن',
+      hint: 'تعديل دفعات الدواجن.',
+    },
+    'farm.poultry.delete': {
+      label: 'حذف دفعات الدواجن',
+      hint: 'حذف دفعات الدواجن.',
+    },
+    'farm.sheep_batch.read': {
+      label: 'عرض دفعات الأغنام',
+      hint: 'الاطلاع على دفعات الأغنام.',
+    },
+    'farm.sheep_batch.create': {
+      label: 'إضافة دفعات الأغنام',
+      hint: 'إضافة عناصر جديدة إلى دفعات الأغنام.',
+    },
+    'farm.sheep_batch.update': {
+      label: 'تعديل دفعات الأغنام',
+      hint: 'تعديل دفعات الأغنام.',
+    },
+    'farm.sheep_batch.delete': {
+      label: 'حذف دفعات الأغنام',
+      hint: 'حذف دفعات الأغنام.',
+    },
+    'farm.cattle_batch.read': {
+      label: 'عرض دفعات الأبقار',
+      hint: 'الاطلاع على دفعات الأبقار.',
+    },
+    'farm.cattle_batch.create': {
+      label: 'إضافة دفعات الأبقار',
+      hint: 'إضافة عناصر جديدة إلى دفعات الأبقار.',
+    },
+    'farm.cattle_batch.update': {
+      label: 'تعديل دفعات الأبقار',
+      hint: 'تعديل دفعات الأبقار.',
+    },
+    'farm.cattle_batch.delete': {
+      label: 'حذف دفعات الأبقار',
+      hint: 'حذف دفعات الأبقار.',
+    },
+    'farm.daily_record.read': {
+      label: 'عرض السجلات اليومية',
+      hint: 'الاطلاع على السجلات اليومية.',
+    },
+    'farm.daily_record.create': {
+      label: 'إضافة السجلات اليومية',
+      hint: 'إضافة عناصر جديدة إلى السجلات اليومية.',
+    },
+    'farm.daily_record.update': {
+      label: 'تعديل السجلات اليومية',
+      hint: 'تعديل السجلات اليومية.',
+    },
+    'farm.daily_record.delete': {
+      label: 'حذف السجلات اليومية',
+      hint: 'حذف السجلات اليومية.',
+    },
+    'farm.health_event.read': {
+      label: 'عرض العلاجات والتطعيمات',
+      hint: 'الاطلاع على العلاجات والتطعيمات.',
+    },
+    'farm.health_event.create': {
+      label: 'إضافة العلاجات والتطعيمات',
+      hint: 'إضافة عناصر جديدة إلى العلاجات والتطعيمات.',
+    },
+    'farm.health_event.update': {
+      label: 'تعديل العلاجات والتطعيمات',
+      hint: 'تعديل العلاجات والتطعيمات.',
+    },
+    'farm.health_event.delete': {
+      label: 'حذف العلاجات والتطعيمات',
+      hint: 'حذف العلاجات والتطعيمات.',
+    },
+    'farm.case.read': {
+      label: 'عرض الحالات الفردية',
+      hint: 'الاطلاع على الحالات الفردية.',
+    },
+    'farm.case.create': {
+      label: 'إضافة الحالات الفردية',
+      hint: 'إضافة عناصر جديدة إلى الحالات الفردية.',
+    },
+    'farm.case.update': {
+      label: 'تعديل الحالات الفردية',
+      hint: 'تعديل الحالات الفردية.',
+    },
+    'farm.case.delete': {
+      label: 'حذف الحالات الفردية',
+      hint: 'حذف الحالات الفردية.',
+    },
+    'farm.appointment.read': {
+      label: 'عرض مواعيد الحقل',
+      hint: 'الاطلاع على مواعيد الحقل.',
+    },
+    'farm.appointment.create': {
+      label: 'إضافة مواعيد الحقل',
+      hint: 'إضافة عناصر جديدة إلى مواعيد الحقل.',
+    },
+    'farm.appointment.update': {
+      label: 'تعديل مواعيد الحقل',
+      hint: 'تعديل مواعيد الحقل.',
+    },
+    'farm.appointment.delete': {
+      label: 'حذف مواعيد الحقل',
+      hint: 'حذف مواعيد الحقل.',
+    },
+    'farm.expense.read': {
+      label: 'عرض المصاريف',
+      hint: 'الاطلاع على المصاريف.',
+    },
+    'farm.expense.create': {
+      label: 'إضافة المصاريف',
+      hint: 'إضافة عناصر جديدة إلى المصاريف.',
+    },
+    'farm.expense.update': {
+      label: 'تعديل المصاريف',
+      hint: 'تعديل المصاريف.',
+    },
+    'farm.expense.delete': {
+      label: 'حذف المصاريف',
+      hint: 'حذف المصاريف.',
+    },
+    'farm.financials.read': {
+      label: 'عرض الأرباح وأسعار البيع',
+      hint: 'الاطلاع على الربح المتوقع وسعر البيع المتوقع للدفعات.',
+    },
+    'farm.batch.sell': {
+      label: 'بيع الدفعات',
+      hint: 'بيع / إغلاق الدفعة وإعادة فتحها.',
+    },
+    'farm.subscription.read': {
+      label: 'عرض الاشتراك',
+      hint: 'الاطلاع على فترة اشتراك الحقل وطلبات التجديد.',
     },
   },
 };

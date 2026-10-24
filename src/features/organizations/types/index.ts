@@ -265,12 +265,15 @@ export interface MyOrganization extends Organization {
 
 /**
  * `GET /organizations/:id` — {@link OrganizationWithDetails} plus the caller's
- * organization role (`null` for an ADMIN who is not a member). The backend does
- * NOT return the caller's permission set here, so the client derives coarse UI
- * gates from `myRole` — see {@link orgCapabilities} in `../constants`.
+ * organization role and resolved permission keys (role grants ∪ the
+ * owner-selected supervisor grants; the full catalogue for the OWNER; `null`
+ * for an ADMIN who is not a member). {@link orgCapabilities} in `../constants`
+ * turns them into UI gates — the backend still authorizes every call.
  */
 export interface OrganizationDetail extends OrganizationWithDetails {
   myRole: OrgRoleKey | string | null;
+  /** Absent on an older server — `orgCapabilities` then falls back to `myRole`. */
+  myPermissions?: readonly string[] | null;
 }
 
 export interface OrgMemberUser {

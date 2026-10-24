@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 
-import { poultryApi, poultryKeys } from '../api';
+import { poultryApi, poultryKeys, poultryOpsKeys } from '../api';
 import type { CreatePoultryFlockInput, PoultryFlock, UpdatePoultryFlockInput } from '../types';
 
 /**
@@ -32,6 +32,8 @@ export function useUpdatePoultryFlock(
     onSuccess: (_data, { flockId }) => {
       void qc.invalidateQueries({ queryKey: poultryKeys.detail(organizationId, flockId) });
       void qc.invalidateQueries({ queryKey: poultryKeys.forOrg(organizationId) });
+      // Selling / reopening a batch changes the farm's Expenses summary.
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(organizationId) });
     },
   });
 }

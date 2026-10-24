@@ -59,34 +59,41 @@ export default function SheepFarmDetailsScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const chatHandlerFor = useFarmMemberChat(orgId, detail.data?.ownerUserId, detail.data?.myRole);
-  const canManage = caps.canManageFarmPoultry;
+  // "Add daily record" (the batch card + the week strip) needs exactly that permission.
+  const canManage = caps.canCreateFarmDailyRecords;
   const [addStaffOpen, setAddStaffOpen] = useState(false);
   const isApproved = detail.data?.status === 'ACTIVE';
   const canOperateFarm = isApproved && detail.data?.details?.subscriptionStatus === 'ACTIVE';
 
   const profile = useFarmProfile(orgId, { enabled: Boolean(orgId) });
+  // Each section follows the member's own permission (owner-selected for a
+  // supervisor) — nothing is fetched or shown that the member may not read.
+  const canSeeBatches = canOperateFarm && caps.canViewFarmPoultry;
+  const canSeeDaily = caps.canViewFarmDailyRecords;
   const activeBatches = useSheepBatches(orgId, {
     status: 'ACTIVE',
     pageSize: 1,
-    enabled: canOperateFarm,
+    enabled: canSeeBatches,
   });
   const batch = activeBatches.batches[0];
   const closedBatches = useSheepBatches(orgId, {
     status: 'CLOSED',
     pageSize: 20,
-    enabled: canOperateFarm,
+    enabled: canSeeBatches,
   });
   const summary = useSheepBatchSummary(orgId, batch?.id, { enabled: Boolean(batch) });
   // Daily data runs in weekly cycles: the strip shows the CURRENT week, older
   // weeks live in "الأسابيع السابقة" below it.
-  const weeks = useSheepDailyRecordWeeks(orgId, batch?.id, { enabled: Boolean(batch) });
+  const weeks = useSheepDailyRecordWeeks(orgId, batch?.id, {
+    enabled: Boolean(batch) && canSeeDaily,
+  });
   const currentWeek = weeks.data?.currentWeek;
   const daily = useSheepDailyRecords(orgId, batch?.id, {
     pageSize: 7,
     week: currentWeek,
-    enabled: Boolean(batch) && currentWeek != null,
+    enabled: Boolean(batch) && canSeeDaily && currentWeek != null,
   });
   const weekly = useSheepWeeklySummary(orgId, batch?.id, undefined, { enabled: Boolean(batch) });
   const members = useOrganizationMembers(orgId, {
@@ -100,12 +107,32 @@ export default function SheepFarmDetailsScreen() {
   const sectionCards = useMemo(
     () =>
       [
-        { key: 'treatments' as const, icon: 'medkit-outline' as const },
-        { key: 'cases' as const, icon: 'pulse-outline' as const },
-        { key: 'appointments' as const, icon: 'calendar-outline' as const },
-        { key: 'expenses' as const, icon: 'wallet-outline' as const },
-      ].map((s) => ({ ...s, label: t(`sections.${s.key}`) })),
-    [t],
+        {
+          key: 'treatments' as const,
+          icon: 'medkit-outline' as const,
+          allowed: caps.canViewFarmHealthEvents,
+        },
+        { key: 'cases' as const, icon: 'pulse-outline' as const, allowed: caps.canViewFarmCases },
+        {
+          key: 'appointments' as const,
+          icon: 'calendar-outline' as const,
+          allowed: caps.canViewFarmAppointments,
+        },
+        {
+          key: 'expenses' as const,
+          icon: 'wallet-outline' as const,
+          allowed: caps.canViewFarmExpenses,
+        },
+      ]
+        .filter((s) => s.allowed)
+        .map((s) => ({ ...s, label: t(`sections.${s.key}`) })),
+    [
+      t,
+      caps.canViewFarmHealthEvents,
+      caps.canViewFarmCases,
+      caps.canViewFarmAppointments,
+      caps.canViewFarmExpenses,
+    ],
   );
 
   const refreshing =
@@ -221,7 +248,7 @@ export default function SheepFarmDetailsScreen() {
           <SubscriptionTrialCard subject="SHEEP_FARM" organizationId={orgId} />
         ) : null}
 
-        {canOperateFarm ? (
+        {canSeeBatches ? (
           <>
             {activeBatches.isLoading ? (
               <Loading label={t('common.loading')} />
@@ -241,41 +268,43 @@ export default function SheepFarmDetailsScreen() {
                   onSell={() => setConfirmSell(true)}
                 />
 
-                <View style={{ rowGap: theme.spacing.sm }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      columnGap: theme.spacing.sm,
-                    }}
-                  >
-                    <Icon name="clipboard-outline" size="iconSm" color="primary" />
-                    <Text variant="subtitle" weight="bold">
-                      {t('daily.title')}
-                    </Text>
+                {canSeeDaily ? (
+                  <View style={{ rowGap: theme.spacing.sm }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        columnGap: theme.spacing.sm,
+                      }}
+                    >
+                      <Icon name="clipboard-outline" size="iconSm" color="primary" />
+                      <Text variant="subtitle" weight="bold">
+                        {t('daily.title')}
+                      </Text>
+                    </View>
+                    {daily.isLoading || weeks.isLoading ? (
+                      <Loading label={t('common.loading')} />
+                    ) : (
+                      <DailyRecordWeekStrip
+                        records={daily.data?.items ?? []}
+                        weekNumber={currentWeek}
+                        todayRecorded={(daily.data?.items ?? []).some(
+                          (r) => r.recordDate === businessToday(),
+                        )}
+                        onAddPress={
+                          canManage
+                            ? () => router.push(Routes.sheepFarmSection(orgId, 'daily'))
+                            : undefined
+                        }
+                        renderRecord={(r, day) => (
+                          <LivestockDailyRecordCard record={r} dayIndex={day} />
+                        )}
+                      />
+                    )}
                   </View>
-                  {daily.isLoading || weeks.isLoading ? (
-                    <Loading label={t('common.loading')} />
-                  ) : (
-                    <DailyRecordWeekStrip
-                      records={daily.data?.items ?? []}
-                      weekNumber={currentWeek}
-                      todayRecorded={(daily.data?.items ?? []).some(
-                        (r) => r.recordDate === businessToday(),
-                      )}
-                      onAddPress={
-                        canManage
-                          ? () => router.push(Routes.sheepFarmSection(orgId, 'daily'))
-                          : undefined
-                      }
-                      renderRecord={(r, day) => (
-                        <LivestockDailyRecordCard record={r} dayIndex={day} />
-                      )}
-                    />
-                  )}
-                </View>
+                ) : null}
 
-                {weeks.data && batch ? (
+                {canSeeDaily && weeks.data && batch ? (
                   <CompletedWeeksSection
                     weeks={weeks.data.weeks}
                     currentWeek={weeks.data.currentWeek}
@@ -311,7 +340,7 @@ export default function SheepFarmDetailsScreen() {
           </>
         ) : null}
 
-        {canOperateFarm ? (
+        {canOperateFarm && sectionCards.length > 0 ? (
           <View style={{ rowGap: theme.spacing.sm }}>
             <Text variant="subtitle" weight="bold">
               {t('sections.title')}
@@ -341,7 +370,7 @@ export default function SheepFarmDetailsScreen() {
               <Text variant="subtitle" weight="bold">
                 {t('details.staffTitle')}
               </Text>
-              {caps.canManageMembers ? (
+              {caps.canAddMembers ? (
                 <Button
                   label={t('details.staffAdd')}
                   variant="ghost"
@@ -357,7 +386,12 @@ export default function SheepFarmDetailsScreen() {
               <Caption>{t('details.staffEmpty')}</Caption>
             ) : (
               members.members.map((m) => (
-                <FarmStaffRow key={m.id} member={m} onChat={chatHandlerFor(m)} />
+                <FarmStaffRow
+                  key={m.id}
+                  member={m}
+                  // Team chats are read-only while the subscription is not active.
+                  onChat={canOperateFarm ? chatHandlerFor(m) : undefined}
+                />
               ))
             )}
           </View>

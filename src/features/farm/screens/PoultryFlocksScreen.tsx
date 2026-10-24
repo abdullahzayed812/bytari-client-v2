@@ -25,7 +25,7 @@ export default function PoultryFlocksScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const canAdd = caps.canCreateFarmBatch;
 
   const q = usePoultryFlocks(orgId);

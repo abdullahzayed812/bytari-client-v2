@@ -151,13 +151,128 @@ export const OFFICE_PERMISSION_GROUPS = [
   },
 ] as const satisfies readonly { key: string; permissions: readonly string[] }[];
 
+/**
+ * CLINIC supervisor permissions — the clinic dashboard sections (patients,
+ * medical records, vaccinations & reminders, appointments, follower
+ * broadcast). A SUPERVISOR has NO clinic permission by role, so without these
+ * the owner could never let a supervisor see more than the chats. Copied
+ * VERBATIM from the backend `ORG_PERMISSION_KEYS` catalogue.
+ */
+export const CLINIC_PERMISSION_GROUPS = [
+  {
+    key: 'clinic_animals',
+    permissions: ['animal.veterinary.access.read', 'animal.veterinary.access.manage'],
+  },
+  {
+    key: 'clinic_medical',
+    permissions: [
+      'medical_record.read',
+      'medical_record.create',
+      'medical_record.update',
+      'medical_record.delete',
+    ],
+  },
+  {
+    key: 'clinic_vaccinations',
+    permissions: [
+      'vaccination.read',
+      'vaccination.create',
+      'vaccination.update',
+      'vaccination.delete',
+    ],
+  },
+  {
+    key: 'clinic_appointments',
+    permissions: ['clinic.appointment.read', 'clinic.appointment.manage'],
+  },
+  {
+    key: 'followers',
+    permissions: ['organization.broadcast.send'],
+  },
+] as const satisfies readonly { key: string; permissions: readonly string[] }[];
+
+/**
+ * FARM supervisor permissions — batches (poultry / sheep / cattle), the
+ * day-to-day sections and the owner-level financials / selling. Copied
+ * VERBATIM from the backend catalogue. `farm.subscription.manage` is
+ * deliberately NOT offered: approving the farm's own renewal is
+ * administration territory.
+ */
+export const FARM_PERMISSION_GROUPS = [
+  {
+    key: 'farm_batches',
+    permissions: [
+      'farm.poultry.read',
+      'farm.poultry.create',
+      'farm.poultry.update',
+      'farm.poultry.delete',
+      'farm.sheep_batch.read',
+      'farm.sheep_batch.create',
+      'farm.sheep_batch.update',
+      'farm.sheep_batch.delete',
+      'farm.cattle_batch.read',
+      'farm.cattle_batch.create',
+      'farm.cattle_batch.update',
+      'farm.cattle_batch.delete',
+    ],
+  },
+  {
+    key: 'farm_daily_records',
+    permissions: [
+      'farm.daily_record.read',
+      'farm.daily_record.create',
+      'farm.daily_record.update',
+      'farm.daily_record.delete',
+    ],
+  },
+  {
+    key: 'farm_health_events',
+    permissions: [
+      'farm.health_event.read',
+      'farm.health_event.create',
+      'farm.health_event.update',
+      'farm.health_event.delete',
+    ],
+  },
+  {
+    key: 'farm_cases',
+    permissions: ['farm.case.read', 'farm.case.create', 'farm.case.update', 'farm.case.delete'],
+  },
+  {
+    key: 'farm_appointments',
+    permissions: [
+      'farm.appointment.read',
+      'farm.appointment.create',
+      'farm.appointment.update',
+      'farm.appointment.delete',
+    ],
+  },
+  {
+    key: 'farm_expenses',
+    permissions: [
+      'farm.expense.read',
+      'farm.expense.create',
+      'farm.expense.update',
+      'farm.expense.delete',
+    ],
+  },
+  {
+    key: 'farm_owner',
+    permissions: ['farm.financials.read', 'farm.batch.sell', 'farm.subscription.read'],
+  },
+] as const satisfies readonly { key: string; permissions: readonly string[] }[];
+
 export type AnyOrgPermissionGroupKey =
   | OrgPermissionGroupKey
+  | (typeof CLINIC_PERMISSION_GROUPS)[number]['key']
+  | (typeof FARM_PERMISSION_GROUPS)[number]['key']
   | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['key']
   | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['key']
   | (typeof OFFICE_PERMISSION_GROUPS)[number]['key'];
 export type AnyOrgPermissionKey =
   | OrgManagementPermissionKey
+  | (typeof CLINIC_PERMISSION_GROUPS)[number]['permissions'][number]
+  | (typeof FARM_PERMISSION_GROUPS)[number]['permissions'][number]
   | (typeof CHAT_ROOM_PERMISSION_GROUPS)[number]['permissions'][number]
   | (typeof SYNDICATE_PERMISSION_GROUPS)[number]['permissions'][number]
   | (typeof OFFICE_PERMISSION_GROUPS)[number]['permissions'][number];
@@ -176,6 +291,8 @@ export function permissionGroupsFor(
   if (type === 'VETERINARY_OFFICE' || type === 'VETERINARY_STORE') {
     return [...OFFICE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
   }
+  if (type === 'CLINIC') return [...CLINIC_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  if (type === 'FARM') return [...FARM_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
   return ORG_PERMISSION_GROUPS;
 }
 
@@ -184,8 +301,16 @@ export interface OrgCapabilities {
   canViewOrganization: boolean;
   canEditOrganization: boolean;
   canViewMembers: boolean;
+  /** Add a member (`member.add`). */
+  canAddMembers: boolean;
+  /** Any member management — add, remove or change a member (`member.*`). */
   canManageMembers: boolean;
   canViewSupervisors: boolean;
+  /** Assign a supervisor / edit a supervisor's permissions (`supervisor.assign`). */
+  canAssignSupervisors: boolean;
+  /** Remove a supervisor (`supervisor.remove`). */
+  canRemoveSupervisors: boolean;
+  /** Either of the two above. */
   canManageSupervisors: boolean;
   /**
    * Phase 5 — may list the organization's animals (`animal.veterinary.access.read`,
@@ -230,6 +355,14 @@ export interface OrgCapabilities {
    * SUPERVISOR and farm STAFF (employees). Server re-checks every write.
    */
   canManageFarmPoultry: boolean;
+  /** Per-section reads on the farm details screen (`farm.<section>.read`). */
+  canViewFarmDailyRecords: boolean;
+  /** Add a daily record (`farm.daily_record.create`). */
+  canCreateFarmDailyRecords: boolean;
+  canViewFarmExpenses: boolean;
+  canViewFarmHealthEvents: boolean;
+  canViewFarmAppointments: boolean;
+  canViewFarmCases: boolean;
   /** Delete an operational record — not farm STAFF (create/update only). */
   canDeleteFarmRecords: boolean;
   /** Edit a batch's fields (`farm.*.update`) — OWNER / VETERINARIAN / SUPERVISOR. */
@@ -274,26 +407,29 @@ export interface OrgCapabilities {
 }
 
 /**
- * Coarse, UX-only capability gates derived from the caller's organization role.
+ * UX-only capability gates for one organization.
  *
- * The backend `GET /organizations/:id` response gives us `myRole` but NOT the
- * resolved permission set, so this mirrors the seeded role → permission grants
- * (`ORG_ROLE_PERMISSIONS`): OWNER (and ADMIN) get everything via the owner
- * override; VETERINARIAN can read members; clinic STAFF read members and enter
- * (but never delete) medical records; a
- * SUPERVISOR's real permissions are owner-selected and unknown to the client,
- * so we show them a read-only view and let the backend authorise (or 403) any
- * action they attempt. Every mutation is still gated server-side.
+ * With `myPermissions` (returned by `GET /organizations/:id`: the caller's
+ * resolved keys — role grants ∪ the owner-selected supervisor grants) every
+ * gate follows exactly the permissions the owner granted, so a SUPERVISOR /
+ * VETERINARIAN / STAFF member sees only the sections they may use. OWNER and
+ * ADMIN get everything (owner override). Without it (older server) the gates
+ * fall back to mirroring the seeded role → permission grants. Every mutation
+ * is still authorized server-side.
  */
 export function orgCapabilities(
   myRole: OrgRoleKey | string | null | undefined,
   isAdmin: boolean,
+  myPermissions?: readonly string[] | null,
 ): OrgCapabilities {
   const owner = myRole === 'OWNER';
   const privileged = isAdmin || owner;
+  if (!privileged && myPermissions) return capabilitiesFromPermissions(myRole, myPermissions);
+
   const isVet = myRole === 'VETERINARIAN';
   const isSupervisor = myRole === 'SUPERVISOR';
   const isStaff = myRole === 'STAFF';
+  const farmOps = privileged || isVet || isSupervisor || isStaff;
 
   return {
     canViewOrganization: true,
@@ -301,16 +437,25 @@ export function orgCapabilities(
     // Staff see the member list too (read only) — a farm's employees and its
     // vets see each other; removing members stays `canManageMembers`.
     canViewMembers: privileged || isVet || isSupervisor || isStaff,
+    canAddMembers: privileged,
     canManageMembers: privileged,
     canViewSupervisors: privileged || isSupervisor,
+    canAssignSupervisors: privileged,
+    canRemoveSupervisors: privileged,
     canManageSupervisors: privileged,
     canViewOrganizationAnimals: privileged || isVet || isSupervisor || isStaff,
     canManageOrganizationAnimalAccess: privileged,
     canViewOrganizationMedical: privileged || isVet || isSupervisor || isStaff,
     canManageOrganizationMedical: privileged || isVet || isSupervisor || isStaff,
     canDeleteOrganizationMedical: privileged || isVet || isSupervisor,
-    canViewFarmPoultry: privileged || isVet || isSupervisor || isStaff,
-    canManageFarmPoultry: privileged || isVet || isSupervisor || isStaff,
+    canViewFarmPoultry: farmOps,
+    canManageFarmPoultry: farmOps,
+    canViewFarmDailyRecords: farmOps,
+    canCreateFarmDailyRecords: farmOps,
+    canViewFarmExpenses: farmOps,
+    canViewFarmHealthEvents: farmOps,
+    canViewFarmAppointments: farmOps,
+    canViewFarmCases: farmOps,
     canDeleteFarmRecords: privileged || isVet || isSupervisor,
     canEditFarmBatch: privileged || isVet || isSupervisor,
     canCreateFarmBatch: privileged,
@@ -323,6 +468,69 @@ export function orgCapabilities(
     canLeave: myRole != null && !owner,
     isOwner: owner,
     canSendBroadcast: privileged || isSupervisor,
+  };
+}
+
+/** Batch keys are per species; one farm screen serves all three, so any of them counts. */
+const BATCH_KINDS = ['poultry', 'sheep_batch', 'cattle_batch'] as const;
+
+function capabilitiesFromPermissions(
+  myRole: OrgRoleKey | string | null | undefined,
+  permissions: readonly string[],
+): OrgCapabilities {
+  const granted = new Set(permissions);
+  const has = (key: string): boolean => granted.has(key);
+  const any = (...keys: string[]): boolean => keys.some(has);
+  const batch = (action: 'read' | 'create' | 'update' | 'delete'): boolean =>
+    BATCH_KINDS.some((kind) => has(`farm.${kind}.${action}`));
+  const FARM_SECTIONS = ['daily_record', 'expense', 'health_event', 'appointment', 'case'];
+
+  return {
+    canViewOrganization: true,
+    canEditOrganization: has('organization.update'),
+    canViewMembers: has('member.read'),
+    canAddMembers: has('member.add'),
+    canManageMembers: any('member.add', 'member.remove', 'member.update'),
+    canViewSupervisors: has('supervisor.read'),
+    canAssignSupervisors: has('supervisor.assign'),
+    canRemoveSupervisors: has('supervisor.remove'),
+    canManageSupervisors: any('supervisor.assign', 'supervisor.remove'),
+    canViewOrganizationAnimals: has('animal.veterinary.access.read'),
+    canManageOrganizationAnimalAccess: has('animal.veterinary.access.manage'),
+    canViewOrganizationMedical: any('medical_record.read', 'vaccination.read'),
+    canManageOrganizationMedical: any(
+      'medical_record.create',
+      'medical_record.update',
+      'vaccination.create',
+      'vaccination.update',
+    ),
+    canDeleteOrganizationMedical: any('medical_record.delete', 'vaccination.delete'),
+    canViewFarmPoultry: batch('read'),
+    canManageFarmPoultry: FARM_SECTIONS.some((s) => any(`farm.${s}.create`, `farm.${s}.update`)),
+    canViewFarmDailyRecords: has('farm.daily_record.read'),
+    canCreateFarmDailyRecords: has('farm.daily_record.create'),
+    canViewFarmExpenses: has('farm.expense.read'),
+    canViewFarmHealthEvents: has('farm.health_event.read'),
+    canViewFarmAppointments: has('farm.appointment.read'),
+    canViewFarmCases: has('farm.case.read'),
+    canDeleteFarmRecords: FARM_SECTIONS.some((s) => has(`farm.${s}.delete`)),
+    canEditFarmBatch: batch('update'),
+    canCreateFarmBatch: batch('create'),
+    canDeleteFarmBatch: batch('delete'),
+    canSellFarmBatch: has('farm.batch.sell'),
+    canViewFarmFinancials: has('farm.financials.read'),
+    // The join code reuses `organization.update` server-side.
+    canViewFarmJoinCode: has('organization.update'),
+    canViewStoreProducts: has('product.read'),
+    canManageStoreProducts: any(
+      'product.create',
+      'product.update',
+      'product.delete',
+      'product.inventory.adjust',
+    ),
+    canLeave: myRole != null,
+    isOwner: false,
+    canSendBroadcast: has('organization.broadcast.send'),
   };
 }
 

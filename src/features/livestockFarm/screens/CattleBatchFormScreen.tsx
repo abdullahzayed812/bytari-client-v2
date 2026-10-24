@@ -29,7 +29,11 @@ export default function CattleBatchFormScreen() {
   // The sale price is farm-financial data: only the owner / admin sees and sets it.
   const { isAdmin } = useCapabilities();
   const orgDetail = useOrganization(orgId);
-  const showPrice = orgCapabilities(orgDetail.data?.myRole, isAdmin).canViewFarmFinancials;
+  const showPrice = orgCapabilities(
+    orgDetail.data?.myRole,
+    isAdmin,
+    orgDetail.data?.myPermissions,
+  ).canViewFarmFinancials;
   const update = useUpdateCattleBatch(orgId);
 
   const inFlight = useRef(false);

@@ -137,7 +137,7 @@ export default function OrganizationAnimalDetailScreen() {
   const animalId = animalIdParam ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const perms = useClinicPermissions(orgId);
   const can = {
     viewRecords: perms ? perms.canViewMedicalRecords : caps.canViewOrganizationMedical,

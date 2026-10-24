@@ -41,7 +41,7 @@ export default function OrganizationSupervisorsScreen() {
   const detail = useOrganization(orgId);
   const q = useOrganizationSupervisors(orgId);
   const remove = useRemoveOrganizationSupervisor(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const [pendingRemove, setPendingRemove] = useState<OrganizationSupervisor | null>(null);
 
   return (
@@ -50,7 +50,7 @@ export default function OrganizationSupervisorsScreen() {
         title={t('supervisors.title')}
         showBack
         right={
-          caps.canManageSupervisors ? (
+          caps.canAssignSupervisors ? (
             <IconButton
               icon="person-add"
               variant="soft"
@@ -99,7 +99,7 @@ export default function OrganizationSupervisorsScreen() {
                 <SupervisorRow
                   supervisor={sup}
                   right={
-                    caps.canManageSupervisors ? (
+                    caps.canAssignSupervisors ? (
                       <IconButton
                         icon="create-outline"
                         variant="plain"
@@ -114,7 +114,7 @@ export default function OrganizationSupervisorsScreen() {
                     ) : undefined
                   }
                 />
-                {caps.canManageSupervisors ? (
+                {caps.canRemoveSupervisors ? (
                   <View style={{ marginTop: theme.spacing.xs }}>
                     <TextButton
                       label={t('supervisors.remove')}

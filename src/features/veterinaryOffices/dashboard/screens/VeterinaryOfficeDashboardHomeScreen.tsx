@@ -11,7 +11,11 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useConversationUnreadSummary } from '@/features/chat';
-import { useOrganization, useOrganizationSubscriptionRenewals } from '@/features/organizations';
+import {
+  orgCapabilities,
+  useOrganization,
+  useOrganizationSubscriptionRenewals,
+} from '@/features/organizations';
 import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
@@ -123,13 +127,20 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
   // EXPIRED → the backend refuses every management read (403
   // ORGANIZATION_SUBSCRIPTION_EXPIRED) until renewal; ADMIN bypasses.
   const isLocked = org.data?.details.subscriptionStatus === 'EXPIRED' && !caps.isAdmin;
+  // What THIS member may see / do — the owner's grants for a supervisor, the
+  // role's for a veterinarian / employee. The backend authorizes every call.
+  const orgCaps = orgCapabilities(org.data?.myRole, caps.isAdmin, org.data?.myPermissions);
+  const canViewProducts = orgCaps.canViewStoreProducts;
+  const canManageProducts = orgCaps.canManageStoreProducts;
   const renewals = useOrganizationSubscriptionRenewals(orgId, { enabled: isApproved });
-  const summary = useVeterinaryOfficeDashboard(orgId, { enabled: Boolean(org.data) && !isLocked });
+  const summary = useVeterinaryOfficeDashboard(orgId, {
+    enabled: Boolean(org.data) && !isLocked && canViewProducts,
+  });
   const products = useVeterinaryOfficeProducts(orgId, {
     status: 'ACTIVE',
     hidden: false,
     pageSize: PRODUCT_PREVIEW_COUNT,
-    enabled: Boolean(org.data) && !isLocked,
+    enabled: Boolean(org.data) && !isLocked && canViewProducts,
   });
   const unread = useConversationUnreadSummary(orgId, { enabled: Boolean(orgId) && canOperate });
   const unreadMessages = unread.data?.unreadMessages ?? 0;
@@ -270,77 +281,83 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
               </Section>
             ) : (
               <>
-                <Section spacing="lg">
-                  <Row gap="md">
-                    <Pressable
-                      style={{ flex: 1 }}
-                      onPress={() => router.push(Routes.vetOfficeDashboardProducts(orgId))}
-                    >
-                      <View pointerEvents="none">
-                        <SearchInput
-                          value=""
-                          onChangeText={() => undefined}
-                          editable={false}
-                          placeholder={t('home.searchPlaceholder')}
-                          accessibilityLabel={t('home.searchPlaceholder')}
-                        />
-                      </View>
-                    </Pressable>
-                    {canOperate ? (
-                      <Button
-                        label={t('home.addProductCta')}
-                        leftIcon="add"
-                        onPress={() => router.push(Routes.organizationOfficeProductCreate(orgId))}
-                      />
-                    ) : null}
-                  </Row>
-                </Section>
-
-                <Section spacing="lg">
-                  <Row justify="space-between" align="center">
-                    <Text variant="bodyStrong">{t('home.productsTitle')}</Text>
-                    {preview.length > 0 ? (
-                      <Text
-                        variant="label"
-                        color="primary"
+                {canViewProducts ? (
+                  <Section spacing="lg">
+                    <Row gap="md">
+                      <Pressable
+                        style={{ flex: 1 }}
                         onPress={() => router.push(Routes.vetOfficeDashboardProducts(orgId))}
                       >
-                        {t('home.viewAll')}
-                      </Text>
-                    ) : null}
-                  </Row>
-                  {products.isLoading ? (
-                    <Loading />
-                  ) : preview.length === 0 ? (
-                    <EmptyState
-                      icon="cube-outline"
-                      title={t('home.emptyProducts')}
-                      message={t('home.emptyProductsHint')}
-                    />
-                  ) : (
-                    <FlatList
-                      data={preview}
-                      keyExtractor={(p) => p.id}
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      style={{ marginTop: theme.spacing.md }}
-                      ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-                      renderItem={({ item: p }) => (
-                        <VeterinaryOfficeProductManageCard
-                          product={p}
-                          width={PRODUCT_CARD_WIDTH}
-                          onPress={() => router.push(Routes.organizationOfficeProduct(orgId, p.id))}
-                          onEdit={() =>
-                            router.push(Routes.organizationOfficeProductEdit(orgId, p.id))
-                          }
-                          onDelete={() => onDelete(p)}
-                          onToggleHidden={() => onToggleHidden(p)}
-                          readOnly={!canOperate}
+                        <View pointerEvents="none">
+                          <SearchInput
+                            value=""
+                            onChangeText={() => undefined}
+                            editable={false}
+                            placeholder={t('home.searchPlaceholder')}
+                            accessibilityLabel={t('home.searchPlaceholder')}
+                          />
+                        </View>
+                      </Pressable>
+                      {canOperate && canManageProducts ? (
+                        <Button
+                          label={t('home.addProductCta')}
+                          leftIcon="add"
+                          onPress={() => router.push(Routes.organizationOfficeProductCreate(orgId))}
                         />
-                      )}
-                    />
-                  )}
-                </Section>
+                      ) : null}
+                    </Row>
+                  </Section>
+                ) : null}
+
+                {canViewProducts ? (
+                  <Section spacing="lg">
+                    <Row justify="space-between" align="center">
+                      <Text variant="bodyStrong">{t('home.productsTitle')}</Text>
+                      {preview.length > 0 ? (
+                        <Text
+                          variant="label"
+                          color="primary"
+                          onPress={() => router.push(Routes.vetOfficeDashboardProducts(orgId))}
+                        >
+                          {t('home.viewAll')}
+                        </Text>
+                      ) : null}
+                    </Row>
+                    {products.isLoading ? (
+                      <Loading />
+                    ) : preview.length === 0 ? (
+                      <EmptyState
+                        icon="cube-outline"
+                        title={t('home.emptyProducts')}
+                        message={t('home.emptyProductsHint')}
+                      />
+                    ) : (
+                      <FlatList
+                        data={preview}
+                        keyExtractor={(p) => p.id}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={{ marginTop: theme.spacing.md }}
+                        ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+                        renderItem={({ item: p }) => (
+                          <VeterinaryOfficeProductManageCard
+                            product={p}
+                            width={PRODUCT_CARD_WIDTH}
+                            onPress={() =>
+                              router.push(Routes.organizationOfficeProduct(orgId, p.id))
+                            }
+                            onEdit={() =>
+                              router.push(Routes.organizationOfficeProductEdit(orgId, p.id))
+                            }
+                            onDelete={() => onDelete(p)}
+                            onToggleHidden={() => onToggleHidden(p)}
+                            readOnly={!canOperate || !canManageProducts}
+                          />
+                        )}
+                      />
+                    )}
+                  </Section>
+                ) : null}
 
                 {canOperate ? (
                   <Section spacing="giant">
@@ -348,16 +365,22 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
                       {t('home.quickActionsTitle')}
                     </Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
-                      <QuickAction
-                        icon="settings-outline"
-                        label={t('home.settingsCta')}
-                        onPress={() => router.push(Routes.organizationEdit(orgId))}
-                      />
-                      <QuickAction
-                        icon="eye-off-outline"
-                        label={t('home.hiddenProductsCta')}
-                        onPress={() => router.push(Routes.vetOfficeDashboardHiddenProducts(orgId))}
-                      />
+                      {orgCaps.canEditOrganization ? (
+                        <QuickAction
+                          icon="settings-outline"
+                          label={t('home.settingsCta')}
+                          onPress={() => router.push(Routes.organizationEdit(orgId))}
+                        />
+                      ) : null}
+                      {canManageProducts ? (
+                        <QuickAction
+                          icon="eye-off-outline"
+                          label={t('home.hiddenProductsCta')}
+                          onPress={() =>
+                            router.push(Routes.vetOfficeDashboardHiddenProducts(orgId))
+                          }
+                        />
+                      ) : null}
                       <QuickAction
                         icon="chatbubbles-outline"
                         label={t('home.conversationsCta')}
@@ -365,21 +388,27 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
                         badgeLabel={t('home.unreadMessages', { count: unreadMessages })}
                         onPress={() => router.push(Routes.vetOfficeDashboardConversations(orgId))}
                       />
-                      <QuickAction
-                        icon="paper-plane-outline"
-                        label={t('home.sendMessageCta')}
-                        onPress={() => router.push(Routes.vetOfficeDashboardBroadcast(orgId))}
-                      />
-                      <QuickAction
-                        icon="people-outline"
-                        label={t('home.membersCta')}
-                        onPress={() => router.push(Routes.organizationMembers(orgId))}
-                      />
-                      <QuickAction
-                        icon="shield-checkmark-outline"
-                        label={t('home.supervisorsCta')}
-                        onPress={() => router.push(Routes.organizationSupervisors(orgId))}
-                      />
+                      {orgCaps.canSendBroadcast ? (
+                        <QuickAction
+                          icon="paper-plane-outline"
+                          label={t('home.sendMessageCta')}
+                          onPress={() => router.push(Routes.vetOfficeDashboardBroadcast(orgId))}
+                        />
+                      ) : null}
+                      {orgCaps.canViewMembers ? (
+                        <QuickAction
+                          icon="people-outline"
+                          label={t('home.membersCta')}
+                          onPress={() => router.push(Routes.organizationMembers(orgId))}
+                        />
+                      ) : null}
+                      {orgCaps.canViewSupervisors ? (
+                        <QuickAction
+                          icon="shield-checkmark-outline"
+                          label={t('home.supervisorsCta')}
+                          onPress={() => router.push(Routes.organizationSupervisors(orgId))}
+                        />
+                      ) : null}
                     </View>
                   </Section>
                 ) : null}

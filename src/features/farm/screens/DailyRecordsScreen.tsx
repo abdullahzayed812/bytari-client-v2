@@ -53,7 +53,7 @@ export default function DailyRecordsScreen() {
   const orgId = organizationId ?? '';
   const { isAdmin } = useCapabilities();
   const org = useOrganization(orgId);
-  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin, org.data?.myPermissions);
   const canManage = farmCaps.canManageFarmPoultry;
 
   const activeFlocks = usePoultryFlocks(orgId, { status: 'ACTIVE', pageSize: 1 });

@@ -32,7 +32,7 @@ export default function ExpenseDetailScreen() {
   const { t: tf } = useTranslation('farm');
   const { isAdmin } = useCapabilities();
   const org = useOrganization(organizationId ?? '');
-  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin, org.data?.myPermissions);
   const canManage = farmCaps.canManageFarmPoultry;
   const remove = useDeleteFarmExpense(organizationId ?? '');
 

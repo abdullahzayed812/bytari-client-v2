@@ -108,12 +108,17 @@ describe('ClinicOperationalGate', () => {
   });
 
   it.each(['VETERINARIAN', 'STAFF', 'SUPERVISOR'])(
-    'expired subscription for a %s (staff) → keeps working: the dashboard renders',
+    'expired subscription for a %s → locked like the owner, but no renewal / admin-contact action',
     async (myRole) => {
       get.mockResolvedValue(clinic({ myRole }, { subscriptionStatus: 'EXPIRED' }));
       renderGate();
-      await waitFor(() => expect(screen.getByText('DASHBOARD CONTENT')).toBeOnTheScreen());
+      await waitFor(() => expect(screen.getByText('انتهى اشتراك العيادة')).toBeOnTheScreen());
+      expect(screen.queryByText('DASHBOARD CONTENT')).toBeNull();
+      // Only the owner may renew / send subscription information.
       expect(screen.queryByText('طلب تجديد الاشتراك')).toBeNull();
+      expect(screen.queryByText('التواصل مع الإدارة')).toBeNull();
+      // Staff are pointed at the owner + the general support channel instead.
+      expect(screen.getByText('تواصل معنا')).toBeOnTheScreen();
     },
   );
 

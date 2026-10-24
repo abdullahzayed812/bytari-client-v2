@@ -59,9 +59,10 @@ export default function PoultryFarmDetailsScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const chatHandlerFor = useFarmMemberChat(orgId, detail.data?.ownerUserId, detail.data?.myRole);
-  const canManage = caps.canManageFarmPoultry;
+  // "Add daily record" (the batch card + the week strip) needs exactly that permission.
+  const canManage = caps.canCreateFarmDailyRecords;
   const [addStaffOpen, setAddStaffOpen] = useState(false);
   // Approval (Organization.status) and subscription validity are separate
   // axes. Membership/renewal visibility only need the farm to be APPROVED;
@@ -72,26 +73,30 @@ export default function PoultryFarmDetailsScreen() {
   const canOperateFarm = isApproved && detail.data?.details?.subscriptionStatus === 'ACTIVE';
 
   const profile = useFarmProfile(orgId, { enabled: Boolean(orgId) });
+  // Each section follows the member's own permission (owner-selected for a
+  // supervisor) — nothing is fetched or shown that the member may not read.
+  const canSeeBatches = canOperateFarm && caps.canViewFarmPoultry;
+  const canSeeDaily = caps.canViewFarmDailyRecords;
   const activeFlocks = usePoultryFlocks(orgId, {
     status: 'ACTIVE',
     pageSize: 1,
-    enabled: canOperateFarm,
+    enabled: canSeeBatches,
   });
   const flock = activeFlocks.flocks[0];
   const closedFlocks = usePoultryFlocks(orgId, {
     status: 'CLOSED',
     pageSize: 20,
-    enabled: canOperateFarm,
+    enabled: canSeeBatches,
   });
   const summary = useBatchSummary(orgId, flock?.id, { enabled: Boolean(flock) });
   // Daily data runs in weekly cycles: the strip shows the CURRENT week, older
   // weeks live in "الأسابيع السابقة" below it.
-  const weeks = useDailyRecordWeeks(orgId, flock?.id, { enabled: Boolean(flock) });
+  const weeks = useDailyRecordWeeks(orgId, flock?.id, { enabled: Boolean(flock) && canSeeDaily });
   const currentWeek = weeks.data?.currentWeek;
   const daily = useDailyRecords(orgId, flock?.id, {
     pageSize: 7,
     week: currentWeek,
-    enabled: Boolean(flock) && currentWeek != null,
+    enabled: Boolean(flock) && canSeeDaily && currentWeek != null,
   });
   const weekly = useWeeklySummary(orgId, flock?.id, undefined, { enabled: Boolean(flock) });
   const members = useOrganizationMembers(orgId, {
@@ -105,12 +110,32 @@ export default function PoultryFarmDetailsScreen() {
   const sectionCards = useMemo(
     () =>
       [
-        { key: 'treatments' as const, icon: 'medkit-outline' as const },
-        { key: 'cases' as const, icon: 'pulse-outline' as const },
-        { key: 'appointments' as const, icon: 'calendar-outline' as const },
-        { key: 'expenses' as const, icon: 'wallet-outline' as const },
-      ].map((s) => ({ ...s, label: t(`sections.${s.key}`) })),
-    [t],
+        {
+          key: 'treatments' as const,
+          icon: 'medkit-outline' as const,
+          allowed: caps.canViewFarmHealthEvents,
+        },
+        { key: 'cases' as const, icon: 'pulse-outline' as const, allowed: caps.canViewFarmCases },
+        {
+          key: 'appointments' as const,
+          icon: 'calendar-outline' as const,
+          allowed: caps.canViewFarmAppointments,
+        },
+        {
+          key: 'expenses' as const,
+          icon: 'wallet-outline' as const,
+          allowed: caps.canViewFarmExpenses,
+        },
+      ]
+        .filter((s) => s.allowed)
+        .map((s) => ({ ...s, label: t(`sections.${s.key}`) })),
+    [
+      t,
+      caps.canViewFarmHealthEvents,
+      caps.canViewFarmCases,
+      caps.canViewFarmAppointments,
+      caps.canViewFarmExpenses,
+    ],
   );
 
   const refreshing =
@@ -226,7 +251,7 @@ export default function PoultryFarmDetailsScreen() {
           <SubscriptionTrialCard subject="POULTRY_FARM" organizationId={orgId} />
         ) : null}
 
-        {canOperateFarm ? (
+        {canSeeBatches ? (
           <>
             {/* Current batch */}
             {activeFlocks.isLoading ? (
@@ -248,40 +273,42 @@ export default function PoultryFarmDetailsScreen() {
                 />
 
                 {/* Daily data */}
-                <View style={{ rowGap: theme.spacing.sm }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      columnGap: theme.spacing.sm,
-                    }}
-                  >
-                    <Icon name="clipboard-outline" size="iconSm" color="primary" />
-                    <Text variant="subtitle" weight="bold">
-                      {t('daily.title')}
-                    </Text>
+                {canSeeDaily ? (
+                  <View style={{ rowGap: theme.spacing.sm }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        columnGap: theme.spacing.sm,
+                      }}
+                    >
+                      <Icon name="clipboard-outline" size="iconSm" color="primary" />
+                      <Text variant="subtitle" weight="bold">
+                        {t('daily.title')}
+                      </Text>
+                    </View>
+                    {daily.isLoading || weeks.isLoading ? (
+                      <Loading label={t('common.loading')} />
+                    ) : (
+                      <DailyRecordWeekStrip
+                        records={daily.data?.items ?? []}
+                        weekNumber={currentWeek}
+                        todayRecorded={(daily.data?.items ?? []).some(
+                          (r) => r.recordDate === businessToday(),
+                        )}
+                        onAddPress={
+                          canManage
+                            ? () => router.push(Routes.poultryFarmSection(orgId, 'daily'))
+                            : undefined
+                        }
+                        renderRecord={(r, day) => <DailyRecordCard record={r} dayIndex={day} />}
+                      />
+                    )}
                   </View>
-                  {daily.isLoading || weeks.isLoading ? (
-                    <Loading label={t('common.loading')} />
-                  ) : (
-                    <DailyRecordWeekStrip
-                      records={daily.data?.items ?? []}
-                      weekNumber={currentWeek}
-                      todayRecorded={(daily.data?.items ?? []).some(
-                        (r) => r.recordDate === businessToday(),
-                      )}
-                      onAddPress={
-                        canManage
-                          ? () => router.push(Routes.poultryFarmSection(orgId, 'daily'))
-                          : undefined
-                      }
-                      renderRecord={(r, day) => <DailyRecordCard record={r} dayIndex={day} />}
-                    />
-                  )}
-                </View>
+                ) : null}
 
                 {/* Finished weeks — kept, with their summary + daily records */}
-                {weeks.data && flock ? (
+                {canSeeDaily && weeks.data && flock ? (
                   <CompletedWeeksSection
                     weeks={weeks.data.weeks}
                     currentWeek={weeks.data.currentWeek}
@@ -318,7 +345,7 @@ export default function PoultryFarmDetailsScreen() {
         ) : null}
 
         {/* Management sections — daily operations, subscription-gated server-side too. */}
-        {canOperateFarm ? (
+        {canOperateFarm && sectionCards.length > 0 ? (
           <View style={{ rowGap: theme.spacing.sm }}>
             <Text variant="subtitle" weight="bold">
               {t('sections.title')}
@@ -349,7 +376,7 @@ export default function PoultryFarmDetailsScreen() {
               <Text variant="subtitle" weight="bold">
                 {t('details.staffTitle')}
               </Text>
-              {caps.canManageMembers ? (
+              {caps.canAddMembers ? (
                 <Button
                   label={t('details.staffAdd')}
                   variant="ghost"
@@ -365,7 +392,12 @@ export default function PoultryFarmDetailsScreen() {
               <Caption>{t('details.staffEmpty')}</Caption>
             ) : (
               members.members.map((m) => (
-                <FarmStaffRow key={m.id} member={m} onChat={chatHandlerFor(m)} />
+                <FarmStaffRow
+                  key={m.id}
+                  member={m}
+                  // Team chats are read-only while the subscription is not active.
+                  onChat={canOperateFarm ? chatHandlerFor(m) : undefined}
+                />
               ))
             )}
           </View>

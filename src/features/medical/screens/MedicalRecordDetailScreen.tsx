@@ -44,7 +44,7 @@ export default function MedicalRecordDetailScreen() {
   const { isAdmin } = useCapabilities();
 
   const orgDetail = useOrganization(organizationId, { enabled: isClinic });
-  const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin, orgDetail.data?.myPermissions);
   const q = useMedicalRecord({ animalId, organizationId }, recordId);
   const del = useDeleteMedicalRecord(organizationId ?? '', animalId);
   const [confirmDelete, setConfirmDelete] = useState(false);

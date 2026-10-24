@@ -105,7 +105,11 @@ export function useUpdateCattleBatch(organizationId: string) {
     mutationKey: ['cattle', 'batch', 'update', organizationId],
     mutationFn: ({ batchId, body }: { batchId: string; body: UpdateCattleBatchInput }) =>
       cattleFarmApi.update(organizationId, batchId, body),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: cattleKeys.forOrg(organizationId) }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: cattleKeys.forOrg(organizationId) });
+      // Selling / reopening a batch changes the farm's Expenses summary.
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(organizationId) });
+    },
   });
 }
 

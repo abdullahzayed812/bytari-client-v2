@@ -248,4 +248,51 @@ describe('PoultryFarmDetailsScreen', () => {
     expect(screen.queryByText('forbidden')).toBeNull();
     expect(routerMock.push).not.toHaveBeenCalled();
   });
+
+  it('a SUPERVISOR sees only the sections the owner granted (myPermissions)', async () => {
+    getOrg.mockResolvedValue({
+      id: 'o1',
+      type: 'FARM',
+      name: 'مزرعة السعادة للدواجن',
+      description: 'المنصورة',
+      status: 'ACTIVE',
+      details: { subscriptionStatus: 'ACTIVE', subscriptionEndDate: '2099-01-01' },
+      myRole: 'SUPERVISOR',
+      myPermissions: ['organization.read', 'farm.expense.read', 'farm.case.read'],
+    } as never);
+    listFlocks.mockResolvedValue({
+      items: [flock()],
+      meta: { page: 1, pageSize: 1, total: 1, totalPages: 1 },
+    });
+    renderWithProviders(<PoultryFarmDetailsScreen />);
+
+    expect(await screen.findByText('إدارة الحقل')).toBeTruthy();
+    expect(screen.getByText('المصاريف')).toBeTruthy();
+    expect(screen.getByText('الحالات الفردية')).toBeTruthy();
+    expect(screen.queryByText('العلاجات واللقاحات')).toBeNull();
+    expect(screen.queryByText('المواعيد')).toBeNull();
+    // No batch read granted → batches / daily data are neither fetched nor shown.
+    expect(listFlocks).not.toHaveBeenCalled();
+    expect(listDaily).not.toHaveBeenCalled();
+    expect(screen.queryByText('الدفعة رقم 1')).toBeNull();
+    // Owner-only management is hidden.
+    expect(screen.queryByLabelText('إعدادات الحقل')).toBeNull();
+  });
+
+  it('an expired subscription hides every operational section, for staff too', async () => {
+    getOrg.mockResolvedValue({
+      id: 'o1',
+      type: 'FARM',
+      name: 'مزرعة السعادة للدواجن',
+      description: 'المنصورة',
+      status: 'ACTIVE',
+      details: { subscriptionStatus: 'EXPIRED', subscriptionEndDate: '2020-01-01' },
+      myRole: 'STAFF',
+      myPermissions: ['farm.poultry.read', 'farm.expense.read', 'farm.daily_record.read'],
+    } as never);
+    renderWithProviders(<PoultryFarmDetailsScreen />);
+    expect(await screen.findByText('مزرعة السعادة للدواجن')).toBeTruthy();
+    expect(screen.queryByText('إدارة الحقل')).toBeNull();
+    expect(listFlocks).not.toHaveBeenCalled();
+  });
 });

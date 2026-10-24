@@ -28,7 +28,7 @@ export default {
     subTypeVet: 'طبيب بيطري',
     subTypeStudent: 'طالب طب بيطري',
     documentsSection: 'المستندات',
-    licenseOrIdLabel: 'صورة مزاولة المهنة أو هوية رسمية',
+    licenseOrIdLabel: 'صورة مزاولة المهنة أو هوية الطبيب',
     additionalIdLabel: 'صورة هوية إضافية',
     studentIdFrontLabel: 'صورة وجه هوية الطالب',
     studentIdBackLabel: 'صورة ظهر هوية الطالب',
@@ -37,7 +37,7 @@ export default {
     maxSizeHint: 'الحد الأقصى 5MB',
     errors: {
       noteTooLong: 'الملاحظة طويلة جداً (الحد ١٠٠٠ حرف).',
-      licenseRequired: 'صورة مزاولة المهنة أو الهوية الرسمية مطلوبة.',
+      licenseRequired: 'صورة مزاولة المهنة أو هوية الطبيب مطلوبة.',
       studentIdFrontRequired: 'صورة وجه هوية الطالب مطلوبة.',
       studentIdBackRequired: 'صورة ظهر هوية الطالب مطلوبة.',
     },

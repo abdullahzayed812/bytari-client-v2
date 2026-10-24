@@ -19,10 +19,15 @@ export function HomeSectionHeader({ title, actionLabel, onAction }: Props) {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        columnGap: theme.spacing.md,
         marginBottom: theme.spacing.md,
       }}
     >
-      <Label>{title}</Label>
+      {/* `flex: 1` gives the title the row's remaining width instead of its own
+          measured width: on some Android devices that measurement comes back a
+          few px short, the last word ("الأخبار" of "آخر الأخبار") wraps onto a
+          line outside the measured height and silently disappears. */}
+      <Label style={{ flex: 1 }}>{title}</Label>
       {actionLabel && onAction ? (
         <Pressable
           accessibilityRole="button"

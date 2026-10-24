@@ -27,7 +27,7 @@ export default function VaccinationsScreen() {
   const { isAdmin } = useCapabilities();
 
   const orgDetail = useOrganization(organizationId, { enabled: isClinic });
-  const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(orgDetail.data?.myRole, isAdmin, orgDetail.data?.myPermissions);
   const canAdd = isClinic && caps.canManageOrganizationMedical;
 
   const q = useVaccinations({ animalId, organizationId });

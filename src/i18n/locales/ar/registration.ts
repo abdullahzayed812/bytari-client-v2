@@ -46,7 +46,7 @@ export default {
     specializationLabel: 'التخصص (اختياري)',
     specializationPlaceholder: 'مثال: جراحة الحيوانات الأليفة',
     documentsSection: 'المستندات',
-    licenseOrIdLabel: 'صورة مزاولة المهنة أو هوية رسمية',
+    licenseOrIdLabel: 'صورة مزاولة المهنة أو هوية الطبيب',
     additionalIdLabel: 'صورة هوية إضافية',
     studentIdFrontLabel: 'صورة وجه هوية الطالب',
     studentIdBackLabel: 'صورة ظهر هوية الطالب',
@@ -57,7 +57,7 @@ export default {
     retryApply: 'إعادة محاولة تقديم الطلب',
     accountCreatedRetryApply: 'تم إنشاء حسابك بنجاح، لكن تعذّر إرسال طلب الاعتماد. حاول مرة أخرى.',
     errors: {
-      licenseRequired: 'صورة مزاولة المهنة أو الهوية الرسمية مطلوبة.',
+      licenseRequired: 'صورة مزاولة المهنة أو هوية الطبيب مطلوبة.',
       studentIdFrontRequired: 'صورة وجه هوية الطالب مطلوبة.',
       studentIdBackRequired: 'صورة ظهر هوية الطالب مطلوبة.',
     },

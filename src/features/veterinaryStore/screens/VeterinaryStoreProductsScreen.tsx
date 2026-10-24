@@ -29,7 +29,7 @@ export default function VeterinaryStoreProductsScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const canAdd = caps.canManageStoreProducts;
 
   const [rawSearch, setRawSearch] = useState('');
@@ -38,7 +38,8 @@ export default function VeterinaryStoreProductsScreen() {
 
   const q = useVeterinaryStoreProducts(orgId, { search, productType: type });
 
-  const goToDetail = (p: VeterinaryStoreProduct) => router.push(Routes.organizationStoreProduct(orgId, p.id));
+  const goToDetail = (p: VeterinaryStoreProduct) =>
+    router.push(Routes.organizationStoreProduct(orgId, p.id));
   const goToCreate = () => router.push(Routes.organizationStoreProductCreate(orgId));
 
   const header = (
@@ -108,7 +109,9 @@ export default function VeterinaryStoreProductsScreen() {
         <FlatList
           data={q.products}
           keyExtractor={(p) => p.id}
-          renderItem={({ item }) => <VeterinaryStoreProductCard product={item} onPress={() => goToDetail(item)} />}
+          renderItem={({ item }) => (
+            <VeterinaryStoreProductCard product={item} onPress={() => goToDetail(item)} />
+          )}
           ListHeaderComponent={header}
           ListEmptyComponent={
             <EmptyState

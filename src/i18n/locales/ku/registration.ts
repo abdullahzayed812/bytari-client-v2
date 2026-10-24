@@ -48,7 +48,7 @@ const registration: KuNamespace<'registration'> = {
     specializationLabel: 'پسپۆڕی (ئارەزوومەندانە)',
     specializationPlaceholder: 'نموونە: نەشتەرگەریی ئاژەڵە ماڵییەکان',
     documentsSection: 'بەڵگەنامەکان',
-    licenseOrIdLabel: 'وێنەی مۆڵەتی پیشە یان ناسنامەی فەرمی',
+    licenseOrIdLabel: 'وێنەی مۆڵەتی پیشە یان ناسنامەی پزیشک',
     additionalIdLabel: 'وێنەی ناسنامەیەکی زیادە',
     studentIdFrontLabel: 'وێنەی ڕووی پێشەوەی ناسنامەی خوێندکار',
     studentIdBackLabel: 'وێنەی ڕووی پشتەوەی ناسنامەی خوێندکار',
@@ -60,7 +60,7 @@ const registration: KuNamespace<'registration'> = {
     accountCreatedRetryApply:
       'هەژمارەکەت بە سەرکەوتوویی دروستکرا، بەڵام نەتوانرا داوای پەسەندکردن بنێردرێت. دووبارە هەوڵبدەرەوە.',
     errors: {
-      licenseRequired: 'وێنەی مۆڵەتی پیشە یان ناسنامەی فەرمی پێویستە.',
+      licenseRequired: 'وێنەی مۆڵەتی پیشە یان ناسنامەی پزیشک پێویستە.',
       studentIdFrontRequired: 'وێنەی ڕووی پێشەوەی ناسنامەی خوێندکار پێویستە.',
       studentIdBackRequired: 'وێنەی ڕووی پشتەوەی ناسنامەی خوێندکار پێویستە.',
     },

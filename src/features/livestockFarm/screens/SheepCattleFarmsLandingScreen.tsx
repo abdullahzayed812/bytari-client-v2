@@ -264,9 +264,12 @@ function AddFarmButton({
     >
       <Icon name="add-circle" size="iconMd" color="onPrimary" />
       <Icon name={icon} size="iconSm" color="onPrimary" />
+      {/* `flex: 1` (not `flexShrink`) — the label takes the button's remaining
+          width; sized by its own measurement, some Android devices dropped the
+          last word ("إضافة حقل أبقار" → "إضافة حقل"). Wraps, never clips. */}
       <Text
         variant="bodyMedium"
-        style={{ color: theme.colors.onPrimary, flexShrink: 1, textAlign: 'center' }}
+        style={{ color: theme.colors.onPrimary, flex: 1, textAlign: 'center' }}
         numberOfLines={2}
       >
         {label}

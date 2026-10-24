@@ -76,7 +76,7 @@ export default function OrganizationDetailsScreen() {
   }
 
   const org = q.data;
-  const caps = orgCapabilities(org?.myRole, isAdmin);
+  const caps = orgCapabilities(org?.myRole, isAdmin, org?.myPermissions);
   const isFarm = organizationIsFarm(org?.type);
   const isVeterinaryStore = organizationOwnsVeterinaryStoreProducts(org?.type);
   const isVeterinaryOffice = organizationOwnsVeterinaryOfficeProducts(org?.type);

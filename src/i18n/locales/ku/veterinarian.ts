@@ -31,7 +31,7 @@ const veterinarian: KuNamespace<'veterinarian'> = {
     subTypeVet: 'پزیشکی ڤێتێرنەری',
     subTypeStudent: 'خوێندکاری پزیشکی ڤێتێرنەری',
     documentsSection: 'بەڵگەنامەکان',
-    licenseOrIdLabel: 'وێنەی مۆڵەتی پیشە یان ناسنامەی فەرمی',
+    licenseOrIdLabel: 'وێنەی مۆڵەتی پیشە یان ناسنامەی پزیشک',
     additionalIdLabel: 'وێنەی ناسنامەی زیاتر',
     studentIdFrontLabel: 'وێنەی ڕووی پێشەوەی ناسنامەی خوێندکار',
     studentIdBackLabel: 'وێنەی ڕووی دواوەی ناسنامەی خوێندکار',
@@ -40,7 +40,7 @@ const veterinarian: KuNamespace<'veterinarian'> = {
     maxSizeHint: 'زۆرترین قەبارە 5MB',
     errors: {
       noteTooLong: 'تێبینییەکە زۆر درێژە (سنوور ١٠٠٠ پیت).',
-      licenseRequired: 'وێنەی مۆڵەتی پیشە یان ناسنامەی فەرمی پێویستە.',
+      licenseRequired: 'وێنەی مۆڵەتی پیشە یان ناسنامەی پزیشک پێویستە.',
       studentIdFrontRequired: 'وێنەی ڕووی پێشەوەی ناسنامەی خوێندکار پێویستە.',
       studentIdBackRequired: 'وێنەی ڕووی دواوەی ناسنامەی خوێندکار پێویستە.',
     },

@@ -48,7 +48,7 @@ export default function FarmHealthEventDetailScreen({ scope }: { scope: FarmReco
   const batchId = params.flockId ?? params.batchId ?? '';
   const { isAdmin } = useCapabilities();
   const org = useOrganization(orgId);
-  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin);
+  const farmCaps = orgCapabilities(org.data?.myRole, isAdmin, org.data?.myPermissions);
   const canManage = farmCaps.canManageFarmPoultry;
 
   const q = useFarmHealthEventRecord(scope, orgId, batchId, params.itemId);

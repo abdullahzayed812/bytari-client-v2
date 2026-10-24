@@ -2418,7 +2418,7 @@ export const en: TranslationResources = {
       subTypeVet: 'Veterinarian',
       subTypeStudent: 'Veterinary student',
       documentsSection: 'Documents',
-      licenseOrIdLabel: 'Practice licence or official ID photo',
+      licenseOrIdLabel: 'Practice licence or Veterinarian ID photo',
       additionalIdLabel: 'Additional ID photo',
       studentIdFrontLabel: 'Student ID — front',
       studentIdBackLabel: 'Student ID — back',
@@ -2427,7 +2427,7 @@ export const en: TranslationResources = {
       maxSizeHint: 'Max size 5MB',
       errors: {
         noteTooLong: 'The note is too long (1000 characters max).',
-        licenseRequired: 'A practice licence or official ID photo is required.',
+        licenseRequired: 'A practice licence or Veterinarian ID photo is required.',
         studentIdFrontRequired: 'The student ID front photo is required.',
         studentIdBackRequired: 'The student ID back photo is required.',
       },
@@ -2921,6 +2921,17 @@ export const en: TranslationResources = {
       veterinarians: 'Veterinarians',
       chat_room: 'Room management',
       syndicate: 'Syndicate management',
+      clinic_animals: 'Clinic animals',
+      clinic_medical: 'Medical records',
+      clinic_vaccinations: 'Vaccinations & reminders',
+      clinic_appointments: 'Appointments',
+      farm_batches: 'Batches',
+      farm_daily_records: 'Daily records',
+      farm_health_events: 'Treatments & vaccinations',
+      farm_cases: 'Individual cases',
+      farm_appointments: 'Farm appointments',
+      farm_expenses: 'Expenses',
+      farm_owner: 'Profit, selling & subscription',
     },
     permissions: {
       'product.read': {
@@ -3026,6 +3037,194 @@ export const en: TranslationResources = {
       'syndicate.member.message': {
         label: 'Message members',
         hint: 'Message a member directly or send a message to all members.',
+      },
+      'animal.veterinary.access.read': {
+        label: 'View clinic animals',
+        hint: 'See the clinic’s animals and open an animal by its ID.',
+      },
+      'animal.veterinary.access.manage': {
+        label: 'Manage clinic animals',
+        hint: 'Remove an animal from the clinic’s list.',
+      },
+      'medical_record.read': {
+        label: 'View medical records',
+        hint: 'See medical records.',
+      },
+      'medical_record.create': {
+        label: 'Add medical records',
+        hint: 'Add new medical records.',
+      },
+      'medical_record.update': {
+        label: 'Edit medical records',
+        hint: 'Edit medical records.',
+      },
+      'medical_record.delete': {
+        label: 'Delete medical records',
+        hint: 'Delete medical records.',
+      },
+      'vaccination.read': {
+        label: 'View vaccinations and reminders',
+        hint: 'See vaccinations and reminders.',
+      },
+      'vaccination.create': {
+        label: 'Add vaccinations and reminders',
+        hint: 'Add new vaccinations and reminders.',
+      },
+      'vaccination.update': {
+        label: 'Edit vaccinations and reminders',
+        hint: 'Edit vaccinations and reminders.',
+      },
+      'vaccination.delete': {
+        label: 'Delete vaccinations and reminders',
+        hint: 'Delete vaccinations and reminders.',
+      },
+      'clinic.appointment.read': {
+        label: 'View appointments',
+        hint: 'See the appointment requests booked with the clinic.',
+      },
+      'clinic.appointment.manage': {
+        label: 'Manage appointments',
+        hint: 'Accept, reject, reschedule and complete appointments.',
+      },
+      'farm.poultry.read': {
+        label: 'View poultry batches',
+        hint: 'See poultry batches.',
+      },
+      'farm.poultry.create': {
+        label: 'Add poultry batches',
+        hint: 'Add new poultry batches.',
+      },
+      'farm.poultry.update': {
+        label: 'Edit poultry batches',
+        hint: 'Edit poultry batches.',
+      },
+      'farm.poultry.delete': {
+        label: 'Delete poultry batches',
+        hint: 'Delete poultry batches.',
+      },
+      'farm.sheep_batch.read': {
+        label: 'View sheep batches',
+        hint: 'See sheep batches.',
+      },
+      'farm.sheep_batch.create': {
+        label: 'Add sheep batches',
+        hint: 'Add new sheep batches.',
+      },
+      'farm.sheep_batch.update': {
+        label: 'Edit sheep batches',
+        hint: 'Edit sheep batches.',
+      },
+      'farm.sheep_batch.delete': {
+        label: 'Delete sheep batches',
+        hint: 'Delete sheep batches.',
+      },
+      'farm.cattle_batch.read': {
+        label: 'View cattle batches',
+        hint: 'See cattle batches.',
+      },
+      'farm.cattle_batch.create': {
+        label: 'Add cattle batches',
+        hint: 'Add new cattle batches.',
+      },
+      'farm.cattle_batch.update': {
+        label: 'Edit cattle batches',
+        hint: 'Edit cattle batches.',
+      },
+      'farm.cattle_batch.delete': {
+        label: 'Delete cattle batches',
+        hint: 'Delete cattle batches.',
+      },
+      'farm.daily_record.read': {
+        label: 'View daily records',
+        hint: 'See daily records.',
+      },
+      'farm.daily_record.create': {
+        label: 'Add daily records',
+        hint: 'Add new daily records.',
+      },
+      'farm.daily_record.update': {
+        label: 'Edit daily records',
+        hint: 'Edit daily records.',
+      },
+      'farm.daily_record.delete': {
+        label: 'Delete daily records',
+        hint: 'Delete daily records.',
+      },
+      'farm.health_event.read': {
+        label: 'View treatments and vaccinations',
+        hint: 'See treatments and vaccinations.',
+      },
+      'farm.health_event.create': {
+        label: 'Add treatments and vaccinations',
+        hint: 'Add new treatments and vaccinations.',
+      },
+      'farm.health_event.update': {
+        label: 'Edit treatments and vaccinations',
+        hint: 'Edit treatments and vaccinations.',
+      },
+      'farm.health_event.delete': {
+        label: 'Delete treatments and vaccinations',
+        hint: 'Delete treatments and vaccinations.',
+      },
+      'farm.case.read': {
+        label: 'View individual cases',
+        hint: 'See individual cases.',
+      },
+      'farm.case.create': {
+        label: 'Add individual cases',
+        hint: 'Add new individual cases.',
+      },
+      'farm.case.update': {
+        label: 'Edit individual cases',
+        hint: 'Edit individual cases.',
+      },
+      'farm.case.delete': {
+        label: 'Delete individual cases',
+        hint: 'Delete individual cases.',
+      },
+      'farm.appointment.read': {
+        label: 'View farm appointments',
+        hint: 'See farm appointments.',
+      },
+      'farm.appointment.create': {
+        label: 'Add farm appointments',
+        hint: 'Add new farm appointments.',
+      },
+      'farm.appointment.update': {
+        label: 'Edit farm appointments',
+        hint: 'Edit farm appointments.',
+      },
+      'farm.appointment.delete': {
+        label: 'Delete farm appointments',
+        hint: 'Delete farm appointments.',
+      },
+      'farm.expense.read': {
+        label: 'View expenses',
+        hint: 'See expenses.',
+      },
+      'farm.expense.create': {
+        label: 'Add expenses',
+        hint: 'Add new expenses.',
+      },
+      'farm.expense.update': {
+        label: 'Edit expenses',
+        hint: 'Edit expenses.',
+      },
+      'farm.expense.delete': {
+        label: 'Delete expenses',
+        hint: 'Delete expenses.',
+      },
+      'farm.financials.read': {
+        label: 'View profit & sale prices',
+        hint: 'See the batches’ estimated profit and expected sale price.',
+      },
+      'farm.batch.sell': {
+        label: 'Sell batches',
+        hint: 'Sell / close a batch and reopen it.',
+      },
+      'farm.subscription.read': {
+        label: 'View subscription',
+        hint: 'See the farm’s subscription period and renewal requests.',
       },
     },
   },
@@ -5254,9 +5453,7 @@ export const en: TranslationResources = {
     inactiveBody: 'The clinic dashboard is unavailable because the clinic is not active.',
     expiredTitle: 'The clinic’s subscription has expired',
     expiredBody:
-      'The clinic owner can’t use the clinic dashboard or manage animals, records or appointments until the subscription is renewed. The clinic’s veterinarians and staff can keep working within their permissions.',
-    expiredStaffNotice:
-      'You can continue your usual clinic work within your permissions. Renewing the subscription is the clinic owner’s responsibility.',
+      'Neither the clinic owner nor its veterinarians and staff can use the clinic dashboard or manage animals, records, appointments or chats until the subscription is renewed. Only the clinic owner can request the renewal.',
     renewCta: 'Request subscription renewal',
     contactAdminCta: 'Contact administration',
     staffRestrictionHint:
@@ -8095,7 +8292,7 @@ export const en: TranslationResources = {
       specializationLabel: 'Specialization (optional)',
       specializationPlaceholder: 'e.g. Small-animal surgery',
       documentsSection: 'Documents',
-      licenseOrIdLabel: 'Practice licence or official ID photo',
+      licenseOrIdLabel: 'Practice licence or Veterinarian ID photo',
       additionalIdLabel: 'Additional ID photo',
       studentIdFrontLabel: 'Student ID — front',
       studentIdBackLabel: 'Student ID — back',
@@ -8107,7 +8304,7 @@ export const en: TranslationResources = {
       accountCreatedRetryApply:
         'Your account was created successfully, but the approval application could not be submitted. Please try again.',
       errors: {
-        licenseRequired: 'A practice licence or official ID photo is required.',
+        licenseRequired: 'A practice licence or Veterinarian ID photo is required.',
         studentIdFrontRequired: 'The student ID front photo is required.',
         studentIdBackRequired: 'The student ID back photo is required.',
       },

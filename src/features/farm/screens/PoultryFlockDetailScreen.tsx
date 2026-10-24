@@ -43,7 +43,7 @@ export default function PoultryFlockDetailScreen() {
   const orgId = organizationId ?? '';
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
   const q = usePoultryFlock(orgId, flockId);
   const update = useUpdatePoultryFlock(orgId);
   const del = useDeletePoultryFlock(orgId);

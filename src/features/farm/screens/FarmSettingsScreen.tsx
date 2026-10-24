@@ -54,7 +54,7 @@ export default function FarmSettingsScreen() {
   const [tab, setTab] = useState<SettingsTab>('info');
 
   const detail = useOrganization(orgId);
-  const caps = orgCapabilities(detail.data?.myRole, isAdmin);
+  const caps = orgCapabilities(detail.data?.myRole, isAdmin, detail.data?.myPermissions);
 
   if (detail.isLoading) {
     return (
