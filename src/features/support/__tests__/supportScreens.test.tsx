@@ -324,9 +324,12 @@ describe('AdminThreadListScreen — "رسائل المستخدمين" new-messag
 
     renderWithProviders(<AdminThreadListScreen />);
     // Generous timeout: under the full parallel suite the first render can exceed 1 s.
-    expect(
-      await screen.findByText('1 رسالة جديدة بانتظار المراجعة', {}, { timeout: 5000 }),
-    ).toBeOnTheScreen();
+    // The header re-mounts when the loading view swaps for the list, so find +
+    // assert together (a found-then-unmounted node fails toBeOnTheScreen).
+    await waitFor(
+      () => expect(screen.getByText('1 رسالة جديدة بانتظار المراجعة')).toBeOnTheScreen(),
+      { timeout: 5000 },
+    );
     // exactly one card carries the "جديد" badge — the reviewed one does not
     expect(await screen.findAllByText('جديد')).toHaveLength(1);
 
@@ -343,7 +346,9 @@ describe('AdminThreadListScreen — "رسائل المستخدمين" new-messag
     const listAdmin = jest.spyOn(supportMessageApi, 'listAdmin').mockResolvedValue(emptyPage);
     renderWithProviders(<AdminThreadListScreen />);
     await waitFor(() => expect(listAdmin).toHaveBeenCalled(), { timeout: 5000 });
-    expect(await screen.findByText('لا توجد رسائل جديدة', {}, { timeout: 5000 })).toBeOnTheScreen();
+    await waitFor(() => expect(screen.getByText('لا توجد رسائل جديدة')).toBeOnTheScreen(), {
+      timeout: 5000,
+    });
     expect(screen.queryByText('جديد')).toBeNull();
   });
 });
