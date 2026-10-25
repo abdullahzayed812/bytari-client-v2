@@ -194,7 +194,9 @@ describe('AdminChatsScreen', () => {
       ),
     );
 
-    fireEvent.press(screen.getByText('عيادة النور'));
+    // Each filter change is a new query key, so the list is in its loading view
+    // until the refetch resolves — wait for the row to come back before pressing.
+    fireEvent.press(await screen.findByText('عيادة النور', {}, { timeout: 5000 }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/admin/chat-conversation/c1');
   });
 });
