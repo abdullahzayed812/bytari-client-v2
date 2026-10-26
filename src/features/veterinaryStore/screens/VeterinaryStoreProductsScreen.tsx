@@ -15,6 +15,7 @@ import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities, useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
+import logo from '../../../../assets/logo.png';
 import { VeterinaryStoreProductCard, VeterinaryStoreProductCardSkeleton } from '../components';
 import { VETERINARY_STORE_PRODUCT_TYPE_ORDER } from '../constants';
 import { useVeterinaryStoreProducts } from '../hooks';
@@ -77,12 +78,7 @@ export default function VeterinaryStoreProductsScreen() {
         showBack
         right={
           canAdd ? (
-            <IconButton
-              icon="add"
-              variant="soft"
-              accessibilityLabel={t('list.addCta')}
-              onPress={goToCreate}
-            />
+            <IconButton image={logo} accessibilityLabel={t('list.addCta')} onPress={goToCreate} />
           ) : undefined
         }
       />

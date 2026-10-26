@@ -1,3 +1,5 @@
+import { Image } from 'expo-image';
+
 import { useAuthStore } from '@/features/auth/store';
 import { organizationsApi } from '@/features/organizations';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
@@ -6,6 +8,8 @@ import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/route
 import { veterinaryStoreProductsApi } from '../api';
 import VeterinaryStoreProductsScreen from '../screens/VeterinaryStoreProductsScreen';
 import type { VeterinaryStoreProduct } from '../types';
+
+import logo from '../../../../assets/logo.png';
 
 jest.mock('expo-router', () => require('@/test-utils/routerMock').expoRouter);
 
@@ -65,6 +69,18 @@ describe('VeterinaryStoreProductsScreen (§5, §23, §29, §34)', () => {
 
     fireEvent.press(screen.getByLabelText('إضافة منتج'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/o1/store-products/create');
+  });
+
+  it('the header add button shows the brand logo instead of the + glyph', async () => {
+    setSearchParams({ organizationId: 'o1' });
+    list.mockResolvedValue(page([product()]));
+    renderWithProviders(<VeterinaryStoreProductsScreen />);
+    await waitFor(() => expect(screen.getByLabelText('إضافة منتج')).toBeOnTheScreen());
+
+    const button = screen.getByLabelText('إضافة منتج');
+    const images = button.findAll((n: { type: unknown }) => n.type === Image);
+    expect(images).toHaveLength(1);
+    expect(images[0]!.props.source).toBe(logo);
   });
 
   it('sends the search term to the backend (no local filtering over a paged list)', async () => {

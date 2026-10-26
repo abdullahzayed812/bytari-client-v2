@@ -65,6 +65,10 @@ export const editorialAdminApi = {
   ): Promise<EditorialItem> {
     return apiClient.post<EditorialItem>(`${base(kind)}/${id}/cover`, body);
   },
+  /** Deletes the cover (DB reference + stored object); the item itself stays. */
+  removeCover(kind: EditorialKind, id: string): Promise<EditorialItem> {
+    return apiClient.delete<EditorialItem>(`${base(kind)}/${id}/cover`);
+  },
 };
 
 export const editorialAdminKeys = {

@@ -23,6 +23,7 @@ import {
   useEditorialCoverProvider,
   useEditorialItem,
   useEditorialLifecycle,
+  useRemoveEditorialCover,
   useSaveEditorialItem,
 } from '../hooks';
 import {
@@ -163,9 +164,12 @@ export default function EditorialAdminFormScreen() {
   const save = useSaveEditorialItem(kind, itemId);
   const { publish, archive, remove } = useEditorialLifecycle(kind);
   const coverProvider = useEditorialCoverProvider(kind, itemId);
+  const removeCover = useRemoveEditorialCover(kind, itemId);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Remounts the cover field after a delete so a just-uploaded local preview goes too.
+  const [coverFieldKey, setCoverFieldKey] = useState(0);
 
   const schema = useMemo(
     () =>
@@ -255,9 +259,20 @@ export default function EditorialAdminFormScreen() {
           <View style={{ rowGap: theme.spacing.xs }}>
             <Label>{t('editorial.cover')}</Label>
             <ImageUploader
+              key={coverFieldKey}
               value={item?.coverImageUrl ?? null}
               provider={coverProvider}
               onChange={() => void detail.refetch()}
+              onRemove={() =>
+                removeCover.mutate(undefined, {
+                  onSuccess: () => {
+                    setCoverFieldKey((k) => k + 1);
+                    toast.show({ message: t('editorial.coverDeleted'), tone: 'success' });
+                  },
+                  onError,
+                })
+              }
+              disabled={removeCover.isPending}
               size={140}
             />
           </View>

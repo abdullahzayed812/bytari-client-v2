@@ -130,6 +130,7 @@ export default {
       addFile: 'إضافة ملف',
       replaceFile: 'استبدال الملف',
       fileUploaded: 'تم رفع الملف بنجاح.',
+      fileDeleted: 'تم حذف الملف.',
       attachments: 'صور توضيحية',
       publish: 'نشر',
       archive: 'أرشفة',

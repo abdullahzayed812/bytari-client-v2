@@ -42,10 +42,8 @@ export default function AdminContentDetailScreen() {
   const coverPresign = useContentFilePresignProvider(contentId, 'COVER');
   const mainPresign = useContentFilePresignProvider(contentId, 'MAIN');
   const attachmentPresign = useContentFilePresignProvider(contentId, 'ATTACHMENT');
-  const coverUrl = useAdminContentFileUrl(
-    contentId,
-    q.data?.files.find((f) => f.kind === 'COVER')?.id,
-  );
+  const coverFile = q.data?.files.find((f) => f.kind === 'COVER');
+  const coverUrl = useAdminContentFileUrl(contentId, coverFile?.id);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [coverUploadKey, setCoverUploadKey] = useState(0);
@@ -58,6 +56,14 @@ export default function AdminContentDetailScreen() {
 
   const onError = (error: unknown) =>
     toast.show({ message: apiErrorMessage(error), tone: 'danger' });
+  const removeFile = (fileId: string, onDeleted?: () => void) =>
+    deleteFile.mutate(fileId, {
+      onSuccess: () => {
+        onDeleted?.();
+        toast.show({ message: t('admin.detail.fileDeleted'), tone: 'success' });
+      },
+      onError,
+    });
 
   return (
     <SafeAreaScreen>
@@ -142,7 +148,7 @@ export default function AdminContentDetailScreen() {
             <Label>{t('admin.detail.cover')}</Label>
             <ImageUploader
               key={coverUploadKey}
-              value={coverUrl.data?.url ?? null}
+              value={coverFile ? (coverUrl.data?.url ?? null) : null}
               provider={coverPresign}
               edit={{ defaultAspect: '3:4' }}
               onChange={(result) => {
@@ -151,6 +157,12 @@ export default function AdminContentDetailScreen() {
                   toast.show({ message: t('admin.detail.fileUploaded'), tone: 'success' });
                 }
               }}
+              onRemove={
+                coverFile
+                  ? () => removeFile(coverFile.id, () => setCoverUploadKey((k) => k + 1))
+                  : undefined
+              }
+              disabled={deleteFile.isPending}
             />
           </View>
 
@@ -161,7 +173,7 @@ export default function AdminContentDetailScreen() {
                 name={main.originalFilename}
                 mimeType={main.mimeType}
                 size={main.sizeBytes}
-                onRemove={() => deleteFile.mutate(main.id, { onError })}
+                onRemove={() => removeFile(main.id)}
               />
             ) : null}
             <FileUploader
@@ -186,7 +198,7 @@ export default function AdminContentDetailScreen() {
                     key={f.id}
                     contentId={item.id}
                     file={f}
-                    onRemove={() => deleteFile.mutate(f.id, { onError })}
+                    onRemove={() => removeFile(f.id)}
                   />
                 ))}
                 <ImageUploader

@@ -85,6 +85,17 @@ export function useEditorialLifecycle(kind: EditorialKind) {
   return { publish, archive, remove };
 }
 
+export function useRemoveEditorialCover(kind: EditorialKind, id: string | undefined) {
+  const invalidate = useInvalidate(kind);
+  return useMutation({
+    mutationFn: () => {
+      if (!id) throw new Error('item id is required');
+      return editorialAdminApi.removeCover(kind, id);
+    },
+    onSuccess: invalidate,
+  });
+}
+
 /** Presigned cover upload for an existing item (the backend replaces any previous cover). */
 export function useEditorialCoverProvider(
   kind: EditorialKind,

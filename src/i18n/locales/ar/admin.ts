@@ -351,6 +351,7 @@ export default {
     TIP_DELETED: 'تم حذف نصيحة',
     TIP_RESTORED: 'تمت استعادة نصيحة',
     TIP_COVER_UPDATED: 'تم تحديث غلاف نصيحة',
+    TIP_COVER_DELETED: 'تم حذف غلاف نصيحة',
     TIP_OF_DAY_SET: 'تم تعيين نصيحة اليوم',
     TIP_OF_DAY_CLEARED: 'تم إلغاء نصيحة اليوم',
     NEWS_CREATED: 'خبر جديد',
@@ -360,6 +361,7 @@ export default {
     NEWS_DELETED: 'تم حذف خبر',
     NEWS_RESTORED: 'تمت استعادة خبر',
     NEWS_COVER_UPDATED: 'تم تحديث غلاف خبر',
+    NEWS_COVER_DELETED: 'تم حذف غلاف خبر',
     NEWS_GALLERY_UPDATED: 'تم تحديث صور خبر',
     NEWS_FEATURED_SET: 'تم تمييز خبر',
     DEVICE_TOKEN_REGISTERED: 'تم تسجيل جهاز للإشعارات',
@@ -833,6 +835,7 @@ export default {
     saved: 'تم الحفظ.',
     draftHint: 'يُحفظ المحتوى الجديد كمسودة، ثم يمكنك إضافة صورة الغلاف ونشره.',
     cover: 'صورة الغلاف',
+    coverDeleted: 'تم حذف صورة الغلاف.',
     pointsHint: 'نقطة واحدة في كل سطر (حتى ٢٠ نقطة).',
     fields: {
       title: 'العنوان',
