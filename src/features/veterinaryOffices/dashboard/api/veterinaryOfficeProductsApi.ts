@@ -3,7 +3,6 @@ import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/files/types';
 
 import type {
-  AdjustVeterinaryOfficeStockInput,
   CreateVeterinaryOfficeProductInput,
   Paginated,
   VeterinaryOfficeProduct,
@@ -28,12 +27,10 @@ function readMeta(meta: unknown, page: number, pageSize: number, count: number):
  * (`@/features/veterinaryStore`) and the public browse client
  * (`publicVeterinaryOfficeProductsApi`) — own table, own routes server-side.
  * `organizationId` / `createdByUserId` / `status` (after create) are set by
- * the server, never in a body. `stockQuantity` changes only through
- * `adjustStock`.
+ * the server, never in a body. Office products have no stock / inventory.
  *
  *   GET/POST         /organizations/:orgId/office-products          (`product.read` / `.create`)
  *   GET/PATCH/DELETE  /organizations/:orgId/office-products/:id      (`product.read` / `.update` / `.delete`)
- *   POST             /organizations/:orgId/office-products/:id/stock (`product.inventory.adjust`)
  */
 export const veterinaryOfficeProductsApi = {
   async list(
@@ -92,17 +89,6 @@ export const veterinaryOfficeProductsApi = {
   remove(organizationId: string, productId: string): Promise<VeterinaryOfficeProduct> {
     return apiClient.delete<VeterinaryOfficeProduct>(
       `/organizations/${organizationId}/office-products/${productId}`,
-    );
-  },
-
-  adjustStock(
-    organizationId: string,
-    productId: string,
-    body: AdjustVeterinaryOfficeStockInput,
-  ): Promise<VeterinaryOfficeProduct> {
-    return apiClient.post<VeterinaryOfficeProduct>(
-      `/organizations/${organizationId}/office-products/${productId}/stock`,
-      body,
     );
   },
 

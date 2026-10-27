@@ -288,8 +288,14 @@ export function permissionGroupsFor(
 ): readonly OrgPermissionGroup[] {
   if (type === 'CHAT_ROOM') return [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS];
   if (type === 'SYNDICATE') return [...SYNDICATE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
-  if (type === 'VETERINARY_OFFICE' || type === 'VETERINARY_STORE') {
-    return [...OFFICE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  if (type === 'VETERINARY_STORE') return [...OFFICE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  if (type === 'VETERINARY_OFFICE') {
+    // Office products have no inventory — stock adjustment is store-only.
+    const officeGroups = OFFICE_PERMISSION_GROUPS.map((g) => ({
+      ...g,
+      permissions: g.permissions.filter((p) => p !== 'product.inventory.adjust'),
+    }));
+    return [...officeGroups, ...ORG_PERMISSION_GROUPS];
   }
   if (type === 'CLINIC') return [...CLINIC_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
   if (type === 'FARM') return [...FARM_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];

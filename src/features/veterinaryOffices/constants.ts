@@ -58,6 +58,3 @@ export const VETERINARY_OFFICE_PRODUCT_SORT_OPTIONS: readonly {
   { value: 'price', order: 'asc' },
   { value: 'price', order: 'desc' },
 ];
-
-/** Low-stock visual cue threshold — presentation only, never sent to the server. */
-export const VETERINARY_OFFICE_LOW_STOCK_THRESHOLD = 5;

@@ -7,7 +7,6 @@ import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import {
-  VETERINARY_OFFICE_LOW_STOCK_THRESHOLD,
   VETERINARY_OFFICE_PRODUCT_STATUS_TONE,
   veterinaryOfficeProductTypeIcon,
 } from '../../constants';
@@ -26,7 +25,6 @@ export function VeterinaryOfficeProductCard({
 }: VeterinaryOfficeProductCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
-  const lowStock = product.stockQuantity <= VETERINARY_OFFICE_LOW_STOCK_THRESHOLD;
 
   return (
     <Pressable
@@ -94,9 +92,6 @@ export function VeterinaryOfficeProductCard({
             tone={VETERINARY_OFFICE_PRODUCT_STATUS_TONE[product.status]}
             size="sm"
           />
-          <Caption style={lowStock ? { color: theme.colors.warning } : undefined}>
-            {t('manage.card.stock', { count: product.stockQuantity })}
-          </Caption>
         </View>
       </View>
 

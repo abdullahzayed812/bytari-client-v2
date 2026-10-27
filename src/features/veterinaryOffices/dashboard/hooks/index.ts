@@ -7,7 +7,6 @@ export {
   useCreateVeterinaryOfficeProduct,
   useUpdateVeterinaryOfficeProduct,
   useDeleteVeterinaryOfficeProduct,
-  useAdjustVeterinaryOfficeStock,
   useRemoveVeterinaryOfficeProductImage,
 } from './useVeterinaryOfficeProductMutations';
 export {

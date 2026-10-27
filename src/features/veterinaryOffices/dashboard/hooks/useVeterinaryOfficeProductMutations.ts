@@ -2,7 +2,6 @@ import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/r
 
 import { veterinaryOfficeProductsApi, veterinaryOfficeProductKeys } from '../api';
 import type {
-  AdjustVeterinaryOfficeStockInput,
   CreateVeterinaryOfficeProductInput,
   VeterinaryOfficeProduct,
   UpdateVeterinaryOfficeProductInput,
@@ -59,27 +58,6 @@ export function useDeleteVeterinaryOfficeProduct(
     mutationFn: ({ productId }) => veterinaryOfficeProductsApi.remove(organizationId, productId),
     onSuccess: (_data, { productId }) => {
       // Soft-delete — keep the detail entry but refresh it + the list.
-      void qc.invalidateQueries({
-        queryKey: veterinaryOfficeProductKeys.detail(organizationId, productId),
-      });
-      void qc.invalidateQueries({ queryKey: veterinaryOfficeProductKeys.forOrg(organizationId) });
-    },
-  });
-}
-
-export function useAdjustVeterinaryOfficeStock(
-  organizationId: string,
-): UseMutationResult<
-  VeterinaryOfficeProduct,
-  unknown,
-  { productId: string; body: AdjustVeterinaryOfficeStockInput }
-> {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationKey: ['office-products', 'stock', organizationId],
-    mutationFn: ({ productId, body }) =>
-      veterinaryOfficeProductsApi.adjustStock(organizationId, productId, body),
-    onSuccess: (_data, { productId }) => {
       void qc.invalidateQueries({
         queryKey: veterinaryOfficeProductKeys.detail(organizationId, productId),
       });

@@ -14,7 +14,6 @@ const product = (over: Partial<VeterinaryOfficeProduct> = {}): VeterinaryOfficeP
   description: null,
   productType: 'MEDICINE',
   price: '25000.00',
-  stockQuantity: 10,
   status: 'ACTIVE',
   isHidden: false,
   subtype: null,

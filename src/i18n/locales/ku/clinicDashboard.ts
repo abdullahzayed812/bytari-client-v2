@@ -47,6 +47,8 @@ const clinicDashboard: KuNamespace<'clinicDashboard'> = {
     members: 'بەڕێوەبردنی بەکارهێنەران و پزیشکان',
     veterinarians: 'پزیشکان',
     supervisors: 'سەرپەرشتیاران',
+    employees: 'کارمەندان',
+    followers: 'شوێنکەوتووان',
     editProfile: 'ڕێکخستنەکانی کلینیک',
     profile: 'پرۆفایلی کلینیک',
     reviews: 'هەڵسەنگاندن و پێداچوونەوەکان',

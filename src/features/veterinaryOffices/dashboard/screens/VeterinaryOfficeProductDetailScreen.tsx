@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
@@ -19,20 +19,14 @@ import { Caption, Heading, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities } from '@/hooks';
-import { fieldErrors } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
 import { VETERINARY_OFFICE_PRODUCT_STATUS_TONE } from '../../constants';
 import { formatProductPrice, productCurrency } from '../../utils';
+import { veterinaryOfficeErrorMessage } from '../../validation/schemas';
 import {
-  veterinaryOfficeErrorMessage,
-  type AdjustVeterinaryOfficeStockFormValues,
-} from '../../validation/schemas';
-import { AdjustVeterinaryOfficeStockForm } from '../components';
-import {
-  useAdjustVeterinaryOfficeStock,
   useDeleteVeterinaryOfficeProduct,
   useVeterinaryOfficeProduct,
   useVeterinaryOfficeProductImagePresignProvider,
@@ -64,15 +58,10 @@ export default function VeterinaryOfficeProductDetailScreen() {
   const q = useVeterinaryOfficeProduct(orgId, productId);
   const update = useUpdateVeterinaryOfficeProduct(orgId);
   const del = useDeleteVeterinaryOfficeProduct(orgId);
-  const stock = useAdjustVeterinaryOfficeStock(orgId);
   const removeImage = useRemoveVeterinaryOfficeProductImage(orgId);
   const imagePresign = useVeterinaryOfficeProductImagePresignProvider(orgId, productId);
 
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
-  const [showStock, setShowStock] = useState(false);
-  const [stockError, setStockError] = useState<string | null>(null);
-  const [stockFields, setStockFields] = useState<Record<string, string>>({});
-  const stockInFlight = useRef(false);
   const [uploadKey, setUploadKey] = useState(0);
 
   const notFound =
@@ -102,7 +91,7 @@ export default function VeterinaryOfficeProductDetailScreen() {
 
   const product = q.data;
   const canManage = caps.canManageStoreProducts;
-  const busy = update.isPending || del.isPending || stock.isPending;
+  const busy = update.isPending || del.isPending;
 
   const reactivate = () => {
     if (!product) return;
@@ -128,35 +117,6 @@ export default function VeterinaryOfficeProductDetailScreen() {
           }),
         onError: (error) =>
           toast.show({ tone: 'danger', message: veterinaryOfficeErrorMessage(error, t) }),
-      },
-    );
-  };
-
-  const submitStock = (values: AdjustVeterinaryOfficeStockFormValues) => {
-    if (!product || stockInFlight.current || stock.isPending) return;
-    stockInFlight.current = true;
-    setStockError(null);
-    setStockFields({});
-    stock.mutate(
-      {
-        productId: product.id,
-        body: {
-          delta: Number(values.delta),
-          reason: values.reason?.trim() ? values.reason.trim() : undefined,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.show({ tone: 'success', message: t('manage.stock.success') });
-          setShowStock(false);
-        },
-        onError: (error) => {
-          setStockFields(fieldErrors(error));
-          setStockError(veterinaryOfficeErrorMessage(error, t));
-        },
-        onSettled: () => {
-          stockInFlight.current = false;
-        },
       },
     );
   };
@@ -212,8 +172,6 @@ export default function VeterinaryOfficeProductDetailScreen() {
                     : t('manage.detail.noPrice')
                 }
               />
-              <Divider spacing="sm" />
-              <Field label={t('manage.detail.fieldStock')} value={String(product.stockQuantity)} />
               <Divider spacing="sm" />
               <Field
                 label={t('manage.form.fieldStatus')}
@@ -305,30 +263,6 @@ export default function VeterinaryOfficeProductDetailScreen() {
                 disabled={busy}
                 onPress={() => router.push(Routes.organizationOfficeProductEdit(orgId, product.id))}
               />
-
-              <View style={{ marginTop: theme.spacing.md }}>
-                <Button
-                  label={showStock ? t('manage.stock.hideCta') : t('manage.stock.showCta')}
-                  variant="outline"
-                  leftIcon="swap-vertical-outline"
-                  disabled={busy}
-                  onPress={() => setShowStock((s) => !s)}
-                />
-              </View>
-
-              {showStock ? (
-                <Section spacing="lg">
-                  <Card variant="outlined" padding="md">
-                    <AdjustVeterinaryOfficeStockForm
-                      currentStock={product.stockQuantity}
-                      submitting={stock.isPending}
-                      formError={stockError}
-                      serverFields={stockFields}
-                      onSubmit={submitStock}
-                    />
-                  </Card>
-                </Section>
-              ) : null}
 
               <View style={{ marginTop: theme.spacing.md }}>
                 <Button

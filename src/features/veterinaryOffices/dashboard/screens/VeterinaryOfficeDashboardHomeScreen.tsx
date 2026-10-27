@@ -395,18 +395,19 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
                           onPress={() => router.push(Routes.vetOfficeDashboardBroadcast(orgId))}
                         />
                       ) : null}
+                      {/* One Employees page for staff, veterinarians and supervisors. */}
                       {orgCaps.canViewMembers ? (
                         <QuickAction
                           icon="people-outline"
-                          label={t('home.membersCta')}
-                          onPress={() => router.push(Routes.organizationMembers(orgId))}
+                          label={t('home.employeesCta')}
+                          onPress={() => router.push(Routes.organizationEmployees(orgId))}
                         />
                       ) : null}
-                      {orgCaps.canViewSupervisors ? (
+                      {orgCaps.canSendBroadcast ? (
                         <QuickAction
-                          icon="shield-checkmark-outline"
-                          label={t('home.supervisorsCta')}
-                          onPress={() => router.push(Routes.organizationSupervisors(orgId))}
+                          icon="heart-outline"
+                          label={t('home.followersCta')}
+                          onPress={() => router.push(Routes.organizationFollowers(orgId))}
                         />
                       ) : null}
                     </View>

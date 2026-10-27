@@ -370,6 +370,14 @@ export const Routes = {
     `/(app)/organizations/${organizationId}/supervisors` as const,
   organizationSupervisorsAssign: (organizationId: string) =>
     `/(app)/organizations/${organizationId}/supervisors/assign` as const,
+  /** Unified Employees page (clinic + veterinary office dashboards). */
+  organizationEmployees: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/employees` as const,
+  organizationEmployeesAdd: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/employees/add` as const,
+  /** Dashboard "Followers" page (clinic + veterinary office). */
+  organizationFollowers: (organizationId: string) =>
+    `/(app)/organizations/${organizationId}/followers` as const,
 
   // Organization Animals (Mobile Phase 5)
   organizationAnimals: (organizationId: string) =>

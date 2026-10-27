@@ -178,7 +178,6 @@ export default function VeterinaryOfficeProductFormScreen() {
         currency: values.currency,
         description,
         ...catalogFields,
-        stockQuantity: values.stockQuantity?.trim() ? Number(values.stockQuantity) : undefined,
         ...(pendingImage ? { image: pendingImage } : {}),
       };
       create.mutate(body, {

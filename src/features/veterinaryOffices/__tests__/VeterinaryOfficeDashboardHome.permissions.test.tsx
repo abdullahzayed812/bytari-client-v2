@@ -2,8 +2,8 @@ import { chatApi } from '@/features/chat/api/chatApi';
 import { organizationsApi } from '@/features/organizations';
 import { organizationSubscriptionApi } from '@/features/organizations/api';
 import { subscriptionsApi } from '@/features/subscriptions';
-import { renderWithProviders, screen, waitFor } from '@/test-utils/render';
-import { resetRouterMock, setSearchParams } from '@/test-utils/routerMock';
+import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render';
+import { resetRouterMock, routerMock, setSearchParams } from '@/test-utils/routerMock';
 
 import { veterinaryOfficeDashboardApi, veterinaryOfficeProductsApi } from '../dashboard/api';
 import VeterinaryOfficeDashboardHomeScreen from '../dashboard/screens/VeterinaryOfficeDashboardHomeScreen';
@@ -29,8 +29,7 @@ const MANAGEMENT = [
   'الإعدادات',
   'المنتجات المخفية',
   'إرسال رسالة للمتابعين',
-  'الأعضاء',
-  'المشرفون',
+  'الموظفون',
 ];
 
 describe('VeterinaryOfficeDashboardHomeScreen — sections follow the member’s permissions', () => {
@@ -67,6 +66,11 @@ describe('VeterinaryOfficeDashboardHomeScreen — sections follow the member’s
     renderWithProviders(<VeterinaryOfficeDashboardHomeScreen />);
     await waitFor(() => expect(screen.getByText('المحادثات')).toBeOnTheScreen());
     for (const label of MANAGEMENT) expect(screen.getByText(label)).toBeOnTheScreen();
+    // One Employees entry replaces the separate Members / Supervisors actions.
+    expect(screen.queryByText('الأعضاء')).toBeNull();
+    expect(screen.queryByText('المشرفون')).toBeNull();
+    fireEvent.press(screen.getByText('الموظفون'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/o1/employees');
   });
 
   it('a STAFF member (product.read only) sees the products and chats, nothing to manage', async () => {
@@ -90,7 +94,7 @@ describe('VeterinaryOfficeDashboardHomeScreen — sections follow the member’s
     renderWithProviders(<VeterinaryOfficeDashboardHomeScreen />);
     await waitFor(() => expect(screen.getByText('إرسال رسالة للمتابعين')).toBeOnTheScreen());
     expect(screen.queryByText('إضافة منتج')).toBeNull();
-    expect(screen.queryByText('الأعضاء')).toBeNull();
+    expect(screen.queryByText('الموظفون')).toBeNull();
     expect(listProducts).not.toHaveBeenCalled();
     expect(getSummary).not.toHaveBeenCalled();
   });

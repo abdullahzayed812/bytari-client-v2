@@ -43,7 +43,6 @@ export {
   useCreateVeterinaryOfficeProduct,
   useUpdateVeterinaryOfficeProduct,
   useDeleteVeterinaryOfficeProduct,
-  useAdjustVeterinaryOfficeStock,
   useRemoveVeterinaryOfficeProductImage,
   useVeterinaryOfficeProductImagePresignProvider,
   useVeterinaryOfficeDashboard,
@@ -54,8 +53,6 @@ export {
   VeterinaryOfficeProductCardSkeleton,
   VeterinaryOfficeProductForm,
   type VeterinaryOfficeProductFormProps,
-  AdjustVeterinaryOfficeStockForm,
-  type AdjustVeterinaryOfficeStockFormProps,
   VeterinaryOfficeDashboardShell,
   VeterinaryOfficeDashboardTabBar,
   type VeterinaryOfficeDashboardTab,
@@ -82,14 +79,11 @@ export {
   VETERINARY_OFFICE_PRODUCT_TYPE_ORDER,
   VETERINARY_OFFICE_PRODUCT_STATUS_TONE,
   VETERINARY_OFFICE_PRODUCT_SORT_OPTIONS,
-  VETERINARY_OFFICE_LOW_STOCK_THRESHOLD,
 } from './constants';
 export {
   buildVeterinaryOfficeProductSchema,
-  buildAdjustVeterinaryOfficeStockSchema,
   veterinaryOfficeErrorMessage,
   type VeterinaryOfficeProductFormValues,
-  type AdjustVeterinaryOfficeStockFormValues,
   type VeterinaryOfficeTFn,
 } from './validation/schemas';
 export { formatProductPrice, productCurrency } from './utils';

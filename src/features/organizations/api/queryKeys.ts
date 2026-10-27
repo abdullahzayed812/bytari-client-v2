@@ -26,6 +26,7 @@ export const orgKeys = {
     [...orgKeys.members(organizationId), filter] as const,
   supervisors: (organizationId: string) =>
     [...orgKeys.detail(organizationId), 'supervisors'] as const,
+  followers: (organizationId: string) => [...orgKeys.detail(organizationId), 'followers'] as const,
   discoverLists: () => [...orgKeys.all, 'discover'] as const,
   discoverList: (filter: {
     type?: OrganizationType;

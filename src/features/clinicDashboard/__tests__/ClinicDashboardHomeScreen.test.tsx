@@ -132,6 +132,11 @@ describe('ClinicDashboardHomeScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/broadcast');
     fireEvent.press(screen.getByText('ملف العيادة'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1');
+    // One Employees entry replaces Members / Veterinarians / Supervisors.
+    expect(screen.queryByText('المشرفون')).toBeNull();
+    expect(screen.queryByText('الأطباء')).toBeNull();
+    fireEvent.press(screen.getByText('الموظفون'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/employees');
 
     await waitFor(() => expect(screen.getByText('لولو')).toBeOnTheScreen());
     fireEvent.press(screen.getByLabelText('فتح ملف لولو'));

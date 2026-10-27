@@ -34,7 +34,6 @@ const EMPTY: VeterinaryOfficeProductFormValues = {
   productType: 'MEDICINE',
   price: '',
   currency: 'IQD',
-  stockQuantity: '',
   description: '',
   brand: '',
   countryOfOrigin: '',
@@ -43,9 +42,8 @@ const EMPTY: VeterinaryOfficeProductFormValues = {
 
 /**
  * Shared add/edit product form for a Veterinary Office. RHF + zod (mirrors
- * the backend), RTL, no API logic. `stockQuantity` is opening stock — shown
- * on create only; afterwards it changes solely through the stock-adjust
- * action on the detail screen.
+ * the backend), RTL, no API logic. Office products have no stock /
+ * inventory field — they are never hidden for being "out of stock".
  */
 export function VeterinaryOfficeProductForm({
   mode,
@@ -122,18 +120,6 @@ export function VeterinaryOfficeProductForm({
           />
         )}
       />
-
-      {mode === 'create' ? (
-        <FormField
-          control={control}
-          name="stockQuantity"
-          label={t('manage.form.fieldOpeningStock')}
-          placeholder="0"
-          hint={t('manage.form.openingStockHint')}
-          keyboardType="number-pad"
-          serverError={serverFields.stockQuantity}
-        />
-      ) : null}
 
       <FormField
         control={control}

@@ -40,6 +40,8 @@ export interface VetJobOffer {
   postedBy: VetJobUserSummary;
   organizationId: string | null;
   organizationName: string;
+  /** The linked organization's logo, else the poster's avatar; null → icon fallback. */
+  imageUrl: string | null;
   title: string;
   employmentType: VetJobEmploymentType;
   governorate: string;
@@ -69,6 +71,8 @@ export interface VetJobOffer {
 export interface PublicVetJobOffer {
   id: string;
   organizationName: string;
+  /** The linked organization's logo, else the poster's avatar; null → icon fallback. */
+  imageUrl: string | null;
   title: string;
   employmentType: VetJobEmploymentType;
   governorate: string;

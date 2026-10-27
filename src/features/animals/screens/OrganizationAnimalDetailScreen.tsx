@@ -561,6 +561,16 @@ function InfoStrip({ animal }: { animal: ClinicAnimalProfile }) {
       label: t('detail.fieldWeight'),
       value: animal.weightKg !== null ? t('detail.weightValue', { value: animal.weightKg }) : none,
     },
+    // Sterilization exactly as the owner stated it (null = not stated).
+    {
+      label: t('detail.fieldNeutered'),
+      value:
+        animal.isNeutered === null
+          ? none
+          : animal.isNeutered
+            ? t('detail.neutered')
+            : t('detail.notNeutered'),
+    },
     { label: t('detail.fieldColor'), value: animal.color ?? none },
     { label: t('detail.fieldBirth'), value: animal.dateOfBirth?.slice(0, 4) ?? none },
   ];

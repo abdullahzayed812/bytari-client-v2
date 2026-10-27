@@ -7,6 +7,7 @@ export {
   type UseOrganizationMembersParams,
 } from './useOrganizationMembers';
 export { useOrganizationSupervisors } from './useOrganizationSupervisors';
+export { useOrganizationFollowers } from './useOrganizationFollowers';
 export {
   useCreateOrganization,
   useUpdateOrganization,

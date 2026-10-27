@@ -32,8 +32,10 @@ export function useUpdatePoultryFlock(
     onSuccess: (_data, { flockId }) => {
       void qc.invalidateQueries({ queryKey: poultryKeys.detail(organizationId, flockId) });
       void qc.invalidateQueries({ queryKey: poultryKeys.forOrg(organizationId) });
-      // Selling / reopening a batch changes the farm's Expenses summary.
+      // Selling a batch permanently deletes its expenses, treatments,
+      // vaccinations and sick cases — drop every cached read of them.
       void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(organizationId) });
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(organizationId, flockId) });
     },
   });
 }

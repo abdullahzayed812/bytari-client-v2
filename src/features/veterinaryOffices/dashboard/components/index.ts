@@ -7,10 +7,6 @@ export {
   VeterinaryOfficeProductForm,
   type VeterinaryOfficeProductFormProps,
 } from './VeterinaryOfficeProductForm';
-export {
-  AdjustVeterinaryOfficeStockForm,
-  type AdjustVeterinaryOfficeStockFormProps,
-} from './AdjustVeterinaryOfficeStockForm';
 export { VeterinaryOfficeDashboardShell } from './VeterinaryOfficeDashboardShell';
 export {
   VeterinaryOfficeDashboardTabBar,

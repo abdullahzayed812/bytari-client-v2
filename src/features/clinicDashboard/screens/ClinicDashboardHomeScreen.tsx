@@ -436,30 +436,19 @@ export default function ClinicDashboardHomeScreen() {
               {t('settings.title')}
             </Text>
             <View style={{ rowGap: theme.spacing.sm }}>
+              {/* One Employees page for staff, veterinarians and supervisors. */}
               {perms?.canViewMembers ? (
-                <>
-                  <SettingRow
-                    icon="people-outline"
-                    label={t('settings.members')}
-                    onPress={() => go(Routes.organizationMembers(orgId))}
-                  />
-                  <SettingRow
-                    icon="medkit-outline"
-                    label={t('settings.veterinarians')}
-                    onPress={() =>
-                      router.push({
-                        pathname: Routes.organizationMembers(orgId) as never,
-                        params: { roleKey: 'VETERINARIAN' },
-                      })
-                    }
-                  />
-                </>
-              ) : null}
-              {perms?.canViewSupervisors ? (
                 <SettingRow
-                  icon="shield-checkmark-outline"
-                  label={t('settings.supervisors')}
-                  onPress={() => go(Routes.organizationSupervisors(orgId))}
+                  icon="people-outline"
+                  label={t('settings.employees')}
+                  onPress={() => go(Routes.organizationEmployees(orgId))}
+                />
+              ) : null}
+              {perms?.canSendBroadcast ? (
+                <SettingRow
+                  icon="heart-outline"
+                  label={t('settings.followers')}
+                  onPress={() => go(Routes.organizationFollowers(orgId))}
                 />
               ) : null}
               {perms?.canEditOrganization ? (

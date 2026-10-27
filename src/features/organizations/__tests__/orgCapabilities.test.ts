@@ -182,6 +182,13 @@ describe('permissionGroupsFor — the owner can grant every dashboard section', 
     expect(keys).not.toContain('farm.poultry.read');
   });
 
+  it('VETERINARY_OFFICE offers products without stock adjustment; the store keeps it', () => {
+    const office = keysFor('VETERINARY_OFFICE');
+    expect(office).toContain('product.update');
+    expect(office).not.toContain('product.inventory.adjust');
+    expect(keysFor('VETERINARY_STORE')).toContain('product.inventory.adjust');
+  });
+
   it('FARM offers the farm sections but never the subscription approval', () => {
     const keys = keysFor('FARM');
     for (const k of [

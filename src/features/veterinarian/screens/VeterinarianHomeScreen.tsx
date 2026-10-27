@@ -354,9 +354,6 @@ export default function VeterinarianHomeScreen() {
                     price={product.price != null ? formatProductPrice(product.price) : null}
                     currency={tvo(`currency.${productCurrency(product)}`)}
                     noPriceLabel={tvo('product.noPrice')}
-                    footnote={
-                      product.stockQuantity === 0 ? t('home.officeProducts.outOfStock') : null
-                    }
                     accent={STORE_ACCENTS.green}
                     actionLabel={t('home.officeProducts.view')}
                     actionIcon="eye-outline"

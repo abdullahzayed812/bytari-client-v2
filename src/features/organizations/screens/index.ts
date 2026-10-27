@@ -12,4 +12,7 @@ export { default as OrganizationMembersScreen } from './OrganizationMembersScree
 export { default as AddMemberScreen } from './AddMemberScreen';
 export { default as OrganizationSupervisorsScreen } from './OrganizationSupervisorsScreen';
 export { default as AssignSupervisorScreen } from './AssignSupervisorScreen';
+export { default as OrganizationEmployeesScreen } from './OrganizationEmployeesScreen';
+export { default as AddEmployeeScreen } from './AddEmployeeScreen';
+export { default as OrganizationFollowersScreen } from './OrganizationFollowersScreen';
 export { default as OrganizationReviewsScreen } from './OrganizationReviewsScreen';

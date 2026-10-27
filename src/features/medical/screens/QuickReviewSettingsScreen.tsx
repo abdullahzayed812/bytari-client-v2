@@ -21,6 +21,8 @@ import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
 // Deep import (not the barrel) — keeps medical ↔ clinicDashboard acyclic.
 import { useClinicPermissions } from '@/features/clinicDashboard/hooks';
+import { orgCapabilities, useOrganization } from '@/features/organizations';
+import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 
 import {
@@ -48,8 +50,17 @@ export default function QuickReviewSettingsScreen() {
   const toast = useToast();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
+  const { isAdmin } = useCapabilities();
   const perms = useClinicPermissions(orgId);
-  const canManage = perms?.canEditOrganization ?? false;
+  // The dashboard summary is the usual source; the organization's own
+  // `myPermissions` covers a deep link / a summary still loading or failed,
+  // so the add action never silently disappears for someone allowed to use it.
+  const org = useOrganization(orgId);
+  const canManage =
+    perms?.canEditOrganization ??
+    (org.data
+      ? orgCapabilities(org.data.myRole, isAdmin, org.data.myPermissions).canEditOrganization
+      : false);
 
   const q = useQuickReviewTemplates(orgId);
   const save = useSaveQuickReviewTemplate(orgId);
@@ -73,7 +84,7 @@ export default function QuickReviewSettingsScreen() {
           ) : undefined
         }
       />
-      {perms && !canManage ? (
+      {(perms || org.data) && !canManage ? (
         <Caption style={{ paddingHorizontal: theme.screenPadding }}>
           {t('templates.readOnly')}
         </Caption>
@@ -94,6 +105,17 @@ export default function QuickReviewSettingsScreen() {
             rowGap: theme.spacing.sm,
             flexGrow: 1,
           }}
+          ListHeaderComponent={
+            canManage ? (
+              <Button
+                label={t('templates.addCta')}
+                leftIcon="add-circle-outline"
+                fullWidth
+                onPress={() => setEditing('new')}
+                accessibilityLabel={t('templates.addCta')}
+              />
+            ) : null
+          }
           ListEmptyComponent={
             <EmptyState
               icon="albums-outline"

@@ -107,7 +107,8 @@ export function useUpdateCattleBatch(organizationId: string) {
       cattleFarmApi.update(organizationId, batchId, body),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: cattleKeys.forOrg(organizationId) });
-      // Selling / reopening a batch changes the farm's Expenses summary.
+      // Selling a batch permanently deletes its expenses, treatments,
+      // vaccinations and sick cases (their cached reads sit under forOrg above).
       void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(organizationId) });
     },
   });

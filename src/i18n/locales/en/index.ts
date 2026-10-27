@@ -2884,6 +2884,49 @@ export const en: TranslationResources = {
         identifierInvalid: 'Enter a valid email address.',
       },
     },
+    followers: {
+      title: 'Followers',
+      sendMessage: 'Send message',
+      sendMessageTo: 'Send a message to {{name}}',
+      unnamed: 'User',
+      empty: 'No followers yet',
+      emptyHint: 'Everyone who follows this organization appears here.',
+      noPermission: 'You do not have permission to view this organization’s followers.',
+    },
+    employees: {
+      title: 'Employees',
+      addCta: 'Add employee',
+      addTitle: 'Add employee',
+      filterAll: 'All',
+      empty: 'No employees yet',
+      emptyHint:
+        'Add a person by email and choose their role: employee, veterinarian or supervisor.',
+      role: {
+        STAFF: 'Regular employee',
+        VETERINARIAN: 'Veterinarian',
+        SUPERVISOR: 'Supervisor',
+      },
+      roleShort: {
+        STAFF: 'Employees',
+        VETERINARIAN: 'Vets',
+        SUPERVISOR: 'Supervisors',
+      },
+      roleHint: {
+        STAFF: 'A non-veterinarian member with basic access.',
+        VETERINARIAN: 'Must be an approved veterinarian.',
+        SUPERVISOR: 'An approved veterinarian with the management permissions you pick below.',
+      },
+      changeRole: 'Change role to {{role}}',
+      remove: 'Remove employee',
+      removeConfirmTitle: 'Remove employee',
+      removeConfirmBody:
+        'This person will lose access to the organization. You can add them again later.',
+      addSuccess: 'Employee added.',
+      updateSuccess: 'Employee updated.',
+      removeSuccess: 'Employee removed.',
+      noAddPermission: 'You do not have permission to add employees to this organization.',
+      noViewPermission: 'You do not have permission to view this organization’s employees.',
+    },
     supervisors: {
       title: 'Supervisors',
       intro:
@@ -3667,7 +3710,7 @@ export const en: TranslationResources = {
     },
     templates: {
       title: 'Quick review settings',
-      addCta: 'Add template',
+      addCta: 'Add quick examination card',
       empty: 'No templates yet',
       emptyHint: 'Create templates for recurring actions to speed up reviews.',
       addTitle: 'New template',
@@ -5515,6 +5558,8 @@ export const en: TranslationResources = {
       members: 'Users & veterinarians',
       veterinarians: 'Veterinarians',
       supervisors: 'Supervisors',
+      employees: 'Employees',
+      followers: 'Followers',
       editProfile: 'Clinic settings',
       profile: 'Clinic profile',
       reviews: 'Ratings & reviews',
@@ -8960,6 +9005,8 @@ export const en: TranslationResources = {
       sendMessageCta: 'Send message to followers',
       membersCta: 'Members',
       supervisorsCta: 'Supervisors',
+      employeesCta: 'Employees',
+      followersCta: 'Followers',
       unreadMessages: '{{count}} unread messages',
       lockedTitle: 'Dashboard locked',
       lockedBody:

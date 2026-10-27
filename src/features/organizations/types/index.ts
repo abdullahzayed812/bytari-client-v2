@@ -65,6 +65,9 @@ export type OrgRoleKey = (typeof ORG_ROLE_KEYS)[number];
 /** Roles the backend accepts when adding / updating a plain member. */
 export const ASSIGNABLE_MEMBER_ROLES = ['VETERINARIAN', 'STAFF'] as const;
 export type AssignableMemberRole = (typeof ASSIGNABLE_MEMBER_ROLES)[number];
+/** Roles the unified Employees page grants (SUPERVISOR via the supervisor routes). */
+export const EMPLOYEE_ROLES = ['STAFF', 'VETERINARIAN', 'SUPERVISOR'] as const;
+export type EmployeeRole = (typeof EMPLOYEE_ROLES)[number];
 
 /** Statuses the backend accepts when updating a member. */
 export const MEMBER_STATUS_ACTIONS = ['ACTIVE', 'SUSPENDED'] as const;
@@ -293,6 +296,13 @@ export interface OrganizationMember {
   createdAt: string;
   updatedAt: string;
   user: OrgMemberUser;
+}
+
+/** Dashboard "Followers" page row — the backend returns the name only, never profile data. */
+export interface OrganizationFollower {
+  userId: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface OrganizationSupervisor extends OrganizationMember {

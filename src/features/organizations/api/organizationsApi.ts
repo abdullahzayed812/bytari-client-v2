@@ -12,6 +12,7 @@ import type {
   MemberListFilter,
   MyOrganization,
   OrganizationDetail,
+  OrganizationFollower,
   OrganizationMember,
   OrganizationReview,
   OrganizationReviewWithAuthor,
@@ -329,6 +330,22 @@ export const organizationsApi = {
     return {
       items: envelope.data,
       meta: readMeta(envelope.meta, filter.page, filter.pageSize, envelope.data.length),
+    };
+  },
+
+  /** `GET /organizations/:id/followers` — names only (owner / `organization.broadcast.send`). */
+  async listFollowers(
+    organizationId: string,
+    page: { page: number; pageSize: number },
+  ): Promise<Paginated<OrganizationFollower>> {
+    const envelope = await apiClient.requestEnvelope<OrganizationFollower[]>({
+      method: 'GET',
+      url: `/organizations/${organizationId}/followers`,
+      params: page,
+    });
+    return {
+      items: envelope.data,
+      meta: readMeta(envelope.meta, page.page, page.pageSize, envelope.data.length),
     };
   },
 

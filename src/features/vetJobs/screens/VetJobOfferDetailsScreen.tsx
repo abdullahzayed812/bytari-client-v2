@@ -13,6 +13,7 @@ import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
+import { JobOfferImage } from '../components';
 import { useVetJobOffer } from '../hooks';
 import { formatSalary } from '../utils';
 
@@ -93,18 +94,11 @@ export default function VetJobOfferDetailsScreen() {
                 columnGap: theme.spacing.md,
               }}
             >
-              <View
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: theme.radius.lg,
-                  backgroundColor: theme.colors.primarySoft,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Icon name="briefcase-outline" size="iconLg" color="primary" />
-              </View>
+              <JobOfferImage
+                imageUrl={offer.imageUrl}
+                iconSize="iconLg"
+                style={{ width: 56, height: 56, borderRadius: theme.radius.lg }}
+              />
               <View style={{ flex: 1, rowGap: 4 }}>
                 <Heading level={3}>{offer.title}</Heading>
                 <Caption>{offer.organizationName}</Caption>

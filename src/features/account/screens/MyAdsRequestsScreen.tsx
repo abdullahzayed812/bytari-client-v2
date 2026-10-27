@@ -144,7 +144,7 @@ export default function MyAdsRequestsScreen() {
           section: 'JOBS',
           title: o.title,
           createdAt: o.createdAt,
-          imageUrl: null,
+          imageUrl: o.imageUrl,
           state: moderationState(o.status, o.closedAt),
           href: Routes.vetJobOfferApplicants(o.id),
         });

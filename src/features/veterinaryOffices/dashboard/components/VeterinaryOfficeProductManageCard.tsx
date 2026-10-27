@@ -8,7 +8,6 @@ import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import {
-  VETERINARY_OFFICE_LOW_STOCK_THRESHOLD,
   VETERINARY_OFFICE_PRODUCT_STATUS_TONE,
   veterinaryOfficeProductTypeIcon,
 } from '../../constants';
@@ -29,7 +28,7 @@ export interface VeterinaryOfficeProductManageCardProps {
 /**
  * Grid card for the Dashboard's product management screens (full list + hidden
  * list) — same visual shape as the public catalog's `PublicVeterinaryOfficeProductCard`
- * (image / name / price), plus the owner-only availability line and the
+ * (image / name / price), plus the
  * حذف / إخفاء-إظهار / تعديل action row from the reference screenshots.
  */
 export function VeterinaryOfficeProductManageCard({
@@ -44,13 +43,6 @@ export function VeterinaryOfficeProductManageCard({
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOfficeDashboard');
   const { t: tOffice } = useTranslation('veterinaryOffices');
-  const outOfStock = product.stockQuantity <= 0;
-  const lowStock = !outOfStock && product.stockQuantity <= VETERINARY_OFFICE_LOW_STOCK_THRESHOLD;
-  const stockColor = outOfStock
-    ? theme.colors.danger
-    : lowStock
-      ? theme.colors.warning
-      : theme.colors.success;
 
   return (
     <View
@@ -140,11 +132,6 @@ export function VeterinaryOfficeProductManageCard({
                 })
               : tOffice('product.noPrice')}
           </Text>
-          <Caption style={{ color: stockColor }}>
-            {outOfStock
-              ? t('card.outOfStock')
-              : tOffice('manage.card.stock', { count: product.stockQuantity })}
-          </Caption>
         </View>
       </Pressable>
 

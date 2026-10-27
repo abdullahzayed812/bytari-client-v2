@@ -45,6 +45,8 @@ export default {
     sendMessageCta: 'إرسال رسالة للمتابعين',
     membersCta: 'الأعضاء',
     supervisorsCta: 'المشرفون',
+    employeesCta: 'الموظفون',
+    followersCta: 'المتابعون',
     unreadMessages: '{{count}} رسالة غير مقروءة',
     lockedTitle: 'لوحة التحكم مقفلة',
     lockedBody:

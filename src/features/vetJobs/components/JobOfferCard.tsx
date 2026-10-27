@@ -10,6 +10,8 @@ import { formatDate } from '@/utils';
 import type { PublicVetJobOffer } from '../types';
 import { formatSalary } from '../utils';
 
+import { JobOfferImage } from './JobOfferImage';
+
 function Row({ icon, children }: { icon: Parameters<typeof Icon>[0]['name']; children: string }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 4 }}>
@@ -47,15 +49,8 @@ export function JobOfferCard({
         onPress={onPress}
         style={{ flexGrow: 1, overflow: 'hidden' }}
       >
-        <View
-          style={{
-            height: 72,
-            backgroundColor: theme.colors.primarySoft,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon name="briefcase-outline" size="iconXl" color="primary" />
+        <View style={{ height: 72 }}>
+          <JobOfferImage imageUrl={offer.imageUrl} iconSize="iconXl" style={{ flex: 1 }} />
           <View
             style={{
               position: 'absolute',
@@ -114,18 +109,11 @@ export function JobOfferCard({
       style={{ flexGrow: 1, borderRadius: theme.radius.lg }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.md }}>
-        <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: theme.radius.lg,
-            backgroundColor: theme.colors.primarySoft,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon name="briefcase-outline" size="iconMd" color="primary" />
-        </View>
+        <JobOfferImage
+          imageUrl={offer.imageUrl}
+          iconSize="iconMd"
+          style={{ width: 44, height: 44, borderRadius: theme.radius.lg }}
+        />
         <View style={{ flex: 1, rowGap: 4 }}>
           <View
             style={{

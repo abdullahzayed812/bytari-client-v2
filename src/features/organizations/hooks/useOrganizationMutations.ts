@@ -158,6 +158,8 @@ export function useUpdateOrganizationMember(
       organizationsApi.updateMember(organizationId, memberId, input),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: orgKeys.members(organizationId) });
+      // A supervisor moved to another role leaves the supervisor list.
+      void qc.invalidateQueries({ queryKey: orgKeys.supervisors(organizationId) });
     },
   });
 }

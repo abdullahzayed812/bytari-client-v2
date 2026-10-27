@@ -72,7 +72,6 @@ export interface VeterinaryOfficeProduct extends VeterinaryOfficeProductDetailFi
   price: string | null;
   /** Currency of `price`. Absent from older servers → treat as `IQD` (see `productCurrency`). */
   currency?: VeterinaryOfficeProductCurrency;
-  stockQuantity: number;
   status: VeterinaryOfficeProductStatus;
   /**
    * "إخفاء/إظهار" — orthogonal to `status`. A hidden product stays ACTIVE (still
@@ -109,8 +108,6 @@ export interface CreateVeterinaryOfficeProductInput extends VeterinaryOfficeProd
   productType: VeterinaryOfficeProductType;
   price?: string | null;
   currency?: VeterinaryOfficeProductCurrency;
-  /** Opening stock only. Later changes go through the stock endpoint. */
-  stockQuantity?: number;
   /** Cover uploaded on the add form before the product existed (org-level presign). */
   image?: { storageKey: string; mimeType: string };
 }
@@ -123,12 +120,6 @@ export interface UpdateVeterinaryOfficeProductInput extends VeterinaryOfficeProd
   currency?: VeterinaryOfficeProductCurrency;
   status?: VeterinaryOfficeProductStatus;
   isHidden?: boolean;
-}
-
-export interface AdjustVeterinaryOfficeStockInput {
-  /** Signed, non-zero integer. The resulting stock may not be negative. */
-  delta: number;
-  reason?: string;
 }
 
 export type VeterinaryOfficeProductSort = 'name' | 'price' | 'createdAt';

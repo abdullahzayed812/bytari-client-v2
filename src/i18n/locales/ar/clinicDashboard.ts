@@ -79,6 +79,8 @@ const clinicDashboard = {
     members: 'إدارة المستخدمين والأطباء',
     veterinarians: 'الأطباء',
     supervisors: 'المشرفون',
+    employees: 'الموظفون',
+    followers: 'المتابعون',
     editProfile: 'إعدادات العيادة',
     profile: 'ملف العيادة',
     reviews: 'التقييمات والمراجعات',

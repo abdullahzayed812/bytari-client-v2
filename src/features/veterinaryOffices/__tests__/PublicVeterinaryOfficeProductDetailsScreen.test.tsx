@@ -42,7 +42,6 @@ const product: VeterinaryOfficeProduct = {
   description: 'مضاد حيوي واسع المجال فعال ضد مجموعة كبيرة من البكتيريا.',
   productType: 'MEDICINE',
   price: '25000.00',
-  stockQuantity: 30,
   status: 'ACTIVE',
   isHidden: false,
   subtype: 'مضاد حيوي',
