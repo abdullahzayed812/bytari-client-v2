@@ -11,6 +11,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useSyndicateReplyUnseenCounts } from '@/features/notifications';
 import { useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -79,6 +80,8 @@ export default function SyndicateDetailsScreen() {
   const q = useSyndicate(organizationId);
   const announcements = useSyndicateAnnouncements(organizationId);
   const access = useMySyndicateAccess(organizationId);
+  // New syndicate replies to the viewer's own requests / inquiries (header badge).
+  const replies = useSyndicateReplyUnseenCounts();
   const services = useSyndicateServices(organizationId);
   const follow = useFollowSyndicate(organizationId ?? '_');
   const unfollow = useUnfollowSyndicate(organizationId ?? '_');
@@ -187,12 +190,31 @@ export default function SyndicateDetailsScreen() {
         title={syndicate.name}
         showBack
         right={
-          <IconButton
-            icon="document-text-outline"
-            variant="soft"
-            accessibilityLabel={t('mySubmissions.title')}
-            onPress={() => router.push(Routes.syndicateMy)}
-          />
+          <View>
+            <IconButton
+              icon="document-text-outline"
+              variant="soft"
+              accessibilityLabel={
+                replies.total > 0
+                  ? t('mySubmissions.newRepliesA11y', { count: replies.total })
+                  : t('mySubmissions.title')
+              }
+              onPress={() => router.push(Routes.syndicateMy)}
+            />
+            {replies.total > 0 ? (
+              <View
+                pointerEvents="none"
+                testID="syndicate-replies-badge"
+                style={{ position: 'absolute', top: -4, end: -4 }}
+              >
+                <Badge
+                  label={replies.total > 99 ? '99+' : String(replies.total)}
+                  tone="danger"
+                  size="sm"
+                />
+              </View>
+            ) : null}
+          </View>
         }
       />
       <ScrollView

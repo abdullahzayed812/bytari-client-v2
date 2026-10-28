@@ -11,6 +11,8 @@ import type {
   PetCareSection,
   PetUnseenCounts,
   RegisteredDevice,
+  SyndicateReplyKind,
+  SyndicateReplyUnseenCounts,
 } from '../types';
 
 function readMeta(meta: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
@@ -131,6 +133,22 @@ export const notificationsApi = {
   ): Promise<{ updated: number }> {
     const res = await apiClient.post<{ updated: number }>(`/notifications/pets/${animalId}/seen`, {
       section,
+    });
+    return { updated: Number(res?.updated ?? 0) };
+  },
+
+  async syndicateRepliesUnseen(): Promise<SyndicateReplyUnseenCounts> {
+    const res = await apiClient.get<Partial<SyndicateReplyUnseenCounts>>(
+      '/notifications/syndicate-replies/unseen',
+    );
+    const inquiries = Number(res?.inquiries ?? 0);
+    const requests = Number(res?.requests ?? 0);
+    return { inquiries, requests, total: inquiries + requests };
+  },
+
+  async markSyndicateRepliesSeen(kind: SyndicateReplyKind): Promise<{ updated: number }> {
+    const res = await apiClient.post<{ updated: number }>('/notifications/syndicate-replies/seen', {
+      kind,
     });
     return { updated: Number(res?.updated ?? 0) };
   },

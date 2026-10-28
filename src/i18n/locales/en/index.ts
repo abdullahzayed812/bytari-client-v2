@@ -1944,6 +1944,7 @@ export const en: TranslationResources = {
     },
     mySubmissions: {
       title: 'My requests & inquiries',
+      newRepliesA11y: 'My requests & inquiries — {{count}} new replies',
       tabRequests: 'My requests',
       tabInquiries: 'My inquiries',
       empty: 'No items',

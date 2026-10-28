@@ -129,6 +129,7 @@ const syndicates: KuNamespace<'syndicates'> = {
 
   mySubmissions: {
     title: 'داواکاری و پرسیارەکانم',
+    newRepliesA11y: 'داواکاری و پرسیارەکانم — {{count}} وەڵامی نوێ',
     tabRequests: 'داواکارییەکانم',
     tabInquiries: 'پرسیارەکانم',
     empty: 'هیچ بڕگەیەک نییە',

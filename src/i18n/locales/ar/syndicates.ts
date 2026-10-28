@@ -124,6 +124,7 @@ export default {
 
   mySubmissions: {
     title: 'طلباتي واستفساراتي',
+    newRepliesA11y: 'طلباتي واستفساراتي — {{count}} رد جديد',
     tabRequests: 'طلباتي',
     tabInquiries: 'استفساراتي',
     empty: 'لا توجد عناصر',

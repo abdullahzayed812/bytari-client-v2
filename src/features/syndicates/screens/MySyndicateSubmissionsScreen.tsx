@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
@@ -9,9 +10,14 @@ import { SafeAreaScreen } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
+import {
+  useMarkSyndicateRepliesSeen,
+  useSyndicateReplyUnseenCounts,
+} from '@/features/notifications';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
+import { syndicateKeys } from '../api';
 import { SyndicateSubmissionStatusBadge } from '../components';
 import { useMySyndicateSubmissions } from '../hooks';
 import type { SyndicateSubmission, SyndicateSubmissionKind } from '../types';
@@ -22,6 +28,16 @@ export default function MySyndicateSubmissionsScreen() {
   const { t } = useTranslation('syndicates');
   const [kind, setKind] = useState<SyndicateSubmissionKind>('INQUIRY');
   const q = useMySyndicateSubmissions({ kind });
+  const qc = useQueryClient();
+  const replies = useSyndicateReplyUnseenCounts();
+  // Viewing a tab clears that tab's new-reply badge and reloads it so the reply shows.
+  useMarkSyndicateRepliesSeen(
+    kind,
+    kind === 'INQUIRY' ? replies.inquiries : replies.requests,
+    () => void qc.invalidateQueries({ queryKey: syndicateKeys.mySubmissions({ kind }) }),
+  );
+  const withCount = (label: string, n: number): string =>
+    n > 0 ? `${label} (${n > 99 ? '99+' : n})` : label;
 
   return (
     <SafeAreaScreen>
@@ -31,8 +47,14 @@ export default function MySyndicateSubmissionsScreen() {
           value={kind}
           onChange={setKind}
           options={[
-            { value: 'INQUIRY', label: t('mySubmissions.tabInquiries') },
-            { value: 'REQUEST', label: t('mySubmissions.tabRequests') },
+            {
+              value: 'INQUIRY',
+              label: withCount(t('mySubmissions.tabInquiries'), replies.inquiries),
+            },
+            {
+              value: 'REQUEST',
+              label: withCount(t('mySubmissions.tabRequests'), replies.requests),
+            },
           ]}
         />
       </View>

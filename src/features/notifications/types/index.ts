@@ -169,6 +169,15 @@ export type PetCareSection = 'vaccinations' | 'reminders';
 /** The owner's own unread clinic pet-care notifications for one pet, per section. */
 export type PetUnseenCounts = Record<PetCareSection, number>;
 
+/** "طلباتي واستفساراتي" tabs — syndicate submission kinds whose replies are badged. */
+export type SyndicateReplyKind = 'INQUIRY' | 'REQUEST';
+/** Unread syndicate replies to the caller's own submissions. */
+export interface SyndicateReplyUnseenCounts {
+  inquiries: number;
+  requests: number;
+  total: number;
+}
+
 export interface NotificationListFilter {
   page: number;
   pageSize: number;

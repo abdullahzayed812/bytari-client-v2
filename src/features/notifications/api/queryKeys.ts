@@ -23,4 +23,5 @@ export const notificationKeys = {
   devices: () => [...notificationKeys.all, 'devices'] as const,
   petUnseenAll: () => [...notificationKeys.all, 'pet-unseen'] as const,
   petUnseen: (animalId: string) => [...notificationKeys.petUnseenAll(), animalId] as const,
+  syndicateRepliesUnseen: () => [...notificationKeys.all, 'syndicate-replies-unseen'] as const,
 };

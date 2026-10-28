@@ -7,3 +7,7 @@ export { useMarkNotificationRead, useMarkAllNotificationsRead } from './useNotif
 export { useNotificationRealtime } from './useNotificationRealtime';
 export { useOpenNotification } from './useOpenNotification';
 export { usePetUnseenCounts, useMarkPetSectionSeen } from './usePetUnseen';
+export {
+  useSyndicateReplyUnseenCounts,
+  useMarkSyndicateRepliesSeen,
+} from './useSyndicateReplyUnseen';

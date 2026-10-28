@@ -30,6 +30,7 @@ export function useNotificationRealtime(): void {
       void qc.invalidateQueries({ queryKey: notificationKeys.lists() });
       void qc.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
       void qc.invalidateQueries({ queryKey: notificationKeys.petUnseenAll() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.syndicateRepliesUnseen() });
     };
 
     const subs = [
