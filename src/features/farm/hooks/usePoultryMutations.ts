@@ -32,10 +32,10 @@ export function useUpdatePoultryFlock(
     onSuccess: (_data, { flockId }) => {
       void qc.invalidateQueries({ queryKey: poultryKeys.detail(organizationId, flockId) });
       void qc.invalidateQueries({ queryKey: poultryKeys.forOrg(organizationId) });
-      // Selling a batch permanently deletes its expenses, treatments,
-      // vaccinations and sick cases — drop every cached read of them.
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(organizationId) });
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forFlock(organizationId, flockId) });
+      // Selling a batch permanently deletes its expenses, appointments,
+      // treatments, vaccinations and sick cases — drop every cached read of
+      // them (expenses, appointments and this flock's reads sit under forOrg).
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forOrg(organizationId) });
     },
   });
 }

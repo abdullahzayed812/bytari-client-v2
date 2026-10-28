@@ -17,7 +17,7 @@ export interface SheepBatchFormProps {
   submitting: boolean;
   formError?: string | null;
   serverFields?: Record<string, string>;
-  /** The sale price is financial data — only the farm owner / admin sees and sets it. */
+  /** The purchase price is financial data — only the farm owner / admin sees and sets it. */
   showPrice?: boolean;
   onSubmit: (values: SheepBatchFormValues) => void;
 }
@@ -38,7 +38,7 @@ const DEFAULTS: SheepBatchFormValues = {
   maleCount: '10',
   femaleCount: '25',
   arrivalDate: today(),
-  targetPricePerKg: '',
+  purchasePricePerKg: '',
   notes: '',
 };
 
@@ -54,10 +54,7 @@ export function SheepBatchForm({
 }: SheepBatchFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
-  const schema = useMemo(
-    () => buildSheepBatchSchema(t, { requirePrice: showPrice }),
-    [t, showPrice],
-  );
+  const schema = useMemo(() => buildSheepBatchSchema(t), [t]);
 
   const { control, handleSubmit } = useForm<SheepBatchFormValues>({
     resolver: zodResolver(schema),
@@ -92,13 +89,12 @@ export function SheepBatchForm({
       {showPrice ? (
         <FormField
           control={control}
-          name="targetPricePerKg"
-          label={t('batchForm.fieldTargetPrice')}
-          hint={t('batchForm.targetPriceHint')}
+          name="purchasePricePerKg"
+          label={t('batchForm.fieldPurchasePrice')}
+          hint={t('batchForm.purchasePriceHint')}
           placeholder="0.00"
           keyboardType="decimal-pad"
-          required
-          serverError={serverFields.targetPricePerKg}
+          serverError={serverFields.purchasePricePerKg}
         />
       ) : null}
 

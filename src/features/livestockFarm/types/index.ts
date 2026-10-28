@@ -78,6 +78,7 @@ export interface SheepBatch {
   initialHeadCount: number | null;
   averageWeightKg: string | null;
   targetPricePerKg: string | null;
+  purchasePricePerKg?: string | null;
   expectedSaleDate: string | null;
   createdByUserId: string | null;
   /** Server-resolved creator name ("أضيف بواسطة"). */
@@ -99,6 +100,7 @@ export interface CreateSheepBatchInput {
   initialHeadCount?: number | null;
   averageWeightKg?: number | null;
   targetPricePerKg?: number | null;
+  purchasePricePerKg?: number | null;
   expectedSaleDate?: string | null;
 }
 
@@ -183,6 +185,7 @@ export interface SheepBatchSummary {
   ageMonths: number;
   averageWeightKg: string | null;
   targetPricePerKg: string | null;
+  purchasePricePerKg?: string | null;
   expectedSaleDate: string | null;
   totalExpenses: number;
   estimatedProfit: number | null;
@@ -300,6 +303,7 @@ export interface CattleBatch {
   initialHeadCount: number | null;
   averageWeightKg: string | null;
   targetPricePerKg: string | null;
+  purchasePricePerKg?: string | null;
   expectedSaleDate: string | null;
   createdByUserId: string | null;
   /** Server-resolved creator name ("أضيف بواسطة"). */
@@ -321,6 +325,7 @@ export interface CreateCattleBatchInput {
   initialHeadCount?: number | null;
   averageWeightKg?: number | null;
   targetPricePerKg?: number | null;
+  purchasePricePerKg?: number | null;
   expectedSaleDate?: string | null;
 }
 
@@ -405,6 +410,7 @@ export interface CattleBatchSummary {
   ageMonths: number;
   averageWeightKg: string | null;
   targetPricePerKg: string | null;
+  purchasePricePerKg?: string | null;
   expectedSaleDate: string | null;
   totalExpenses: number;
   estimatedProfit: number | null;

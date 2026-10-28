@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
-import { isNotFutureIsoDate, isValidIsoDate } from '@/utils';
+import { isNotFutureIsoDate, isValidIsoDate, normalizeDecimalInput, PRICE_PATTERN } from '@/utils';
 
 import { CATTLE_PRODUCTION_TYPE_ORDER, SHEEP_PRODUCTION_TYPE_ORDER } from '../constants';
 
@@ -137,7 +137,7 @@ export type CreateCattleFarmFormValues = z.infer<ReturnType<typeof buildCreateCa
 
 // --- batch (add/edit) ------------------------------------------
 
-function batchSchemaShape(t: LivestockTFn, requirePrice: boolean) {
+function batchSchemaShape(t: LivestockTFn) {
   return {
     name: z
       .string()
@@ -156,22 +156,22 @@ function batchSchemaShape(t: LivestockTFn, requirePrice: boolean) {
       .min(1, t('batchForm.errors.arrivalRequired'))
       .refine(isValidDate, t('batchForm.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('batchForm.errors.dateFuture')),
-    // The server's estimated profit = head count × avg weight × THIS price − expenses.
-    // Only the farm owner sees / sets it (financial data — backend-enforced); others submit none.
-    targetPricePerKg: requirePrice
-      ? z
-          .string()
-          .trim()
-          .min(1, t('batchForm.errors.priceRequired'))
-          .regex(/^\d{1,10}(\.\d{1,2})?$/, t('batchForm.errors.priceInvalid'))
-      : z.string().trim().optional().or(z.literal('')),
+    // "سعر الشراء للكيلوغرام" — optional, any length, up to two decimals (the DB
+    // scale); Arabic-Indic digits / thousands separators are normalised first.
+    // Financial data: only the farm owner sees / sets it (backend-enforced).
+    purchasePricePerKg: z
+      .string()
+      .transform(normalizeDecimalInput)
+      .refine((v) => v === '' || PRICE_PATTERN.test(v), t('batchForm.errors.priceInvalid'))
+      .refine((v) => v === '' || Number(v) <= 1_000_000_000, t('batchForm.errors.priceInvalid'))
+      .optional(),
     notes: z.string().trim().max(4000, t('batchForm.errors.tooLong')).optional().or(z.literal('')),
   };
 }
 
-export function buildSheepBatchSchema(t: LivestockTFn, opts: { requirePrice?: boolean } = {}) {
+export function buildSheepBatchSchema(t: LivestockTFn) {
   return z.object({
-    ...batchSchemaShape(t, opts.requirePrice ?? true),
+    ...batchSchemaShape(t),
     lambCount: optionalCount,
     maleCount: optionalCount,
     femaleCount: optionalCount,
@@ -179,9 +179,9 @@ export function buildSheepBatchSchema(t: LivestockTFn, opts: { requirePrice?: bo
 }
 export type SheepBatchFormValues = z.infer<ReturnType<typeof buildSheepBatchSchema>>;
 
-export function buildCattleBatchSchema(t: LivestockTFn, opts: { requirePrice?: boolean } = {}) {
+export function buildCattleBatchSchema(t: LivestockTFn) {
   return z.object({
-    ...batchSchemaShape(t, opts.requirePrice ?? true),
+    ...batchSchemaShape(t),
     calfCount: optionalCount,
     bullCount: optionalCount,
     cowCount: optionalCount,

@@ -16,3 +16,4 @@ export { DailyRecordFooter, type DailyRecordFooterProps } from './DailyRecordFoo
 export { FarmQrScannerModal, type FarmQrScannerModalProps } from './FarmQrScannerModal';
 export { FarmAddStaffSheet, type FarmAddStaffSheetProps } from './FarmAddStaffSheet';
 export { CompletedWeeksSection, type CompletedWeeksSectionProps } from './CompletedWeeksSection';
+export { FarmBatchSelect, batchLinkInput } from './FarmBatchSelect';

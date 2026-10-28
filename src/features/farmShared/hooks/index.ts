@@ -12,5 +12,6 @@ export {
   useFarmAppointment,
   useAssignableVeterinarians,
   useAssignFarmAppointment,
+  useActiveFarmBatches,
 } from './useFarmOps';
 export { useFarmMemberChat } from './useFarmMemberChat';

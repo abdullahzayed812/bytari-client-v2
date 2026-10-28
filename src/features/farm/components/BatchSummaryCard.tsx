@@ -63,11 +63,11 @@ export function BatchSummaryCard({
       : [
           {
             icon: 'pricetag-outline' as const,
-            label: t('batch.targetPrice'),
+            label: t('batch.purchasePrice'),
             value:
-              summary.targetPricePerKg != null
+              summary.purchasePricePerKg != null
                 ? t('batch.targetPriceValue', {
-                    price: Number(summary.targetPricePerKg).toLocaleString(),
+                    price: Number(summary.purchasePricePerKg).toLocaleString(),
                   })
                 : t('batch.noTargetPrice'),
           },

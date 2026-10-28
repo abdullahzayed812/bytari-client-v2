@@ -17,6 +17,7 @@ export interface LivestockBatchSummaryLike {
   averageWeightKg: string | null;
   estimatedProfit: number | null;
   targetPricePerKg?: string | number | null;
+  purchasePricePerKg?: string | number | null;
   /** `false` → the caller may not see profit (the server nulled it). */
   financialsVisible?: boolean;
 }
@@ -74,11 +75,11 @@ export function LivestockBatchSummaryCard({
       : [
           {
             icon: 'pricetag-outline' as const,
-            label: t('batch.targetPrice'),
+            label: t('batch.purchasePrice'),
             value:
-              summary.targetPricePerKg != null
+              summary.purchasePricePerKg != null
                 ? t('batch.targetPriceValue', {
-                    price: Number(summary.targetPricePerKg).toLocaleString(),
+                    price: Number(summary.purchasePricePerKg).toLocaleString(),
                   })
                 : t('batch.noTargetPrice'),
           },

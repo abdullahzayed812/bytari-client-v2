@@ -182,6 +182,9 @@ const farm: KuNamespace<'farm'> = {
     fieldBirdCount: 'ژمارەی باڵندەکان',
     fieldCurrentBirdCount: 'باڵندە ماوەکان',
     fieldArrivalDate: 'بەرواری گەیشتن',
+    fieldPurchasePrice: 'نرخی کڕین بۆ هەر کیلۆگرامێک',
+    purchasePriceHint:
+      'نرخەکە بە دیناری عێراقی بۆ هەر کگمێک بنووسە، ژمارەی دەیی ڕێگەپێدراوە (نموونە: 2750.5).',
     fieldTargetPrice: 'نرخی فرۆشتنی چاوەڕوانکراو (بۆ کیلۆ)',
     targetPriceHint: 'بۆ ژماردنی قازانجی چاوەڕوانکراوی دەستە بەکاردێت (د.ع بۆ هەر کگمێک).',
     fieldStatus: 'دۆخ',

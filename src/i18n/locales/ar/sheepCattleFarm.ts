@@ -95,6 +95,7 @@ export default {
     targetPrice: 'سعر البيع للكيلو',
     targetPriceValue: '{{price}} د.ع/كغ',
     noTargetPrice: 'لم يُحدَّد',
+    purchasePrice: 'سعر الشراء للكيلو',
     titleNoNumber: 'الدفعة الحالية',
     statusActive: 'نشط',
     statusClosed: 'مغلق',
@@ -133,6 +134,9 @@ export default {
     fieldBullCount: 'الثيران',
     fieldCowCount: 'الأبقار',
     fieldArrivalDate: 'تاريخ الوصول',
+    fieldPurchasePrice: 'سعر الشراء للكيلوغرام',
+    purchasePriceHint:
+      'اكتب السعر كما هو بالدينار العراقي لكل كغ، ويمكن إدخال كسور عشرية (مثال: 2750.5).',
     fieldTargetPrice: 'سعر البيع المتوقع (للكيلو)',
     targetPriceHint: 'يُستخدم لحساب الربح المتوقع للدفعة (د.ع لكل كغ).',
     arrivalDateHint: 'اكتب التاريخ هكذا: سنة-شهر-يوم',

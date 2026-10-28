@@ -107,9 +107,10 @@ export function useUpdateSheepBatch(organizationId: string) {
       sheepFarmApi.update(organizationId, batchId, body),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: sheepKeys.forOrg(organizationId) });
-      // Selling a batch permanently deletes its expenses, treatments,
-      // vaccinations and sick cases (their cached reads sit under forOrg above).
-      void qc.invalidateQueries({ queryKey: poultryOpsKeys.expenses(organizationId) });
+      // Selling a batch permanently deletes its expenses, appointments,
+      // treatments, vaccinations and sick cases — refresh the farm-wide
+      // expenses / appointments / batch-picker reads too.
+      void qc.invalidateQueries({ queryKey: poultryOpsKeys.forOrg(organizationId) });
     },
   });
 }

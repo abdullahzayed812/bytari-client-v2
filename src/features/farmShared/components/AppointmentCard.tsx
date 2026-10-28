@@ -34,6 +34,11 @@ export function AppointmentCard({
           {appointment.description ? (
             <Caption numberOfLines={2}>{appointment.description}</Caption>
           ) : null}
+          {appointment.batch?.name ? (
+            <Caption numberOfLines={1}>
+              {t('expenses.batchLabel', { name: appointment.batch.name })}
+            </Caption>
+          ) : null}
           {appointment.assignedVeterinarian ? (
             <Caption numberOfLines={1} color="primary">
               {`${t('appointments.assignedVet')}: ${fullName(

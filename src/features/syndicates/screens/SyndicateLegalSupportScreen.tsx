@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
@@ -8,6 +9,8 @@ import { AppHeader } from '@/components/navigation';
 import { Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 import { openPhone } from '@/utils';
+
+import { SyndicateServiceIntro, useSyndicateServiceTitle } from '../components';
 
 /** Contact number shown on the reference "الدعم القانوني" screen. */
 const LEGAL_UNIT_PHONE = '+9642001234503';
@@ -38,10 +41,13 @@ function Bullet({
 export default function SyndicateLegalSupportScreen() {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
+  // Opened from a syndicate → that syndicate's edited title / text ("تعديل الخدمات").
+  const { organizationId } = useLocalSearchParams<{ organizationId?: string }>();
+  const title = useSyndicateServiceTitle(organizationId, 'LEGAL_SUPPORT', t('legalSupport.title'));
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('legalSupport.title')} showBack />
+      <AppHeader title={title} showBack />
       <ScrollView
         contentContainerStyle={{
           padding: theme.screenPadding,
@@ -49,6 +55,7 @@ export default function SyndicateLegalSupportScreen() {
           paddingBottom: theme.spacing.huge,
         }}
       >
+        <SyndicateServiceIntro organizationId={organizationId} serviceKey="LEGAL_SUPPORT" />
         <Label>{t('legalSupport.serviceInfo')}</Label>
         <Text variant="body" color="textSecondary">
           {t('legalSupport.description')}

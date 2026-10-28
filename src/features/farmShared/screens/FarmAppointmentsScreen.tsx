@@ -12,14 +12,24 @@ import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
 import { Caption } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import type { FarmAppointmentCategory } from '@/features/farm/types';
+import type {
+  FarmAppointmentCategory,
+  FarmBatchKind,
+  FarmBatchLinkInput,
+} from '@/features/farm/types';
 import { FARM_APPOINTMENT_CATEGORIES } from '@/features/farm/types';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 import { fullName } from '@/utils';
 
-import { AppointmentCard, DateFieldInput, isValidIsoDate } from '../components';
+import {
+  AppointmentCard,
+  batchLinkInput,
+  DateFieldInput,
+  FarmBatchSelect,
+  isValidIsoDate,
+} from '../components';
 import {
   useAssignableVeterinarians,
   useCreateFarmAppointment,
@@ -28,8 +38,12 @@ import {
 
 type Scope = 'ALL' | FarmAppointmentCategory;
 
-/** Route `/poultry/[organizationId]/sections/appointments` — المواعيد. */
-export default function FarmAppointmentsScreen() {
+/** Route `/poultry/[organizationId]/sections/appointments` — المواعيد (also sheep / cattle farms). */
+export default function FarmAppointmentsScreen({
+  batchKind = 'POULTRY',
+}: {
+  batchKind?: FarmBatchKind;
+}) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
   const toast = useToast();
@@ -120,6 +134,7 @@ export default function FarmAppointmentsScreen() {
 
       <AddAppointmentDialog
         orgId={orgId}
+        batchKind={batchKind}
         visible={formOpen}
         loading={create.isPending}
         onCancel={() => setFormOpen(false)}
@@ -142,21 +157,25 @@ const NO_VET = 'NONE';
 
 function AddAppointmentDialog({
   orgId,
+  batchKind,
   visible,
   loading,
   onSubmit,
   onCancel,
 }: {
   orgId: string;
+  batchKind: FarmBatchKind;
   visible: boolean;
   loading: boolean;
-  onSubmit: (input: {
-    title: string;
-    description?: string;
-    category?: FarmAppointmentCategory;
-    scheduledFor: string;
-    assignedVeterinarianUserId?: string;
-  }) => void;
+  onSubmit: (
+    input: {
+      title: string;
+      description?: string;
+      category?: FarmAppointmentCategory;
+      scheduledFor: string;
+      assignedVeterinarianUserId?: string;
+    } & FarmBatchLinkInput,
+  ) => void;
   onCancel: () => void;
 }) {
   const theme = useTheme();
@@ -172,6 +191,7 @@ function AddAppointmentDialog({
   );
 
   const [vetId, setVetId] = useState<string>(NO_VET);
+  const [batchId, setBatchId] = useState<string | null>(null);
   const vets = useAssignableVeterinarians(orgId, { enabled: visible });
 
   const valid = title.trim().length > 0 && isValidIsoDate(scheduledFor);
@@ -201,6 +221,12 @@ function AddAppointmentDialog({
           label={t('appointments.form.dateLabel')}
           value={scheduledFor}
           onChangeText={setScheduledFor}
+        />
+        <FarmBatchSelect
+          organizationId={orgId}
+          kind={batchKind}
+          value={batchId}
+          onChange={setBatchId}
         />
         {/* "الطبيب المسؤول" — notified on assignment and on the day itself. */}
         <Select<string>
@@ -246,6 +272,7 @@ function AddAppointmentDialog({
                   category: category ?? undefined,
                   scheduledFor,
                   assignedVeterinarianUserId: vetId === NO_VET ? undefined : vetId,
+                  ...batchLinkInput(batchKind, batchId),
                 })
               }
             />

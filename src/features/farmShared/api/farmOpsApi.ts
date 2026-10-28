@@ -1,5 +1,6 @@
 import type {
   CreateFarmAppointmentInput,
+  FarmBatchKind,
   CreateFarmExpenseInput,
   FarmAppointment,
   FarmExpense,
@@ -30,6 +31,20 @@ interface PageQuery {
 
 const farmBase = (orgId: string): string => `/organizations/${orgId}/farm`;
 
+/** Where each batch kind is listed (`?status=ACTIVE` is supported by all three). */
+const BATCH_LIST_PATH: Record<FarmBatchKind, string> = {
+  POULTRY: 'poultry/flocks',
+  SHEEP: 'sheep/batches',
+  CATTLE: 'cattle/batches',
+};
+
+/** A batch an expense / appointment can be linked to. */
+export interface FarmBatchOption {
+  id: string;
+  name: string;
+  batchNumber: number | null;
+}
+
 /**
  * Genuinely cross-farm-type "Farm Details" wrappers — profile header,
  * expenses, appointments. 1:1 with
@@ -59,10 +74,20 @@ export const farmOpsApi = {
     return apiClient.post<FarmProfile>(`${farmBase(orgId)}/profile/image`, input);
   },
 
+  // --- batches (for the optional "الدفعة" link) -------------
+  /** The farm's ACTIVE batches of one kind — only these accept new linked rows. */
+  async listActiveBatches(orgId: string, kind: FarmBatchKind): Promise<FarmBatchOption[]> {
+    const items = await apiClient.get<FarmBatchOption[]>(
+      `/organizations/${orgId}/${BATCH_LIST_PATH[kind]}`,
+      { status: 'ACTIVE', page: 1, pageSize: 100 },
+    );
+    return items.map((b) => ({ id: b.id, name: b.name, batchNumber: b.batchNumber ?? null }));
+  },
+
   // --- expenses ------------------------------------------
   async listExpenses(
     orgId: string,
-    query: PageQuery & { category?: string; poultryFlockId?: string },
+    query: PageQuery & { category?: string },
   ): Promise<Paginated<FarmExpense>> {
     const envelope = await apiClient.requestEnvelope<FarmExpense[]>({
       method: 'GET',

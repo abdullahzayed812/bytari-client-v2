@@ -28,6 +28,8 @@ import type {
   SyndicateSubmission,
   UpdateAnnouncementInput,
   UpdateSyndicateProfileInput,
+  SyndicateServiceItem,
+  UpdateSyndicateServiceInput,
 } from '../types';
 
 const PAGE = AppConfig.defaultPageSize;
@@ -120,6 +122,29 @@ export function useUpdateSyndicateProfile(organizationId: string) {
   return useMutation<PublicSyndicate, ApiError, UpdateSyndicateProfileInput>({
     mutationFn: (input) => syndicatesApi.updateProfile(organizationId, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.syndicate(organizationId) }),
+  });
+}
+
+/** "الخدمات" of a syndicate (custom title / text / visibility per service). */
+export function useSyndicateServices(organizationId: string | undefined) {
+  return useQuery<SyndicateServiceItem[], ApiError>({
+    queryKey: syndicateKeys.services(organizationId ?? '_'),
+    queryFn: () => syndicatesApi.listServices(organizationId as string),
+    enabled: Boolean(organizationId),
+  });
+}
+
+/** Save one service; the list is refreshed from the server afterwards. */
+export function useUpdateSyndicateService(organizationId: string) {
+  const qc = useQueryClient();
+  return useMutation<
+    SyndicateServiceItem,
+    ApiError,
+    { serviceId: string; input: UpdateSyndicateServiceInput }
+  >({
+    mutationFn: ({ serviceId, input }) =>
+      syndicatesApi.updateService(organizationId, serviceId, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: syndicateKeys.services(organizationId) }),
   });
 }
 

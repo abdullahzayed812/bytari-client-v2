@@ -81,8 +81,8 @@ export default function PoultryFlockFormScreen() {
         birdType: flock.birdType,
         birdCount: String(flock.birdCount),
         arrivalDate: flock.arrivalDate,
-        targetPricePerKg:
-          flock.targetPricePerKg != null ? String(Number(flock.targetPricePerKg)) : '',
+        purchasePricePerKg:
+          flock.purchasePricePerKg != null ? String(Number(flock.purchasePricePerKg)) : '',
         notes: flock.notes ?? '',
       }
     : devDataEnabled
@@ -101,8 +101,14 @@ export default function PoultryFlockFormScreen() {
       birdType: values.birdType,
       birdCount: Number(values.birdCount),
       arrivalDate: values.arrivalDate.trim(),
-      targetPricePerKg:
-        showPrice && values.targetPricePerKg ? Number(values.targetPricePerKg) : undefined,
+      // Only the owner sees the field; a cleared price is sent as null on edit.
+      purchasePricePerKg: !showPrice
+        ? undefined
+        : values.purchasePricePerKg
+          ? Number(values.purchasePricePerKg)
+          : isEdit
+            ? null
+            : undefined,
       notes,
     };
 

@@ -13,7 +13,6 @@ export function ExpenseCard({ expense, onPress }: { expense: FarmExpense; onPres
   const theme = useTheme();
   const { t } = useTranslation('poultry');
   const amount = Number(expense.amount);
-  const daily = expense.source === 'DAILY_RECORD' ? (expense.dailyRecord ?? null) : null;
 
   return (
     <Card variant="outlined" padding="md" onPress={onPress}>
@@ -29,11 +28,7 @@ export function ExpenseCard({ expense, onPress }: { expense: FarmExpense; onPres
           }}
         >
           <Icon
-            name={
-              daily
-                ? 'calendar-outline'
-                : (EXPENSE_CATEGORY_ICON[expense.category] ?? 'ellipsis-horizontal')
-            }
+            name={EXPENSE_CATEGORY_ICON[expense.category] ?? 'ellipsis-horizontal'}
             size="iconMd"
             color="primary"
           />
@@ -49,11 +44,9 @@ export function ExpenseCard({ expense, onPress }: { expense: FarmExpense; onPres
               {amount.toLocaleString()} {t('expenses.unit')}
             </Text>
           </View>
-          <Text variant="bodyStrong">
-            {daily ? t('expenses.dailyRecordTitle') : t(`expenses.categories.${expense.category}`)}
-          </Text>
-          {daily?.batchName ? (
-            <Caption>{t('expenses.dailyRecordBatch', { name: daily.batchName })}</Caption>
+          <Text variant="bodyStrong">{t(`expenses.categories.${expense.category}`)}</Text>
+          {expense.batch?.name ? (
+            <Caption>{t('expenses.batchLabel', { name: expense.batch.name })}</Caption>
           ) : null}
           {expense.description ? (
             <>

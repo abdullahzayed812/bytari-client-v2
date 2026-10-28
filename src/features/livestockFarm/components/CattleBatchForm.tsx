@@ -17,7 +17,7 @@ export interface CattleBatchFormProps {
   submitting: boolean;
   formError?: string | null;
   serverFields?: Record<string, string>;
-  /** The sale price is financial data — only the farm owner / admin sees and sets it. */
+  /** The purchase price is financial data — only the farm owner / admin sees and sets it. */
   showPrice?: boolean;
   onSubmit: (values: CattleBatchFormValues) => void;
 }
@@ -38,7 +38,7 @@ const DEFAULTS: CattleBatchFormValues = {
   bullCount: '2',
   cowCount: '20',
   arrivalDate: today(),
-  targetPricePerKg: '',
+  purchasePricePerKg: '',
   notes: '',
 };
 
@@ -54,10 +54,7 @@ export function CattleBatchForm({
 }: CattleBatchFormProps) {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
-  const schema = useMemo(
-    () => buildCattleBatchSchema(t, { requirePrice: showPrice }),
-    [t, showPrice],
-  );
+  const schema = useMemo(() => buildCattleBatchSchema(t), [t]);
 
   const { control, handleSubmit } = useForm<CattleBatchFormValues>({
     resolver: zodResolver(schema),
@@ -92,13 +89,12 @@ export function CattleBatchForm({
       {showPrice ? (
         <FormField
           control={control}
-          name="targetPricePerKg"
-          label={t('batchForm.fieldTargetPrice')}
-          hint={t('batchForm.targetPriceHint')}
+          name="purchasePricePerKg"
+          label={t('batchForm.fieldPurchasePrice')}
+          hint={t('batchForm.purchasePriceHint')}
           placeholder="0.00"
           keyboardType="decimal-pad"
-          required
-          serverError={serverFields.targetPricePerKg}
+          serverError={serverFields.purchasePricePerKg}
         />
       ) : null}
 

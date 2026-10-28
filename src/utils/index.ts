@@ -22,3 +22,4 @@ export {
   withLocalTime,
   withLocalDate,
 } from './localDate';
+export { normalizeDecimalInput, PRICE_PATTERN } from './decimalInput';

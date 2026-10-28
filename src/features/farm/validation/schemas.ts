@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
-import { isNotFutureIsoDate, isValidIsoDate } from '@/utils';
+import { isNotFutureIsoDate, isValidIsoDate, normalizeDecimalInput, PRICE_PATTERN } from '@/utils';
 
 import { POULTRY_PRODUCTION_TYPES, IRAQ_GOVERNORATES } from '../constants';
 import { POULTRY_BIRD_TYPES } from '../types';
@@ -24,12 +24,11 @@ const isNotFuture = (v: string): boolean => isNotFutureIsoDate(v);
  *   birdType    enum                 (required)
  *   birdCount   int 0 … 100_000_000  (required)
  *   arrivalDate YYYY-MM-DD, ≤ today   (required)
- *   targetPricePerKg  decimal ≥ 0    (required — the estimated-profit input)
+ *   purchasePricePerKg decimal ≥ 0, ≤ 2 dp (optional; owner only)
  *   notes       trim ≤ 4000          (optional)
  *   status      enum (edit only)
  */
-export function buildPoultryFlockSchema(t: FarmTFn, opts: { requirePrice?: boolean } = {}) {
-  const requirePrice = opts.requirePrice ?? true;
+export function buildPoultryFlockSchema(t: FarmTFn) {
   return z.object({
     name: z
       .string()
@@ -51,15 +50,15 @@ export function buildPoultryFlockSchema(t: FarmTFn, opts: { requirePrice?: boole
       .min(1, t('poultry.errors.arrivalRequired'))
       .refine(isValidDate, t('poultry.errors.dateFormat'))
       .refine((v) => isValidDate(v) && isNotFuture(v), t('poultry.errors.dateFuture')),
-    // The server's estimated profit = current count × avg weight × THIS price − expenses.
-    // Only the farm owner sees / sets it (financial data — backend-enforced); others submit none.
-    targetPricePerKg: requirePrice
-      ? z
-          .string()
-          .trim()
-          .min(1, t('poultry.errors.priceRequired'))
-          .regex(/^\d{1,10}(\.\d{1,2})?$/, t('poultry.errors.priceInvalid'))
-      : z.string().trim().optional().or(z.literal('')),
+    // "سعر الشراء للكيلوغرام" — optional, any length, up to two decimals (the DB
+    // scale); Arabic-Indic digits / thousands separators are normalised first.
+    // Financial data: only the farm owner sees / sets it (backend-enforced).
+    purchasePricePerKg: z
+      .string()
+      .transform(normalizeDecimalInput)
+      .refine((v) => v === '' || PRICE_PATTERN.test(v), t('poultry.errors.priceInvalid'))
+      .refine((v) => v === '' || Number(v) <= 1_000_000_000, t('poultry.errors.priceInvalid'))
+      .optional(),
     notes: z.string().trim().max(4000, t('poultry.errors.tooLong')).optional().or(z.literal('')),
   });
 }

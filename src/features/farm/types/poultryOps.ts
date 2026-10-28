@@ -181,6 +181,7 @@ export interface BatchSummary {
   ageMonths: number;
   averageWeightGrams: string | null;
   targetPricePerKg: string | null;
+  purchasePricePerKg?: string | null;
   expectedSaleDate: string | null;
   totalExpenses: number;
   estimatedProfit: number | null;
@@ -206,10 +207,34 @@ export interface WeeklySummary {
 
 // --- expenses ---------------------------------------------
 
-export interface FarmExpense {
+/** Which batch kind a farm row is linked to. */
+export type FarmBatchKind = 'POULTRY' | 'SHEEP' | 'CATTLE';
+
+/**
+ * Optional link of a manual expense / appointment to ONE batch of the farm.
+ * Selling that batch permanently deletes the row (server-side).
+ */
+export interface FarmBatchLink {
+  poultryFlockId: string | null;
+  sheepBatchId?: string | null;
+  cattleBatchId?: string | null;
+  /** The linked batch (for display), or null for a farm-wide row. */
+  batch?: { kind: FarmBatchKind; id: string; name: string; batchNumber: number | null } | null;
+}
+
+export interface FarmBatchLinkInput {
+  poultryFlockId?: string | null;
+  sheepBatchId?: string | null;
+  cattleBatchId?: string | null;
+}
+
+/**
+ * A manual expense card ("المصاريف"). Amounts entered in daily batch records
+ * are NOT cards — they only reach the summary totals ({@link FarmExpenseSummary}).
+ */
+export interface FarmExpense extends FarmBatchLink {
   id: string;
   organizationId: string;
-  poultryFlockId: string | null;
   category: FarmExpenseCategory;
   amount: string;
   description: string | null;
@@ -219,33 +244,24 @@ export interface FarmExpense {
   createdBy?: { id: string; firstName: string; lastName: string } | null;
   createdAt: string;
   updatedAt: string;
-  /**
-   * `DAILY_RECORD` = the expense entered in a batch's daily record, listed
-   * read-only here (edited through that daily record; `id` is the record's id).
-   * Older servers omit it → treat as `MANUAL`.
-   */
-  source?: 'MANUAL' | 'DAILY_RECORD';
-  dailyRecord?: {
-    recordId: string;
-    batchKind: 'POULTRY' | 'SHEEP' | 'CATTLE';
-    batchId: string;
-    batchName: string;
-    batchNumber: number | null;
-  } | null;
 }
 
+/** Current operation only (farm-wide + ACTIVE batches); every figure includes daily-record amounts. */
 export interface FarmExpenseSummary {
   totalThisWeek: number;
   totalThisMonth: number;
   dailyAverageThisMonth: number;
+  /** Daily-record expenses of the ACTIVE batches (older servers omit it). */
+  dailyRecordsTotal?: number;
+  manualTotal?: number;
+  overallTotal?: number;
 }
 
-export interface CreateFarmExpenseInput {
+export interface CreateFarmExpenseInput extends FarmBatchLinkInput {
   category: FarmExpenseCategory;
   amount: number;
   description?: string | null;
   spentOn: string;
-  poultryFlockId?: string | null;
 }
 
 // --- health events -------------------------------------
@@ -286,10 +302,9 @@ export interface CreateHealthEventInput {
 
 // --- appointments ------------------------------------
 
-export interface FarmAppointment {
+export interface FarmAppointment extends FarmBatchLink {
   id: string;
   organizationId: string;
-  poultryFlockId: string | null;
   title: string;
   description: string | null;
   category: FarmAppointmentCategory;
@@ -306,12 +321,11 @@ export interface FarmAppointment {
   updatedAt: string;
 }
 
-export interface CreateFarmAppointmentInput {
+export interface CreateFarmAppointmentInput extends FarmBatchLinkInput {
   title: string;
   description?: string | null;
   category?: FarmAppointmentCategory;
   scheduledFor: string;
-  poultryFlockId?: string | null;
   assignedVeterinarianUserId?: string | null;
 }
 

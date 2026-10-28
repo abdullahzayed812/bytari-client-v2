@@ -77,8 +77,8 @@ export default function SheepBatchFormScreen() {
         maleCount: batch.maleCount != null ? String(batch.maleCount) : '',
         femaleCount: batch.femaleCount != null ? String(batch.femaleCount) : '',
         arrivalDate: batch.arrivalDate,
-        targetPricePerKg:
-          batch.targetPricePerKg != null ? String(Number(batch.targetPricePerKg)) : '',
+        purchasePricePerKg:
+          batch.purchasePricePerKg != null ? String(Number(batch.purchasePricePerKg)) : '',
         notes: batch.notes ?? '',
       }
     : {};
@@ -103,8 +103,14 @@ export default function SheepBatchFormScreen() {
       maleCount: toCount(values.maleCount),
       femaleCount: toCount(values.femaleCount),
       arrivalDate: values.arrivalDate.trim(),
-      targetPricePerKg:
-        showPrice && values.targetPricePerKg ? Number(values.targetPricePerKg) : undefined,
+      // Only the owner sees the field; a cleared price is sent as null on edit.
+      purchasePricePerKg: !showPrice
+        ? undefined
+        : values.purchasePricePerKg
+          ? Number(values.purchasePricePerKg)
+          : isEdit
+            ? null
+            : undefined,
       notes,
     };
 

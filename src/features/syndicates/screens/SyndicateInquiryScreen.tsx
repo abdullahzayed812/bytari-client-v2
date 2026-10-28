@@ -18,6 +18,7 @@ import { Routes } from '@/constants/routes';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
+import { SyndicateServiceIntro } from '../components';
 import { useCreateSyndicateSubmission, useSyndicateMediaProvider } from '../hooks';
 import type { SyndicateRequestType } from '../types';
 
@@ -94,6 +95,9 @@ export default function SyndicateInquiryScreen() {
         contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
         keyboardShouldPersistTaps="handled"
       >
+        {!isRequest ? (
+          <SyndicateServiceIntro organizationId={organizationId} serviceKey="INQUIRY" />
+        ) : null}
         {!isRequest ? <Alert tone="info" message={t('inquiry.infoNote')} /> : null}
 
         <FormField

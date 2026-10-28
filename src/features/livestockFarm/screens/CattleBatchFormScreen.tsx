@@ -77,8 +77,8 @@ export default function CattleBatchFormScreen() {
         bullCount: batch.bullCount != null ? String(batch.bullCount) : '',
         cowCount: batch.cowCount != null ? String(batch.cowCount) : '',
         arrivalDate: batch.arrivalDate,
-        targetPricePerKg:
-          batch.targetPricePerKg != null ? String(Number(batch.targetPricePerKg)) : '',
+        purchasePricePerKg:
+          batch.purchasePricePerKg != null ? String(Number(batch.purchasePricePerKg)) : '',
         notes: batch.notes ?? '',
       }
     : {};
@@ -103,8 +103,14 @@ export default function CattleBatchFormScreen() {
       bullCount: toCount(values.bullCount),
       cowCount: toCount(values.cowCount),
       arrivalDate: values.arrivalDate.trim(),
-      targetPricePerKg:
-        showPrice && values.targetPricePerKg ? Number(values.targetPricePerKg) : undefined,
+      // Only the owner sees the field; a cleared price is sent as null on edit.
+      purchasePricePerKg: !showPrice
+        ? undefined
+        : values.purchasePricePerKg
+          ? Number(values.purchasePricePerKg)
+          : isEdit
+            ? null
+            : undefined,
       notes,
     };
 

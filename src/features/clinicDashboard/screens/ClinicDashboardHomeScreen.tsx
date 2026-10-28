@@ -185,6 +185,20 @@ export default function ClinicDashboardHomeScreen() {
             </Row>
           </View>
 
+          {/* --- Followers: a large shortcut near the top (same gate as the Followers page) --- */}
+          {perms?.canSendBroadcast ? (
+            <Section spacing="sm">
+              <View style={{ flexDirection: 'row' }}>
+                <QuickTile
+                  icon="heart-outline"
+                  tone={TONES.rose}
+                  label={t('quick.followers')}
+                  onPress={() => go(Routes.organizationFollowers(orgId))}
+                />
+              </View>
+            </Section>
+          ) : null}
+
           {/* --- Owned-pet search + QR / ID lookup (the primary action) --- */}
           {perms?.canViewAnimals ? (
             <Section spacing="sm">
@@ -444,13 +458,7 @@ export default function ClinicDashboardHomeScreen() {
                   onPress={() => go(Routes.organizationEmployees(orgId))}
                 />
               ) : null}
-              {perms?.canSendBroadcast ? (
-                <SettingRow
-                  icon="heart-outline"
-                  label={t('settings.followers')}
-                  onPress={() => go(Routes.organizationFollowers(orgId))}
-                />
-              ) : null}
+              {/* Followers: the large shortcut at the top of the dashboard. */}
               {perms?.canEditOrganization ? (
                 <SettingRow
                   icon="settings-outline"

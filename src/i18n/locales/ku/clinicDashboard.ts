@@ -39,6 +39,7 @@ const clinicDashboard: KuNamespace<'clinicDashboard'> = {
     appointments: 'ژوانەکان',
     conversations: 'گفتوگۆکان',
     broadcast: 'ناردنی نامە بۆ شوێنکەوتووان',
+    followers: 'شوێنکەوتووان',
     pendingBadge: '{{count}} داواکاری چاوەڕێی وەڵام',
     unreadBadge: '{{count}} نامەی نەخوێندراو',
   },

@@ -47,6 +47,7 @@ export interface PoultryFlock {
   averageWeightGrams: string | null;
   /** Optional planned sale price, used for the profit estimate. `numeric` → string. */
   targetPricePerKg: string | null;
+  purchasePricePerKg?: string | null;
   expectedSaleDate: string | null;
   /** The farm member who registered the flock. UUID — no name-resolution endpoint. */
   createdByUserId: string | null;
@@ -66,6 +67,7 @@ export interface CreatePoultryFlockInput {
   initialBirdCount?: number | null;
   averageWeightGrams?: number | null;
   targetPricePerKg?: number | null;
+  purchasePricePerKg?: number | null;
   expectedSaleDate?: string | null;
 }
 
@@ -79,6 +81,7 @@ export interface UpdatePoultryFlockInput {
   initialBirdCount?: number | null;
   averageWeightGrams?: number | null;
   targetPricePerKg?: number | null;
+  purchasePricePerKg?: number | null;
   expectedSaleDate?: string | null;
 }
 

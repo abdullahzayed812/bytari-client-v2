@@ -13,6 +13,7 @@ import { SafeAreaScreen } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Label } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import { IRAQ_GOVERNORATES } from '@/features/vetServices';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -182,6 +183,14 @@ function EditForm({ syndicate }: { syndicate: PublicSyndicate }) {
             />
           ) : null}
         </View>
+
+        <Button
+          label={t('edit.editServices')}
+          variant="outline"
+          leftIcon="grid-outline"
+          fullWidth
+          onPress={() => router.push(Routes.syndicateServicesEdit(syndicate.id))}
+        />
 
         <FormField control={control} name="name" label={t('admin.name')} />
         <FormField

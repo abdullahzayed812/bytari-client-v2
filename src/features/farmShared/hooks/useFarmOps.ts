@@ -7,6 +7,7 @@ import type {
   FarmAppointment,
   FarmAppointmentCategory,
   FarmPersonName,
+  FarmBatchKind,
   FarmExpense,
   FarmExpenseSummary,
   FarmProfile,
@@ -15,7 +16,7 @@ import type {
 } from '@/features/farm/types';
 import { ApiError } from '@/services/api';
 
-import { farmOpsApi } from '../api';
+import { farmOpsApi, type FarmBatchOption } from '../api';
 
 const noRetryOn403 = (count: number, error: unknown): boolean =>
   !(error instanceof ApiError && (error.status === 403 || error.status === 404)) && count < 2;
@@ -46,7 +47,7 @@ export function useUpdateFarmProfile(orgId: string) {
 /** "المصاريف" — list + the three summary cards. */
 export function useFarmExpenses(
   orgId: string | undefined,
-  filter: { category?: string; poultryFlockId?: string; pageSize?: number } = {},
+  filter: { category?: string; pageSize?: number } = {},
   options: { enabled?: boolean } = {},
 ) {
   const query = { page: 1, pageSize: filter.pageSize ?? 20, category: filter.category };
@@ -69,6 +70,21 @@ export function useFarmExpenseSummary(
     enabled: Boolean(orgId) && (options.enabled ?? true),
     retry: noRetryOn403,
     staleTime: 15_000,
+  });
+}
+
+/** The farm's ACTIVE batches of one kind, for the optional "الدفعة" picker. */
+export function useActiveFarmBatches(
+  orgId: string | undefined,
+  kind: FarmBatchKind,
+  options: { enabled?: boolean } = {},
+) {
+  return useQuery<FarmBatchOption[], ApiError>({
+    queryKey: [...poultryOpsKeys.forOrg(orgId ?? 'unknown'), 'active-batches', kind],
+    queryFn: () => farmOpsApi.listActiveBatches(orgId as string, kind),
+    enabled: Boolean(orgId) && (options.enabled ?? true),
+    retry: noRetryOn403,
+    staleTime: 30_000,
   });
 }
 

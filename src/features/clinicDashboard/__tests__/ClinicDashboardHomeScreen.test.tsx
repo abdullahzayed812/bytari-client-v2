@@ -130,6 +130,9 @@ describe('ClinicDashboardHomeScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/animals/open');
     fireEvent.press(screen.getByRole('button', { name: 'إرسال رسالة للمتابعين' }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/broadcast');
+    // The large Followers shortcut near the top opens the existing Followers page.
+    fireEvent.press(screen.getByRole('button', { name: 'المتابعون' }));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/followers');
     fireEvent.press(screen.getByText('ملف العيادة'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1');
     // One Employees entry replaces Members / Veterinarians / Supervisors.
@@ -166,6 +169,7 @@ describe('ClinicDashboardHomeScreen', () => {
     expect(screen.queryByText('فتح حيوان برقم المعرف')).toBeNull();
     expect(screen.queryByText('إرسال رسالة للمتابعين')).toBeNull();
     expect(screen.queryByText('إعدادات العيادة')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'المتابعون' })).toBeNull();
     expect(screen.queryByText('سجلات اليوم')).toBeNull();
     expect(screen.getByText('مواعيد اليوم')).toBeOnTheScreen();
     expect(listAnimals).not.toHaveBeenCalled();

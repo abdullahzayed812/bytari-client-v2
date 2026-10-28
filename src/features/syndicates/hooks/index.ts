@@ -5,6 +5,8 @@ export {
   useMySyndicateAccess,
   useSyndicateBranches,
   useUpdateSyndicateProfile,
+  useSyndicateServices,
+  useUpdateSyndicateService,
   useFollowSyndicate,
   useUnfollowSyndicate,
   useSyndicateAnnouncements,

@@ -13,6 +13,8 @@ export const syndicateKeys = {
     [...syndicateKeys.syndicates(), 'detail', organizationId] as const,
   myAccess: (organizationId: string) =>
     [...syndicateKeys.syndicates(), 'my-access', organizationId] as const,
+  services: (organizationId: string) =>
+    [...syndicateKeys.syndicates(), 'services', organizationId] as const,
 
   announcements: () => [...syndicateKeys.all, 'announcements'] as const,
   announcementList: (organizationId: string) =>

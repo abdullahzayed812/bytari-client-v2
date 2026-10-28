@@ -195,7 +195,7 @@ export default function ApplyForJobScreen() {
           </View>
 
           <View style={{ rowGap: theme.spacing.xs }}>
-            <Label>{t('form.photo')}</Label>
+            <Label>{t('form.applicationPhoto')}</Label>
             <ImageUploader
               value={null}
               provider={attachmentProvider}
@@ -204,7 +204,7 @@ export default function ApplyForJobScreen() {
               onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
               onBusyChange={setPhotoUploading}
             />
-            <Caption>{t('form.photoHint')}</Caption>
+            <Caption>{t('form.applicationPhotoHint')}</Caption>
           </View>
 
           {apply.isError ? <Alert tone="danger" message={apiErrorMessage(apply.error)} /> : null}

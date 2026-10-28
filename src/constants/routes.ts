@@ -315,6 +315,8 @@ export const Routes = {
   syndicateMembersBroadcast: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/members/broadcast` as const,
   syndicateEdit: (organizationId: string) => `/(app)/syndicates/${organizationId}/edit` as const,
+  syndicateServicesEdit: (organizationId: string) =>
+    `/(app)/syndicates/${organizationId}/services` as const,
   syndicateAdminNew: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/admins/new` as const,
   syndicateMy: '/(app)/syndicates/my',

@@ -177,6 +177,9 @@ export default {
     fieldBirdCount: 'عدد الطيور',
     fieldCurrentBirdCount: 'الطيور المتبقية',
     fieldArrivalDate: 'تاريخ الوصول',
+    fieldPurchasePrice: 'سعر الشراء للكيلوغرام',
+    purchasePriceHint:
+      'اكتب السعر كما هو بالدينار العراقي لكل كغ، ويمكن إدخال كسور عشرية (مثال: 2750.5).',
     fieldTargetPrice: 'سعر البيع المتوقع (للكيلو)',
     targetPriceHint: 'يُستخدم لحساب الربح المتوقع للدفعة (د.ع لكل كغ).',
     fieldStatus: 'الحالة',

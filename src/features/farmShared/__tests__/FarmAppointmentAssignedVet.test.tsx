@@ -39,6 +39,9 @@ beforeEach(() => {
     { id: 'v1', firstName: 'سارة', lastName: 'علي' },
     { id: 'v2', firstName: 'أحمد', lastName: 'حسن' },
   ]);
+  jest
+    .spyOn(farmOpsApi, 'listActiveBatches')
+    .mockResolvedValue([{ id: 'f1', name: 'الدفعة الأولى', batchNumber: 1 }]);
 });
 afterEach(() => jest.restoreAllMocks());
 
@@ -69,5 +72,25 @@ describe('Farm appointments — responsible veterinarian', () => {
         assignedVeterinarianUserId: 'v2',
       }),
     );
+  });
+
+  it('an appointment can be linked to an active batch (deleted when that batch is sold)', async () => {
+    const create = jest.spyOn(farmOpsApi, 'createAppointment').mockResolvedValue(appointment);
+    renderWithProviders(<FarmAppointmentsScreen />);
+    fireEvent.press(await screen.findByRole('button', { name: 'إضافة موعد' }));
+    fireEvent.changeText(screen.UNSAFE_getAllByType(TextInput)[0]!, 'زيارة');
+    fireEvent.changeText(screen.getByPlaceholderText('2026-9-1'), '2027-03-10');
+
+    // The picker is enabled once the farm's active batches have loaded.
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'الدفعة (اختياري)' })).toBeEnabled(),
+    );
+    fireEvent.press(screen.getByRole('button', { name: 'الدفعة (اختياري)' }));
+    fireEvent.press(await screen.findByText('الدفعة الأولى (#1)'));
+    fireEvent.press(screen.getByRole('button', { name: 'حفظ' }));
+
+    await waitFor(() => expect(create).toHaveBeenCalled());
+    expect(create).toHaveBeenCalledWith('farm1', expect.objectContaining({ poultryFlockId: 'f1' }));
+    expect(farmOpsApi.listActiveBatches).toHaveBeenCalledWith('farm1', 'POULTRY');
   });
 });

@@ -65,6 +65,7 @@ const clinicDashboard = {
     appointments: 'المواعيد',
     conversations: 'المحادثات',
     broadcast: 'إرسال رسالة للمتابعين',
+    followers: 'المتابعون',
     quickReview: 'مراجعة سريعة',
     fullExam: 'فحص كامل',
     vaccinations: 'التطعيمات',

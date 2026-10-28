@@ -171,6 +171,9 @@ export default {
     cvHint: 'الحد الأقصى 5 ميجابايت',
     photo: 'صورة شخصية (اختياري)',
     photoHint: 'JPG أو PNG، الحد الأقصى 5 ميجابايت',
+    applicationPhoto: 'صورة مرفقة بالطلب (اختياري)',
+    applicationPhotoHint:
+      'JPG أو PNG أو WEBP، الحد الأقصى 8 ميجابايت. تظهر لصاحب الإعلان مع طلبك فقط.',
     coverNote: 'معلومات إضافية (اختياري)',
     coverNotePlaceholder: 'أي معلومات إضافية تود إضافتها',
 
@@ -217,6 +220,7 @@ export default {
 
   applicants: {
     title: 'المتقدمون على الوظيفة',
+    viewImage: 'عرض الصورة المرفقة بالطلب',
     empty: 'لا يوجد متقدمون',
     emptyHint: 'ستظهر هنا طلبات المتقدمين على هذه الوظيفة.',
     accept: 'قبول',

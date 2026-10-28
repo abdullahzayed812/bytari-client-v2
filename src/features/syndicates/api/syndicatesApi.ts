@@ -19,6 +19,8 @@ import type {
   SyndicateSubmission,
   UpdateAnnouncementInput,
   UpdateSyndicateProfileInput,
+  SyndicateServiceItem,
+  UpdateSyndicateServiceInput,
 } from '../types';
 
 function meta(m: unknown, page: number, pageSize: number, count: number): ApiPageMeta {
@@ -96,6 +98,22 @@ export const syndicatesApi = {
     input: UpdateSyndicateProfileInput,
   ): Promise<PublicSyndicate> {
     return apiClient.patch<PublicSyndicate>(`/syndicates/${organizationId}/profile`, input);
+  },
+
+  // --- services ("الخدمات") ------------------------------------
+  listServices(organizationId: string): Promise<SyndicateServiceItem[]> {
+    return apiClient.get<SyndicateServiceItem[]>(`/syndicates/${organizationId}/services`);
+  },
+  /** Edits the existing service in place (syndicate.profile.manage). */
+  updateService(
+    organizationId: string,
+    serviceId: string,
+    input: UpdateSyndicateServiceInput,
+  ): Promise<SyndicateServiceItem> {
+    return apiClient.patch<SyndicateServiceItem>(
+      `/syndicates/${organizationId}/services/${serviceId}`,
+      input,
+    );
   },
 
   // --- announcements --------------------------------------------

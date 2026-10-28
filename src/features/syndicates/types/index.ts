@@ -226,3 +226,37 @@ export interface Paginated<T> {
   items: T[];
   meta: PageMeta;
 }
+
+// --- services ("الخدمات") ---------------------------------------------
+
+export const SYNDICATE_SERVICE_KEYS = [
+  'ID_CARD',
+  'INQUIRY',
+  'ANNOUNCEMENTS',
+  'REGISTER_DOCTORS',
+  'LEGAL_SUPPORT',
+  'OFFICE_LICENSES',
+] as const;
+export type SyndicateServiceKey = (typeof SYNDICATE_SERVICE_KEYS)[number];
+
+/**
+ * One of a syndicate's six services. `title` / `description` null = the app's
+ * built-in text; `isEnabled: false` hides the tile from the syndicate page.
+ */
+export interface SyndicateServiceItem {
+  id: string;
+  organizationId: string;
+  serviceKey: SyndicateServiceKey;
+  title: string | null;
+  description: string | null;
+  isEnabled: boolean;
+  sortOrder: number;
+  updatedAt: string;
+}
+
+export interface UpdateSyndicateServiceInput {
+  /** Blank → back to the built-in title. */
+  title?: string | null;
+  description?: string | null;
+  isEnabled?: boolean;
+}

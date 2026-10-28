@@ -7,7 +7,8 @@ import CattleIndividualCasesScreen from './CattleIndividualCasesScreen';
 import CattleTreatmentsScreen from './CattleTreatmentsScreen';
 import CattleWeeklyReportScreen from './CattleWeeklyReportScreen';
 
-export type CattleFarmSection = 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly';
+export type CattleFarmSection =
+  'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly';
 
 /** Route `/(app)/livestock/cattle/[organizationId]/sections/[section]`. Mirrors `SheepSectionScreen`. */
 export default function CattleSectionScreen() {
@@ -18,9 +19,9 @@ export default function CattleSectionScreen() {
     case 'cases':
       return <CattleIndividualCasesScreen />;
     case 'appointments':
-      return <FarmAppointmentsScreen />;
+      return <FarmAppointmentsScreen batchKind="CATTLE" />;
     case 'expenses':
-      return <FarmExpensesScreen />;
+      return <FarmExpensesScreen batchKind="CATTLE" />;
     case 'weekly':
       return <CattleWeeklyReportScreen />;
     case 'daily':

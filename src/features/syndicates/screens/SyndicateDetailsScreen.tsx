@@ -24,8 +24,10 @@ import {
   useSyndicate,
   useSyndicateAnnouncements,
   useSyndicateRegistration,
+  useSyndicateServices,
   useUnfollowSyndicate,
 } from '../hooks';
+import { findService, SYNDICATE_SERVICE_TILES } from '../serviceTiles';
 
 /** One management tile — optional unread badge + secondary line (e.g. pending count). */
 function ManageTile({
@@ -63,45 +65,6 @@ function ManageTile({
   );
 }
 
-const SERVICE_TILES = [
-  {
-    key: 'idCard',
-    labelKey: 'home.servicesTiles.idCard',
-    icon: 'card-outline' as const,
-    route: 'idRequirements' as const,
-  },
-  {
-    key: 'inquiry',
-    labelKey: 'home.servicesTiles.inquiry',
-    icon: 'chatbubble-ellipses-outline' as const,
-    route: 'inquiry' as const,
-  },
-  {
-    key: 'announcements',
-    labelKey: 'home.servicesTiles.announcements',
-    icon: 'megaphone-outline' as const,
-    route: 'announcements' as const,
-  },
-  {
-    key: 'registerDoctors',
-    labelKey: 'home.servicesTiles.registerDoctors',
-    icon: 'person-add-outline' as const,
-    route: 'register' as const,
-  },
-  {
-    key: 'legalSupport',
-    labelKey: 'home.servicesTiles.legalSupport',
-    icon: 'scale-outline' as const,
-    route: 'legalSupport' as const,
-  },
-  {
-    key: 'officeLicenses',
-    labelKey: 'home.servicesTiles.officeLicenses',
-    icon: 'business-outline' as const,
-    route: 'officeLicenses' as const,
-  },
-] as const;
-
 /**
  * Route `/(app)/syndicates/[organizationId]` — the syndicate home, main or
  * branch (reference screenshot 1 / screenshot 5 "فرع النقابة - بغداد").
@@ -116,6 +79,7 @@ export default function SyndicateDetailsScreen() {
   const q = useSyndicate(organizationId);
   const announcements = useSyndicateAnnouncements(organizationId);
   const access = useMySyndicateAccess(organizationId);
+  const services = useSyndicateServices(organizationId);
   const follow = useFollowSyndicate(organizationId ?? '_');
   const unfollow = useUnfollowSyndicate(organizationId ?? '_');
   const registration = useSyndicateRegistration(organizationId ?? '_');
@@ -174,11 +138,14 @@ export default function SyndicateDetailsScreen() {
     });
   };
 
-  const onServiceTile = (route: (typeof SERVICE_TILES)[number]['route']): void => {
+  const onServiceTile = (route: (typeof SYNDICATE_SERVICE_TILES)[number]['route']): void => {
     if (!organizationId) return;
+    // The info pages read this syndicate's edited title / description.
+    const withSyndicate = (pathname: string) =>
+      router.push({ pathname: pathname as never, params: { organizationId } });
     switch (route) {
       case 'idRequirements':
-        router.push(Routes.syndicateIdRequirements);
+        withSyndicate(Routes.syndicateIdRequirements);
         return;
       case 'inquiry':
         router.push(Routes.syndicateInquiry(organizationId));
@@ -187,10 +154,10 @@ export default function SyndicateDetailsScreen() {
         router.push(Routes.syndicateAnnouncements(organizationId));
         return;
       case 'legalSupport':
-        router.push(Routes.syndicateLegalSupport);
+        withSyndicate(Routes.syndicateLegalSupport);
         return;
       case 'officeLicenses':
-        router.push(Routes.syndicateOfficeLicenses);
+        withSyndicate(Routes.syndicateOfficeLicenses);
         return;
       case 'register':
         onRegister();
@@ -361,20 +328,25 @@ export default function SyndicateDetailsScreen() {
         <View style={{ rowGap: theme.spacing.sm }}>
           <Text variant="bodyStrong">{t('home.services')}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-            {SERVICE_TILES.map((tile) => (
-              <Card
-                key={tile.key}
-                variant="outlined"
-                padding="md"
-                onPress={() => onServiceTile(tile.route)}
-                style={{ width: '31%', alignItems: 'center', rowGap: 6 }}
-              >
-                <Icon name={tile.icon} size="iconMd" color="primary" />
-                <Caption style={{ textAlign: 'center' }} numberOfLines={2}>
-                  {t(tile.labelKey)}
-                </Caption>
-              </Card>
-            ))}
+            {SYNDICATE_SERVICE_TILES.map((tile) => {
+              // The syndicate's edited title / visibility ("تعديل الخدمات").
+              const saved = findService(services.data, tile.serviceKey);
+              if (saved && !saved.isEnabled) return null;
+              return (
+                <Card
+                  key={tile.serviceKey}
+                  variant="outlined"
+                  padding="md"
+                  onPress={() => onServiceTile(tile.route)}
+                  style={{ width: '31%', alignItems: 'center', rowGap: 6 }}
+                >
+                  <Icon name={tile.icon} size="iconMd" color="primary" />
+                  <Caption style={{ textAlign: 'center' }} numberOfLines={2}>
+                    {saved?.title || t(tile.labelKey as never)}
+                  </Caption>
+                </Card>
+              );
+            })}
           </View>
         </View>
 

@@ -12,19 +12,33 @@ import { AppHeader } from '@/components/navigation';
 import { Modal } from '@/components/overlays';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
-import type { FarmExpenseCategory } from '@/features/farm/types';
+import type { FarmBatchKind, FarmBatchLinkInput, FarmExpenseCategory } from '@/features/farm/types';
 import { FARM_EXPENSE_CATEGORIES } from '@/features/farm/types';
 import { apiErrorMessage } from '@/lib/apiError';
 import { devDataEnabled } from '@/lib/env';
 import { useTheme } from '@/theme';
 
-import { DateFieldInput, ExpenseCard, isValidIsoDate } from '../components';
+import {
+  batchLinkInput,
+  DateFieldInput,
+  ExpenseCard,
+  FarmBatchSelect,
+  isValidIsoDate,
+} from '../components';
 import { useCreateFarmExpense, useFarmExpenseSummary, useFarmExpenses } from '../hooks';
 
 type Scope = FarmExpenseCategory | 'ALL';
 
-/** Route `/poultry/[organizationId]/sections/expenses` — المصاريف. */
-export default function FarmExpensesScreen() {
+/**
+ * Route `/poultry/[organizationId]/sections/expenses` — المصاريف (also the
+ * sheep / cattle farms' section). Cards = manual expenses only, newest added
+ * first; amounts entered in daily batch records are in the totals at the top.
+ */
+export default function FarmExpensesScreen({
+  batchKind = 'POULTRY',
+}: {
+  batchKind?: FarmBatchKind;
+}) {
   const theme = useTheme();
   const { t } = useTranslation('poultry');
   const toast = useToast();
@@ -58,6 +72,18 @@ export default function FarmExpensesScreen() {
             />
             <SummaryTile label={t('expenses.monthTotal')} value={summary.data.totalThisMonth} />
             <SummaryTile label={t('expenses.weekTotal')} value={summary.data.totalThisWeek} />
+            {summary.data.dailyRecordsTotal != null ? (
+              <SummaryTile
+                label={t('expenses.dailyRecordsTotal')}
+                value={summary.data.dailyRecordsTotal}
+              />
+            ) : null}
+            {summary.data.overallTotal != null ? (
+              <SummaryTile label={t('expenses.overallTotal')} value={summary.data.overallTotal} />
+            ) : null}
+            {summary.data.dailyRecordsTotal != null ? (
+              <Caption style={{ flexBasis: '100%' }}>{t('expenses.dailyRecordsHint')}</Caption>
+            ) : null}
           </View>
         ) : null}
 
@@ -91,14 +117,10 @@ export default function FarmExpensesScreen() {
           <View style={{ rowGap: theme.spacing.md }}>
             {list.data?.items.map((expense) => (
               <ExpenseCard
-                key={`${expense.source ?? 'MANUAL'}-${expense.id}`}
+                key={expense.id}
                 expense={expense}
-                // Daily-record expenses are edited through their daily record.
-                onPress={
-                  expense.source === 'DAILY_RECORD'
-                    ? undefined
-                    : () =>
-                        router.push(Routes.poultryFarmSectionItem(orgId, 'expenses', expense.id))
+                onPress={() =>
+                  router.push(Routes.poultryFarmSectionItem(orgId, 'expenses', expense.id))
                 }
               />
             ))}
@@ -117,6 +139,8 @@ export default function FarmExpensesScreen() {
       </View>
 
       <AddExpenseDialog
+        organizationId={orgId}
+        batchKind={batchKind}
         visible={formOpen}
         loading={create.isPending}
         onCancel={() => setFormOpen(false)}
@@ -160,19 +184,25 @@ function SummaryTile({ label, value }: { label: string; value: number }) {
 }
 
 function AddExpenseDialog({
+  organizationId,
+  batchKind,
   visible,
   loading,
   onSubmit,
   onCancel,
 }: {
+  organizationId: string;
+  batchKind: FarmBatchKind;
   visible: boolean;
   loading: boolean;
-  onSubmit: (input: {
-    category: FarmExpenseCategory;
-    amount: number;
-    spentOn: string;
-    description?: string;
-  }) => void;
+  onSubmit: (
+    input: {
+      category: FarmExpenseCategory;
+      amount: number;
+      spentOn: string;
+      description?: string;
+    } & FarmBatchLinkInput,
+  ) => void;
   onCancel: () => void;
 }) {
   const theme = useTheme();
@@ -186,6 +216,7 @@ function AddExpenseDialog({
     devDataEnabled ? new Date().toISOString().slice(0, 10) : '',
   );
   const [description, setDescription] = useState(devDataEnabled ? 'شراء علف لمدة أسبوع' : '');
+  const [batchId, setBatchId] = useState<string | null>(null);
 
   const amountNum = Number(amount);
   const valid = category !== null && amountNum > 0 && isValidIsoDate(spentOn);
@@ -209,11 +240,17 @@ function AddExpenseDialog({
         />
         <Input
           label={t('expenses.amountLabel')}
-          keyboardType="number-pad"
+          keyboardType="decimal-pad"
           value={amount}
           onChangeText={setAmount}
         />
         <DateFieldInput label={t('expenses.dateLabel')} value={spentOn} onChangeText={setSpentOn} />
+        <FarmBatchSelect
+          organizationId={organizationId}
+          kind={batchKind}
+          value={batchId}
+          onChange={setBatchId}
+        />
         <Input
           label={t('expenses.descriptionLabel')}
           multiline
@@ -244,6 +281,7 @@ function AddExpenseDialog({
                   amount: amountNum,
                   spentOn,
                   description: description.trim() || undefined,
+                  ...batchLinkInput(batchKind, batchId),
                 })
               }
             />

@@ -2,3 +2,4 @@ export { SyndicateAnnouncementTypeBadge, SyndicateSubmissionStatusBadge } from '
 export { SyndicateBranchCard } from './SyndicateBranchCard';
 export { AnnouncementCard } from './AnnouncementCard';
 export { SyndicateCounterBadges } from './SyndicateCounterBadges';
+export { SyndicateServiceIntro, useSyndicateServiceTitle } from './SyndicateServiceIntro';

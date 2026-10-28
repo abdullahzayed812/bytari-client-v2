@@ -163,7 +163,7 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('creates a flock with a numeric birdCount, the owner-entered sale price and the route organization id', async () => {
+  it('creates a flock with a numeric birdCount, the owner-entered purchase price and the route organization id', async () => {
     create.mockResolvedValueOnce(flock());
     renderWithProviders(<PoultryFlockFormScreen />);
     fireEvent.changeText(
@@ -171,7 +171,8 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
       'قطيع الشمال',
     );
     fireEvent.changeText(screen.getByPlaceholderText('0'), '500');
-    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '2500');
+    // Any length, thousands separator and decimals are fine (no 3-digit limit).
+    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '12,500.75');
     // unpadded month / day is accepted (the server normalizes it)
     fireEvent.changeText(screen.getByPlaceholderText('YYYY-M-D'), '2026-1-2');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
@@ -182,21 +183,27 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
           name: 'قطيع الشمال',
           birdCount: 500,
           arrivalDate: '2026-1-2',
-          targetPricePerKg: 2500,
+          purchasePricePerKg: 12500.75,
         }),
       ),
     );
   });
 
-  it('an owner cannot create a batch without its sale price (the estimated-profit input)', async () => {
+  it('the purchase price is optional; an invalid one blocks the save', async () => {
+    create.mockResolvedValueOnce(flock());
     renderWithProviders(<PoultryFlockFormScreen />);
     fireEvent.changeText(await screen.findByPlaceholderText('مثال: قطيع الحظيرة الشمالية'), 'x');
     fireEvent.changeText(screen.getByPlaceholderText('0'), '10');
     fireEvent.changeText(screen.getByPlaceholderText('YYYY-M-D'), '2026-01-02');
+    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '12.345');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
-    await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeOnTheScreen());
-    await new Promise((r) => setTimeout(r, 50));
+    expect(await screen.findByText('أدخل سعراً صحيحاً (حتى منزلتين عشريتين).')).toBeOnTheScreen();
     expect(create).not.toHaveBeenCalled();
+
+    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '');
+    fireEvent.press(screen.getByRole('button', { name: 'حفظ القطيع' }));
+    await waitFor(() => expect(create).toHaveBeenCalled());
+    expect(create.mock.calls[0]?.[1]).not.toHaveProperty('purchasePricePerKg', expect.anything());
   });
 
   it('edit mode prefills the flock and PATCHes it', async () => {
@@ -206,8 +213,9 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     renderWithProviders(<PoultryFlockFormScreen />);
     await waitFor(() => expect(screen.getByDisplayValue('قطيع الشمال')).toBeOnTheScreen());
     expect(screen.getByDisplayValue('500')).toBeOnTheScreen();
-    // The owner sees the sale price field (the estimated-profit input) and must fill it.
-    await screen.findByText(/سعر البيع المتوقع/);
+    // The owner sees the purchase price field (replaces the expected sale price).
+    await screen.findByText(/سعر الشراء للكيلوغرام/);
+    expect(screen.queryByText(/سعر البيع المتوقع/)).toBeNull();
     const price = screen.getByPlaceholderText('0.00');
     fireEvent.changeText(price, '3.25');
     fireEvent.press(screen.getByRole('button', { name: 'حفظ التعديلات' }));
@@ -215,12 +223,12 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
       expect(update).toHaveBeenCalledWith(
         'o1',
         'f1',
-        expect.objectContaining({ name: 'قطيع الشمال', birdCount: 500, targetPricePerKg: 3.25 }),
+        expect.objectContaining({ name: 'قطيع الشمال', birdCount: 500, purchasePricePerKg: 3.25 }),
       ),
     );
   });
 
-  it('a farm veterinarian edits without seeing or sending the sale price', async () => {
+  it('a farm veterinarian edits without seeing or sending the purchase price', async () => {
     setSearchParams({ organizationId: 'o1', flockId: 'f1' });
     getOrg.mockResolvedValue({ id: 'o1', type: 'FARM', myRole: 'VETERINARIAN' } as never);
     detail.mockResolvedValue(flock());
@@ -228,11 +236,11 @@ describe('PoultryFlockFormScreen (§15, §32)', () => {
     renderWithProviders(<PoultryFlockFormScreen />);
     await waitFor(() => expect(screen.getByDisplayValue('قطيع الشمال')).toBeOnTheScreen());
     await waitFor(() => expect(getOrg).toHaveBeenCalled());
-    expect(screen.queryByText(/سعر البيع المتوقع/)).toBeNull();
+    expect(screen.queryByText(/سعر الشراء للكيلوغرام/)).toBeNull();
     expect(screen.queryByPlaceholderText('0.00')).toBeNull();
     fireEvent.press(screen.getByRole('button', { name: 'حفظ التعديلات' }));
     await waitFor(() => expect(update).toHaveBeenCalled());
-    expect(update.mock.calls[0]?.[2]).not.toHaveProperty('targetPricePerKg', expect.anything());
+    expect(update.mock.calls[0]?.[2]).not.toHaveProperty('purchasePricePerKg', expect.anything());
   });
 
   it('maps a 409 POULTRY_FLOCK_NOT_ACTIVE to the closed-flock message', async () => {

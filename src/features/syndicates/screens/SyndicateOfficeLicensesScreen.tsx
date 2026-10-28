@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
@@ -7,6 +8,8 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
+
+import { SyndicateServiceIntro, useSyndicateServiceTitle } from '../components';
 
 function Bullet({ children }: { children: string }) {
   const theme = useTheme();
@@ -24,10 +27,17 @@ function Bullet({ children }: { children: string }) {
 export default function SyndicateOfficeLicensesScreen() {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
+  // Opened from a syndicate → that syndicate's edited title / text ("تعديل الخدمات").
+  const { organizationId } = useLocalSearchParams<{ organizationId?: string }>();
+  const title = useSyndicateServiceTitle(
+    organizationId,
+    'OFFICE_LICENSES',
+    t('officeLicenses.title'),
+  );
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('officeLicenses.title')} showBack />
+      <AppHeader title={title} showBack />
       <ScrollView
         contentContainerStyle={{
           padding: theme.screenPadding,
@@ -35,6 +45,7 @@ export default function SyndicateOfficeLicensesScreen() {
           paddingBottom: theme.spacing.huge,
         }}
       >
+        <SyndicateServiceIntro organizationId={organizationId} serviceKey="OFFICE_LICENSES" />
         <Label>{t('officeLicenses.requirements')}</Label>
 
         <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>

@@ -35,12 +35,16 @@ describe('buildPoultryFlockSchema — mirrors the backend', () => {
     expect(schema.safeParse(valid).success).toBe(true);
   });
 
-  it('requires a valid sale price (the estimated-profit input) unless the viewer cannot see financials', () => {
-    expect(schema.safeParse({ ...valid, targetPricePerKg: '' }).success).toBe(false);
-    expect(schema.safeParse({ ...valid, targetPricePerKg: 'abc' }).success).toBe(false);
-    expect(schema.safeParse({ ...valid, targetPricePerKg: '1.234' }).success).toBe(false);
-    const noPrice = buildPoultryFlockSchema(t, { requirePrice: false });
-    expect(noPrice.safeParse({ ...valid, targetPricePerKg: '' }).success).toBe(true);
+  it('purchase price per kg: optional, any length, decimals allowed, typed digits normalised', () => {
+    const parse = (v: string) => schema.safeParse({ ...valid, purchasePricePerKg: v });
+    for (const ok of ['', '0', '999', '1500', '123456789', '2750.5', '1,500.75', '١٥٠٠']) {
+      expect(parse(ok).success).toBe(true);
+    }
+    expect(parse('1,500.75').data?.purchasePricePerKg).toBe('1500.75');
+    expect(parse('١٥٠٠').data?.purchasePricePerKg).toBe('1500');
+    for (const bad of ['abc', '-5', '1.234', '2000000000']) {
+      expect(parse(bad).success).toBe(false);
+    }
   });
 
   it('requires name / bird count / arrival date', () => {

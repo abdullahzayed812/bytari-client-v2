@@ -98,6 +98,7 @@ const sheepCattleFarm: KuNamespace<'sheepCattleFarm'> = {
     targetPrice: 'نرخی فرۆشتن بۆ کیلۆ',
     targetPriceValue: '{{price}} د.ع/کگم',
     noTargetPrice: 'دیاری نەکراوە',
+    purchasePrice: 'نرخی کڕین بۆ کیلۆ',
     titleNoNumber: 'دەستەی ئێستا',
     statusActive: 'چالاک',
     statusClosed: 'داخراو',
@@ -137,6 +138,9 @@ const sheepCattleFarm: KuNamespace<'sheepCattleFarm'> = {
     fieldBullCount: 'گاکان',
     fieldCowCount: 'مانگاکان',
     fieldArrivalDate: 'بەرواری گەیشتن',
+    fieldPurchasePrice: 'نرخی کڕین بۆ هەر کیلۆگرامێک',
+    purchasePriceHint:
+      'نرخەکە بە دیناری عێراقی بۆ هەر کگمێک بنووسە، ژمارەی دەیی ڕێگەپێدراوە (نموونە: 2750.5).',
     fieldTargetPrice: 'نرخی فرۆشتنی چاوەڕوانکراو (بۆ کیلۆ)',
     targetPriceHint: 'بۆ ژماردنی قازانجی چاوەڕوانکراوی دەستە بەکاردێت (د.ع بۆ هەر کگمێک).',
     arrivalDateHint: 'بەروار بەم شێوەیە بنووسە: ساڵ-مانگ-ڕۆژ',

@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
@@ -13,11 +13,12 @@ import {
   Loading,
   useToast,
 } from '@/components/feedback';
-import { useCloseConversation } from '@/features/chat';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { useCloseConversation } from '@/features/chat';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -140,6 +141,7 @@ function ApplicantRow({
   const { t } = useTranslation('vetJobs');
   const toast = useToast();
   const [endingHire, setEndingHire] = useState(false);
+  const [viewingImage, setViewingImage] = useState(false);
   // Reuses the existing chat "إيقاف المحادثة" capability — no new chat system.
   const closeConversation = useCloseConversation(application.conversationId ?? '');
 
@@ -156,11 +158,16 @@ function ApplicantRow({
   return (
     <Card variant="outlined" padding="md">
       <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
-        <View
+        {/* The image the applicant attached to this application (optional) — tap to enlarge. */}
+        <Pressable
+          disabled={!application.photoUrl}
+          accessibilityRole={application.photoUrl ? 'imagebutton' : undefined}
+          accessibilityLabel={application.photoUrl ? t('applicants.viewImage') : undefined}
+          onPress={() => setViewingImage(true)}
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 22,
+            width: 56,
+            height: 56,
+            borderRadius: theme.radius.md,
             backgroundColor: theme.colors.primarySoft,
             alignItems: 'center',
             justifyContent: 'center',
@@ -170,12 +177,13 @@ function ApplicantRow({
           {application.photoUrl ? (
             <Image
               source={{ uri: application.photoUrl }}
+              contentFit="cover"
               style={{ width: '100%', height: '100%' }}
             />
           ) : (
             <Icon name="person" size="iconMd" color="primary" />
           )}
-        </View>
+        </Pressable>
         <View style={{ flex: 1, rowGap: 4 }}>
           <Text variant="bodyStrong" numberOfLines={1}>
             {application.fullName}
@@ -235,6 +243,13 @@ function ApplicantRow({
         onConfirm={onEndHiring}
         onCancel={() => setEndingHire(false)}
       />
+      {application.photoUrl ? (
+        <ImageViewer
+          visible={viewingImage}
+          images={[application.photoUrl]}
+          onClose={() => setViewingImage(false)}
+        />
+      ) : null}
     </Card>
   );
 }

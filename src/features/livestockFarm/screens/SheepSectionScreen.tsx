@@ -7,7 +7,8 @@ import SheepIndividualCasesScreen from './SheepIndividualCasesScreen';
 import SheepTreatmentsScreen from './SheepTreatmentsScreen';
 import SheepWeeklyReportScreen from './SheepWeeklyReportScreen';
 
-export type SheepFarmSection = 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly';
+export type SheepFarmSection =
+  'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly';
 
 /** Route `/(app)/livestock/sheep/[organizationId]/sections/[section]` — dispatches by section. Mirrors the poultry sections switch. */
 export default function SheepSectionScreen() {
@@ -18,9 +19,9 @@ export default function SheepSectionScreen() {
     case 'cases':
       return <SheepIndividualCasesScreen />;
     case 'appointments':
-      return <FarmAppointmentsScreen />;
+      return <FarmAppointmentsScreen batchKind="SHEEP" />;
     case 'expenses':
-      return <FarmExpensesScreen />;
+      return <FarmExpensesScreen batchKind="SHEEP" />;
     case 'weekly':
       return <SheepWeeklyReportScreen />;
     case 'daily':

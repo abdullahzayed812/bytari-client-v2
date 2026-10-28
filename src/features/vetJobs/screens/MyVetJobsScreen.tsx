@@ -1,9 +1,10 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
-import { Button, TextButton } from '@/components/actions';
+import { TextButton } from '@/components/actions';
 import { Badge, Card, Icon } from '@/components/content';
 import {
   ConfirmationDialog,
@@ -275,14 +276,24 @@ function ApplicationRow({ application }: { application: VetJobApplication }) {
       padding="md"
       onPress={() => application.offer && router.push(Routes.vetJobOffer(application.offer.id))}
     >
-      <View style={{ rowGap: 4 }}>
-        <Text variant="bodyStrong" numberOfLines={1}>
-          {application.offer?.title ?? ''}
-        </Text>
-        <Caption numberOfLines={1}>{application.offer?.organizationName ?? ''}</Caption>
-        <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-          <VetJobApplicationStatusBadge status={application.status} />
-          <Caption>{formatDate(application.createdAt)}</Caption>
+      <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+        {/* The image the applicant attached to THIS application (never the poster's photo). */}
+        {application.photoUrl ? (
+          <Image
+            source={{ uri: application.photoUrl }}
+            contentFit="cover"
+            style={{ width: 56, height: 56, borderRadius: theme.radius.md }}
+          />
+        ) : null}
+        <View style={{ flex: 1, rowGap: 4 }}>
+          <Text variant="bodyStrong" numberOfLines={1}>
+            {application.offer?.title ?? ''}
+          </Text>
+          <Caption numberOfLines={1}>{application.offer?.organizationName ?? ''}</Caption>
+          <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
+            <VetJobApplicationStatusBadge status={application.status} />
+            <Caption>{formatDate(application.createdAt)}</Caption>
+          </View>
         </View>
       </View>
     </Card>
