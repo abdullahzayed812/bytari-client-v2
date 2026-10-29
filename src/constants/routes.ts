@@ -317,6 +317,9 @@ export const Routes = {
   syndicateEdit: (organizationId: string) => `/(app)/syndicates/${organizationId}/edit` as const,
   syndicateServicesEdit: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/services` as const,
+  /** "تعديل محتوى الصفحة" of one content-page service (sections + items). */
+  syndicateServiceContentEdit: (organizationId: string, serviceKey: string) =>
+    `/(app)/syndicates/${organizationId}/service-content?serviceKey=${serviceKey}` as const,
   syndicateAdminNew: (organizationId: string) =>
     `/(app)/syndicates/${organizationId}/admins/new` as const,
   syndicateMy: '/(app)/syndicates/my',

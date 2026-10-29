@@ -1,74 +1,62 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 
-import { Card, Divider, Icon } from '@/components/content';
-import { Alert } from '@/components/feedback';
+import { Loading } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
-import { Caption, Label, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 
-import { SyndicateServiceIntro, useSyndicateServiceTitle } from '../components';
+import {
+  SyndicateServiceContentEditAction,
+  SyndicateServiceContentView,
+  SyndicateServiceIntro,
+  useSyndicateServiceContent,
+  useSyndicateServiceTitle,
+} from '../components';
 
-function Bullet({ children }: { children: string }) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.xs }}>
-      <Icon name="checkmark-circle" size="iconXs" color="primary" />
-      <Text variant="body" style={{ flex: 1 }}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-/** Route `/(app)/syndicates/office-licenses` — "إجازات المكاتب والعيادات" (static content). */
+/**
+ * Route `/(app)/syndicates/office-licenses` — "إجازات المكاتب والعيادات". Opened from a syndicate
+ * (`?organizationId=`) → that syndicate's edited title / text / page content
+ * ("تعديل الخدمات" / "تعديل محتوى الصفحة"); otherwise the built-in content.
+ */
 export default function SyndicateOfficeLicensesScreen() {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
-  // Opened from a syndicate → that syndicate's edited title / text ("تعديل الخدمات").
   const { organizationId } = useLocalSearchParams<{ organizationId?: string }>();
   const title = useSyndicateServiceTitle(
     organizationId,
     'OFFICE_LICENSES',
     t('officeLicenses.title'),
   );
+  const page = useSyndicateServiceContent(organizationId, 'OFFICE_LICENSES');
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={title} showBack />
-      <ScrollView
-        contentContainerStyle={{
-          padding: theme.screenPadding,
-          rowGap: theme.spacing.lg,
-          paddingBottom: theme.spacing.huge,
-        }}
-      >
-        <SyndicateServiceIntro organizationId={organizationId} serviceKey="OFFICE_LICENSES" />
-        <Label>{t('officeLicenses.requirements')}</Label>
-
-        <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>
-          <Text variant="bodyStrong">{t('officeLicenses.newTitle')}</Text>
-          <Bullet>{t('officeLicenses.newItem1')}</Bullet>
-          <Bullet>{t('officeLicenses.newItem2')}</Bullet>
-          <Bullet>{t('officeLicenses.newItem3')}</Bullet>
-          <Bullet>{t('officeLicenses.newItem4')}</Bullet>
-          <Bullet>{t('officeLicenses.newItem5')}</Bullet>
-        </Card>
-
-        <Divider />
-
-        <Card variant="outlined" padding="md" style={{ rowGap: theme.spacing.sm }}>
-          <Text variant="bodyStrong">{t('officeLicenses.renewTitle')}</Text>
-          <Bullet>{t('officeLicenses.renewItem1')}</Bullet>
-          <Bullet>{t('officeLicenses.renewItem2')}</Bullet>
-          <Bullet>{t('officeLicenses.renewItem3')}</Bullet>
-        </Card>
-
-        <Caption color="textMuted">{t('officeLicenses.processingTime')}</Caption>
-        <Alert tone="info" message={t('officeLicenses.note')} />
-      </ScrollView>
+      <AppHeader
+        title={title}
+        showBack
+        right={
+          <SyndicateServiceContentEditAction
+            organizationId={organizationId}
+            serviceKey="OFFICE_LICENSES"
+          />
+        }
+      />
+      {page.isLoading ? (
+        <Loading fill />
+      ) : (
+        <ScrollView
+          contentContainerStyle={{
+            padding: theme.screenPadding,
+            rowGap: theme.spacing.lg,
+            paddingBottom: theme.spacing.huge,
+          }}
+        >
+          <SyndicateServiceIntro organizationId={organizationId} serviceKey="OFFICE_LICENSES" />
+          <SyndicateServiceContentView content={page.content} />
+        </ScrollView>
+      )}
     </SafeAreaScreen>
   );
 }

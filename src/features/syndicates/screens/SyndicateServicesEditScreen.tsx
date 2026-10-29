@@ -1,19 +1,21 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 
-import { Button } from '@/components/actions';
+import { Button, TextButton } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
 import { Alert, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Input, Switch } from '@/components/forms';
 import { Row, SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { useMySyndicateAccess, useSyndicateServices, useUpdateSyndicateService } from '../hooks';
+import { hasContentPage } from '../serviceContent';
 import { serviceTileFor } from '../serviceTiles';
 import type { SyndicateServiceItem } from '../types';
 
@@ -140,6 +142,16 @@ function ServiceEditor({
           disabled={!dirty || update.isPending || Boolean(titleError || descriptionError)}
           onPress={onSave}
         />
+        {/* The page's sections + items ("المتطلبات" …) are edited on their own screen. */}
+        {hasContentPage(service.serviceKey) ? (
+          <TextButton
+            label={t('serviceContent.edit')}
+            icon="list-outline"
+            onPress={() =>
+              router.push(Routes.syndicateServiceContentEdit(organizationId, service.serviceKey))
+            }
+          />
+        ) : null}
       </View>
     </Card>
   );

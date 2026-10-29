@@ -33,30 +33,41 @@ describe('My requests & inquiries — new reply counters', () => {
   beforeEach(() => resetRouterMock());
   afterEach(() => jest.restoreAllMocks());
 
-  it('shows each tab’s new-reply count and clears only the open tab', async () => {
+  it('marks only the unread replies shown (by id) and keeps their "new" chip for this visit', async () => {
     jest
       .spyOn(syndicatesApi, 'listMySubmissions')
       .mockImplementation(
-        async ({ kind }) => page(kind === 'REQUEST' ? [] : [submission({})]) as never,
+        async ({ kind }) =>
+          page(
+            kind === 'REQUEST'
+              ? []
+              : [
+                  submission({ id: 'sub1', isUnread: true }),
+                  submission({ id: 'sub2', isUnread: false, message: 'سؤال قديم' }),
+                ],
+          ) as never,
       );
     const unseen = jest
       .spyOn(notificationsApi, 'syndicateRepliesUnseen')
-      .mockResolvedValueOnce({ inquiries: 2, requests: 1, total: 3 })
+      .mockResolvedValueOnce({ inquiries: 1, requests: 1, total: 2 })
       .mockResolvedValue({ inquiries: 0, requests: 1, total: 1 });
     const seen = jest
-      .spyOn(notificationsApi, 'markSyndicateRepliesSeen')
-      .mockResolvedValue({ updated: 2 });
+      .spyOn(syndicatesApi, 'markMySubmissionsSeen')
+      .mockResolvedValue({ submissionIds: ['sub1'] });
 
     renderWithProviders(<MySyndicateSubmissionsScreen />);
 
-    await waitFor(() => expect(seen).toHaveBeenCalledWith('INQUIRY'));
-    expect(seen).not.toHaveBeenCalledWith('REQUEST');
-    // After clearing, the inquiries tab loses its count; requests keeps (1).
+    await waitFor(() => expect(seen).toHaveBeenCalledWith(['sub1']));
+    expect(seen).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByText('رد جديد')).toHaveLength(1);
+    // The badge is refetched from the server: inquiries cleared, requests keeps (1).
     expect(await screen.findByText('طلباتي (1)')).toBeTruthy();
     await waitFor(() => expect(screen.getByText('استفساراتي')).toBeTruthy());
     expect(unseen).toHaveBeenCalledTimes(2);
 
+    // The requests tab has nothing unread loaded → nothing else is marked.
     fireEvent.press(screen.getByText('طلباتي (1)'));
-    await waitFor(() => expect(seen).toHaveBeenCalledWith('REQUEST'));
+    await waitFor(() => expect(screen.getByText('لا توجد طلبات')).toBeTruthy());
+    expect(seen).toHaveBeenCalledTimes(1);
   });
 });

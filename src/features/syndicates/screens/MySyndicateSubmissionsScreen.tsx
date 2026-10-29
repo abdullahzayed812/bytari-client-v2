@@ -1,25 +1,24 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
-import { Card, Icon } from '@/components/content';
+import { Badge, Card, Icon } from '@/components/content';
 import { EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SegmentedControl } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
-import {
-  useMarkSyndicateRepliesSeen,
-  useSyndicateReplyUnseenCounts,
-} from '@/features/notifications';
+import { useSyndicateReplyUnseenCounts } from '@/features/notifications';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { syndicateKeys } from '../api';
 import { SyndicateSubmissionStatusBadge } from '../components';
-import { useMySyndicateSubmissions } from '../hooks';
+import {
+  useMarkSubmissionsSeenOnView,
+  useMySyndicateSubmissions,
+  useSyndicateSubmissionsRealtime,
+} from '../hooks';
 import type { SyndicateSubmission, SyndicateSubmissionKind } from '../types';
 
 /** Route `/(app)/syndicates/my` — "طلباتي واستفساراتي" ("متابعة الطلب من خلال حسابك"). */
@@ -28,14 +27,10 @@ export default function MySyndicateSubmissionsScreen() {
   const { t } = useTranslation('syndicates');
   const [kind, setKind] = useState<SyndicateSubmissionKind>('INQUIRY');
   const q = useMySyndicateSubmissions({ kind });
-  const qc = useQueryClient();
   const replies = useSyndicateReplyUnseenCounts();
-  // Viewing a tab clears that tab's new-reply badge and reloads it so the reply shows.
-  useMarkSyndicateRepliesSeen(
-    kind,
-    kind === 'INQUIRY' ? replies.inquiries : replies.requests,
-    () => void qc.invalidateQueries({ queryKey: syndicateKeys.mySubmissions({ kind }) }),
-  );
+  useSyndicateSubmissionsRealtime();
+  // Viewing the list reads the replies it shows (per submission, not the whole tab).
+  const fresh = useMarkSubmissionsSeenOnView('mine', q.submissions);
   const withCount = (label: string, n: number): string =>
     n > 0 ? `${label} (${n > 99 ? '99+' : n})` : label;
 
@@ -69,7 +64,7 @@ export default function MySyndicateSubmissionsScreen() {
         <FlatList
           data={q.submissions}
           keyExtractor={(s) => s.id}
-          renderItem={({ item }) => <SubmissionRow submission={item} />}
+          renderItem={({ item }) => <SubmissionRow submission={item} isNew={fresh.has(item.id)} />}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
           ListEmptyComponent={
             <EmptyState
@@ -96,7 +91,14 @@ export default function MySyndicateSubmissionsScreen() {
   );
 }
 
-function SubmissionRow({ submission }: { submission: SyndicateSubmission }) {
+function SubmissionRow({
+  submission,
+  isNew,
+}: {
+  submission: SyndicateSubmission;
+  /** Its reply was unread when this visit opened the list. */
+  isNew: boolean;
+}) {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
@@ -107,6 +109,7 @@ function SubmissionRow({ submission }: { submission: SyndicateSubmission }) {
         <Caption numberOfLines={1} style={{ flex: 1 }}>
           {submission.syndicateName}
         </Caption>
+        {isNew ? <Badge tone="danger" size="sm" label={t('mySubmissions.newReply')} /> : null}
         <SyndicateSubmissionStatusBadge status={submission.status} />
       </View>
       {submission.requestType ? (

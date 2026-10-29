@@ -130,7 +130,10 @@ describe('ClinicDashboardHomeScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/animals/open');
     fireEvent.press(screen.getByRole('button', { name: 'إرسال رسالة للمتابعين' }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/clinic-dashboard/c1/broadcast');
-    // The large Followers shortcut near the top opens the existing Followers page.
+    // One Followers tile, right beside "إرسال رسالة للمراجعين", opens the existing Followers page.
+    const labels = screen.getAllByRole('button').map((b) => b.props.accessibilityLabel as string);
+    expect(labels.filter((l) => l === 'المتابعون')).toHaveLength(1);
+    expect(labels.indexOf('المتابعون')).toBe(labels.indexOf('إرسال رسالة للمراجعين') + 1);
     fireEvent.press(screen.getByRole('button', { name: 'المتابعون' }));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/organizations/c1/followers');
     fireEvent.press(screen.getByText('ملف العيادة'));

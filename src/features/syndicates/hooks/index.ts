@@ -30,6 +30,8 @@ export {
   useMembersBroadcastImageProvider,
   useAssignSyndicateAdmin,
   useMarkSyndicateSubmissionSeen,
+  useMarkSubmissionsSeenOnView,
+  useSyndicateSubmissionsRealtime,
 } from './useSyndicates';
 export {
   useCreateSyndicateAdmin,

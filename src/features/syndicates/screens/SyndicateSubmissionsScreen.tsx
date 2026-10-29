@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 
 import { Button, TextButton } from '@/components/actions';
-import { Card, Chip, Icon } from '@/components/content';
+import { Badge, Card, Chip, Icon } from '@/components/content';
 import {
   ConfirmationDialog,
   EmptyState,
@@ -26,9 +26,11 @@ import { formatDate } from '@/utils';
 import { SyndicateSubmissionStatusBadge } from '../components';
 import {
   useCloseSyndicateSubmission,
+  useMarkSubmissionsSeenOnView,
   useMarkSyndicateSubmissionSeen,
   useRespondToSyndicateSubmission,
   useSyndicateSubmissions,
+  useSyndicateSubmissionsRealtime,
 } from '../hooks';
 import type { SyndicateSubmission, SyndicateSubmissionKind } from '../types';
 
@@ -51,6 +53,12 @@ export default function SyndicateSubmissionsScreen() {
   // Opening an item marks this officer's "new submission" alert read, which
   // is what lowers the syndicate card's unread counter.
   const markSeen = useMarkSyndicateSubmissionSeen(organizationId ?? '');
+  // Opening the page reads the new submissions it shows (per row, this officer only).
+  const fresh = useMarkSubmissionsSeenOnView(
+    organizationId ? { organizationId } : null,
+    q.submissions,
+  );
+  useSyndicateSubmissionsRealtime();
   const [responding, setResponding] = useState<SyndicateSubmission | null>(null);
   const [closing, setClosing] = useState<SyndicateSubmission | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
@@ -110,6 +118,9 @@ export default function SyndicateSubmissionsScreen() {
                   </Text>
                   <Caption>{formatDate(item.createdAt)}</Caption>
                 </View>
+                {fresh.has(item.id) ? (
+                  <Badge tone="danger" size="sm" label={t('management.newSubmission')} />
+                ) : null}
                 <SyndicateSubmissionStatusBadge status={item.status} />
               </View>
               {item.requestType ? (

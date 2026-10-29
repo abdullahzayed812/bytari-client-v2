@@ -187,6 +187,22 @@ export const syndicatesApi = {
       `/syndicates/${organizationId}/submissions/${id}/close`,
     );
   },
+  /** Clears the officer's "new submission" alerts for exactly these submissions. */
+  markSubmissionsSeen(
+    organizationId: string,
+    submissionIds: string[],
+  ): Promise<{ submissionIds: string[] }> {
+    return apiClient.post<{ submissionIds: string[] }>(
+      `/syndicates/${organizationId}/submissions/seen`,
+      { submissionIds },
+    );
+  },
+  /** Clears the submitter's "new reply" alerts for exactly these (own) submissions. */
+  markMySubmissionsSeen(submissionIds: string[]): Promise<{ submissionIds: string[] }> {
+    return apiClient.post<{ submissionIds: string[] }>('/syndicates/submissions/mine/seen', {
+      submissionIds,
+    });
+  },
   listMySubmissions(
     params: { page: number; pageSize: number } & MySubmissionListFilter,
   ): Promise<Paginated<SyndicateSubmission>> {

@@ -11,7 +11,6 @@ import type {
   PetCareSection,
   PetUnseenCounts,
   RegisteredDevice,
-  SyndicateReplyKind,
   SyndicateReplyUnseenCounts,
 } from '../types';
 
@@ -144,13 +143,6 @@ export const notificationsApi = {
     const inquiries = Number(res?.inquiries ?? 0);
     const requests = Number(res?.requests ?? 0);
     return { inquiries, requests, total: inquiries + requests };
-  },
-
-  async markSyndicateRepliesSeen(kind: SyndicateReplyKind): Promise<{ updated: number }> {
-    const res = await apiClient.post<{ updated: number }>('/notifications/syndicate-replies/seen', {
-      kind,
-    });
-    return { updated: Number(res?.updated ?? 0) };
   },
 
   getPreferences(): Promise<NotificationPreferences> {

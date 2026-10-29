@@ -195,6 +195,11 @@ export interface SyndicateSubmission {
   responseText: string | null;
   respondedAt: string | null;
   createdAt: string;
+  /**
+   * List reads: the CALLER still has an unread alert for it — an officer's
+   * "new submission", or the submitter's "new reply". Server-computed.
+   */
+  isUnread?: boolean;
 }
 
 export interface CreateSubmissionInput {
@@ -251,7 +256,37 @@ export interface SyndicateServiceItem {
   description: string | null;
   isEnabled: boolean;
   sortOrder: number;
+  /** Edited page content (ID_CARD / LEGAL_SUPPORT / OFFICE_LICENSES); `null` = built-in. */
+  content?: SyndicateServiceContent | null;
   updatedAt: string;
+}
+
+/** CHECK = green ✓ bullets (requirements), NOTE = amber ! bullets (notes). */
+export type SyndicateContentSectionStyle = 'CHECK' | 'NOTE';
+
+export interface SyndicateContentItem {
+  id: string;
+  text: string;
+}
+
+export interface SyndicateContentSection {
+  id: string;
+  title: string;
+  style: SyndicateContentSectionStyle;
+  items: SyndicateContentItem[];
+}
+
+/** A service page's content document — array order is display order. */
+export interface SyndicateServiceContent {
+  /** Label above the sections ("المتطلبات" / "معلومات الخدمة"). */
+  heading: string | null;
+  /** Intro paragraph under the heading. */
+  body: string | null;
+  sections: SyndicateContentSection[];
+  /** Muted line after the sections (e.g. processing time). */
+  footnote: string | null;
+  /** Info box at the bottom. */
+  note: string | null;
 }
 
 export interface UpdateSyndicateServiceInput {
@@ -259,4 +294,6 @@ export interface UpdateSyndicateServiceInput {
   title?: string | null;
   description?: string | null;
   isEnabled?: boolean;
+  /** Whole page document; `null` = back to the built-in content. */
+  content?: SyndicateServiceContent | null;
 }

@@ -26,6 +26,7 @@ import {
   useSyndicateAnnouncements,
   useSyndicateRegistration,
   useSyndicateServices,
+  useSyndicateSubmissionsRealtime,
   useUnfollowSyndicate,
 } from '../hooks';
 import { findService, SYNDICATE_SERVICE_TILES } from '../serviceTiles';
@@ -83,6 +84,8 @@ export default function SyndicateDetailsScreen() {
   // New syndicate replies to the viewer's own requests / inquiries (header badge).
   const replies = useSyndicateReplyUnseenCounts();
   const services = useSyndicateServices(organizationId);
+  // New inquiries / replies refresh the counters + badges while this screen is open.
+  useSyndicateSubmissionsRealtime();
   const follow = useFollowSyndicate(organizationId ?? '_');
   const unfollow = useUnfollowSyndicate(organizationId ?? '_');
   const registration = useSyndicateRegistration(organizationId ?? '_');

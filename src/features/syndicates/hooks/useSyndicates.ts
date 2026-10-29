@@ -5,12 +5,14 @@ import {
   useQueryClient,
   type InfiniteData,
 } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { AppConfig } from '@/constants/config';
+import { notificationKeys } from '@/features/notifications/api';
 import { organizationsApi } from '@/features/organizations';
 import { ApiError } from '@/services/api';
 import type { LocalFile, PresignProvider } from '@/services/media';
+import { realtimeClient } from '@/services/realtime';
 
 import { syndicateKeys, syndicatesApi, type SyndicateMediaKind } from '../api';
 import type {
@@ -388,6 +390,73 @@ export function useAssignSyndicateAdmin(organizationId: string) {
 }
 
 /** Fetching one submission marks this officer's "new submission" alert read server-side. */
+/**
+ * "Opening the page reads what it shows": every submission the list renders
+ * with `isUnread` is marked read for the caller — by id, so rows not loaded
+ * (later pages, the other tab) stay unread. `scope` is the syndicate for an
+ * officer's "new submission" alerts, or `'mine'` for the submitter's "new
+ * reply" alerts. Each id is sent once per screen visit; the server is
+ * idempotent anyway. Returns the ids that were new on this visit so the rows
+ * keep their "new" chip until the user leaves.
+ */
+export function useMarkSubmissionsSeenOnView(
+  scope: { organizationId: string } | 'mine' | null,
+  submissions: SyndicateSubmission[],
+): ReadonlySet<string> {
+  const qc = useQueryClient();
+  const sent = useRef(new Set<string>());
+  const [fresh, setFresh] = useState<ReadonlySet<string>>(() => new Set());
+  const organizationId = scope && scope !== 'mine' ? scope.organizationId : null;
+  const enabled = scope !== null;
+  const { mutate } = useMutation<{ submissionIds: string[] }, ApiError, string[]>({
+    mutationFn: (ids) =>
+      organizationId
+        ? syndicatesApi.markSubmissionsSeen(organizationId, ids)
+        : syndicatesApi.markMySubmissionsSeen(ids),
+    onSuccess: () => {
+      // Badges are server-computed — refetch them rather than decrementing locally.
+      void qc.invalidateQueries({ queryKey: notificationKeys.syndicateRepliesUnseen() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+      void qc.invalidateQueries({ queryKey: notificationKeys.lists() });
+      void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+    },
+    onError: (_e, ids) => ids.forEach((id) => sent.current.delete(id)),
+  });
+
+  useEffect(() => {
+    if (!enabled) return;
+    const ids = submissions.filter((s) => s.isUnread && !sent.current.has(s.id)).map((s) => s.id);
+    if (ids.length === 0) return;
+    ids.forEach((id) => sent.current.add(id));
+    setFresh((prev) => new Set([...prev, ...ids]));
+    mutate(ids);
+  }, [enabled, submissions, mutate]);
+
+  return fresh;
+}
+
+/**
+ * While a syndicate screen is open, a new alert (a reply to my inquiry, a new
+ * inquiry for my syndicate) refetches the submission lists + the syndicate
+ * counters, so the rows and badges follow realtime without a manual refresh.
+ */
+export function useSyndicateSubmissionsRealtime(): void {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const subs = [
+      realtimeClient.on('notification.created', () => {
+        void qc.invalidateQueries({ queryKey: syndicateKeys.submissions() });
+        void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+      }),
+      // Read elsewhere (another device / the inbox) → counters drop here too.
+      realtimeClient.on('notification.read', () => {
+        void qc.invalidateQueries({ queryKey: syndicateKeys.syndicates() });
+      }),
+    ];
+    return () => subs.forEach((s) => s.unsubscribe());
+  }, [qc]);
+}
+
 export function useMarkSyndicateSubmissionSeen(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<SyndicateSubmission, ApiError, string>({

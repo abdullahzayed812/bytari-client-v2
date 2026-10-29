@@ -15,4 +15,5 @@ export { default as SyndicateMemberDetailsScreen } from './SyndicateMemberDetail
 export { default as SyndicateMembersBroadcastScreen } from './SyndicateMembersBroadcastScreen';
 export { default as SyndicateEditScreen } from './SyndicateEditScreen';
 export { default as SyndicateServicesEditScreen } from './SyndicateServicesEditScreen';
+export { default as SyndicateServiceContentEditScreen } from './SyndicateServiceContentEditScreen';
 export { default as AssignSyndicateAdminScreen } from './AssignSyndicateAdminScreen';

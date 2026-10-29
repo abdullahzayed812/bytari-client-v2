@@ -67,6 +67,8 @@ export default function ApplyForJobScreen() {
   const [photoStorageKey, setPhotoStorageKey] = useState<string | null>(null);
   const [cvUploading, setCvUploading] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
+  // Bumped on remove so the uploader remounts empty (its preview is local state).
+  const [photoFieldKey, setPhotoFieldKey] = useState(0);
 
   const schema = useMemo(
     () =>
@@ -197,12 +199,23 @@ export default function ApplyForJobScreen() {
           <View style={{ rowGap: theme.spacing.xs }}>
             <Label>{t('form.applicationPhoto')}</Label>
             <ImageUploader
+              key={photoFieldKey}
               value={null}
               provider={attachmentProvider}
               shape="square"
               size={120}
+              replaceable
               onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
-              onBusyChange={setPhotoUploading}
+              onRemove={() => {
+                setPhotoStorageKey(null);
+                setPhotoUploading(false);
+                setPhotoFieldKey((k) => k + 1);
+              }}
+              onBusyChange={(busy) => {
+                setPhotoUploading(busy);
+                // A replacement upload drops the previous key until it succeeds.
+                if (busy) setPhotoStorageKey(null);
+              }}
             />
             <Caption>{t('form.applicationPhotoHint')}</Caption>
           </View>
