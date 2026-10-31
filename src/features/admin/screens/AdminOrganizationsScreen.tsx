@@ -54,7 +54,12 @@ function statusTone(s: OrganizationStatus): 'success' | 'warning' | 'danger' | '
  * "المكاتب" / "نقابة الأطباء البيطريين" cards); omitted shows every type,
  * same as before this param existed.
  */
-type Scope = 'all' | 'pending' | 'deleted' | 'renewals';
+type Scope = 'all' | 'pending' | 'expired' | 'deleted' | 'renewals';
+
+/** An approved organization whose subscription has run out — badged "منتهية الاشتراك", not "نشطة". */
+function isSubscriptionExpired(o: Organization): boolean {
+  return o.status === 'ACTIVE' && o.subscriptionStatus === 'EXPIRED';
+}
 
 export default function AdminOrganizationsScreen() {
   const { t } = useTranslation('admin');
@@ -75,13 +80,17 @@ export default function AdminOrganizationsScreen() {
   // Renewal requests exist for both subscription-capable types. The queue is
   // server-scoped to `type`, so CLINIC and VETERINARY_OFFICE (and FARM)
   // requests are never mixed in one list.
+  // The same two types have a subscription → the "المنتهية" (expired) tab.
   const showRenewalsTab = type === 'VETERINARY_OFFICE' || type === 'CLINIC';
+  const showExpiredTab = showRenewalsTab;
   const isRenewalsScope = showRenewalsTab && scope === 'renewals';
 
   const q = useAdminOrganizations({
     pending: scope === 'pending',
     // admin "حذف" is a soft delete → DEACTIVATED, hidden from "الكل" by the server
     status: scope === 'deleted' ? 'DEACTIVATED' : undefined,
+    // Expired = subscription end date passed (server-computed); deleted rows stay out.
+    subscriptionStatus: showExpiredTab && scope === 'expired' ? 'EXPIRED' : undefined,
     type,
     search,
     enabled: !isRenewalsScope,
@@ -115,6 +124,7 @@ export default function AdminOrganizationsScreen() {
         options={[
           { value: 'all', label: t('orgs.tab.all') },
           { value: 'pending', label: t('orgs.tab.pending') },
+          ...(showExpiredTab ? [{ value: 'expired' as const, label: t('orgs.tab.expired') }] : []),
           { value: 'deleted', label: t('orgs.tab.deleted') },
           ...(showRenewalsTab
             ? [{ value: 'renewals' as const, label: t('farms.tab.renewals') }]
@@ -236,7 +246,11 @@ export default function AdminOrganizationsScreen() {
             <AdminRow
               title={o.name}
               subtitle={t(`orgs.type.${o.type}`)}
-              badge={{ label: t(`orgs.status.${o.status}`), tone: statusTone(o.status) }}
+              badge={
+                isSubscriptionExpired(o)
+                  ? { label: t('orgs.subscriptionExpired'), tone: 'danger' }
+                  : { label: t(`orgs.status.${o.status}`), tone: statusTone(o.status) }
+              }
               image={{
                 uri: o.logoUrl ?? null,
                 fallbackIcon: 'business-outline',

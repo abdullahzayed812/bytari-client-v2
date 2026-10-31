@@ -262,13 +262,16 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
                     : undefined
                 }
               />
-              <View style={{ marginTop: theme.spacing.md }}>
-                <SubscriptionTrialCard
-                  subject="VETERINARY_OFFICE"
-                  organizationId={orgId}
-                  canSend={isOwner}
-                />
-              </View>
+              {/* Only during the first (free-trial) period — hidden for good afterwards. */}
+              {!org.data.details.freeTrialEnded ? (
+                <View style={{ marginTop: theme.spacing.md }}>
+                  <SubscriptionTrialCard
+                    subject="VETERINARY_OFFICE"
+                    organizationId={orgId}
+                    canSend={isOwner}
+                  />
+                </View>
+              ) : null}
             </Section>
 
             {isLocked ? (

@@ -199,6 +199,8 @@ export interface OrgListFilter {
   type?: OrganizationType;
   status?: OrganizationStatus;
   search?: string;
+  /** The "المنتهية" tab — server-computed from the subscription dates. */
+  subscriptionStatus?: FarmSubscriptionStatus;
 }
 
 export interface AdminOrgMember {

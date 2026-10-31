@@ -165,6 +165,7 @@ export const adminApi = {
       type: f.type,
       status: f.status,
       search: f.search,
+      subscriptionStatus: f.subscriptionStatus,
     });
   },
 

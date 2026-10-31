@@ -925,7 +925,8 @@ export default {
     title: 'المؤسسات',
     empty: 'لا توجد مؤسسات',
     emptyHint: 'لم يتم إنشاء أي مؤسسة تطابق هذا التصفية.',
-    tab: { all: 'الكل', pending: 'بانتظار المراجعة', deleted: 'المحذوفة' },
+    tab: { all: 'الكل', pending: 'بانتظار المراجعة', expired: 'المنتهية', deleted: 'المحذوفة' },
+    subscriptionExpired: 'منتهية الاشتراك',
     type: {
       CLINIC: 'عيادة',
       FARM: 'مزرعة',

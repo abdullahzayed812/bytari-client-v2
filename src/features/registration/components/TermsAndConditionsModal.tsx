@@ -110,7 +110,7 @@ function ContactSection({ s }: { s: Styles }) {
         اسم التطبيق: بيطري
       </Text>
       <Text variant="body" color="textSecondary">
-        البريد الرسمي: baytariapp@gmail.com
+        البريد الرسمي: info@baytari.com
       </Text>
       <Text variant="body" color="textSecondary">
         رقم التواصل: 009647777564666

@@ -10,11 +10,15 @@ import {
   type SubscriptionSubject,
 } from './api';
 
-export function useSubscriptionInfo(subject: SubscriptionSubject) {
+export function useSubscriptionInfo(
+  subject: SubscriptionSubject,
+  options: { enabled?: boolean } = {},
+) {
   return useQuery<SubscriptionInfo, ApiError>({
     queryKey: subscriptionKeys.info(subject),
     queryFn: () => subscriptionsApi.info(subject),
     staleTime: 10 * 60_000,
+    enabled: options.enabled ?? true,
   });
 }
 

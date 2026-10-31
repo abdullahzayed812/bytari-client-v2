@@ -240,8 +240,10 @@ export default function OrganizationDetailsScreen() {
           ) : null}
 
           {/* Clinics & offices: free-trial info + "إرسال معلومات الاشتراك" (owner / manager). */}
+          {/* Only during the first (free-trial) period — hidden for good afterwards. */}
           {(org.type === 'CLINIC' || org.type === 'VETERINARY_OFFICE') &&
-          caps.canEditOrganization ? (
+          caps.canEditOrganization &&
+          !org.details.freeTrialEnded ? (
             <Section spacing="xl">
               <SubscriptionTrialCard subject={org.type} organizationId={org.id} />
             </Section>

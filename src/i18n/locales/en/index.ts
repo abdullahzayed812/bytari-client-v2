@@ -7484,7 +7484,8 @@ export const en: TranslationResources = {
       title: 'Organizations',
       empty: 'No organizations',
       emptyHint: 'No organization matches this filter.',
-      tab: { all: 'All', pending: 'Pending review', deleted: 'Deleted' },
+      tab: { all: 'All', pending: 'Pending review', expired: 'Expired', deleted: 'Deleted' },
+      subscriptionExpired: 'Subscription expired',
       type: {
         CLINIC: 'Clinic',
         FARM: 'Farm',

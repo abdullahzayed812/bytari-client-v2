@@ -16,6 +16,12 @@ export interface SubscriptionTrialCardProps {
   organizationId?: string;
   /** Show "إرسال معلومات الاشتراك" — only for whoever manages the subscription. */
   canSend?: boolean;
+  /**
+   * The organization's `details.freeTrialEnded` — persisted server-side once a
+   * new period is activated after the first one ended. `true` hides the card
+   * for good (it never returns on later renewals / expirations).
+   */
+  freeTrialEnded?: boolean;
 }
 
 /**
@@ -30,12 +36,15 @@ export function SubscriptionTrialCard({
   subject,
   organizationId,
   canSend = true,
+  freeTrialEnded = false,
 }: SubscriptionTrialCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('common');
-  const info = useSubscriptionInfo(subject);
+  const info = useSubscriptionInfo(subject, { enabled: !freeTrialEnded });
 
   const days = info.data?.freeTrialDays;
+
+  if (freeTrialEnded) return null;
 
   return (
     <Card variant="outlined" padding="md">

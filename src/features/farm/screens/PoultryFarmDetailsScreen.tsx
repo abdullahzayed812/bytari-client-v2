@@ -248,7 +248,11 @@ export default function PoultryFarmDetailsScreen() {
         />
 
         {caps.isOwner ? (
-          <SubscriptionTrialCard subject="POULTRY_FARM" organizationId={orgId} />
+          <SubscriptionTrialCard
+            subject="POULTRY_FARM"
+            organizationId={orgId}
+            freeTrialEnded={detail.data?.details?.freeTrialEnded ?? !detail.data}
+          />
         ) : null}
 
         {canSeeBatches ? (

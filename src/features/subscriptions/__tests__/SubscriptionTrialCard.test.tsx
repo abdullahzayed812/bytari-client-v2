@@ -33,6 +33,15 @@ describe('SubscriptionTrialCard', () => {
     );
   });
 
+  it('renders nothing (and fetches nothing) once the first free-trial period has ended', () => {
+    renderWithProviders(
+      <SubscriptionTrialCard subject="VETERINARY_OFFICE" organizationId="o1" freeTrialEnded />,
+    );
+    expect(screen.queryByText('الفترة المجانية')).toBeNull();
+    expect(screen.queryByText('إرسال معلومات الاشتراك')).toBeNull();
+    expect(info).not.toHaveBeenCalled();
+  });
+
   it('hides the send action when the viewer cannot manage the subscription', async () => {
     renderWithProviders(<SubscriptionTrialCard subject="POULTRY_TRADER" canSend={false} />);
     expect(await screen.findByText(/30/)).toBeTruthy();

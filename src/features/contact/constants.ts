@@ -3,7 +3,7 @@
  * page). Static, product-owned values; not user data.
  */
 export const CONTACT_INFO = {
-  email: 'baytariapp@gmail.com',
+  email: 'info@baytari.com',
   phone: '+964 777 756 4666',
   whatsapp: '+964 777 756 4666',
   address: 'بغداد، العراق',

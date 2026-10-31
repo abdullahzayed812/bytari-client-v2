@@ -14,6 +14,7 @@ import { ApiError } from '@/services/api';
 import { adminApi, adminKeys } from '../api';
 import type {
   AdminOrgMember,
+  FarmSubscriptionStatus,
   Organization,
   OrganizationStatus,
   OrganizationType,
@@ -26,6 +27,7 @@ export interface AdminOrgsParams {
   pending?: boolean;
   type?: OrganizationType;
   status?: OrganizationStatus;
+  subscriptionStatus?: FarmSubscriptionStatus;
   search?: string;
   pageSize?: number;
   enabled?: boolean;
@@ -37,6 +39,7 @@ export function useAdminOrganizations(params: AdminOrgsParams = {}) {
     pending: params.pending ?? false,
     type: params.type,
     status: params.status,
+    subscriptionStatus: params.subscriptionStatus,
     search: params.search || undefined,
   };
 
@@ -62,6 +65,7 @@ export function useAdminOrganizations(params: AdminOrgsParams = {}) {
             pageSize,
             type: filter.type,
             status: filter.status,
+            subscriptionStatus: filter.subscriptionStatus,
             search: filter.search,
           }),
     getNextPageParam: (last) =>

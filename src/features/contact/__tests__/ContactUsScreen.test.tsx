@@ -48,7 +48,7 @@ afterAll(() => jest.restoreAllMocks());
 describe('ContactUsScreen — "تواصل معنا"', () => {
   it('shows the contact channels and support types', () => {
     renderWithProviders(<ContactUsScreen />);
-    expect(screen.getByText('baytariapp@gmail.com')).toBeTruthy();
+    expect(screen.getByText('info@baytari.com')).toBeTruthy();
     expect(screen.getByText('بغداد، العراق')).toBeTruthy();
     expect(screen.getByText('الدعم الفني')).toBeTruthy();
     expect(screen.getByText('الشكاوى والاقتراحات')).toBeTruthy();
@@ -95,7 +95,7 @@ describe('ContactUsScreen — "تواصل معنا"', () => {
   it('signed out (opened from welcome / sign-in): channels shown, form replaced by a sign-in prompt', () => {
     useAuthStore.setState({ user: null, session: null, status: 'unauthenticated', tokens: null });
     renderWithProviders(<ContactUsScreen />);
-    expect(screen.getByText('baytariapp@gmail.com')).toBeTruthy();
+    expect(screen.getByText('info@baytari.com')).toBeTruthy();
     expect(screen.getByText('يجب تسجيل الدخول لإرسال رسالة.')).toBeTruthy();
     expect(screen.queryByPlaceholderText('رسالتك...')).toBeNull();
     fireEvent.press(screen.getByRole('button', { name: 'تسجيل الدخول' }));

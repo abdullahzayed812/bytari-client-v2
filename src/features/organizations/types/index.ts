@@ -88,6 +88,8 @@ export interface Organization {
   updatedAt: string;
   /** Only populated on admin LIST rows (`GET /admin/organizations`) for CLINIC/VETERINARY_OFFICE/VETERINARY_STORE — a thumbnail for the management screens. `undefined` elsewhere. */
   logoUrl?: string | null;
+  /** Only on admin LIST rows — CLINIC / VETERINARY_OFFICE / FARM subscription validity (`null` for other types). */
+  subscriptionStatus?: FarmSubscriptionStatus | null;
 }
 
 /**
@@ -136,6 +138,12 @@ export interface OrganizationDetails extends OrganizationProfile {
   subscriptionEndDate?: string | null;
   /** Computed server-side, never by the app. */
   subscriptionStatus?: FarmSubscriptionStatus;
+  /**
+   * The first (free-trial) period is over for good — persisted server-side
+   * once a new period is activated after an earlier one ended. Hides the
+   * "الفترة المجانية" card permanently.
+   */
+  freeTrialEnded?: boolean;
   /**
    * CLINIC / VETERINARY_OFFICE only — owner/admin-facing registration
    * credentials. Never on {@link PublicOrganization}: reviewed by an admin

@@ -245,7 +245,11 @@ export default function SheepFarmDetailsScreen() {
         />
 
         {caps.isOwner ? (
-          <SubscriptionTrialCard subject="SHEEP_FARM" organizationId={orgId} />
+          <SubscriptionTrialCard
+            subject="SHEEP_FARM"
+            organizationId={orgId}
+            freeTrialEnded={detail.data?.details?.freeTrialEnded ?? !detail.data}
+          />
         ) : null}
 
         {canSeeBatches ? (
