@@ -146,14 +146,15 @@ describe('ThreadListScreen', () => {
 
     seed();
     const plain = renderWithProviders(<ThreadListScreen />);
-    await screen.findByText('محادثة جديدة', {}, { timeout: 5000 });
+    await screen.findByText('محادثة جديدة');
     expect(plain.queryByText('قائمة المراجعة')).toBeNull();
     plain.unmount();
 
     seed({ supervisorDomains: ['CONSULTATION'] });
     renderWithProviders(<ThreadListScreen />);
-    // The second mount is slow on a loaded CI runner — the default 1s wait flaked.
-    expect(await screen.findByText('قائمة المراجعة', {}, { timeout: 5000 })).toBeOnTheScreen();
+    // The header (with the chip) remounts when loading → FlatList; a node found
+    // during loading gets detached, so query and assert together on each retry.
+    await waitFor(() => expect(screen.getByText('قائمة المراجعة')).toBeOnTheScreen());
   });
 });
 
