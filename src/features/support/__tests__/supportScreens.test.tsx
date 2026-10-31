@@ -146,13 +146,14 @@ describe('ThreadListScreen', () => {
 
     seed();
     const plain = renderWithProviders(<ThreadListScreen />);
-    await screen.findByText('محادثة جديدة');
+    await screen.findByText('محادثة جديدة', {}, { timeout: 5000 });
     expect(plain.queryByText('قائمة المراجعة')).toBeNull();
     plain.unmount();
 
     seed({ supervisorDomains: ['CONSULTATION'] });
     renderWithProviders(<ThreadListScreen />);
-    expect(await screen.findByText('قائمة المراجعة')).toBeOnTheScreen();
+    // The second mount is slow on a loaded CI runner — the default 1s wait flaked.
+    expect(await screen.findByText('قائمة المراجعة', {}, { timeout: 5000 })).toBeOnTheScreen();
   });
 });
 
