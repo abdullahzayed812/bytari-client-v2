@@ -149,6 +149,9 @@ const vetJobs: KuNamespace<'vetJobs'> = {
     offerContactPhone: 'ژمارەی تەلەفۆن',
     offerContactEmail: 'ئیمەیڵ',
     offerApplicationDeadline: 'دوایین کاتی پێشکەشکردن',
+    offerImage: 'وێنەی ڕیکلام (ئارەزوومەندانە)',
+    offerImageHint:
+      'JPG، PNG یان WEBP، زۆرترین قەبارە 8 مێگابایت. لەگەڵ ڕیکلامەکە لە لیستی کارەکاندا پیشان دەدرێت.',
     offerReviewNote:
       'ڕیکلامی کارەکە بۆ پێداچوونەوە دەنێردرێت بۆ بەڕێوەبەرایەتی، و دوای پەسەندکردن لە بەشی ڕیکلامەکانی کاردا دەردەکەوێت.',
     offerCreated: 'ڕیکلامی کارەکە بۆ پێداچوونەوە نێردرا',

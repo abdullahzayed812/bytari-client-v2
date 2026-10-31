@@ -144,6 +144,8 @@ export default {
     offerContactPhone: 'رقم الهاتف',
     offerContactEmail: 'البريد الإلكتروني',
     offerApplicationDeadline: 'آخر موعد للتقديم',
+    offerImage: 'صورة الإعلان (اختياري)',
+    offerImageHint: 'JPG أو PNG أو WEBP، الحد الأقصى 8 ميجابايت. تظهر مع الإعلان في قائمة الوظائف.',
     offerReviewNote:
       'سيتم إرسال إعلان الوظيفة للإدارة للمراجعة، ويبدأ الظهور في قسم إعلانات الوظائف بعد الموافقة عليه.',
     offerCreated: 'تم إرسال إعلان الوظيفة للمراجعة',

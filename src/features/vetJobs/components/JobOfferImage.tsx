@@ -6,7 +6,7 @@ import { Icon } from '@/components/content';
 import { useTheme } from '@/theme';
 
 /**
- * A job offer's image (its organization's logo, else the poster's avatar —
+ * A job offer's image (its own uploaded image, else its organization's logo —
  * resolved server-side as `imageUrl`). Without one, or when it fails to
  * load, the briefcase icon on the soft primary tile stands in.
  */

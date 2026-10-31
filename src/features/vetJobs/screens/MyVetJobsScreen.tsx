@@ -22,7 +22,7 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { VetJobApplicationStatusBadge, VetJobStatusBadge } from '../components';
+import { JobOfferImage, VetJobApplicationStatusBadge, VetJobStatusBadge } from '../components';
 import {
   useCloseVetJobOffer,
   useDeleteVetJobOffer,
@@ -97,18 +97,11 @@ export default function MyVetJobsScreen() {
                     columnGap: theme.spacing.md,
                   }}
                 >
-                  <View
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: theme.radius.md,
-                      backgroundColor: theme.colors.primarySoft,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon name="briefcase-outline" size="iconMd" color="primary" />
-                  </View>
+                  <JobOfferImage
+                    imageUrl={item.imageUrl}
+                    iconSize="iconMd"
+                    style={{ width: 40, height: 40, borderRadius: theme.radius.md }}
+                  />
                   <View style={{ flex: 1, rowGap: 4 }}>
                     <View
                       style={{

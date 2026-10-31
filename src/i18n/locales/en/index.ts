@@ -1526,6 +1526,8 @@ export const en: TranslationResources = {
       offerContactPhone: 'Phone number',
       offerContactEmail: 'Email',
       offerApplicationDeadline: 'Application deadline',
+      offerImage: 'Offer image (optional)',
+      offerImageHint: 'JPG, PNG or WEBP, up to 8 MB. Shown with the offer in the job list.',
       offerReviewNote:
         'The job offer will be sent for review, and will appear in the job offers section once approved.',
       offerCreated: 'The job offer was sent for review',

@@ -40,8 +40,10 @@ export interface VetJobOffer {
   postedBy: VetJobUserSummary;
   organizationId: string | null;
   organizationName: string;
-  /** The linked organization's logo, else the poster's avatar; null → icon fallback. */
+  /** The offer's uploaded image, else the linked organization's logo; null → icon fallback. */
   imageUrl: string | null;
+  /** `imageUrl` is the offer's own upload (not the organization-logo fallback). */
+  hasOwnImage: boolean;
   title: string;
   employmentType: VetJobEmploymentType;
   governorate: string;
@@ -71,7 +73,7 @@ export interface VetJobOffer {
 export interface PublicVetJobOffer {
   id: string;
   organizationName: string;
-  /** The linked organization's logo, else the poster's avatar; null → icon fallback. */
+  /** The offer's uploaded image, else the linked organization's logo; null → icon fallback. */
   imageUrl: string | null;
   title: string;
   employmentType: VetJobEmploymentType;
@@ -111,6 +113,8 @@ export interface CreateVetJobOfferInput {
   contactPhone: string;
   contactEmail?: string | null;
   applicationDeadline?: string | null;
+  /** A vet-jobs attachment upload key; `null` removes the offer's own image. */
+  imageStorageKey?: string | null;
 }
 
 export type UpdateVetJobOfferInput = Partial<CreateVetJobOfferInput>;

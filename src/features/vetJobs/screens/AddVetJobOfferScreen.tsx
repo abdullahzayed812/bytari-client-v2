@@ -10,6 +10,7 @@ import { Button } from '@/components/actions';
 import { Alert, Loading, useToast } from '@/components/feedback';
 import { FormField, Select, Switch } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -18,7 +19,12 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
 import { DateField } from '../components';
-import { useCreateVetJobOffer, useUpdateVetJobOffer, useVetJobOffer } from '../hooks';
+import {
+  useCreateVetJobOffer,
+  useUpdateVetJobOffer,
+  useVetJobAttachmentProvider,
+  useVetJobOffer,
+} from '../hooks';
 import {
   VET_JOB_EMPLOYMENT_TYPES,
   type CreateVetJobOfferInput,
@@ -86,6 +92,12 @@ export default function AddVetJobOfferScreen() {
   const existing = useVetJobOffer(offerId, { manage: true });
   const create = useCreateVetJobOffer();
   const update = useUpdateVetJobOffer();
+  const attachmentProvider = useVetJobAttachmentProvider();
+  // `undefined` = image untouched, a key = new upload, `null` = removed.
+  const [imageStorageKey, setImageStorageKey] = useState<string | null | undefined>(undefined);
+  const [imageUploading, setImageUploading] = useState(false);
+  // Bumped on remove so the uploader remounts empty (its preview is local state).
+  const [imageFieldKey, setImageFieldKey] = useState(0);
 
   const schema = useMemo(
     () =>
@@ -141,6 +153,8 @@ export default function AddVetJobOfferScreen() {
   }, [existing.data, isEdit]);
 
   const onSubmit = (values: FormValues): void => {
+    // An image still uploading has no storage key yet — never submit without it.
+    if (imageUploading) return;
     const input: CreateVetJobOfferInput = {
       organizationName: values.organizationName,
       title: values.title,
@@ -160,6 +174,7 @@ export default function AddVetJobOfferScreen() {
       contactPhone: values.contactPhone,
       contactEmail: values.contactEmail || undefined,
       applicationDeadline: values.applicationDeadline ?? undefined,
+      ...(imageStorageKey !== undefined ? { imageStorageKey } : {}),
     };
     if (isEdit && offerId) {
       update.mutate(
@@ -184,6 +199,11 @@ export default function AddVetJobOfferScreen() {
   };
 
   const submitting = create.isPending || update.isPending;
+  const existingOffer = existing.data as VetJobOffer | undefined;
+  const existingImageUrl =
+    isEdit && imageStorageKey === undefined && existingOffer?.hasOwnImage
+      ? existingOffer.imageUrl
+      : null;
   const submitError = create.error ?? update.error;
 
   if (isEdit && existing.isLoading) {
@@ -235,6 +255,28 @@ export default function AddVetJobOfferScreen() {
             )}
           />
           <FormField control={control} name="district" label={t('form.offerDistrict')} />
+
+          <View style={{ rowGap: theme.spacing.xs }}>
+            <Label>{t('form.offerImage')}</Label>
+            <ImageUploader
+              key={imageFieldKey}
+              value={existingImageUrl}
+              provider={attachmentProvider}
+              shape="square"
+              size={120}
+              replaceable
+              onChange={(r) => {
+                if (r) setImageStorageKey(r.storageKey);
+              }}
+              onRemove={() => {
+                setImageStorageKey(null);
+                setImageUploading(false);
+                setImageFieldKey((k) => k + 1);
+              }}
+              onBusyChange={setImageUploading}
+            />
+            <Caption>{t('form.offerImageHint')}</Caption>
+          </View>
         </>
 
         <>
@@ -372,7 +414,7 @@ export default function AddVetJobOfferScreen() {
           label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
           fullWidth
           loading={submitting}
-          disabled={submitting}
+          disabled={submitting || imageUploading}
           onPress={handleSubmit(onSubmit)}
         />
       </View>
