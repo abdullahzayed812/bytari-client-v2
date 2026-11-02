@@ -71,6 +71,11 @@ export interface Vaccination {
   /** `null` once the recording clinic removed the pet from its list (identity hidden). */
   organizationId: string | null;
   recordedByUserId: string | null;
+  /**
+   * Owner views only: the clinic that added it. The server withholds the
+   * veterinarian (`recordedByUserId` is always null) from pet owners.
+   */
+  clinicName?: string | null;
   vaccineName: string;
   /** `YYYY-MM-DD` (date-only). */
   administeredOn: string;
@@ -118,6 +123,11 @@ export interface AnimalReminder {
   /** `null` once the recording clinic removed the pet from its list (identity hidden). */
   organizationId: string | null;
   recordedByUserId: string | null;
+  /**
+   * Owner views only: the clinic that added it. The server withholds the
+   * veterinarian (`recordedByUserId` is always null) from pet owners.
+   */
+  clinicName?: string | null;
   title: string;
   description: string | null;
   /** YYYY-MM-DD */
@@ -239,6 +249,11 @@ export interface MedicalTimelineEntry {
   /** `null` once the recording clinic removed the pet from its list (identity hidden). */
   organizationId: string | null;
   recordedByUserId: string | null;
+  /**
+   * Owner views only: the clinic that added it. The server withholds the
+   * veterinarian (`recordedByUserId` is always null) from pet owners.
+   */
+  clinicName?: string | null;
   /** ISO datetime — stable tie-break for same-day entries. */
   createdAt: string;
   medicalRecord?: MedicalRecord;

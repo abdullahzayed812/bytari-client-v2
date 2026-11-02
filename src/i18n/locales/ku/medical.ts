@@ -8,6 +8,7 @@ const medical: KuNamespace<'medical'> = {
     recordedAt: 'بەرواری تۆمارکردن',
     updatedAt: 'دوایین دەستکاری',
     recordedByNote: 'پزیشکی تۆمارکەر و کلینیکەکە بە شێوەیەکی خۆکار لە ڕاژەکارەوە تۆمار دەکرێن.',
+    addedByClinic: 'کلینیک',
   },
   errors: {
     animalNotActive: 'ئەم ئاژەڵە ئەرشیف کراوە و ناتوانرێت زانیارییە پزیشکییەکانی دەستکاری بکرێن.',

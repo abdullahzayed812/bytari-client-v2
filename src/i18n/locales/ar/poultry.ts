@@ -348,6 +348,13 @@ export default {
     memberRemoveBody:
       'هل تريد إزالة {{name}} من الحقل؟ لن يتمكن بعد ذلك من الوصول إلى بيانات الحقل.',
     memberRemoved: 'تمت الإزالة من الحقل',
+    imageTitle: 'صورة الحقل',
+    imageHint: 'تظهر هذه الصورة في بطاقة الحقل. يمكنك تغييرها أو حذفها.',
+    imageUpdated: 'تم تحديث صورة الحقل',
+    imageRemoveTitle: 'حذف صورة الحقل',
+    imageRemoveBody: 'هل تريد حذف صورة الحقل نهائياً؟',
+    imageRemoveConfirm: 'حذف',
+    imageRemoved: 'تم حذف صورة الحقل',
   },
   common: {
     loading: 'جارٍ التحميل…',

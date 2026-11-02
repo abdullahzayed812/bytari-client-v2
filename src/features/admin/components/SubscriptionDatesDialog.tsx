@@ -9,6 +9,17 @@ import { useSubscriptionInfo } from '@/features/subscriptions';
 import { useTheme } from '@/theme';
 import { compareIsoDates, isValidIsoDate, normalizeIsoDate, toLocalIsoDate } from '@/utils';
 
+/**
+ * Same day next month, clamped to that month's last day (Jan 31 → Feb 28/29,
+ * not Mar 3 as a bare `setMonth(+1)` would give).
+ */
+export function addOneMonth(from: Date): Date {
+  const d = new Date(from.getFullYear(), from.getMonth() + 1, 1);
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(from.getDate(), lastDay));
+  return d;
+}
+
 export interface SubscriptionDatesDialogProps {
   visible: boolean;
   title: string;
@@ -64,13 +75,10 @@ export function SubscriptionDatesDialog({
 
   // local calendar day — toISOString() is UTC and shifts the day east of UTC
   const toIso = (d: Date): string => toLocalIsoDate(d);
-  const fillExpired = () => {
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    setStartDate(toIso(oneYearAgo));
-    setEndDate(toIso(yesterday));
+  const fillActiveMonth = () => {
+    const today = new Date();
+    setStartDate(toIso(today));
+    setEndDate(toIso(addOneMonth(today)));
     setTouched(true);
   };
   const fillTrial = () => {
@@ -97,8 +105,8 @@ export function SubscriptionDatesDialog({
           style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: theme.spacing.md, rowGap: 4 }}
         >
           <TextButton
-            label={t('farms.detail.quickExpired')}
-            onPress={fillExpired}
+            label={t('farms.detail.quickActiveMonth')}
+            onPress={fillActiveMonth}
             disabled={loading}
           />
           {trialDays > 0 ? (

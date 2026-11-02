@@ -73,6 +73,10 @@ export const farmOpsApi = {
   ): Promise<FarmProfile> {
     return apiClient.post<FarmProfile>(`${farmBase(orgId)}/profile/image`, input);
   },
+  /** Deletes the farm photo — the server drops the reference AND the stored object. */
+  deleteFarmImage(orgId: string): Promise<FarmProfile> {
+    return apiClient.delete<FarmProfile>(`${farmBase(orgId)}/profile/image`);
+  },
 
   // --- batches (for the optional "الدفعة" link) -------------
   /** The farm's ACTIVE batches of one kind — only these accept new linked rows. */

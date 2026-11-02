@@ -49,6 +49,11 @@ export function ReminderCard({
           <Caption color="textMuted">
             {mine ? t('records.recordedHere') : t('records.recordedElsewhere')}
           </Caption>
+        ) : reminder.clinicName ? (
+          // Owner view: the clinic's name only — never the veterinarian.
+          <Caption color="textMuted" numberOfLines={1}>
+            {t('common.addedByClinic')}: {reminder.clinicName}
+          </Caption>
         ) : null}
       </View>
       {footer ? <View style={{ marginTop: theme.spacing.sm }}>{footer}</View> : null}

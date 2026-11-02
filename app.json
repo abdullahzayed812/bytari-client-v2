@@ -18,7 +18,7 @@
       }
     },
     "android": {
-      "package": "com.petcare.bytari",
+      "package": "com.petcare.baytari",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

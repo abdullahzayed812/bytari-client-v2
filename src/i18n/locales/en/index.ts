@@ -884,6 +884,13 @@ export const en: TranslationResources = {
       memberRemoveTitle: 'Remove from farm',
       memberRemoveBody: 'Remove {{name}} from the farm? They will lose access to the farm data.',
       memberRemoved: 'Removed from the farm',
+      imageTitle: 'Farm photo',
+      imageHint: 'This photo appears on the farm card. You can replace or delete it.',
+      imageUpdated: 'Farm photo updated',
+      imageRemoveTitle: 'Delete farm photo',
+      imageRemoveBody: 'Delete the farm photo permanently?',
+      imageRemoveConfirm: 'Delete',
+      imageRemoved: 'Farm photo deleted',
     },
     common: {
       loading: 'Loading…',
@@ -3522,6 +3529,7 @@ export const en: TranslationResources = {
       recordedAt: 'Recorded on',
       updatedAt: 'Last updated',
       recordedByNote: 'The recording veterinarian and clinic are set automatically by the server.',
+      addedByClinic: 'Clinic',
     },
     errors: {
       animalNotActive: 'This animal is archived and its medical data cannot be changed.',
@@ -3847,6 +3855,13 @@ export const en: TranslationResources = {
     errors: {
       notFarm: 'This operation is only available for farm organizations.',
       notFound: 'The requested item was not found.',
+    },
+    batchHistory: {
+      title: 'Batch details',
+      viewDetails: 'View details',
+      allWeeks: 'All weeks',
+      readOnly: 'Read-only view — the current active batch is not changed.',
+      noRecords: 'No daily records were recorded for this batch.',
     },
     daily: {
       day: 'Day {{day}}',
@@ -7665,7 +7680,7 @@ export const en: TranslationResources = {
         dateFormatHint: 'Write the date as: year-month-day, e.g. 2026-9-1',
         dateFormatError: 'Invalid date format. Use: year-month-day (e.g. 2026-9-1)',
         dateRangeError: 'The end date must be on or after the start date',
-        quickExpired: 'Mark as expired (for testing)',
+        quickActiveMonth: 'Activate for one month',
         quickTrial: 'Free trial ({{count}} days from today)',
         quickActiveYear: 'Activate for 1 year from today',
         save: 'Save',
@@ -8381,8 +8396,6 @@ export const en: TranslationResources = {
       subtitle: 'Trusted veterinary care for your animals, all in one place.',
       signIn: 'Sign in',
       createAccount: 'Create a new account',
-      browseAsGuest: 'Browse as a guest',
-      guestComingSoon: 'Guest browsing is coming soon.',
       orDivider: 'or',
       continueWithGoogle: 'Continue with Google',
       continueWithApple: 'Continue with Apple',

@@ -4,8 +4,6 @@ export default {
     subtitle: 'رعاية بيطرية موثوقة لحيواناتك، في مكان واحد.',
     signIn: 'تسجيل الدخول',
     createAccount: 'إنشاء حساب جديد',
-    browseAsGuest: 'تصفح كضيف',
-    guestComingSoon: 'التصفح كضيف قريباً.',
     orDivider: 'أو',
     continueWithGoogle: 'المتابعة باستخدام جوجل',
     continueWithApple: 'المتابعة باستخدام آبل',

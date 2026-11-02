@@ -6,8 +6,6 @@ const registration: KuNamespace<'registration'> = {
     subtitle: 'چاودێریی ڤێتێرنەریی متمانەپێکراو بۆ ئاژەڵەکانت، لە یەک شوێندا.',
     signIn: 'چوونەژوورەوە',
     createAccount: 'دروستکردنی هەژماری نوێ',
-    browseAsGuest: 'گەڕان وەک میوان',
-    guestComingSoon: 'گەڕان وەک میوان بەم زووانە.',
     orDivider: 'یان',
     continueWithGoogle: 'بەردەوامبوون بە گووگڵ',
     continueWithApple: 'بەردەوامبوون بە ئەپڵ',

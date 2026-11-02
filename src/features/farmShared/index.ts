@@ -24,6 +24,7 @@ export {
   useRequestFarmRenewal,
   useFarmProfile,
   useUpdateFarmProfile,
+  useFarmImage,
   useFarmExpenses,
   useFarmExpenseSummary,
   useCreateFarmExpense,

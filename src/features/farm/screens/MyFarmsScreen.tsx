@@ -43,6 +43,7 @@ export default function MyFarmsScreen() {
       return (
         <PoultryFarmCard
           name={item.name}
+          imageUrl={item.imageUrl}
           location={item.description}
           stats={null}
           status={item.status}
@@ -54,6 +55,7 @@ export default function MyFarmsScreen() {
       return (
         <CattleFarmCard
           name={item.name}
+          imageUrl={item.imageUrl}
           location={item.description}
           stats={null}
           status={item.status}
@@ -64,6 +66,7 @@ export default function MyFarmsScreen() {
     return (
       <SheepFarmCard
         name={item.name}
+        imageUrl={item.imageUrl}
         location={item.description}
         stats={null}
         status={item.status}

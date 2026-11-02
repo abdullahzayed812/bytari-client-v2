@@ -18,6 +18,10 @@ export interface CompletedWeeksSectionProps {
   renderWeekRecords: (weekNumber: number) => ReactNode;
   /** e.g. "1,250 غ" / "320 كغ". */
   formatWeight?: (value: string) => string;
+  /** List every week (a closed batch's full history) instead of only those before `currentWeek`. */
+  showAllWeeks?: boolean;
+  /** Overrides the "الأسابيع السابقة" heading. */
+  title?: string;
 }
 
 /**
@@ -31,11 +35,13 @@ export function CompletedWeeksSection({
   currentWeek,
   renderWeekRecords,
   formatWeight = (v) => v,
+  showAllWeeks = false,
+  title,
 }: CompletedWeeksSectionProps) {
   const theme = useTheme();
   const { t } = useTranslation('farm');
   const [open, setOpen] = useState<number | null>(null);
-  const previous = weeks.filter((w) => w.weekNumber < currentWeek);
+  const previous = showAllWeeks ? weeks : weeks.filter((w) => w.weekNumber < currentWeek);
   if (previous.length === 0) return null;
 
   return (
@@ -43,7 +49,7 @@ export function CompletedWeeksSection({
       <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
         <Icon name="calendar-outline" size="iconSm" color="primary" />
         <Text variant="subtitle" weight="bold">
-          {t('daily.completedWeeks')}
+          {title ?? t('daily.completedWeeks')}
         </Text>
       </View>
       {previous.map((w) => {

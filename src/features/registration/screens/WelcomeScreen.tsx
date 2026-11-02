@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, TextButton } from '@/components/actions';
-import { useToast } from '@/components/feedback';
+import { Button } from '@/components/actions';
 import { Caption, Heading } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { ContactUsButton, LanguageSelector } from '@/features/auth';
@@ -24,7 +23,6 @@ const LOGO_WIDTH = 180;
 export default function WelcomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('registration');
-  const toast = useToast();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -81,13 +79,6 @@ export default function WelcomeScreen() {
             onPress={() => router.push(Routes.authAccountType)}
             accessibilityLabel={t('welcome.createAccount')}
           />
-          <View style={{ alignItems: 'center' }}>
-            <TextButton
-              label={t('welcome.browseAsGuest')}
-              underline
-              onPress={() => toast.show({ message: t('welcome.guestComingSoon'), tone: 'info' })}
-            />
-          </View>
         </View>
       </View>
     </SafeAreaView>

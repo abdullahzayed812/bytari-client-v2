@@ -75,11 +75,16 @@ export function VaccinationCard({ vaccination, organizationId, onPress }: Vaccin
           {overdue ? <Badge label={t('vaccinations.overdue')} tone="warning" size="sm" /> : null}
         </View>
       ) : null}
-      {vaccination.recordedByUserId ? (
+      {/* Clinic members see the veterinarian; a pet owner sees only the clinic. */}
+      {organizationId && vaccination.recordedByUserId ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.xs }}>
           <Caption>{t('vaccinations.recordedBy')}</Caption>
           <UserName userId={vaccination.recordedByUserId} variant="caption" />
         </View>
+      ) : !organizationId && vaccination.clinicName ? (
+        <Caption numberOfLines={1}>
+          {t('common.addedByClinic')}: {vaccination.clinicName}
+        </Caption>
       ) : null}
     </Pressable>
   );

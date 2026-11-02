@@ -30,6 +30,7 @@ import { useDeleteSheepBatch, useSheepBatch, useUpdateSheepBatch } from '../hook
 export default function SheepBatchDetailScreen() {
   const theme = useTheme();
   const { t } = useTranslation('sheepCattleFarm');
+  const { t: tf } = useTranslation('farm');
   const toast = useToast();
   const { organizationId, batchId } = useLocalSearchParams<{
     organizationId: string;
@@ -76,14 +77,14 @@ export default function SheepBatchDetailScreen() {
 
   const toggleStatus = () => {
     if (!batch) return;
-    const next = batch.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE';
+    const next = 'CLOSED' as const;
     update.mutate(
       { batchId: batch.id, body: { status: next } },
       {
         onSuccess: () =>
           toast.show({
             tone: 'success',
-            message: next === 'CLOSED' ? t('batchDetail.closed') : t('batchDetail.reopened'),
+            message: t('batchDetail.closed'),
           }),
         onError: (error) => toast.show({ tone: 'danger', message: apiErrorMessage(error) }),
       },
@@ -169,15 +170,25 @@ export default function SheepBatchDetailScreen() {
               onPress={() => router.push(Routes.sheepBatchEdit(orgId, batch.id))}
             />
           ) : null}
-          {caps.canSellFarmBatch ? (
+          {/* A previous (closed) batch is never reopened into the farm's current batch —
+              it opens its own read-only history screen instead. */}
+          {batch.status === 'ACTIVE' && caps.canSellFarmBatch ? (
             <View style={{ marginTop: theme.spacing.md }}>
               <Button
-                label={
-                  batch.status === 'ACTIVE' ? t('batchDetail.closeCta') : t('batchDetail.reopenCta')
-                }
+                label={t('batchDetail.closeCta')}
                 variant="ghost"
                 disabled={busy}
                 onPress={toggleStatus}
+              />
+            </View>
+          ) : null}
+          {batch.status !== 'ACTIVE' ? (
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Button
+                label={tf('batchHistory.viewDetails')}
+                variant="primary"
+                leftIcon="time-outline"
+                onPress={() => router.push(Routes.sheepBatchHistory(orgId, batch.id))}
               />
             </View>
           ) : null}

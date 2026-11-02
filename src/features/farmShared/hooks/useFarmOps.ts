@@ -14,7 +14,9 @@ import type {
   Paginated,
   UpdateFarmProfileInput,
 } from '@/features/farm/types';
+import { orgKeys } from '@/features/organizations/api';
 import { ApiError } from '@/services/api';
+import type { PresignProvider } from '@/services/files/types';
 
 import { farmOpsApi, type FarmBatchOption } from '../api';
 
@@ -42,6 +44,38 @@ export function useUpdateFarmProfile(orgId: string) {
       qc.setQueryData(poultryOpsKeys.farmProfile(orgId), data);
     },
   });
+}
+
+/**
+ * Farm photo (Edit Farm screen): a presign provider that uploads + registers a
+ * new photo (the server deletes the replaced object), and a delete mutation.
+ * Both refresh the profile AND the organization lists — the farm cards read
+ * `imageUrl` from the list DTO.
+ */
+export function useFarmImage(orgId: string) {
+  const qc = useQueryClient();
+  const refresh = (data: FarmProfile) => {
+    qc.setQueryData(poultryOpsKeys.farmProfile(orgId), data);
+    void qc.invalidateQueries({ queryKey: orgKeys.lists() });
+    void qc.invalidateQueries({ queryKey: orgKeys.detail(orgId) });
+  };
+  const provider: PresignProvider = {
+    requestUpload: (file) =>
+      farmOpsApi.requestFarmImageUploadUrl(orgId, {
+        filename: file.name,
+        mimeType: file.mimeType,
+        size: file.size ?? 0,
+      }),
+    finalizeUpload: async (storageKey, file) => {
+      refresh(await farmOpsApi.registerFarmImage(orgId, { storageKey, mimeType: file.mimeType }));
+    },
+  };
+  const remove = useMutation({
+    mutationKey: ['farm-ops', 'farm-profile', 'image', 'delete', orgId],
+    mutationFn: () => farmOpsApi.deleteFarmImage(orgId),
+    onSuccess: refresh,
+  });
+  return { provider, remove };
 }
 
 /** "المصاريف" — list + the three summary cards. */

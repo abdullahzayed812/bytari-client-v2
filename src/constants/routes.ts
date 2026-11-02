@@ -175,6 +175,9 @@ export const Routes = {
     `/(app)/livestock/sheep/${organizationId}/batches/${batchId}` as const,
   sheepBatchEdit: (organizationId: string, batchId: string) =>
     `/(app)/livestock/sheep/${organizationId}/batches/${batchId}/edit` as const,
+  /** A previous (closed) batch's read-only history — weeks + daily records. */
+  sheepBatchHistory: (organizationId: string, batchId: string) =>
+    `/(app)/livestock/sheep/${organizationId}/batches/${batchId}/history` as const,
   cattleBatches: (organizationId: string) =>
     `/(app)/livestock/cattle/${organizationId}/batches` as const,
   cattleBatchCreate: (organizationId: string) =>
@@ -183,6 +186,8 @@ export const Routes = {
     `/(app)/livestock/cattle/${organizationId}/batches/${batchId}` as const,
   cattleBatchEdit: (organizationId: string, batchId: string) =>
     `/(app)/livestock/cattle/${organizationId}/batches/${batchId}/edit` as const,
+  cattleBatchHistory: (organizationId: string, batchId: string) =>
+    `/(app)/livestock/cattle/${organizationId}/batches/${batchId}/history` as const,
   sheepFarmSection: (
     organizationId: string,
     section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
@@ -402,6 +407,9 @@ export const Routes = {
     `/(app)/organizations/${organizationId}/poultry/${flockId}` as const,
   organizationPoultryFlockEdit: (organizationId: string, flockId: string) =>
     `/(app)/organizations/${organizationId}/poultry/${flockId}/edit` as const,
+  /** A previous (closed) batch's read-only history — weeks + daily records. */
+  organizationPoultryFlockHistory: (organizationId: string, flockId: string) =>
+    `/(app)/organizations/${organizationId}/poultry/${flockId}/history` as const,
 
   // Organization operations — Veterinary Store products (Mobile Phase 10)
   organizationStoreProducts: (organizationId: string) =>

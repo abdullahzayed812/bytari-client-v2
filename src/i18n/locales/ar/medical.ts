@@ -7,6 +7,7 @@ export default {
     recordedAt: 'تاريخ التسجيل',
     updatedAt: 'آخر تعديل',
     recordedByNote: 'يُسجَّل الطبيب المُدوِّن والعيادة تلقائياً من الخادم.',
+    addedByClinic: 'العيادة',
   },
   errors: {
     animalNotActive: 'هذا الحيوان مؤرشف ولا يمكن تعديل بياناته الطبية.',

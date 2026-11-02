@@ -80,14 +80,14 @@ export default function PoultryFlockDetailScreen() {
 
   const toggleStatus = () => {
     if (!flock) return;
-    const next = flock.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE';
+    const next = 'CLOSED' as const;
     update.mutate(
       { flockId: flock.id, body: { status: next } },
       {
         onSuccess: () =>
           toast.show({
             tone: 'success',
-            message: next === 'CLOSED' ? t('poultry.closed') : t('poultry.reopened'),
+            message: t('poultry.closed'),
           }),
         onError: (error) => toast.show({ tone: 'danger', message: farmErrorMessage(error, t) }),
       },
@@ -161,6 +161,16 @@ export default function PoultryFlockDetailScreen() {
             </Card>
           </Section>
 
+          {flock.status !== 'ACTIVE' ? (
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Button
+                label={t('batchHistory.viewDetails')}
+                variant="primary"
+                leftIcon="time-outline"
+                onPress={() => router.push(Routes.organizationPoultryFlockHistory(orgId, flock.id))}
+              />
+            </View>
+          ) : null}
           {canManage ? (
             <>
               <Button
@@ -170,12 +180,12 @@ export default function PoultryFlockDetailScreen() {
                 disabled={busy}
                 onPress={() => router.push(Routes.organizationPoultryFlockEdit(orgId, flock.id))}
               />
-              {caps.canSellFarmBatch ? (
+              {/* A previous (closed) batch is never reopened into the farm's current batch —
+                  it opens its own read-only history screen instead. */}
+              {flock.status === 'ACTIVE' && caps.canSellFarmBatch ? (
                 <View style={{ marginTop: theme.spacing.md }}>
                   <Button
-                    label={
-                      flock.status === 'ACTIVE' ? t('poultry.closeCta') : t('poultry.reopenCta')
-                    }
+                    label={t('poultry.closeCta')}
                     variant="ghost"
                     disabled={busy}
                     onPress={toggleStatus}

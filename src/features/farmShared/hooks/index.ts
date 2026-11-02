@@ -3,6 +3,7 @@ export { useFarmSubscriptionRenewals, useRequestFarmRenewal } from './useFarmSub
 export {
   useFarmProfile,
   useUpdateFarmProfile,
+  useFarmImage,
   useFarmExpenses,
   useFarmExpenseSummary,
   useCreateFarmExpense,

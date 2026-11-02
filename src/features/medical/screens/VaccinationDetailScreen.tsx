@@ -139,7 +139,8 @@ export default function VaccinationDetailScreen() {
           <Section spacing="xl">
             <Card variant="outlined" padding="md">
               <Field label={t('common.recordedAt')} value={formatDate(v.createdAt)} oneLine />
-              {v.recordedByUserId ? (
+              {/* Clinic members see the veterinarian; a pet owner sees only the clinic. */}
+              {isClinic && v.recordedByUserId ? (
                 <>
                   <Divider spacing="sm" />
                   <Row justify="space-between" align="center">
@@ -153,8 +154,18 @@ export default function VaccinationDetailScreen() {
                   </Row>
                 </>
               ) : null}
-              <Divider spacing="sm" />
-              <Caption>{t('common.recordedByNote')}</Caption>
+              {!isClinic && v.clinicName ? (
+                <>
+                  <Divider spacing="sm" />
+                  <Field label={t('common.addedByClinic')} value={v.clinicName} oneLine />
+                </>
+              ) : null}
+              {isClinic ? (
+                <>
+                  <Divider spacing="sm" />
+                  <Caption>{t('common.recordedByNote')}</Caption>
+                </>
+              ) : null}
             </Card>
           </Section>
 

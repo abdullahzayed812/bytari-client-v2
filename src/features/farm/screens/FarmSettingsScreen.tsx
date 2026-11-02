@@ -16,9 +16,10 @@ import {
 } from '@/components/feedback';
 import { FormField, Input, Select, TileOptionGroup } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
+import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label, Text } from '@/components/typography';
-import { useFarmProfile, useUpdateFarmProfile } from '@/features/farmShared';
+import { useFarmImage, useFarmProfile, useUpdateFarmProfile } from '@/features/farmShared';
 import {
   buildMemberIdentifierSchema,
   memberIdentifierToInput,
@@ -181,10 +182,83 @@ function FarmInfoTabBySpecies({ orgId, orgName }: { orgId: string; orgName: stri
     return <ErrorState error={profile.error} onRetry={() => void profile.refetch()} />;
   }
   const species = profile.data?.farmSpecies;
-  if (species === 'SHEEP' || species === 'CATTLE') {
-    return <LivestockFarmInfoTab orgId={orgId} orgName={orgName} species={species} />;
-  }
-  return <FarmInfoTab orgId={orgId} orgName={orgName} />;
+  return (
+    <>
+      <FarmImageCard orgId={orgId} imageUrl={profile.data?.imageUrl ?? null} />
+      {species === 'SHEEP' || species === 'CATTLE' ? (
+        <LivestockFarmInfoTab orgId={orgId} orgName={orgName} species={species} />
+      ) : (
+        <FarmInfoTab orgId={orgId} orgName={orgName} />
+      )}
+    </>
+  );
+}
+
+/**
+ * Farm photo — replace (upload + register; the server deletes the old object)
+ * or delete it completely (reference + object removed server-side). Shared by
+ * every farm species; the farm cards pick the change up via the list refresh.
+ */
+function FarmImageCard({ orgId, imageUrl }: { orgId: string; imageUrl: string | null }) {
+  const theme = useTheme();
+  const { t } = useTranslation('poultry');
+  const toast = useToast();
+  const { provider, remove } = useFarmImage(orgId);
+  const [confirming, setConfirming] = useState(false);
+  // Remount after a delete so the uploader drops any locally-picked preview.
+  const [uploaderKey, setUploaderKey] = useState(0);
+
+  return (
+    <View
+      style={{
+        padding: theme.spacing.lg,
+        borderRadius: theme.radius.lg,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.surface,
+        rowGap: theme.spacing.sm,
+      }}
+    >
+      <Text variant="bodyStrong">{t('settings.imageTitle')}</Text>
+      <Caption>{t('settings.imageHint')}</Caption>
+      <ImageUploader
+        key={uploaderKey}
+        value={imageUrl}
+        provider={provider}
+        size={140}
+        aspectRatio={4 / 3}
+        replaceable
+        disabled={remove.isPending}
+        onChange={(result) => {
+          if (result) toast.show({ tone: 'success', message: t('settings.imageUpdated') });
+        }}
+        onRemove={() => setConfirming(true)}
+      />
+      <ConfirmationDialog
+        visible={confirming}
+        title={t('settings.imageRemoveTitle')}
+        message={t('settings.imageRemoveBody')}
+        confirmLabel={t('settings.imageRemoveConfirm')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={remove.isPending}
+        onConfirm={() =>
+          remove.mutate(undefined, {
+            onSuccess: () => {
+              setConfirming(false);
+              setUploaderKey((k) => k + 1);
+              toast.show({ tone: 'success', message: t('settings.imageRemoved') });
+            },
+            onError: (e) => {
+              setConfirming(false);
+              toast.show({ tone: 'danger', message: apiErrorMessage(e) });
+            },
+          })
+        }
+        onCancel={() => setConfirming(false)}
+      />
+    </View>
+  );
 }
 
 function LivestockFarmInfoTab({

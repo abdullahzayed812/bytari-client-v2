@@ -17,3 +17,4 @@ export { FarmQrScannerModal, type FarmQrScannerModalProps } from './FarmQrScanne
 export { FarmAddStaffSheet, type FarmAddStaffSheetProps } from './FarmAddStaffSheet';
 export { CompletedWeeksSection, type CompletedWeeksSectionProps } from './CompletedWeeksSection';
 export { FarmBatchSelect, batchLinkInput } from './FarmBatchSelect';
+export { BatchHistoryView, type BatchHistoryViewProps } from './BatchHistoryView';

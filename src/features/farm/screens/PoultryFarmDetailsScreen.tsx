@@ -473,7 +473,7 @@ function EmptyBatch({ canManage, orgId }: { canManage: boolean; orgId: string })
 }
 
 /** One finished week's daily records, fetched when its card is expanded. */
-function PoultryWeekRecords({
+export function PoultryWeekRecords({
   orgId,
   flockId,
   week,

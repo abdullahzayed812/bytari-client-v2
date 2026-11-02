@@ -448,7 +448,7 @@ function EmptyBatch({ canManage, orgId }: { canManage: boolean; orgId: string })
 }
 
 /** One finished week's daily records, fetched when its card is expanded. */
-function SheepWeekRecords({
+export function SheepWeekRecords({
   orgId,
   batchId,
   week,

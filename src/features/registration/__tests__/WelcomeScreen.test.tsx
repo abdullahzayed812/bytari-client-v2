@@ -38,9 +38,8 @@ describe('WelcomeScreen', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/(auth)/contact');
   });
 
-  it('shows a coming-soon toast for guest browsing, without navigating', () => {
+  it('no longer offers guest browsing', () => {
     renderWithProviders(<WelcomeScreen />);
-    fireEvent.press(screen.getByText('تصفح كضيف'));
-    expect(routerMock.push).not.toHaveBeenCalled();
+    expect(screen.queryByText('تصفح كضيف')).toBeNull();
   });
 });

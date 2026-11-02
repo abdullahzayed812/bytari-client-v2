@@ -356,6 +356,13 @@ const poultry: KuNamespace<'poultry'> = {
     memberRemoveBody:
       'دەتەوێت {{name}} لە کێڵگەکە لاببەیت؟ دوای ئەوە ناتوانێت دەستی بگات بە زانیارییەکانی کێڵگە.',
     memberRemoved: 'لە کێڵگەکە لابرا',
+    imageTitle: 'وێنەی کێڵگە',
+    imageHint: 'ئەم وێنەیە لە کارتی کێڵگەکەدا دەردەکەوێت. دەتوانیت بیگۆڕیت یان بیسڕیتەوە.',
+    imageUpdated: 'وێنەی کێڵگە نوێکرایەوە',
+    imageRemoveTitle: 'سڕینەوەی وێنەی کێڵگە',
+    imageRemoveBody: 'دەتەوێت وێنەی کێڵگەکە بە یەکجاری بسڕیتەوە؟',
+    imageRemoveConfirm: 'سڕینەوە',
+    imageRemoved: 'وێنەی کێڵگە سڕایەوە',
   },
   common: {
     loading: 'بار دەکرێت…',

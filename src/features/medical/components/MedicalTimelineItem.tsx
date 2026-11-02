@@ -89,6 +89,11 @@ export function MedicalTimelineItem({ entry, organizationId, onPress }: MedicalT
           <Caption>{t('timeline.recordedBy')}</Caption>
           <UserName userId={entry.recordedByUserId} variant="caption" />
         </View>
+      ) : entry.clinicName ? (
+        // Owner timeline: the server sends the clinic's name, never the veterinarian.
+        <Caption numberOfLines={1}>
+          {t('common.addedByClinic')}: {entry.clinicName}
+        </Caption>
       ) : null}
     </Pressable>
   );
