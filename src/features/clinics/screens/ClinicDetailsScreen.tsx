@@ -1,11 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Pressable, View } from 'react-native';
+import { FlatList, Linking, Pressable, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
 import { Card, Chip, Divider, Icon, type IconName } from '@/components/content';
-import { ErrorState, Loading, useToast } from '@/components/feedback';
+import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -20,6 +20,11 @@ import {
   useUnfollowOrganization,
   useUnlikeOrganization,
 } from '@/features/organizations';
+import { OrgStoreCartButton } from '@/features/organizationStore/components';
+import {
+  PublicVeterinaryOfficeProductCard,
+  usePublicVeterinaryOfficeProducts,
+} from '@/features/veterinaryOffices';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
@@ -77,6 +82,9 @@ function ContactRow({ icon, value, onPress, accessibilityLabel }: ContactRowProp
   );
 }
 
+const PRODUCT_PREVIEW_COUNT = 6;
+const PRODUCT_CARD_WIDTH = 140;
+
 /** A publicly-discoverable clinic's profile — no membership required. */
 export default function ClinicDetailsScreen() {
   const theme = useTheme();
@@ -92,6 +100,13 @@ export default function ClinicDetailsScreen() {
   const unlike = useUnlikeOrganization(organizationId ?? '');
   const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  // Clinic Store — the clinic's public product catalogue (preview strip).
+  const { t: tStore } = useTranslation('organizationStore');
+  const { t: tOffice } = useTranslation('veterinaryOffices');
+  const products = usePublicVeterinaryOfficeProducts(organizationId, {
+    pageSize: PRODUCT_PREVIEW_COUNT,
+  });
+  const productPreview = products.products.slice(0, PRODUCT_PREVIEW_COUNT);
 
   if (q.isLoading) {
     return (
@@ -354,6 +369,46 @@ export default function ClinicDetailsScreen() {
               />
             </View>
           </Card>
+        </Section>
+
+        {/* --- Clinic Store ------------------------------------------- */}
+        <Section>
+          <Row justify="space-between" align="center" gap="sm">
+            <Text variant="bodyStrong" style={{ flex: 1 }}>
+              {tStore('common.storeKind.CLINIC')}
+            </Text>
+            <OrgStoreCartButton organizationId={org.id} />
+            {productPreview.length > 0 ? (
+              <Text
+                variant="label"
+                color="primary"
+                onPress={() => router.push(Routes.veterinaryOfficeProducts(org.id))}
+              >
+                {tOffice('detail.viewAllProducts')}
+              </Text>
+            ) : null}
+          </Row>
+          {products.isLoading ? (
+            <Loading />
+          ) : productPreview.length === 0 ? (
+            <EmptyState icon="cube-outline" title={tOffice('detail.noProducts')} />
+          ) : (
+            <FlatList
+              data={productPreview}
+              keyExtractor={(p) => p.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: theme.spacing.md }}
+              ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+              renderItem={({ item }) => (
+                <PublicVeterinaryOfficeProductCard
+                  product={item}
+                  width={PRODUCT_CARD_WIDTH}
+                  onPress={() => router.push(Routes.veterinaryOfficeProductDetail(org.id, item.id))}
+                />
+              )}
+            />
+          )}
         </Section>
 
         {hasContact ? (

@@ -18,6 +18,7 @@ import news from './news';
 import notifications from './notifications';
 import orgAnimals from './orgAnimals';
 import organizations from './organizations';
+import organizationStore from './organizationStore';
 import petOwnerStore from './petOwnerStore';
 import pets from './pets';
 import poultry from './poultry';
@@ -85,6 +86,7 @@ export const ku: DeepPartial<TranslationResources> = {
   medical,
   orgAnimals,
   organizations,
+  organizationStore,
   petOwnerStore,
   poultry,
   poultryMarket,

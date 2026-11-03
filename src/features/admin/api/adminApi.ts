@@ -4,6 +4,8 @@ import type { PageMeta as ApiPageMeta } from '@/services/api';
 import type { PresignedUpload } from '@/services/media';
 
 import type {
+  NotificationVideoLink,
+  NotificationVideoLinkKey,
   AdminAnimal,
   AdminAnimalsFilter,
   AdminChatConversation,
@@ -368,6 +370,22 @@ export const adminApi = {
       ...(input.imageStorageKey ? { imageStorageKey: input.imageStorageKey } : {}),
       ...(input.linkUrl ? { linkUrl: input.linkUrl } : {}),
     });
+  },
+
+  // --- acceptance-notification video links (notification.admin.send) -----
+  listNotificationVideoLinks(): Promise<NotificationVideoLink[]> {
+    return apiClient.get<NotificationVideoLink[]>('/admin/notifications/video-links');
+  },
+
+  setNotificationVideoLink(
+    key: NotificationVideoLinkKey,
+    url: string,
+  ): Promise<NotificationVideoLink> {
+    return apiClient.put<NotificationVideoLink>(`/admin/notifications/video-links/${key}`, { url });
+  },
+
+  removeNotificationVideoLink(key: NotificationVideoLinkKey): Promise<void> {
+    return apiClient.delete<void>(`/admin/notifications/video-links/${key}`);
   },
 
   requestBroadcastImageUploadUrl(input: {

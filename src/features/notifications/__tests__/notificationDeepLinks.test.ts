@@ -44,12 +44,12 @@ describe('notificationHref — post-Phase-15 types (push payloads)', () => {
     [
       'FARM_APPOINTMENT_CREATED',
       { organizationId: 'f2', appointmentId: 'ap1', farmSpecies: 'SHEEP' },
-      '/(app)/livestock/sheep/f2/sections/appointments',
+      '/(app)/livestock/sheep/f2/sections/appointments/ap1',
     ],
     [
       'FARM_APPOINTMENT_CREATED',
       { organizationId: 'f2', appointmentId: 'ap1', farmSpecies: 'CATTLE' },
-      '/(app)/livestock/cattle/f2/sections/appointments',
+      '/(app)/livestock/cattle/f2/sections/appointments/ap1',
     ],
     [
       'FARM_APPOINTMENT_ASSIGNED',
@@ -59,7 +59,7 @@ describe('notificationHref — post-Phase-15 types (push payloads)', () => {
     [
       'FARM_APPOINTMENT_DUE',
       { organizationId: 'f2', appointmentId: 'ap1', farmSpecies: 'CATTLE' },
-      '/(app)/livestock/cattle/f2/sections/appointments',
+      '/(app)/livestock/cattle/f2/sections/appointments/ap1',
     ],
     ['VACCINATION_DUE', { animalId: 'a1', vaccinationId: 'v1' }, '/(app)/pets/a1'],
     ['TRADER_APPROVED', {}, '/(app)/poultry/market-hub'],

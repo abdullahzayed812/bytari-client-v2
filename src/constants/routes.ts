@@ -196,6 +196,17 @@ export const Routes = {
     organizationId: string,
     section: 'treatments' | 'cases' | 'appointments' | 'expenses' | 'daily' | 'weekly',
   ) => `/(app)/livestock/cattle/${organizationId}/sections/${section}` as const,
+  /** One item's detail within a sheep / cattle farm management section. */
+  sheepFarmSectionItem: (
+    organizationId: string,
+    section: 'treatments' | 'cases' | 'appointments' | 'expenses',
+    itemId: string,
+  ) => `/(app)/livestock/sheep/${organizationId}/sections/${section}/${itemId}` as const,
+  cattleFarmSectionItem: (
+    organizationId: string,
+    section: 'treatments' | 'cases' | 'appointments' | 'expenses',
+    itemId: string,
+  ) => `/(app)/livestock/cattle/${organizationId}/sections/${section}/${itemId}` as const,
 
   // Pet Owners Store — consumer storefront (3rd bottom tab in Pet Owner mode)
   petOwnerStore: '/(app)/pet-owner-store',
@@ -217,6 +228,23 @@ export const Routes = {
   veterinarianStoreOrders: '/(app)/veterinarian-store/orders',
   veterinarianStoreOrder: (orderId: string) =>
     `/(app)/veterinarian-store/orders/${orderId}` as const,
+
+  // Clinic Store + Veterinary Office Store — per-organization carts & orders.
+  orgStoreCart: (organizationId: string) =>
+    `/(app)/organization-store/${organizationId}/cart` as const,
+  orgStoreCheckout: (organizationId: string) =>
+    `/(app)/organization-store/${organizationId}/checkout` as const,
+  /** The customer's clinic / office orders (all stores). */
+  orgStoreOrders: '/(app)/organization-store/orders',
+  orgStoreOrder: (orderId: string) => `/(app)/organization-store/orders/${orderId}` as const,
+  /** Seller side — a clinic's / office's incoming orders. */
+  orgStoreIncomingOrders: (organizationId: string) =>
+    `/(app)/organization-store/${organizationId}/incoming-orders` as const,
+  orgStoreIncomingOrder: (organizationId: string, orderId: string) =>
+    `/(app)/organization-store/${organizationId}/incoming-orders/${orderId}` as const,
+  /** Owner picks store supervisors among the staff. */
+  orgStoreSupervisors: (organizationId: string) =>
+    `/(app)/organization-store/${organizationId}/supervisors` as const,
 
   // Notifications inbox (Mobile Phase 15)
   notifications: '/(app)/notifications',
@@ -562,6 +590,8 @@ export const Routes = {
     `/(app)/admin/chat-conversation/${conversationId}` as const,
   /** Admin dashboard "إرسال رسالة" card — platform-wide broadcast to users. */
   adminBroadcast: '/(app)/admin/broadcast',
+  /** Video links attached to acceptance notifications (registration / approvals). */
+  adminNotificationVideos: '/(app)/admin/notification-videos',
   adminHomeSections: '/(app)/admin/home-sections',
   adminFeaturedOrganizations: '/(app)/admin/featured-organizations',
   /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */

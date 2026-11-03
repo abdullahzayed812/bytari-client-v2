@@ -1,34 +1,27 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
 
-import { EmptyState } from '@/components/feedback';
 import { AppHeader } from '@/components/navigation';
-import { useTheme } from '@/theme';
+import { StoreIncomingOrdersContent } from '@/features/organizationStore/screens/StoreIncomingOrdersScreen';
 
 import { VeterinaryOfficeDashboardShell } from '../components';
 
 /**
- * Route `/vet-office-dashboard/[organizationId]/orders` — "الطلبات".
- * Stub: office products are catalog-only (browse + contact the office); no
- * orders/checkout system exists for them yet, and no screenshot specifies this
- * screen's content — a placeholder, not invented functionality.
+ * Route `/vet-office-dashboard/[organizationId]/orders` — "الطلبات": the
+ * Veterinary Office Store's incoming orders (`store.order.read`), inside the
+ * dashboard's own tab shell. Same list as the generic incoming-orders route.
  */
 export default function VeterinaryOfficeOrdersScreen() {
-  const theme = useTheme();
-  const { t } = useTranslation('veterinaryOfficeDashboard');
+  const { t } = useTranslation('organizationStore');
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
+  const orgId = organizationId ?? '';
 
   return (
-    <VeterinaryOfficeDashboardShell organizationId={organizationId ?? ''} active="orders">
-      <AppHeader title={t('orders.title')} showBack />
-      <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: theme.screenPadding }}>
-        <EmptyState
-          icon="receipt-outline"
-          title={t('orders.comingSoonTitle')}
-          message={t('orders.comingSoonBody')}
-        />
-      </View>
+    <VeterinaryOfficeDashboardShell organizationId={orgId} active="orders">
+      <StoreIncomingOrdersContent
+        organizationId={orgId}
+        header={(name) => <AppHeader title={t('incoming.title')} subtitle={name} showBack />}
+      />
     </VeterinaryOfficeDashboardShell>
   );
 }

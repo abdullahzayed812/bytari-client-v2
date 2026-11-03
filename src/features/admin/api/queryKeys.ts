@@ -16,6 +16,7 @@ import type {
  */
 export const adminKeys = {
   all: ['admin'] as const,
+  notificationVideoLinks: ['admin', 'notification-video-links'] as const,
 
   users: {
     all: ['admin', 'users'] as const,

@@ -17,7 +17,12 @@ import { useTheme } from '@/theme';
 import { formatDate, isHttpUrl } from '@/utils';
 
 import { notificationKeys, notificationsApi } from '../api';
-import { localizedNotificationText, notificationHref, notificationSourceName } from '../constants';
+import {
+  localizedNotificationText,
+  notificationHref,
+  notificationSourceName,
+  notificationVideoUrl,
+} from '../constants';
 import { useMarkNotificationRead } from '../hooks';
 import type { AppNotification } from '../types';
 
@@ -77,6 +82,7 @@ export default function NotificationDetailScreen() {
   // Only http(s) links are ever opened (the server validates the same rule).
   const linkUrl =
     n && typeof n.data?.linkUrl === 'string' && isHttpUrl(n.data.linkUrl) ? n.data.linkUrl : null;
+  const videoUrl = n ? notificationVideoUrl(n) : null;
 
   return (
     <ScrollScreen>
@@ -126,6 +132,14 @@ export default function NotificationDetailScreen() {
               </Field>
             </View>
           </Card>
+          {videoUrl ? (
+            <Button
+              label={t('detail.watchVideo')}
+              variant="primary"
+              leftIcon="play-circle-outline"
+              onPress={() => void Linking.openURL(videoUrl)}
+            />
+          ) : null}
           {linkUrl ? (
             <Button
               label={t('detail.openLink')}

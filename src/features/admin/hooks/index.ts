@@ -52,3 +52,7 @@ export {
 } from './useAdminChats';
 export { useSendBroadcast, useAdminBroadcastImageProvider } from './useAdminBroadcast';
 export { useAdminDashboardSummary, useMarkDashboardCardSeen } from './useAdminDashboard';
+export {
+  useNotificationVideoLinks,
+  useSaveNotificationVideoLink,
+} from './useNotificationVideoLinks';

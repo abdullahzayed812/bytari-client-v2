@@ -285,4 +285,13 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     route: Routes.adminBroadcast,
     show: (c) => c.isAdmin || c.can('notification.admin.send'),
   },
+  {
+    // "فيديوهات الإشعارات" — video links on acceptance notifications.
+    id: 'notificationVideos',
+    icon: 'videocam-outline',
+    tint: dashboardTint(4),
+    palette: { bg: '#fff1f2', border: '#ffe0e3', accent: '#f43f5e' },
+    route: Routes.adminNotificationVideos,
+    show: (c) => c.isAdmin || c.can('notification.admin.send'),
+  },
 ];

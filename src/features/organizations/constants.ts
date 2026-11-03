@@ -146,6 +146,10 @@ export const OFFICE_PERMISSION_GROUPS = [
     ],
   },
   {
+    key: 'store_orders',
+    permissions: ['store.order.read', 'store.order.manage'],
+  },
+  {
     key: 'followers',
     permissions: ['organization.broadcast.send'],
   },
@@ -184,6 +188,15 @@ export const CLINIC_PERMISSION_GROUPS = [
   {
     key: 'clinic_appointments',
     permissions: ['clinic.appointment.read', 'clinic.appointment.manage'],
+  },
+  // Clinic Store — products + incoming orders (same keys as an office's).
+  {
+    key: 'products',
+    permissions: ['product.read', 'product.create', 'product.update', 'product.delete'],
+  },
+  {
+    key: 'store_orders',
+    permissions: ['store.order.read', 'store.order.manage'],
   },
   {
     key: 'followers',
@@ -288,7 +301,13 @@ export function permissionGroupsFor(
 ): readonly OrgPermissionGroup[] {
   if (type === 'CHAT_ROOM') return [...ORG_PERMISSION_GROUPS, ...CHAT_ROOM_PERMISSION_GROUPS];
   if (type === 'SYNDICATE') return [...SYNDICATE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
-  if (type === 'VETERINARY_STORE') return [...OFFICE_PERMISSION_GROUPS, ...ORG_PERMISSION_GROUPS];
+  if (type === 'VETERINARY_STORE') {
+    // A Veterinary Store has no order system — its catalogue is browse-only.
+    return [
+      ...OFFICE_PERMISSION_GROUPS.filter((g) => g.key !== 'store_orders'),
+      ...ORG_PERMISSION_GROUPS,
+    ];
+  }
   if (type === 'VETERINARY_OFFICE') {
     // Office products have no inventory — stock adjustment is store-only.
     const officeGroups = OFFICE_PERMISSION_GROUPS.map((g) => ({
@@ -410,6 +429,10 @@ export interface OrgCapabilities {
    * may have it if the owner granted it). Every send is still gated server-side.
    */
   canSendBroadcast: boolean;
+  /** Clinic / office store — see incoming orders (`store.order.read`). */
+  canViewStoreOrders: boolean;
+  /** Clinic / office store — change an order's status (`store.order.manage`). */
+  canManageStoreOrders: boolean;
 }
 
 /**
@@ -474,6 +497,10 @@ export function orgCapabilities(
     canLeave: myRole != null && !owner,
     isOwner: owner,
     canSendBroadcast: privileged || isSupervisor,
+    // Granted to no role by default — owner / admin, or an explicit grant
+    // (known only through `myPermissions`).
+    canViewStoreOrders: privileged,
+    canManageStoreOrders: privileged,
   };
 }
 
@@ -537,6 +564,8 @@ function capabilitiesFromPermissions(
     canLeave: myRole != null,
     isOwner: false,
     canSendBroadcast: has('organization.broadcast.send'),
+    canViewStoreOrders: has('store.order.read'),
+    canManageStoreOrders: has('store.order.manage'),
   };
 }
 

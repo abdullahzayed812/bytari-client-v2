@@ -143,6 +143,11 @@ export default {
         subtitle: 'شريط العيادات والمكاتب في الصفحة الرئيسية',
         unit: 'عنصر',
       },
+      notificationVideos: {
+        title: 'فيديوهات الإشعارات',
+        subtitle: 'روابط الفيديو في إشعارات القبول والتسجيل',
+        unit: 'رابط',
+      },
       books: { title: 'الكتب', subtitle: 'إدارة الكتب البيطرية وملفاتها', unit: 'كتاب منشور' },
       magazines: { title: 'المجلات', subtitle: 'إدارة أعداد المجلة البيطرية', unit: 'عدد منشور' },
       // One combined tile for adoption / mating / lost (sums the three server counters).
@@ -283,6 +288,8 @@ export default {
     VETERINARIAN_STORE_CATEGORY_DELETED: 'تم حذف تصنيف متجر الأطباء البيطريين',
     VETERINARIAN_STORE_ORDER_PLACED: 'طلب شراء جديد من متجر الأطباء البيطريين',
     VETERINARIAN_STORE_ORDER_STATUS_CHANGED: 'تم تحديث حالة طلب متجر الأطباء البيطريين',
+    ORGANIZATION_STORE_ORDER_PLACED: 'طلب شراء جديد من متجر عيادة أو مكتب',
+    ORGANIZATION_STORE_ORDER_STATUS_CHANGED: 'تم تحديث حالة طلب متجر عيادة أو مكتب',
     VET_JOB_OFFER_CREATED: 'تم نشر عرض وظيفة جديد',
     VET_JOB_OFFER_UPDATED: 'تم تحديث عرض وظيفة',
     VET_JOB_OFFER_APPROVED: 'تمت الموافقة على عرض وظيفة',
@@ -380,6 +387,8 @@ export default {
     AD_SLIDE_REORDERED: 'تم إعادة ترتيب شرائح إعلانية',
     AD_SLIDE_IMAGE_UPDATED: 'تم تحديث صورة شريحة إعلانية',
     HOME_SECTION_IMAGE_UPDATED: 'تم تحديث صورة قسم في الصفحة الرئيسية',
+    NOTIFICATION_VIDEO_LINK_UPDATED: 'تم تحديث رابط فيديو إشعار',
+    NOTIFICATION_VIDEO_LINK_REMOVED: 'تم حذف رابط فيديو إشعار',
     HOME_SECTION_IMAGE_REMOVED: 'تم حذف صورة قسم في الصفحة الرئيسية',
     TRADER_APPLICATION_CREATED: 'طلب تسجيل تاجر جديد',
     TRADER_APPROVED: 'تمت الموافقة على تاجر',
@@ -579,6 +588,48 @@ export default {
     hasImage: 'تُعرض الصورة المرفوعة في الصفحة الرئيسية.',
     noImage: 'لا توجد صورة — تُعرض الأيقونة الافتراضية.',
     removed: 'تم حذف الصورة وإعادة الأيقونة الافتراضية.',
+  },
+
+  notificationVideos: {
+    intro:
+      'أضف رابط فيديو يظهر داخل إشعار القبول أو التسجيل، ويستطيع المستلم الضغط عليه لفتح الفيديو. يُطبَّق أي تعديل أو حذف على الإشعارات المرسلة سابقاً أيضاً.',
+    save: 'حفظ',
+    remove: 'حذف الرابط',
+    preview: 'فتح الرابط',
+    notSet: 'لا يوجد رابط — يُرسل الإشعار بدون فيديو.',
+    saved: 'تم حفظ رابط الفيديو.',
+    removed: 'تم حذف رابط الفيديو.',
+    errors: { link: 'أدخل رابطاً صحيحاً يبدأ بـ http:// أو https://' },
+    keys: {
+      PET_OWNER_REGISTERED: {
+        title: 'تسجيل صاحب حيوان',
+        description: 'إشعار الترحيب بعد إتمام تسجيل حساب صاحب الحيوان.',
+      },
+      VETERINARIAN_APPROVED: {
+        title: 'قبول طبيب بيطري',
+        description: 'إشعار الموافقة على حساب الطبيب البيطري.',
+      },
+      CLINIC_APPROVED: {
+        title: 'قبول عيادة بيطرية',
+        description: 'إشعار الموافقة على إضافة عيادة.',
+      },
+      VETERINARY_OFFICE_APPROVED: {
+        title: 'قبول مكتب بيطري',
+        description: 'إشعار الموافقة على إضافة مكتب بيطري.',
+      },
+      POULTRY_FARM_APPROVED: {
+        title: 'قبول حقل دواجن',
+        description: 'إشعار الموافقة على إضافة حقل دواجن.',
+      },
+      SHEEP_FARM_APPROVED: {
+        title: 'قبول مزرعة أغنام',
+        description: 'إشعار الموافقة على إضافة مزرعة أغنام.',
+      },
+      CATTLE_FARM_APPROVED: {
+        title: 'قبول مزرعة أبقار',
+        description: 'إشعار الموافقة على إضافة مزرعة أبقار.',
+      },
+    },
   },
 
   broadcast: {
@@ -1759,6 +1810,7 @@ export default {
       VETERINARIAN_STORE_PRODUCT: 'منتج متجر الأطباء البيطريين',
       VETERINARIAN_STORE_CATEGORY: 'تصنيف متجر الأطباء البيطريين',
       VETERINARIAN_STORE_ORDER: 'طلب متجر الأطباء البيطريين',
+      ORGANIZATION_STORE_ORDER: 'طلب متجر عيادة أو مكتب',
       VET_JOB_OFFER: 'عرض وظيفة',
       VET_JOB_SEEKER_PROFILE: 'ملف باحث عن عمل',
       VET_JOB_APPLICATION: 'طلب توظيف',

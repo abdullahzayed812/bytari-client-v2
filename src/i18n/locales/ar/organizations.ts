@@ -476,6 +476,7 @@ export default {
     clinic_medical: 'السجلات الطبية',
     clinic_vaccinations: 'التطعيمات والتذكيرات',
     clinic_appointments: 'المواعيد',
+    store_orders: 'طلبات المتجر',
     farm_batches: 'الدفعات',
     farm_daily_records: 'السجلات اليومية',
     farm_health_events: 'العلاجات والتطعيمات',
@@ -636,6 +637,14 @@ export default {
     'clinic.appointment.manage': {
       label: 'إدارة المواعيد',
       hint: 'قبول المواعيد ورفضها وإعادة جدولتها وإكمالها.',
+    },
+    'store.order.read': {
+      label: 'عرض الطلبات الواردة',
+      hint: 'الاطلاع على طلبات الزبائن من متجر العيادة أو المكتب.',
+    },
+    'store.order.manage': {
+      label: 'إدارة الطلبات',
+      hint: 'تأكيد الطلبات وتجهيزها وإرسالها وتسليمها أو إلغاؤها.',
     },
     'farm.poultry.read': {
       label: 'عرض دفعات الدواجن',

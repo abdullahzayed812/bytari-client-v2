@@ -15,6 +15,7 @@ import { useOrganizationAnimals } from '@/features/animals/hooks';
 import type { ClinicPet } from '@/features/animals/types';
 import { useConversationUnreadSummary } from '@/features/chat';
 import { useOrganization } from '@/features/organizations';
+import { useIncomingOrgStoreOrdersSummary } from '@/features/organizationStore/hooks';
 import { ApiError } from '@/services/api';
 import { useTheme, type ColorTokens } from '@/theme';
 
@@ -48,6 +49,7 @@ const TONES = {
 export default function ClinicDashboardHomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('clinicDashboard');
+  const { t: tStore } = useTranslation('organizationStore');
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
 
@@ -60,6 +62,11 @@ export default function ClinicDashboardHomeScreen() {
   const isExpired = org.data?.details.subscriptionStatus === 'EXPIRED';
   const recent = useOrganizationAnimals(orgId, { enabled: Boolean(perms?.canViewAnimals) });
   const unread = useConversationUnreadSummary(orgId, { enabled: Boolean(orgId) && isActive });
+  // Clinic Store — the incoming-orders badge (`store.order.read` only).
+  const orderSummary = useIncomingOrgStoreOrdersSummary(orgId, {
+    enabled: Boolean(perms?.canViewStoreOrders) && isActive && !isExpired,
+  });
+  const newOrders = orderSummary.data?.newCount ?? 0;
   const unreadMessages = unread.data?.unreadMessages ?? 0;
 
   const error = org.error ?? summary.error;
@@ -418,6 +425,33 @@ export default function ClinicDashboardHomeScreen() {
                   badge={pending}
                   badgeLabel={t('quick.pendingBadge', { count: pending })}
                   onPress={() => go(Routes.clinicDashboardAppointments(orgId))}
+                />
+              ) : null}
+              {/* --- Clinic Store: products + incoming orders --- */}
+              {perms?.canViewProducts ? (
+                <QuickTile
+                  icon="cube-outline"
+                  tone={TONES.violet}
+                  label={tStore('dashboard.manageProducts')}
+                  onPress={() => go(Routes.organizationOfficeProducts(orgId))}
+                />
+              ) : null}
+              {perms?.canViewStoreOrders ? (
+                <QuickTile
+                  icon="receipt-outline"
+                  tone={TONES.amber}
+                  label={tStore('dashboard.incomingOrders')}
+                  badge={newOrders}
+                  badgeLabel={tStore('incoming.newCount', { count: newOrders })}
+                  onPress={() => go(Routes.orgStoreIncomingOrders(orgId))}
+                />
+              ) : null}
+              {perms?.canAssignSupervisors ? (
+                <QuickTile
+                  icon="shield-checkmark-outline"
+                  tone={TONES.mint}
+                  label={tStore('dashboard.storeSupervisors')}
+                  onPress={() => go(Routes.orgStoreSupervisors(orgId))}
                 />
               ) : null}
               <QuickTile

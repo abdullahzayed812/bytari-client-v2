@@ -38,6 +38,7 @@ const notifications: KuNamespace<'notifications'> = {
     dateLabel: 'بەروار',
     openRelated: 'بینینی ناوەڕۆکی پەیوەندیدار',
     openLink: 'کردنەوەی بەستەر',
+    watchVideo: 'سەیرکردنی ڤیدیۆ',
     notFoundTitle: 'ئاگادارکردنەوەکە بەردەست نییە',
     notFoundBody: 'لەوانەیە ئەم ئاگادارکردنەوەیە سڕابێتەوە یان پەیوەندی بە تۆوە نەبێت.',
   },
@@ -54,6 +55,10 @@ const notifications: KuNamespace<'notifications'> = {
     ACCOUNT_STATUS_CHANGED: {
       title: 'نوێکردنەوەی دۆخی هەژمار',
       body: 'دۆخی هەژمارەکەت نوێ کرایەوە.',
+    },
+    PET_OWNER_REGISTRATION_COMPLETED: {
+      title: 'بەخێربێیت بۆ بەیتەری',
+      body: 'هەژمارەکەت بە سەرکەوتوویی چالاک کرا، ئێستا دەتوانیت هەموو خزمەتگوزارییەکانی ئەپەکە بەکاربهێنیت.',
     },
     VETERINARIAN_APPLICATION_SUBMITTED: {
       title: 'داواکاری تۆمارکردنی پزیشکی ڤێتێرنەری نوێ',
@@ -342,6 +347,14 @@ const notifications: KuNamespace<'notifications'> = {
     STORE_ORDER_STATUS_CHANGED: {
       title: 'نوێکردنەوەی دۆخی داواکاری',
       body: 'دۆخی داواکارییەکەت نوێ کرایەوە.',
+    },
+    STORE_ORDER_SUBMITTED: {
+      title: 'داواکارییەکەت نێردرا',
+      body: 'فرۆشگاکە داواکارییەکەتی وەرگرت و بەم زووانە پێیدا دەچێتەوە.',
+    },
+    STORE_ORDER_UPDATED: {
+      title: 'نوێکردنەوە لەسەر داواکارییەک',
+      body: 'دۆخی یەکێک لە داواکارییەکانی فرۆشگاکەت نوێ کرایەوە.',
     },
     SYNDICATE_ANNOUNCEMENT_PUBLISHED: {
       title: 'ڕاگەیاندنی نوێ لە سەندیکا',

@@ -20,6 +20,7 @@ import {
   useUnfollowOrganization,
   useUnlikeOrganization,
 } from '@/features/organizations';
+import { OrgStoreCartButton } from '@/features/organizationStore/components';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
@@ -376,7 +377,10 @@ export default function VeterinaryOfficeDetailsScreen() {
 
         <Section>
           <Row justify="space-between" align="center">
-            <Text variant="bodyStrong">{t('detail.productsTitle', { count: products.total })}</Text>
+            <Text variant="bodyStrong" style={{ flex: 1 }}>
+              {t('detail.productsTitle', { count: products.total })}
+            </Text>
+            {officeId ? <OrgStoreCartButton organizationId={officeId} /> : null}
             {productPreview.length > 0 ? (
               <Text
                 variant="label"

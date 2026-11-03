@@ -10,6 +10,7 @@ import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useStartConversation } from '@/features/chat';
 import { ImageCarousel, usePublicOrganization } from '@/features/organizations';
+import { OrgStoreAddToCart, OrgStoreCartButton } from '@/features/organizationStore/components';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { openPhone } from '@/utils';
@@ -40,6 +41,7 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
   const { t: tc } = useTranslation('common');
+  const { t: tStore } = useTranslation('organizationStore');
   const toast = useToast();
   const { officeId, productId } = useLocalSearchParams<{ officeId: string; productId: string }>();
 
@@ -125,6 +127,11 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
             />
           </View>
         )}
+        {officeId ? (
+          <View style={{ position: 'absolute', top: theme.spacing.md, start: theme.spacing.md }}>
+            <OrgStoreCartButton organizationId={officeId} />
+          </View>
+        ) : null}
         <View style={{ position: 'absolute', top: theme.spacing.md, end: theme.spacing.md }}>
           <Button
             label={t('product.favoriteA11y')}
@@ -155,6 +162,24 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
             <Text style={{ marginTop: theme.spacing.md }}>{product.description}</Text>
           ) : null}
         </Section>
+
+        {/* Clinic / Veterinary Office Store — order it (Cash on Delivery). */}
+        {officeId ? (
+          <Section>
+            <OrgStoreAddToCart
+              organizationId={officeId}
+              productId={product.id}
+              hasPrice={product.price != null}
+            />
+            <Button
+              label={tStore('orders.shortTitle')}
+              variant="ghost"
+              size="sm"
+              leftIcon="receipt-outline"
+              onPress={() => router.push(Routes.orgStoreOrders)}
+            />
+          </Section>
+        ) : null}
 
         {product.highlights.length > 0 ? (
           <Section>
@@ -198,7 +223,9 @@ export default function PublicVeterinaryOfficeProductDetailsScreen() {
 
         <Section spacing="giant">
           <Text variant="bodyStrong" style={{ marginBottom: theme.spacing.md }}>
-            {t('product.contactOffice')}
+            {office.data?.type === 'CLINIC'
+              ? tStore('common.contactClinic')
+              : t('product.contactOffice')}
           </Text>
           <Row gap="md">
             <Button

@@ -12,6 +12,7 @@ import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
+import { OrgStoreCartButton } from '@/features/organizationStore/components';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
@@ -79,7 +80,12 @@ export default function PublicVeterinaryOfficeProductsScreen() {
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('products.title')} showBack backAlign="left" />
+      <AppHeader
+        title={t('products.title')}
+        showBack
+        backAlign="left"
+        right={officeId ? <OrgStoreCartButton organizationId={officeId} /> : undefined}
+      />
 
       <View
         style={{

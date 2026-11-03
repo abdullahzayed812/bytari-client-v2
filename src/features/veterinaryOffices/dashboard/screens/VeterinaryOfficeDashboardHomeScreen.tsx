@@ -16,6 +16,7 @@ import {
   useOrganization,
   useOrganizationSubscriptionRenewals,
 } from '@/features/organizations';
+import { useIncomingOrgStoreOrdersSummary } from '@/features/organizationStore/hooks';
 import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useCapabilities } from '@/hooks';
 import { useTheme } from '@/theme';
@@ -115,6 +116,7 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOfficeDashboard');
   const { t: tOffice } = useTranslation('veterinaryOffices');
+  const { t: tStore } = useTranslation('organizationStore');
   const toast = useToast();
   const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const orgId = organizationId ?? '';
@@ -143,6 +145,11 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
     enabled: Boolean(org.data) && !isLocked && canViewProducts,
   });
   const unread = useConversationUnreadSummary(orgId, { enabled: Boolean(orgId) && canOperate });
+  // Veterinary Office Store — incoming orders (`store.order.read`).
+  const orderSummary = useIncomingOrgStoreOrdersSummary(orgId, {
+    enabled: Boolean(org.data) && !isLocked && orgCaps.canViewStoreOrders,
+  });
+  const newOrders = orderSummary.data?.newCount ?? 0;
   const unreadMessages = unread.data?.unreadMessages ?? 0;
   const update = useUpdateVeterinaryOfficeProduct(orgId);
   const del = useDeleteVeterinaryOfficeProduct(orgId);
@@ -382,6 +389,22 @@ export default function VeterinaryOfficeDashboardHomeScreen() {
                           onPress={() =>
                             router.push(Routes.vetOfficeDashboardHiddenProducts(orgId))
                           }
+                        />
+                      ) : null}
+                      {orgCaps.canViewStoreOrders ? (
+                        <QuickAction
+                          icon="receipt-outline"
+                          label={tStore('dashboard.incomingOrders')}
+                          badge={newOrders}
+                          badgeLabel={tStore('incoming.newCount', { count: newOrders })}
+                          onPress={() => router.push(Routes.vetOfficeDashboardOrders(orgId))}
+                        />
+                      ) : null}
+                      {orgCaps.canAssignSupervisors ? (
+                        <QuickAction
+                          icon="shield-checkmark-outline"
+                          label={tStore('dashboard.storeSupervisors')}
+                          onPress={() => router.push(Routes.orgStoreSupervisors(orgId))}
                         />
                       ) : null}
                       <QuickAction

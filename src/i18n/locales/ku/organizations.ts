@@ -491,6 +491,7 @@ const organizations: KuNamespace<'organizations'> = {
     clinic_medical: 'تۆمارە پزیشکییەکان',
     clinic_vaccinations: 'کوتان و بیرخستنەوەکان',
     clinic_appointments: 'چاوپێکەوتنەکان',
+    store_orders: 'داواکارییەکانی فرۆشگا',
     farm_batches: 'دەستەکان',
     farm_daily_records: 'تۆمارە ڕۆژانەکان',
     farm_health_events: 'چارەسەر و کوتانەکان',
@@ -651,6 +652,14 @@ const organizations: KuNamespace<'organizations'> = {
     'clinic.appointment.manage': {
       label: 'بەڕێوەبردنی چاوپێکەوتنەکان',
       hint: 'پەسەندکردن، ڕەتکردنەوە، دووبارە ڕێکخستن و تەواوکردنی چاوپێکەوتنەکان.',
+    },
+    'store.order.read': {
+      label: 'بینینی داواکارییە هاتووەکان',
+      hint: 'بینینی داواکاریی کڕیاران لە فرۆشگای کلینیک یان نووسینگە.',
+    },
+    'store.order.manage': {
+      label: 'بەڕێوەبردنی داواکارییەکان',
+      hint: 'پشتڕاستکردنەوە، ئامادەکردن، ناردن، گەیاندن یان هەڵوەشاندنەوەی داواکارییەکان.',
     },
     'farm.poultry.read': {
       label: 'بینینی دەستەکانی پەلەوەر',

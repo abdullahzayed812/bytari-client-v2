@@ -51,6 +51,7 @@ export const NAMESPACES = [
   'veterinaryMagazine',
   'veterinaryBooks',
   'veterinarianStore',
+  'organizationStore',
   'vetJobs',
   'vetCourses',
   'syndicates',

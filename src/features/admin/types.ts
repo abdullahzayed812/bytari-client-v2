@@ -638,6 +638,7 @@ export type AdminDashboardCardId =
   | 'broadcasts'
   | 'homeSections'
   | 'featuredOrganizations'
+  | 'notificationVideos'
   | 'books'
   | 'magazines'
   | 'adoption'
@@ -689,4 +690,23 @@ export interface AdminDashboardSummary {
   cards: AdminDashboardCardCount[];
   recentActivity: AdminActivityItem[];
   pendingTasks: AdminPendingTask[];
+}
+
+// --- acceptance-notification video links (/admin/notifications/video-links) ---
+export const NOTIFICATION_VIDEO_LINK_KEYS = [
+  'PET_OWNER_REGISTERED',
+  'VETERINARIAN_APPROVED',
+  'CLINIC_APPROVED',
+  'VETERINARY_OFFICE_APPROVED',
+  'POULTRY_FARM_APPROVED',
+  'SHEEP_FARM_APPROVED',
+  'CATTLE_FARM_APPROVED',
+] as const;
+export type NotificationVideoLinkKey = (typeof NOTIFICATION_VIDEO_LINK_KEYS)[number];
+
+export interface NotificationVideoLink {
+  key: NotificationVideoLinkKey;
+  /** `null` = this notification carries no video. */
+  url: string | null;
+  updatedAt: string | null;
 }

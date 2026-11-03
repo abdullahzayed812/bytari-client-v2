@@ -388,6 +388,11 @@ export interface AssignSupervisorInput {
   userId?: string;
   email?: string;
   permissions: string[];
+  /**
+   * Promoting an existing member (e.g. a clinic employee made "store
+   * supervisor"): the server adds what their current role already allowed.
+   */
+  retainRolePermissions?: boolean;
 }
 
 export interface UpdateSupervisorInput {

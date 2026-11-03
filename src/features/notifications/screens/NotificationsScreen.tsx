@@ -11,7 +11,12 @@ import { Caption } from '@/components/typography';
 import { useTheme } from '@/theme';
 
 import { NotificationCard } from '../components';
-import { useMarkAllNotificationsRead, useNotifications, useOpenNotification } from '../hooks';
+import {
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  useNotifications,
+  useOpenNotification,
+} from '../hooks';
 
 type Tab = 'all' | 'unread';
 
@@ -23,6 +28,7 @@ export default function NotificationsScreen() {
   const [tab, setTab] = useState<Tab>('all');
   const open = useOpenNotification();
   const markAll = useMarkAllNotificationsRead();
+  const markRead = useMarkNotificationRead();
 
   const q = useNotifications({ read: tab === 'unread' ? false : undefined });
 
@@ -89,7 +95,13 @@ export default function NotificationsScreen() {
           data={q.items}
           keyExtractor={(n) => n.id}
           renderItem={({ item }) => (
-            <NotificationCard notification={item} onPress={() => open(item)} />
+            <NotificationCard
+              notification={item}
+              onPress={() => open(item)}
+              onOpenVideo={() => {
+                if (!item.read) markRead.mutate(item.id);
+              }}
+            />
           )}
           ListHeaderComponent={header}
           ListEmptyComponent={

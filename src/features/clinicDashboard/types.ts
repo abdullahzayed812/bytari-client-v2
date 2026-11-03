@@ -25,6 +25,14 @@ export interface ClinicDashboardPermissions {
   canViewMembers: boolean;
   canViewSupervisors: boolean;
   canEditOrganization: boolean;
+  /** Clinic Store — products (`product.read` / any product write). */
+  canViewProducts?: boolean;
+  canManageProducts?: boolean;
+  /** Clinic Store — incoming orders (`store.order.read` / `.manage`). */
+  canViewStoreOrders?: boolean;
+  canManageStoreOrders?: boolean;
+  /** Pick store supervisors among the staff (`supervisor.assign`). */
+  canAssignSupervisors?: boolean;
 }
 
 export interface ClinicMedicalStats {

@@ -1,13 +1,18 @@
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { localizedNotificationText, notificationMeta, notificationSourceName } from '../constants';
+import {
+  localizedNotificationText,
+  notificationMeta,
+  notificationSourceName,
+  notificationVideoUrl,
+} from '../constants';
 import type { AppNotification } from '../types';
 
 function broadcastImageUrl(n: AppNotification): string | null {
@@ -19,6 +24,8 @@ function broadcastImageUrl(n: AppNotification): string | null {
 export interface NotificationCardProps {
   notification: AppNotification;
   onPress?: () => void;
+  /** Called when the video link is opened (the inbox marks the row read). */
+  onOpenVideo?: () => void;
 }
 
 /**
@@ -26,7 +33,7 @@ export interface NotificationCardProps {
  * title and a tinted surface — never colour alone (§25/§42). Title / body are
  * backend-rendered plain text (RN `<Text>` executes no markup).
  */
-export function NotificationCard({ notification: n, onPress }: NotificationCardProps) {
+export function NotificationCard({ notification: n, onPress, onOpenVideo }: NotificationCardProps) {
   const theme = useTheme();
   const { t, i18n } = useTranslation('notifications');
   const meta = notificationMeta(n.type);
@@ -34,6 +41,7 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
   const imageUrl = broadcastImageUrl(n);
   const { title, body } = localizedNotificationText(n, t, i18n.language);
   const from = t('source.from', { name: notificationSourceName(n.source, t) });
+  const videoUrl = notificationVideoUrl(n);
 
   return (
     <Pressable
@@ -108,6 +116,36 @@ export function NotificationCard({ notification: n, onPress }: NotificationCardP
           </Text>
         ) : null}
         <Caption>{formatDate(n.createdAt, i18n.language)}</Caption>
+        {videoUrl ? (
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={t('detail.watchVideo')}
+            onPress={() => {
+              onOpenVideo?.();
+              void Linking.openURL(videoUrl);
+            }}
+            hitSlop={6}
+            style={({ pressed }) => [
+              {
+                alignSelf: 'flex-start',
+                flexDirection: 'row',
+                alignItems: 'center',
+                columnGap: theme.spacing.xs,
+                marginTop: theme.spacing.xs,
+                paddingVertical: theme.spacing.xs,
+                paddingHorizontal: theme.spacing.md,
+                borderRadius: theme.radius.pill,
+                backgroundColor: theme.colors.primary,
+              },
+              pressed && { opacity: 0.85 },
+            ]}
+          >
+            <Icon name="play-circle-outline" size="iconSm" color="onPrimary" />
+            <Text variant="caption" weight="bold" color="textInverse">
+              {t('detail.watchVideo')}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <Icon name="chevron-forward" directional size="iconSm" color="textMuted" />

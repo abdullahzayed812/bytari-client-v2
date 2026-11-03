@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import type { IconName } from '@/components/content';
 import { DEFAULT_LANGUAGE } from '@/constants/config';
 import { Routes } from '@/constants/routes';
+import { isHttpUrl } from '@/utils';
 
 import {
   isNotificationType,
@@ -20,6 +21,7 @@ type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
  */
 export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; tone: Tone }> = {
   ACCOUNT_STATUS_CHANGED: { icon: 'person-circle-outline', tone: 'warning' },
+  PET_OWNER_REGISTRATION_COMPLETED: { icon: 'happy-outline', tone: 'success' },
   VETERINARIAN_APPLICATION_SUBMITTED: { icon: 'shield-outline', tone: 'info' },
   VETERINARIAN_APPROVED: { icon: 'shield-checkmark-outline', tone: 'success' },
   VETERINARIAN_REJECTED: { icon: 'shield-outline', tone: 'danger' },
@@ -92,6 +94,8 @@ export const NOTIFICATION_TYPE_META: Record<NotificationType, { icon: IconName; 
   VET_JOB_APPLICATION_REJECTED: { icon: 'briefcase-outline', tone: 'neutral' },
   STORE_ORDER_PLACED: { icon: 'cart-outline', tone: 'primary' },
   STORE_ORDER_STATUS_CHANGED: { icon: 'cart-outline', tone: 'info' },
+  STORE_ORDER_SUBMITTED: { icon: 'bag-check-outline', tone: 'success' },
+  STORE_ORDER_UPDATED: { icon: 'cart-outline', tone: 'info' },
   SYNDICATE_ANNOUNCEMENT_PUBLISHED: { icon: 'megaphone-outline', tone: 'primary' },
   SYNDICATE_SUBMISSION_CREATED: { icon: 'document-text-outline', tone: 'info' },
   SYNDICATE_SUBMISSION_RESPONDED: { icon: 'document-text-outline', tone: 'success' },
@@ -231,6 +235,23 @@ function hrefByEntity(n: Pick<AppNotification, 'entityType' | 'entityId' | 'data
   }
 }
 
+/**
+ * A Clinic / Veterinary Office store order: the store side (`audience:
+ * SELLER`) opens its incoming order, the customer their tracking screen.
+ */
+function organizationStoreOrderHref(
+  d: Record<string, unknown>,
+  orderId: string | undefined,
+): string {
+  const orgId = pick(d, 'organizationId');
+  if (pick(d, 'audience') === 'SELLER' && orgId) {
+    return orderId
+      ? Routes.orgStoreIncomingOrder(orgId, orderId)
+      : Routes.orgStoreIncomingOrders(orgId);
+  }
+  return orderId ? Routes.orgStoreOrder(orderId) : Routes.orgStoreOrders;
+}
+
 function hrefByType(
   n: Pick<AppNotification, 'type' | 'entityType' | 'entityId' | 'data'>,
 ): string | null {
@@ -266,26 +287,36 @@ function hrefByType(
     case 'ORGANIZATION_ACTIVATED':
     case 'ORGANIZATION_DEACTIVATED':
     case 'ORGANIZATION_MEMBER_ADDED':
-    case 'ORGANIZATION_MEMBER_REMOVED':
     case 'ORGANIZATION_ROLE_CHANGED':
     case 'ORGANIZATION_SUPERVISOR_ASSIGNED':
     case 'SUBSCRIPTION_UPDATED':
     case 'SUBSCRIPTION_RENEWAL_APPROVED':
     case 'SUBSCRIPTION_RENEWAL_REJECTED':
+      return orgId ? Routes.organizationDetail(orgId) : Routes.organizations;
     case 'FARM_APPOINTMENT_CREATED':
     case 'FARM_APPOINTMENT_ASSIGNED':
     case 'FARM_APPOINTMENT_DUE': {
       // The farm's own appointments screen (species from `data.farmSpecies`);
       // falls through to the organization page for legacy rows without an id.
-      const appointmentId = id('appointmentId');
+      // Never fall back to a generic entityId: only a FARM_APPOINTMENT entity
+      // is an appointment (an ORGANIZATION entityId is the org itself).
+      const appointmentId =
+        pick(d, 'appointmentId') ??
+        (n.entityType === 'FARM_APPOINTMENT' ? (n.entityId ?? undefined) : undefined);
       if (orgId && appointmentId) {
         const species = pick(d, 'farmSpecies');
-        if (species === 'SHEEP') return Routes.sheepFarmSection(orgId, 'appointments');
-        if (species === 'CATTLE') return Routes.cattleFarmSection(orgId, 'appointments');
+        if (species === 'SHEEP')
+          return Routes.sheepFarmSectionItem(orgId, 'appointments', appointmentId);
+        if (species === 'CATTLE')
+          return Routes.cattleFarmSectionItem(orgId, 'appointments', appointmentId);
         return Routes.poultryFarmSectionItem(orgId, 'appointments', appointmentId);
       }
       return orgId ? Routes.organizationDetail(orgId) : Routes.organizations;
     }
+    // Removed from the organization → its page is no longer readable (403);
+    // the notification's details screen explains what happened instead.
+    case 'ORGANIZATION_MEMBER_REMOVED':
+      return null;
     case 'FARM_MEMBER_JOINED': {
       const oid = orgId ?? (n.entityType === 'ORGANIZATION' ? n.entityId : null);
       return oid ? Routes.organizationDetail(oid) : Routes.organizations;
@@ -313,6 +344,9 @@ function hrefByType(
 
     // --- chat / threads ---
     case 'CHAT_MESSAGE_RECEIVED': {
+      // A Global Chat room has its own room screen (rules, mute, members).
+      const roomId = pick(d, 'chatRoomId');
+      if (roomId) return Routes.globalChatRoomThread(roomId);
       const cid = id('conversationId');
       return cid ? Routes.chatThread(cid) : Routes.chat;
     }
@@ -413,15 +447,22 @@ function hrefByType(
     case 'VET_JOB_APPLICATION_REJECTED':
       return Routes.vetJobMy;
 
+    // --- clinic / veterinary office stores (data.store = ORGANIZATION) ---
+    case 'STORE_ORDER_SUBMITTED':
+    case 'STORE_ORDER_UPDATED':
+      return organizationStoreOrderHref(d, id('orderId'));
+
     // --- platform stores ---
     case 'STORE_ORDER_PLACED': {
       const oid = id('orderId');
+      if (pick(d, 'store') === 'ORGANIZATION') return organizationStoreOrderHref(d, oid);
       const pet = pick(d, 'store') === 'PET_OWNER_STORE';
       if (!oid) return pet ? Routes.adminPetStoreOrders : Routes.adminVetStoreOrders;
       return pet ? Routes.adminPetStoreOrder(oid) : Routes.adminVetStoreOrder(oid);
     }
     case 'STORE_ORDER_STATUS_CHANGED': {
       const oid = id('orderId');
+      if (pick(d, 'store') === 'ORGANIZATION') return organizationStoreOrderHref(d, oid);
       const pet = pick(d, 'store') === 'PET_OWNER_STORE';
       if (!oid) return pet ? Routes.petOwnerStoreOrders : Routes.veterinarianStoreOrders;
       return pet ? Routes.petOwnerStoreOrder(oid) : Routes.veterinarianStoreOrder(oid);
@@ -539,4 +580,14 @@ export function notificationSourceName(
     default:
       return t('source.SYSTEM');
   }
+}
+
+/**
+ * The admin-managed video link on an acceptance notification (registration /
+ * approval), resolved server-side into `data.videoUrl`. Only http(s) links are
+ * ever opened.
+ */
+export function notificationVideoUrl(n: Pick<AppNotification, 'data'>): string | null {
+  const url = n.data?.videoUrl;
+  return typeof url === 'string' && isHttpUrl(url) ? url : null;
 }
