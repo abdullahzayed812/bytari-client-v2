@@ -104,3 +104,13 @@ describe('organizationStoreService — seller side', () => {
     });
   });
 });
+
+describe('organizationStoreService — order messaging', () => {
+  it('opens the chat through the order-scoped endpoints (customer / seller)', async () => {
+    post.mockResolvedValue({ id: 'c1' });
+    await organizationStoreService.openMyOrderConversation('o1');
+    expect(post).toHaveBeenCalledWith('/organization-store/orders/o1/conversation');
+    await organizationStoreService.openIncomingOrderConversation('org1', 'o1');
+    expect(post).toHaveBeenLastCalledWith('/organizations/org1/store-orders/o1/conversation');
+  });
+});

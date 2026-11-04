@@ -13,6 +13,7 @@ import { BottomSheet } from '@/components/overlays';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
+import { useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
@@ -47,6 +48,7 @@ export default function PublicVeterinaryOfficeProductsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
   const { officeId } = useLocalSearchParams<{ officeId: string }>();
+  const quickAdd = useOrgStoreQuickAdd(officeId ?? '');
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
@@ -169,6 +171,8 @@ export default function PublicVeterinaryOfficeProductsScreen() {
               onPress={() =>
                 router.push(Routes.veterinaryOfficeProductDetail(officeId as string, item.id))
               }
+              onAddToCart={officeId ? () => quickAdd.add(item.id) : undefined}
+              adding={quickAdd.isAdding(item.id)}
             />
           )}
           ListEmptyComponent={

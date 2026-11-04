@@ -7,6 +7,14 @@ import { Alert } from '@/components/feedback';
 import { Text } from '@/components/typography';
 import { useTheme, type Theme } from '@/theme';
 
+/**
+ * Account-use responsibility clause for veterinarian / veterinary-student
+ * registration (2026-11-04 addendum). Shown in the terms AND next to the
+ * registration terms checkbox, so ticking it is an explicit acceptance.
+ */
+export const VET_ACCOUNT_RESPONSIBILITY_CLAUSE =
+  'يتحمل صاحب الحساب المسؤولية القانونية الكاملة في حال سمح لأي شخص ينتحل صفة طبيب بيطري، أو لأي شخص ليس طبيباً بيطرياً أو طالباً في كلية الطب البيطري، باستخدام حسابه، ويكون عرضة لجميع التبعات القانونية المترتبة على ذلك.';
+
 export interface TermsAndConditionsModalProps {
   visible: boolean;
   onClose: () => void;
@@ -301,6 +309,7 @@ function GeneralTerms({
           <SubSectionTitle s={s}>1. التحقق والتراخيص</SubSectionTitle>
           <ListItem s={s}>يلتزم الطبيب/طالب الطب البيطري بتقديم وثائق رسمية سارية.</ListItem>
           <ListItem s={s}>يحق للتطبيق رفض أو إلغاء أي حساب دون إبداء الأسباب.</ListItem>
+          <ListItem s={s}>{VET_ACCOUNT_RESPONSIBILITY_CLAUSE}</ListItem>
 
           <SubSectionTitle s={s}>2. المسؤولية الطبية</SubSectionTitle>
           <Paragraph s={s}>يتحمل الطبيب كامل المسؤولية القانونية والمهنية عن:</Paragraph>

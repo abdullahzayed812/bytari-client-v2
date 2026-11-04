@@ -7,7 +7,7 @@ import { Pressable, View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Card, Icon, type IconName } from '@/components/content';
 import { Alert, useToast } from '@/components/feedback';
-import { FormField, Select, TileOptionGroup } from '@/components/forms';
+import { FormField, NoAutofill, Select, TileOptionGroup } from '@/components/forms';
 import { ImagePreview } from '@/components/media';
 import { Caption, Label, Text } from '@/components/typography';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
@@ -119,166 +119,168 @@ export function CattleFarmForm({
   const submit = handleSubmit((values) => onSubmit(values, image));
 
   return (
-    <View style={{ rowGap: theme.spacing.lg }}>
-      {formError ? <Alert tone="danger" message={formError} /> : null}
+    <NoAutofill>
+      <View style={{ rowGap: theme.spacing.lg }}>
+        {formError ? <Alert tone="danger" message={formError} /> : null}
 
-      <FormCard icon="create-outline" title={t('create.sections.basic')}>
-        <FormField
-          control={control}
-          name="name"
-          label={t('create.fields.name')}
-          serverError={serverFields.name}
-        />
-        <FormField
-          control={control}
-          name="location"
-          label={t('create.fields.location')}
-          serverError={serverFields.location}
-        />
+        <FormCard icon="create-outline" title={t('create.sections.basic')}>
+          <FormField
+            control={control}
+            name="name"
+            label={t('create.fields.name')}
+            serverError={serverFields.name}
+          />
+          <FormField
+            control={control}
+            name="location"
+            label={t('create.fields.location')}
+            serverError={serverFields.location}
+          />
+          <Controller
+            control={control}
+            name="governorate"
+            render={({ field: { value, onChange }, fieldState }) => (
+              <Select
+                label={t('create.fields.governorate')}
+                placeholder={t('create.placeholders.governorate')}
+                value={value || null}
+                options={governorateOptions}
+                onChange={onChange}
+                error={fieldState.error?.message ?? serverFields.governorate}
+              />
+            )}
+          />
+          <FormField
+            control={control}
+            name="description"
+            label={t('create.fields.description')}
+            multiline
+            numberOfLines={3}
+            serverError={serverFields.description}
+          />
+          <FormField
+            control={control}
+            name="address"
+            label={t('create.fields.address')}
+            multiline
+            numberOfLines={2}
+            serverError={serverFields.address}
+          />
+        </FormCard>
+
+        <FormCard icon="pulse-outline" title={t('create.fields.production')}>
+          <Controller
+            control={control}
+            name="cattleProductionType"
+            render={({ field: { value, onChange }, fieldState }) => (
+              <TileOptionGroup
+                options={productionOptions}
+                value={value}
+                onChange={onChange}
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+        </FormCard>
+
+        <FormCard icon="people-outline" title={t('create.sections.capacity')}>
+          <FormField
+            control={control}
+            name="capacity"
+            label={t('create.fields.capacity')}
+            keyboardType="number-pad"
+            serverError={serverFields.capacity}
+          />
+          <FormField
+            control={control}
+            name="currentCattleCount"
+            label={t('create.fields.currentCattleCount')}
+            keyboardType="number-pad"
+            serverError={serverFields.currentCattleCount}
+          />
+        </FormCard>
+
+        <FormCard icon="call-outline" title={t('create.sections.contact')}>
+          <FormField
+            control={control}
+            name="contactName"
+            label={t('create.fields.contactName')}
+            serverError={serverFields.contactName}
+          />
+          <FormField
+            control={control}
+            name="contactPhone"
+            label={t('create.fields.contactPhone')}
+            keyboardType="phone-pad"
+            serverError={serverFields.contactPhone}
+          />
+          <FormField
+            control={control}
+            name="contactEmail"
+            label={t('create.fields.contactEmail')}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            serverError={serverFields.contactEmail}
+          />
+        </FormCard>
+
+        <FormCard icon="image-outline" title={t('create.sections.image')}>
+          <Label>{t('create.fields.image')}</Label>
+          {image ? (
+            <ImagePreview uri={image.uri} size={120} onRemove={() => setImage(null)} />
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('create.addImage')}
+              onPress={() => void pick()}
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: theme.radius.lg,
+                borderWidth: 1.5,
+                borderStyle: 'dashed',
+                borderColor: theme.colors.primary,
+                backgroundColor: theme.colors.surfaceAccent,
+                alignItems: 'center',
+                justifyContent: 'center',
+                rowGap: 4,
+              }}
+            >
+              <Icon name="add" size="iconLg" color="primary" />
+              <Text variant="label" color="primary">
+                {t('create.addImage')}
+              </Text>
+              <Caption>0/1</Caption>
+            </Pressable>
+          )}
+        </FormCard>
+
         <Controller
           control={control}
-          name="governorate"
+          name="termsAccepted"
           render={({ field: { value, onChange }, fieldState }) => (
-            <Select
-              label={t('create.fields.governorate')}
-              placeholder={t('create.placeholders.governorate')}
-              value={value || null}
-              options={governorateOptions}
-              onChange={onChange}
-              error={fieldState.error?.message ?? serverFields.governorate}
-            />
+            <View style={{ rowGap: 4 }}>
+              <RegistrationTermsField
+                termsKey="CATTLE_FARM"
+                checked={value === true}
+                onChange={(next) => onChange(next)}
+                disabled={submitting}
+              />
+              {fieldState.error ? (
+                <Caption style={{ color: theme.colors.danger }}>{fieldState.error.message}</Caption>
+              ) : null}
+            </View>
           )}
         />
-        <FormField
-          control={control}
-          name="description"
-          label={t('create.fields.description')}
-          multiline
-          numberOfLines={3}
-          serverError={serverFields.description}
-        />
-        <FormField
-          control={control}
-          name="address"
-          label={t('create.fields.address')}
-          multiline
-          numberOfLines={2}
-          serverError={serverFields.address}
-        />
-      </FormCard>
 
-      <FormCard icon="pulse-outline" title={t('create.fields.production')}>
-        <Controller
-          control={control}
-          name="cattleProductionType"
-          render={({ field: { value, onChange }, fieldState }) => (
-            <TileOptionGroup
-              options={productionOptions}
-              value={value}
-              onChange={onChange}
-              error={fieldState.error?.message}
-            />
-          )}
+        <Button
+          label={t('create.submit')}
+          leftIcon="create-outline"
+          fullWidth
+          loading={submitting}
+          onPress={submit}
         />
-      </FormCard>
-
-      <FormCard icon="people-outline" title={t('create.sections.capacity')}>
-        <FormField
-          control={control}
-          name="capacity"
-          label={t('create.fields.capacity')}
-          keyboardType="number-pad"
-          serverError={serverFields.capacity}
-        />
-        <FormField
-          control={control}
-          name="currentCattleCount"
-          label={t('create.fields.currentCattleCount')}
-          keyboardType="number-pad"
-          serverError={serverFields.currentCattleCount}
-        />
-      </FormCard>
-
-      <FormCard icon="call-outline" title={t('create.sections.contact')}>
-        <FormField
-          control={control}
-          name="contactName"
-          label={t('create.fields.contactName')}
-          serverError={serverFields.contactName}
-        />
-        <FormField
-          control={control}
-          name="contactPhone"
-          label={t('create.fields.contactPhone')}
-          keyboardType="phone-pad"
-          serverError={serverFields.contactPhone}
-        />
-        <FormField
-          control={control}
-          name="contactEmail"
-          label={t('create.fields.contactEmail')}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          serverError={serverFields.contactEmail}
-        />
-      </FormCard>
-
-      <FormCard icon="image-outline" title={t('create.sections.image')}>
-        <Label>{t('create.fields.image')}</Label>
-        {image ? (
-          <ImagePreview uri={image.uri} size={120} onRemove={() => setImage(null)} />
-        ) : (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('create.addImage')}
-            onPress={() => void pick()}
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: theme.radius.lg,
-              borderWidth: 1.5,
-              borderStyle: 'dashed',
-              borderColor: theme.colors.primary,
-              backgroundColor: theme.colors.surfaceAccent,
-              alignItems: 'center',
-              justifyContent: 'center',
-              rowGap: 4,
-            }}
-          >
-            <Icon name="add" size="iconLg" color="primary" />
-            <Text variant="label" color="primary">
-              {t('create.addImage')}
-            </Text>
-            <Caption>0/1</Caption>
-          </Pressable>
-        )}
-      </FormCard>
-
-      <Controller
-        control={control}
-        name="termsAccepted"
-        render={({ field: { value, onChange }, fieldState }) => (
-          <View style={{ rowGap: 4 }}>
-            <RegistrationTermsField
-              termsKey="CATTLE_FARM"
-              checked={value === true}
-              onChange={(next) => onChange(next)}
-              disabled={submitting}
-            />
-            {fieldState.error ? (
-              <Caption style={{ color: theme.colors.danger }}>{fieldState.error.message}</Caption>
-            ) : null}
-          </View>
-        )}
-      />
-
-      <Button
-        label={t('create.submit')}
-        leftIcon="create-outline"
-        fullWidth
-        loading={submitting}
-        onPress={submit}
-      />
-    </View>
+      </View>
+    </NoAutofill>
   );
 }

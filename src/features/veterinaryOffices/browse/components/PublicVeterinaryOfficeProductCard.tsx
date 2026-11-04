@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
@@ -13,6 +14,9 @@ export interface PublicVeterinaryOfficeProductCardProps {
   product: VeterinaryOfficeProduct;
   width: number;
   onPress: () => void;
+  /** Shows the "تسوق" button (one unit → this store's cart). Omitted = no button. */
+  onAddToCart?: () => void;
+  adding?: boolean;
 }
 
 /** Grid card for a veterinary office/store's public product catalog. */
@@ -20,9 +24,14 @@ export function PublicVeterinaryOfficeProductCard({
   product,
   width,
   onPress,
+  onAddToCart,
+  adding,
 }: PublicVeterinaryOfficeProductCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
+  const { t: tStore } = useTranslation('organizationStore');
+  // Products without a price cannot be ordered (same rule as the product page).
+  const orderable = product.price != null;
 
   return (
     <Pressable
@@ -75,6 +84,18 @@ export function PublicVeterinaryOfficeProductCard({
               })
             : t('product.noPrice')}
         </Text>
+        {onAddToCart ? (
+          <Button
+            label={tStore('addToCart.shop')}
+            size="sm"
+            fullWidth
+            loading={adding}
+            disabled={!orderable || adding}
+            leftIcon="bag-add-outline"
+            onPress={onAddToCart}
+            accessibilityLabel={`${tStore('addToCart.cta')} — ${product.name}`}
+          />
+        ) : null}
       </View>
     </Pressable>
   );

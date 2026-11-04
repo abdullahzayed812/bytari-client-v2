@@ -13,6 +13,7 @@ export default {
 
   addToCart: {
     cta: 'أضف إلى السلة',
+    shop: 'تسوق',
     added: 'تمت إضافة المنتج إلى السلة',
     viewCart: 'عرض السلة',
     quantity: 'الكمية',
@@ -102,6 +103,8 @@ export default {
     cancelNotAllowed: 'قبل المتجر طلبك — تواصل معه لإلغائه.',
     notFound: 'الطلب غير موجود',
     callCustomer: 'اتصال بالزبون',
+    messageCustomer: 'إرسال رسالة للزبون',
+    messageStore: 'إرسال رسالة للمتجر',
     openStore: 'زيارة المتجر',
     status: {
       PENDING: 'بانتظار التأكيد',

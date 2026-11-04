@@ -36,6 +36,7 @@ describe('acceptance notification video link', () => {
       <NotificationCard notification={base} onPress={onPress} onOpenVideo={onOpenVideo} />,
     );
 
+    expect(screen.getByText('لقد أعددنا فيديو توضيحي لك، يمكنك الاطلاع عليه.')).toBeTruthy();
     fireEvent.press(screen.getByRole('link', { name: 'مشاهدة الفيديو' }));
     expect(openURL).toHaveBeenCalledWith('https://youtu.be/clinic');
     expect(onOpenVideo).toHaveBeenCalled();
@@ -46,5 +47,6 @@ describe('acceptance notification video link', () => {
   it('no video button when the admin has not set a link', () => {
     renderWithProviders(<NotificationCard notification={{ ...base, data: {} }} />);
     expect(screen.queryByText('مشاهدة الفيديو')).toBeNull();
+    expect(screen.queryByText('لقد أعددنا فيديو توضيحي لك، يمكنك الاطلاع عليه.')).toBeNull();
   });
 });

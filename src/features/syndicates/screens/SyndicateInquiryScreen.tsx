@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
 import { Alert, useToast } from '@/components/feedback';
-import { FormField } from '@/components/forms';
+import { FormField, NoAutofill } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -89,86 +89,88 @@ export default function SyndicateInquiryScreen() {
   const slots = Math.min(attachmentKeys.length + 1, MAX_ATTACHMENTS);
 
   return (
-    <SafeAreaScreen>
-      <AppHeader title={isRequest ? t('request.title') : t('inquiry.title')} showBack />
-      <ScrollView
-        contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
-        keyboardShouldPersistTaps="handled"
-      >
-        {!isRequest ? (
-          <SyndicateServiceIntro organizationId={organizationId} serviceKey="INQUIRY" />
-        ) : null}
-        {!isRequest ? <Alert tone="info" message={t('inquiry.infoNote')} /> : null}
-
-        <FormField
-          control={control}
-          name="message"
-          label={isRequest ? t('request.messageLabel') : t('inquiry.messageLabel')}
-          placeholder={
-            isRequest ? t('request.messagePlaceholder') : t('inquiry.messagePlaceholder')
-          }
-          multiline
-          numberOfLines={5}
-        />
-        {!isRequest ? (
-          <Caption color="textMuted">
-            {t('inquiry.messageCounter', { count: messageLength })}
-          </Caption>
-        ) : null}
-
-        {!isRequest ? (
-          <View style={{ rowGap: theme.spacing.xs }}>
-            <Label>{t('inquiry.attachmentsLabel')}</Label>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-              {Array.from({ length: slots }).map((_, i) => (
-                <ImageUploader
-                  key={i}
-                  value={null}
-                  provider={imageProvider}
-                  shape="square"
-                  size={80}
-                  onChange={(r) =>
-                    setAttachmentKeys((prev) => {
-                      const next = [...prev];
-                      if (r?.storageKey) next[i] = r.storageKey;
-                      else next.splice(i, 1);
-                      return next.filter(Boolean).slice(0, MAX_ATTACHMENTS);
-                    })
-                  }
-                />
-              ))}
-            </View>
-            <Caption color="textMuted">{t('inquiry.attachmentsHint')}</Caption>
-          </View>
-        ) : null}
-
-        <View
-          style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.sm }}
+    <NoAutofill>
+      <SafeAreaScreen>
+        <AppHeader title={isRequest ? t('request.title') : t('inquiry.title')} showBack />
+        <ScrollView
+          contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
+          keyboardShouldPersistTaps="handled"
         >
-          <Icon name="shield-checkmark-outline" size="iconSm" color="textMuted" />
-          <Caption color="textSecondary" style={{ flex: 1 }}>
-            {t('inquiry.privacyNote')}
-          </Caption>
+          {!isRequest ? (
+            <SyndicateServiceIntro organizationId={organizationId} serviceKey="INQUIRY" />
+          ) : null}
+          {!isRequest ? <Alert tone="info" message={t('inquiry.infoNote')} /> : null}
+
+          <FormField
+            control={control}
+            name="message"
+            label={isRequest ? t('request.messageLabel') : t('inquiry.messageLabel')}
+            placeholder={
+              isRequest ? t('request.messagePlaceholder') : t('inquiry.messagePlaceholder')
+            }
+            multiline
+            numberOfLines={5}
+          />
+          {!isRequest ? (
+            <Caption color="textMuted">
+              {t('inquiry.messageCounter', { count: messageLength })}
+            </Caption>
+          ) : null}
+
+          {!isRequest ? (
+            <View style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t('inquiry.attachmentsLabel')}</Label>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+                {Array.from({ length: slots }).map((_, i) => (
+                  <ImageUploader
+                    key={i}
+                    value={null}
+                    provider={imageProvider}
+                    shape="square"
+                    size={80}
+                    onChange={(r) =>
+                      setAttachmentKeys((prev) => {
+                        const next = [...prev];
+                        if (r?.storageKey) next[i] = r.storageKey;
+                        else next.splice(i, 1);
+                        return next.filter(Boolean).slice(0, MAX_ATTACHMENTS);
+                      })
+                    }
+                  />
+                ))}
+              </View>
+              <Caption color="textMuted">{t('inquiry.attachmentsHint')}</Caption>
+            </View>
+          ) : null}
+
+          <View
+            style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.sm }}
+          >
+            <Icon name="shield-checkmark-outline" size="iconSm" color="textMuted" />
+            <Caption color="textSecondary" style={{ flex: 1 }}>
+              {t('inquiry.privacyNote')}
+            </Caption>
+          </View>
+
+          {submit.isError ? <Alert tone="danger" message={apiErrorMessage(submit.error)} /> : null}
+        </ScrollView>
+
+        <View style={{ padding: theme.screenPadding }}>
+          <Button
+            label={
+              submit.isPending
+                ? t('inquiry.submitting')
+                : isRequest
+                  ? t('request.submit')
+                  : t('inquiry.submit')
+            }
+            fullWidth
+            loading={submit.isPending}
+            disabled={submit.isPending}
+            onPress={handleSubmit(onSubmit)}
+          />
         </View>
-
-        {submit.isError ? <Alert tone="danger" message={apiErrorMessage(submit.error)} /> : null}
-      </ScrollView>
-
-      <View style={{ padding: theme.screenPadding }}>
-        <Button
-          label={
-            submit.isPending
-              ? t('inquiry.submitting')
-              : isRequest
-                ? t('request.submit')
-                : t('inquiry.submit')
-          }
-          fullWidth
-          loading={submit.isPending}
-          disabled={submit.isPending}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </View>
-    </SafeAreaScreen>
+      </SafeAreaScreen>
+    </NoAutofill>
   );
 }

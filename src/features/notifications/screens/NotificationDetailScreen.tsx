@@ -132,6 +132,7 @@ export default function NotificationDetailScreen() {
               </Field>
             </View>
           </Card>
+          {videoUrl ? <Text variant="body">{t('detail.videoMessage')}</Text> : null}
           {videoUrl ? (
             <Button
               label={t('detail.watchVideo')}

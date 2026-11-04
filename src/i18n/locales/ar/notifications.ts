@@ -36,6 +36,8 @@ export default {
     openRelated: 'عرض المحتوى المرتبط',
     openLink: 'فتح الرابط',
     watchVideo: 'مشاهدة الفيديو',
+    // Exact client copy — mirrors server NOTIFICATION_VIDEO_MESSAGE_AR.
+    videoMessage: 'لقد أعددنا فيديو توضيحي لك، يمكنك الاطلاع عليه.',
     notFoundTitle: 'الإشعار غير متاح',
     notFoundBody: 'ربما حُذف هذا الإشعار أو أنه لا يخصك.',
   },

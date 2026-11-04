@@ -21,6 +21,7 @@ import {
   useUnlikeOrganization,
 } from '@/features/organizations';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
+import { useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
@@ -113,6 +114,7 @@ export default function VeterinaryOfficeDetailsScreen() {
   const unfollow = useUnfollowOrganization(officeId ?? '');
   const like = useLikeOrganization(officeId ?? '');
   const unlike = useUnlikeOrganization(officeId ?? '');
+  const quickAdd = useOrgStoreQuickAdd(officeId ?? '');
   const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
@@ -410,6 +412,8 @@ export default function VeterinaryOfficeDetailsScreen() {
                   onPress={() =>
                     router.push(Routes.veterinaryOfficeProductDetail(officeId as string, item.id))
                   }
+                  onAddToCart={officeId ? () => quickAdd.add(item.id) : undefined}
+                  adding={quickAdd.isAdding(item.id)}
                 />
               )}
             />

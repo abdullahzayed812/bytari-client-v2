@@ -39,6 +39,7 @@ const notifications: KuNamespace<'notifications'> = {
     openRelated: 'بینینی ناوەڕۆکی پەیوەندیدار',
     openLink: 'کردنەوەی بەستەر',
     watchVideo: 'سەیرکردنی ڤیدیۆ',
+    videoMessage: 'ڤیدیۆیەکی ڕوونکردنەوەمان بۆ ئامادە کردوویت، دەتوانیت سەیری بکەیت.',
     notFoundTitle: 'ئاگادارکردنەوەکە بەردەست نییە',
     notFoundBody: 'لەوانەیە ئەم ئاگادارکردنەوەیە سڕابێتەوە یان پەیوەندی بە تۆوە نەبێت.',
   },

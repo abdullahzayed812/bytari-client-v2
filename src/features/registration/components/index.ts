@@ -6,5 +6,6 @@ export { DocumentUploadTile, type DocumentUploadTileProps } from './DocumentUplo
 export { SocialLoginButtons } from './SocialLoginButtons';
 export {
   TermsAndConditionsModal,
+  VET_ACCOUNT_RESPONSIBILITY_CLAUSE,
   type TermsAndConditionsModalProps,
 } from './TermsAndConditionsModal';

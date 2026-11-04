@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/actions';
 import { EmptyState, useToast } from '@/components/feedback';
-import { Input, Switch } from '@/components/forms';
+import { Input, NoAutofill, Switch } from '@/components/forms';
 import { MultiImagePicker } from '@/components/media';
 import { Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -83,81 +83,83 @@ export default function SubmitOfferScreen() {
   };
 
   return (
-    <OrgFormLayout title={t('submitOffer.title')}>
-      {requestQ.data ? (
-        <Text color="textSecondary">
-          {t('submitOffer.forRequest', { title: requestQ.data.title })}
-        </Text>
-      ) : null}
+    <NoAutofill>
+      <OrgFormLayout title={t('submitOffer.title')}>
+        {requestQ.data ? (
+          <Text color="textSecondary">
+            {t('submitOffer.forRequest', { title: requestQ.data.title })}
+          </Text>
+        ) : null}
 
-      <Input
-        label={t('fields.proposedAmount')}
-        value={proposedAmount}
-        onChangeText={setProposedAmount}
-        keyboardType="numeric"
-        hint={t('fields.priceHint')}
-        error={serverFields.proposedAmount}
-      />
-      <Switch
-        label={t('fields.hasExecutionDate')}
-        value={hasExecDate}
-        onValueChange={setHasExecDate}
-      />
-      {hasExecDate ? (
-        <DateTimeField
-          label={t('fields.executionDate')}
-          mode="date"
-          value={executionDate}
-          onChange={setExecutionDate}
-          minimumDate={new Date()}
-          display={formatVetServiceDate(executionDate.toISOString(), i18n.language)}
-          accessibilityLabel={t('fields.executionDate')}
+        <Input
+          label={t('fields.proposedAmount')}
+          value={proposedAmount}
+          onChangeText={setProposedAmount}
+          keyboardType="numeric"
+          hint={t('fields.priceHint')}
+          error={serverFields.proposedAmount}
         />
-      ) : null}
-      <Input
-        label={t('fields.expectedDuration')}
-        value={expectedDuration}
-        onChangeText={setExpectedDuration}
-        maxLength={120}
-      />
-      <Switch
-        label={t('fields.includesFieldVisit')}
-        value={includesFieldVisit}
-        onValueChange={setIncludesFieldVisit}
-      />
-      <Input
-        label={t('fields.offerDetails')}
-        value={details}
-        onChangeText={setDetails}
-        multiline
-        numberOfLines={4}
-        maxLength={2000}
-      />
+        <Switch
+          label={t('fields.hasExecutionDate')}
+          value={hasExecDate}
+          onValueChange={setHasExecDate}
+        />
+        {hasExecDate ? (
+          <DateTimeField
+            label={t('fields.executionDate')}
+            mode="date"
+            value={executionDate}
+            onChange={setExecutionDate}
+            minimumDate={new Date()}
+            display={formatVetServiceDate(executionDate.toISOString(), i18n.language)}
+            accessibilityLabel={t('fields.executionDate')}
+          />
+        ) : null}
+        <Input
+          label={t('fields.expectedDuration')}
+          value={expectedDuration}
+          onChangeText={setExpectedDuration}
+          maxLength={120}
+        />
+        <Switch
+          label={t('fields.includesFieldVisit')}
+          value={includesFieldVisit}
+          onValueChange={setIncludesFieldVisit}
+        />
+        <Input
+          label={t('fields.offerDetails')}
+          value={details}
+          onChangeText={setDetails}
+          multiline
+          numberOfLines={4}
+          maxLength={2000}
+        />
 
-      <MultiImagePicker
-        provider={imageProvider}
-        onChange={setImageKeys}
-        onBusyChange={setImagesBusy}
-        max={4}
-        label={t('fields.images')}
-        hint={t('fields.imagesHint')}
-      />
+        <MultiImagePicker
+          provider={imageProvider}
+          onChange={setImageKeys}
+          onBusyChange={setImagesBusy}
+          max={4}
+          label={t('fields.images')}
+          hint={t('fields.imagesHint')}
+        />
 
-      <TermsAcceptField termsKey="SUBMIT_OFFER" accepted={accepted} onChange={setAccepted} />
-      {submitted && !accepted ? (
-        <Text variant="caption" color="danger">
-          {t('validation.terms')}
-        </Text>
-      ) : null}
+        <TermsAcceptField termsKey="SUBMIT_OFFER" accepted={accepted} onChange={setAccepted} />
+        {submitted && !accepted ? (
+          <Text variant="caption" color="danger">
+            {t('validation.terms')}
+          </Text>
+        ) : null}
 
-      <Button
-        label={t('submitOffer.submit')}
-        fullWidth
-        leftIcon="paper-plane-outline"
-        loading={create.isPending}
-        disabled={!accepted || create.isPending || imagesBusy}
-        onPress={onSubmit}
-      />
-    </OrgFormLayout>
+        <Button
+          label={t('submitOffer.submit')}
+          fullWidth
+          leftIcon="paper-plane-outline"
+          loading={create.isPending}
+          disabled={!accepted || create.isPending || imagesBusy}
+          onPress={onSubmit}
+        />
+      </OrgFormLayout>
+    </NoAutofill>
   );
 }

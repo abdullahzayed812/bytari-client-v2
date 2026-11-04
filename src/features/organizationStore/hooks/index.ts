@@ -1,4 +1,6 @@
 export { useOrgStoreCart, useOrgStoreCarts, useOrgStoreCartMutations } from './useOrgStoreCart';
+export { useOrgStoreQuickAdd } from './useOrgStoreQuickAdd';
+export { useOrderConversation } from './useOrderConversation';
 export {
   usePlaceOrgStoreOrder,
   useMyOrgStoreOrders,

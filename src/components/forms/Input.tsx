@@ -6,6 +6,8 @@ import { Caption, Label, Text } from '@/components/typography';
 import { isRTL } from '@/lib/rtl';
 import { useTheme } from '@/theme';
 
+import { noAutofillProps, useNoAutofill } from './NoAutofill';
+
 export interface InputProps extends Omit<TextInputProps, 'style' | 'placeholderTextColor'> {
   label?: string;
   hint?: string;
@@ -36,6 +38,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   ref,
 ) {
   const theme = useTheme();
+  const noAutofill = useNoAutofill();
   const [focused, setFocused] = useState(false);
   const borderColor = error
     ? theme.colors.danger
@@ -86,6 +89,8 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
             setFocused(false);
             onBlur?.(e);
           }}
+          // Inside <NoAutofill>: no platform suggestions — explicit props win.
+          {...(noAutofill ? noAutofillProps() : null)}
           {...rest}
         />
         {rightSlot}

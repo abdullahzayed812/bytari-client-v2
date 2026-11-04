@@ -1187,6 +1187,7 @@ export const en: TranslationResources = {
     cartButton: { a11y: 'Cart ({{count}})' },
     addToCart: {
       cta: 'Add to cart',
+      shop: 'Shop',
       added: 'Added to your cart',
       viewCart: 'View cart',
       quantity: 'Quantity',
@@ -1271,6 +1272,8 @@ export const en: TranslationResources = {
       cancelNotAllowed: 'The store already accepted your order — contact it to cancel.',
       notFound: 'Order not found',
       callCustomer: 'Call customer',
+      messageCustomer: 'Message the customer',
+      messageStore: 'Message the store',
       openStore: 'Visit store',
       status: {
         PENDING: 'Awaiting confirmation',
@@ -6274,6 +6277,7 @@ export const en: TranslationResources = {
       openRelated: 'View related content',
       openLink: 'Open link',
       watchVideo: 'Watch video',
+      videoMessage: 'We have prepared a tutorial video for you — you can watch it here.',
       notFoundTitle: 'Notification unavailable',
       notFoundBody: 'It may have been removed, or it is not yours.',
     },

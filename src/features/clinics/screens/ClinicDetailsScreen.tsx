@@ -21,6 +21,7 @@ import {
   useUnlikeOrganization,
 } from '@/features/organizations';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
+import { useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
 import {
   PublicVeterinaryOfficeProductCard,
   usePublicVeterinaryOfficeProducts,
@@ -98,6 +99,7 @@ export default function ClinicDetailsScreen() {
   const unfollow = useUnfollowOrganization(organizationId ?? '');
   const like = useLikeOrganization(organizationId ?? '');
   const unlike = useUnlikeOrganization(organizationId ?? '');
+  const quickAdd = useOrgStoreQuickAdd(organizationId ?? '');
   const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   // Clinic Store — the clinic's public product catalogue (preview strip).
@@ -405,6 +407,8 @@ export default function ClinicDetailsScreen() {
                   product={item}
                   width={PRODUCT_CARD_WIDTH}
                   onPress={() => router.push(Routes.veterinaryOfficeProductDetail(org.id, item.id))}
+                  onAddToCart={() => quickAdd.add(item.id)}
+                  adding={quickAdd.isAdding(item.id)}
                 />
               )}
             />

@@ -1,3 +1,4 @@
+import type { Conversation } from '@/features/chat/types';
 import { apiClient } from '@/services/api';
 import type { PageMeta } from '@/services/api';
 
@@ -85,6 +86,10 @@ export const organizationStoreService = {
   getMyOrder(orderId: string): Promise<OrgStoreOrder> {
     return apiClient.get<OrgStoreOrder>(`/organization-store/orders/${orderId}`);
   },
+  /** Customer ↔ store chat opened from an order the caller placed (reused if it exists). */
+  openMyOrderConversation(orderId: string): Promise<Conversation> {
+    return apiClient.post<Conversation>(`/organization-store/orders/${orderId}/conversation`);
+  },
   cancelMyOrder(orderId: string, note?: string | null): Promise<OrgStoreOrder> {
     return apiClient.post<OrgStoreOrder>(`/organization-store/orders/${orderId}/cancel`, {
       note: note || null,
@@ -125,6 +130,12 @@ export const organizationStoreService = {
   },
   getIncomingOrder(organizationId: string, orderId: string): Promise<OrgStoreOrder> {
     return apiClient.get<OrgStoreOrder>(`/organizations/${organizationId}/store-orders/${orderId}`);
+  },
+  /** The store opens its chat with THIS order's customer (`store.order.read`). */
+  openIncomingOrderConversation(organizationId: string, orderId: string): Promise<Conversation> {
+    return apiClient.post<Conversation>(
+      `/organizations/${organizationId}/store-orders/${orderId}/conversation`,
+    );
   },
   updateIncomingOrderStatus(
     organizationId: string,

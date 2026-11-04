@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Chip } from '@/components/content';
 import { EmptyState, useToast } from '@/components/feedback';
-import { Input, Select, Switch } from '@/components/forms';
+import { Input, NoAutofill, Select, Switch } from '@/components/forms';
 import { MultiImagePicker } from '@/components/media';
 import { Label, Text } from '@/components/typography';
 import { OrgFormLayout } from '@/features/organizations';
@@ -128,179 +128,183 @@ export default function AddServiceListingScreen() {
   };
 
   return (
-    <OrgFormLayout title={t('listings.addCta')}>
-      <Text color="textSecondary">{t('addListing.intro')}</Text>
+    <NoAutofill>
+      <OrgFormLayout title={t('listings.addCta')}>
+        <Text color="textSecondary">{t('addListing.intro')}</Text>
 
-      <Input
-        label={t('fields.title')}
-        value={title}
-        onChangeText={setTitle}
-        required
-        maxLength={120}
-        error={missing(title.trim() ? title : null) ? t('validation.required') : serverFields.title}
-      />
-      <Input
-        label={t('fields.description')}
-        value={description}
-        onChangeText={setDescription}
-        required
-        multiline
-        numberOfLines={4}
-        maxLength={2000}
-        error={
-          missing(description.trim() ? description : null)
-            ? t('validation.required')
-            : serverFields.description
-        }
-      />
-      <Select<VetServiceType>
-        label={t('fields.serviceType')}
-        placeholder={t('fields.selectPlaceholder')}
-        value={serviceType}
-        onChange={setServiceType}
-        error={missing(serviceType) ? t('validation.required') : serverFields.serviceType}
-        options={VET_SERVICE_TYPES.map((v) => ({ value: v, label: t(`serviceType.${v}`) }))}
-      />
-      <Select<VetServiceAnimalType>
-        label={t('fields.animalType')}
-        placeholder={t('fields.selectPlaceholder')}
-        value={animalType}
-        onChange={setAnimalType}
-        error={missing(animalType) ? t('validation.required') : serverFields.animalType}
-        options={VET_SERVICE_ANIMAL_TYPES.map((v) => ({ value: v, label: t(`animalType.${v}`) }))}
-      />
-      <Select<string>
-        label={t('fields.governorate')}
-        placeholder={t('fields.selectPlaceholder')}
-        value={governorate}
-        onChange={setGovernorate}
-        error={missing(governorate) ? t('validation.required') : serverFields.governorate}
-        options={IRAQ_GOVERNORATES.map((v) => ({ value: v, label: v }))}
-      />
-      <Input
-        label={t('fields.district')}
-        value={district}
-        onChangeText={setDistrict}
-        maxLength={120}
-      />
-      <Input
-        label={t('fields.specialty')}
-        value={specialty}
-        onChangeText={setSpecialty}
-        maxLength={120}
-      />
-
-      <Input
-        label={t('fields.price')}
-        value={priceAmount}
-        onChangeText={setPriceAmount}
-        keyboardType="numeric"
-        hint={t('fields.priceHint')}
-        error={serverFields.priceAmount}
-      />
-      <View style={{ rowGap: theme.spacing.sm }}>
-        <Label>{t('fields.priceType')}</Label>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-          {VET_SERVICE_PRICE_TYPES.map((v) => (
-            <Chip
-              key={v}
-              label={t(`priceType.${v}`)}
-              selected={priceType === v}
-              onPress={() => setPriceType(v)}
-            />
-          ))}
-        </View>
-      </View>
-      <View style={{ rowGap: theme.spacing.sm }}>
-        <Label>{t('fields.locationMode')}</Label>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-          {VET_SERVICE_LOCATION_MODES.map((v) => (
-            <Chip
-              key={v}
-              label={t(`locationMode.${v}`)}
-              selected={locationMode === v}
-              onPress={() => setLocationMode(v)}
-            />
-          ))}
-        </View>
-      </View>
-
-      <Input
-        label={t('fields.availability')}
-        value={availability}
-        onChangeText={setAvailability}
-        maxLength={200}
-      />
-      <Input
-        label={t('fields.executionDuration')}
-        value={executionDuration}
-        onChangeText={setExecutionDuration}
-        maxLength={120}
-      />
-      <Switch
-        label={t('fields.showArrivalTime')}
-        value={showArrival}
-        onValueChange={setShowArrival}
-      />
-      {showArrival ? (
         <Input
-          label={t('fields.arrivalTime')}
-          value={arrivalTime}
-          onChangeText={setArrivalTime}
+          label={t('fields.title')}
+          value={title}
+          onChangeText={setTitle}
+          required
+          maxLength={120}
+          error={
+            missing(title.trim() ? title : null) ? t('validation.required') : serverFields.title
+          }
+        />
+        <Input
+          label={t('fields.description')}
+          value={description}
+          onChangeText={setDescription}
+          required
+          multiline
+          numberOfLines={4}
+          maxLength={2000}
+          error={
+            missing(description.trim() ? description : null)
+              ? t('validation.required')
+              : serverFields.description
+          }
+        />
+        <Select<VetServiceType>
+          label={t('fields.serviceType')}
+          placeholder={t('fields.selectPlaceholder')}
+          value={serviceType}
+          onChange={setServiceType}
+          error={missing(serviceType) ? t('validation.required') : serverFields.serviceType}
+          options={VET_SERVICE_TYPES.map((v) => ({ value: v, label: t(`serviceType.${v}`) }))}
+        />
+        <Select<VetServiceAnimalType>
+          label={t('fields.animalType')}
+          placeholder={t('fields.selectPlaceholder')}
+          value={animalType}
+          onChange={setAnimalType}
+          error={missing(animalType) ? t('validation.required') : serverFields.animalType}
+          options={VET_SERVICE_ANIMAL_TYPES.map((v) => ({ value: v, label: t(`animalType.${v}`) }))}
+        />
+        <Select<string>
+          label={t('fields.governorate')}
+          placeholder={t('fields.selectPlaceholder')}
+          value={governorate}
+          onChange={setGovernorate}
+          error={missing(governorate) ? t('validation.required') : serverFields.governorate}
+          options={IRAQ_GOVERNORATES.map((v) => ({ value: v, label: v }))}
+        />
+        <Input
+          label={t('fields.district')}
+          value={district}
+          onChangeText={setDistrict}
           maxLength={120}
         />
-      ) : null}
+        <Input
+          label={t('fields.specialty')}
+          value={specialty}
+          onChangeText={setSpecialty}
+          maxLength={120}
+        />
 
-      <Input
-        label={t('fields.contactPhone')}
-        value={contactPhone}
-        onChangeText={setContactPhone}
-        keyboardType="phone-pad"
-        maxLength={40}
-      />
-      <Input
-        label={t('fields.contactWhatsapp')}
-        value={contactWhatsapp}
-        onChangeText={setContactWhatsapp}
-        keyboardType="phone-pad"
-        maxLength={40}
-      />
-      <Input
-        label={t('fields.details')}
-        value={detailsText}
-        onChangeText={setDetailsText}
-        multiline
-        numberOfLines={4}
-        hint={t('fields.detailsHint')}
-      />
+        <Input
+          label={t('fields.price')}
+          value={priceAmount}
+          onChangeText={setPriceAmount}
+          keyboardType="numeric"
+          hint={t('fields.priceHint')}
+          error={serverFields.priceAmount}
+        />
+        <View style={{ rowGap: theme.spacing.sm }}>
+          <Label>{t('fields.priceType')}</Label>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+            {VET_SERVICE_PRICE_TYPES.map((v) => (
+              <Chip
+                key={v}
+                label={t(`priceType.${v}`)}
+                selected={priceType === v}
+                onPress={() => setPriceType(v)}
+              />
+            ))}
+          </View>
+        </View>
+        <View style={{ rowGap: theme.spacing.sm }}>
+          <Label>{t('fields.locationMode')}</Label>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+            {VET_SERVICE_LOCATION_MODES.map((v) => (
+              <Chip
+                key={v}
+                label={t(`locationMode.${v}`)}
+                selected={locationMode === v}
+                onPress={() => setLocationMode(v)}
+              />
+            ))}
+          </View>
+        </View>
 
-      <MultiImagePicker
-        provider={imageProvider}
-        onChange={setImageKeys}
-        onBusyChange={setImagesBusy}
-        max={6}
-        label={t('fields.images')}
-        hint={t('fields.imagesHint')}
-      />
+        <Input
+          label={t('fields.availability')}
+          value={availability}
+          onChangeText={setAvailability}
+          maxLength={200}
+        />
+        <Input
+          label={t('fields.executionDuration')}
+          value={executionDuration}
+          onChangeText={setExecutionDuration}
+          maxLength={120}
+        />
+        <Switch
+          label={t('fields.showArrivalTime')}
+          value={showArrival}
+          onValueChange={setShowArrival}
+        />
+        {showArrival ? (
+          <Input
+            label={t('fields.arrivalTime')}
+            value={arrivalTime}
+            onChangeText={setArrivalTime}
+            maxLength={120}
+          />
+        ) : null}
 
-      <TermsAcceptField termsKey="PUBLISH_LISTING" accepted={accepted} onChange={setAccepted} />
-      {submitted && !accepted ? (
-        <Text variant="caption" color="danger">
-          {t('validation.terms')}
+        <Input
+          label={t('fields.contactPhone')}
+          value={contactPhone}
+          onChangeText={setContactPhone}
+          keyboardType="phone-pad"
+          maxLength={40}
+        />
+        <Input
+          label={t('fields.contactWhatsapp')}
+          value={contactWhatsapp}
+          onChangeText={setContactWhatsapp}
+          keyboardType="phone-pad"
+          maxLength={40}
+        />
+        <Input
+          label={t('fields.details')}
+          value={detailsText}
+          onChangeText={setDetailsText}
+          multiline
+          numberOfLines={4}
+          hint={t('fields.detailsHint')}
+        />
+
+        <MultiImagePicker
+          provider={imageProvider}
+          onChange={setImageKeys}
+          onBusyChange={setImagesBusy}
+          max={6}
+          label={t('fields.images')}
+          hint={t('fields.imagesHint')}
+        />
+
+        <TermsAcceptField termsKey="PUBLISH_LISTING" accepted={accepted} onChange={setAccepted} />
+        {submitted && !accepted ? (
+          <Text variant="caption" color="danger">
+            {t('validation.terms')}
+          </Text>
+        ) : null}
+
+        <Button
+          label={t('addListing.submit')}
+          fullWidth
+          leftIcon="cloud-upload-outline"
+          loading={create.isPending}
+          disabled={!accepted || create.isPending || imagesBusy}
+          onPress={onSubmit}
+        />
+        <Text variant="caption" color="textMuted">
+          {t('addListing.moderationNote')}
         </Text>
-      ) : null}
-
-      <Button
-        label={t('addListing.submit')}
-        fullWidth
-        leftIcon="cloud-upload-outline"
-        loading={create.isPending}
-        disabled={!accepted || create.isPending || imagesBusy}
-        onPress={onSubmit}
-      />
-      <Text variant="caption" color="textMuted">
-        {t('addListing.moderationNote')}
-      </Text>
-    </OrgFormLayout>
+      </OrgFormLayout>
+    </NoAutofill>
   );
 }

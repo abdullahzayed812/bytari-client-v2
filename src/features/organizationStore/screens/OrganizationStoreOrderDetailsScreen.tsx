@@ -11,7 +11,12 @@ import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 
 import { OrgStoreOrderDetailsBody } from '../components';
-import { useCancelMyOrgStoreOrder, useMyOrgStoreOrder, useOrgStoreRealtime } from '../hooks';
+import {
+  useCancelMyOrgStoreOrder,
+  useMyOrgStoreOrder,
+  useOrderConversation,
+  useOrgStoreRealtime,
+} from '../hooks';
 import { orgStoreErrorMessage } from '../utils';
 
 /** Route `/organization-store/orders/[orderId]` — the customer's order tracking. */
@@ -24,6 +29,7 @@ export default function OrganizationStoreOrderDetailsScreen() {
   const q = useMyOrgStoreOrder(orderId);
   const cancel = useCancelMyOrgStoreOrder();
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const message = useOrderConversation({ side: 'CUSTOMER', orderId: orderId ?? '' });
 
   const order = q.data;
   const storeHref = (id: string, type: string) =>
@@ -52,6 +58,14 @@ export default function OrganizationStoreOrderDetailsScreen() {
           ) : null}
           <OrgStoreOrderDetailsBody order={order} side="CUSTOMER" />
           <View style={{ rowGap: theme.spacing.sm }}>
+            <Button
+              label={t('order.messageStore')}
+              leftIcon="chatbubble-ellipses-outline"
+              fullWidth
+              loading={message.isPending}
+              disabled={message.isPending}
+              onPress={message.open}
+            />
             {order.canCancel ? (
               <Button
                 label={t('order.cancel')}

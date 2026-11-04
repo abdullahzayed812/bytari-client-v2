@@ -6,7 +6,7 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Alert, EmptyState, useToast } from '@/components/feedback';
-import { Checkbox, FormField, Select, TileOptionGroup } from '@/components/forms';
+import { Checkbox, FormField, NoAutofill, Select, TileOptionGroup } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
@@ -141,127 +141,129 @@ export default function TraderRegistrationScreen() {
   }
 
   return (
-    <ScrollScreen>
-      <AppHeader title={t('register.title')} showBack backAlign="left" />
+    <NoAutofill>
+      <ScrollScreen>
+        <AppHeader title={t('register.title')} showBack backAlign="left" />
 
-      <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
-        <BenefitsCard />
+        <Section spacing="xl" style={{ rowGap: theme.spacing.lg }}>
+          <BenefitsCard />
 
-        {formError ? <Alert tone="danger" message={formError} /> : null}
-        {trader.isRejected ? <Alert tone="warning" message={t('gate.rejectedTitle')} /> : null}
+          {formError ? <Alert tone="danger" message={formError} /> : null}
+          {trader.isRejected ? <Alert tone="warning" message={t('gate.rejectedTitle')} /> : null}
 
-        <FormField
-          control={control}
-          name="displayName"
-          label={t('register.displayNameLabel')}
-          placeholder={t('register.displayNamePlaceholder')}
-          serverError={serverFields.displayName}
-        />
-
-        <Label>{t('register.typeLabel')}</Label>
-        <Controller
-          control={control}
-          name="traderType"
-          render={({ field: { value, onChange } }) => (
-            <TileOptionGroup options={typeOptions} value={value} onChange={onChange} />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="governorate"
-          render={({ field: { value, onChange }, fieldState }) => (
-            <Select
-              label={t('register.governorateLabel')}
-              placeholder={t('register.governoratePlaceholder')}
-              value={value || null}
-              options={governorateOptions}
-              onChange={onChange}
-              error={fieldState.error?.message ?? serverFields.governorate}
-            />
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="district"
-          label={t('register.districtLabel')}
-          serverError={serverFields.district}
-        />
-
-        <FormField
-          control={control}
-          name="phone"
-          label={t('register.phoneLabel')}
-          keyboardType="phone-pad"
-          serverError={serverFields.phone}
-        />
-
-        <FormField
-          control={control}
-          name="whatsapp"
-          label={t('register.whatsappLabel')}
-          keyboardType="phone-pad"
-          serverError={serverFields.whatsapp}
-        />
-
-        <FormField
-          control={control}
-          name="bio"
-          label={t('register.bioLabel')}
-          multiline
-          numberOfLines={3}
-          serverError={serverFields.bio}
-        />
-
-        <Controller
-          control={control}
-          name="termsAccepted"
-          render={({ field: { value, onChange }, fieldState }) => (
-            <View style={{ rowGap: 4 }}>
-              <Checkbox
-                label={`${t('register.termsPrefix')} ${t('register.termsLink')}`}
-                checked={value === true}
-                onChange={onChange}
-              />
-              {fieldState.error ? (
-                <Caption color="danger">{fieldState.error.message}</Caption>
-              ) : null}
-            </View>
-          )}
-        />
-
-        <View style={{ marginTop: theme.spacing.sm }}>
-          <Button
-            label={t('register.submit')}
-            fullWidth
-            loading={register.isPending}
-            disabled={register.isPending}
-            onPress={onSubmit}
-            accessibilityLabel={t('register.submit')}
+          <FormField
+            control={control}
+            name="displayName"
+            label={t('register.displayNameLabel')}
+            placeholder={t('register.displayNamePlaceholder')}
+            serverError={serverFields.displayName}
           />
-        </View>
 
-        {/* Children stretch: a centred wrapper shrinks the card to its intrinsic
+          <Label>{t('register.typeLabel')}</Label>
+          <Controller
+            control={control}
+            name="traderType"
+            render={({ field: { value, onChange } }) => (
+              <TileOptionGroup options={typeOptions} value={value} onChange={onChange} />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="governorate"
+            render={({ field: { value, onChange }, fieldState }) => (
+              <Select
+                label={t('register.governorateLabel')}
+                placeholder={t('register.governoratePlaceholder')}
+                value={value || null}
+                options={governorateOptions}
+                onChange={onChange}
+                error={fieldState.error?.message ?? serverFields.governorate}
+              />
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="district"
+            label={t('register.districtLabel')}
+            serverError={serverFields.district}
+          />
+
+          <FormField
+            control={control}
+            name="phone"
+            label={t('register.phoneLabel')}
+            keyboardType="phone-pad"
+            serverError={serverFields.phone}
+          />
+
+          <FormField
+            control={control}
+            name="whatsapp"
+            label={t('register.whatsappLabel')}
+            keyboardType="phone-pad"
+            serverError={serverFields.whatsapp}
+          />
+
+          <FormField
+            control={control}
+            name="bio"
+            label={t('register.bioLabel')}
+            multiline
+            numberOfLines={3}
+            serverError={serverFields.bio}
+          />
+
+          <Controller
+            control={control}
+            name="termsAccepted"
+            render={({ field: { value, onChange }, fieldState }) => (
+              <View style={{ rowGap: 4 }}>
+                <Checkbox
+                  label={`${t('register.termsPrefix')} ${t('register.termsLink')}`}
+                  checked={value === true}
+                  onChange={onChange}
+                />
+                {fieldState.error ? (
+                  <Caption color="danger">{fieldState.error.message}</Caption>
+                ) : null}
+              </View>
+            )}
+          />
+
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <Button
+              label={t('register.submit')}
+              fullWidth
+              loading={register.isPending}
+              disabled={register.isPending}
+              onPress={onSubmit}
+              accessibilityLabel={t('register.submit')}
+            />
+          </View>
+
+          {/* Children stretch: a centred wrapper shrinks the card to its intrinsic
             width, collapsing its `flex: 1` text column into a tall, empty pill. */}
-        <View
-          style={{
-            alignItems: 'stretch',
-            rowGap: theme.spacing.sm,
-            padding: theme.spacing.md,
-            borderRadius: theme.radius.lg,
-            borderWidth: 1,
-            borderColor: theme.colors.success,
-            backgroundColor: theme.colors.successSoft,
-          }}
-        >
-          <Caption center style={{ color: theme.colors.success }}>
-            {t('register.trialBanner')}
-          </Caption>
-          {/* the trial length — sending needs a registration, so no send button yet */}
-          <SubscriptionTrialCard subject="POULTRY_TRADER" canSend={false} />
-        </View>
-      </Section>
-    </ScrollScreen>
+          <View
+            style={{
+              alignItems: 'stretch',
+              rowGap: theme.spacing.sm,
+              padding: theme.spacing.md,
+              borderRadius: theme.radius.lg,
+              borderWidth: 1,
+              borderColor: theme.colors.success,
+              backgroundColor: theme.colors.successSoft,
+            }}
+          >
+            <Caption center style={{ color: theme.colors.success }}>
+              {t('register.trialBanner')}
+            </Caption>
+            {/* the trial length — sending needs a registration, so no send button yet */}
+            <SubscriptionTrialCard subject="POULTRY_TRADER" canSend={false} />
+          </View>
+        </Section>
+      </ScrollScreen>
+    </NoAutofill>
   );
 }

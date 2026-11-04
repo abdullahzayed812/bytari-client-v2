@@ -117,6 +117,11 @@ export function NotificationCard({ notification: n, onPress, onOpenVideo }: Noti
         ) : null}
         <Caption>{formatDate(n.createdAt, i18n.language)}</Caption>
         {videoUrl ? (
+          <Text variant="body" color="textSecondary">
+            {t('detail.videoMessage')}
+          </Text>
+        ) : null}
+        {videoUrl ? (
           <Pressable
             accessibilityRole="link"
             accessibilityLabel={t('detail.watchVideo')}

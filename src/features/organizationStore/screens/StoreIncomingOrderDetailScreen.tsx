@@ -18,6 +18,7 @@ import { openPhone } from '@/utils';
 import { OrgStoreOrderDetailsBody } from '../components';
 import {
   useIncomingOrgStoreOrder,
+  useOrderConversation,
   useOrgStoreRealtime,
   useUpdateIncomingOrgStoreOrderStatus,
 } from '../hooks';
@@ -47,6 +48,11 @@ export default function StoreIncomingOrderDetailScreen() {
   const update = useUpdateIncomingOrgStoreOrderStatus(orgId);
   const [note, setNote] = useState('');
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const message = useOrderConversation({
+    side: 'SELLER',
+    organizationId: orgId,
+    orderId: orderId ?? '',
+  });
 
   const order = q.data;
   const next = order ? ORG_STORE_ORDER_TRANSITIONS[order.status] : [];
@@ -97,6 +103,14 @@ export default function StoreIncomingOrderDetailScreen() {
             leftIcon="call"
             fullWidth
             onPress={() => void openPhone(order.recipientPhone)}
+          />
+          <Button
+            label={t('order.messageCustomer')}
+            leftIcon="chatbubble-ellipses-outline"
+            fullWidth
+            loading={message.isPending}
+            disabled={message.isPending || expired}
+            onPress={message.open}
           />
 
           <Card padding="lg">

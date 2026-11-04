@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { Button } from '@/components/actions';
 import { Card, Icon } from '@/components/content';
 import { Alert, EmptyState, Loading, useToast } from '@/components/feedback';
-import { FormField, Select } from '@/components/forms';
+import { FormField, NoAutofill, Select } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Text } from '@/components/typography';
@@ -134,122 +134,143 @@ export default function VeterinaryCourseRegistrationScreen() {
     return (
       <SafeAreaScreen>
         <AppHeader title={t('registration.title')} showBack />
-        <EmptyState icon="school-outline" title={t(`registrationState.${course.registrationState}`)} message={message} />
+        <EmptyState
+          icon="school-outline"
+          title={t(`registrationState.${course.registrationState}`)}
+          message={message}
+        />
       </SafeAreaScreen>
     );
   }
 
   return (
-    <SafeAreaScreen>
-      <AppHeader title={t('registration.title')} showBack />
-      <ScrollView
-        contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.lg }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Card variant="outlined" padding="md">
-          <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}>
+    <NoAutofill>
+      <SafeAreaScreen>
+        <AppHeader title={t('registration.title')} showBack />
+        <ScrollView
+          contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.lg }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Card variant="outlined" padding="md">
             <View
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: theme.radius.md,
-                backgroundColor: theme.colors.surfaceAccent,
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-              }}
+              style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.md }}
             >
-              {course.coverImageUrl ? (
-                <Image source={{ uri: course.coverImageUrl }} style={{ width: '100%', height: '100%' }} />
-              ) : (
-                <Icon name="image-outline" size="iconMd" color="textMuted" />
-              )}
-            </View>
-            <View style={{ flex: 1, rowGap: 4 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: theme.spacing.sm }}>
-                <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
-                  {course.title}
-                </Text>
-                <VetCourseTypeBadge type={course.type} />
+              <View
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: theme.radius.md,
+                  backgroundColor: theme.colors.surfaceAccent,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                }}
+              >
+                {course.coverImageUrl ? (
+                  <Image
+                    source={{ uri: course.coverImageUrl }}
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                ) : (
+                  <Icon name="image-outline" size="iconMd" color="textMuted" />
+                )}
               </View>
-              <Caption numberOfLines={1}>{course.organizingBody}</Caption>
-              <Caption>{formatCourseDateRange(course.startDate, course.endDate)}</Caption>
+              <View style={{ flex: 1, rowGap: 4 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    columnGap: theme.spacing.sm,
+                  }}
+                >
+                  <Text variant="bodyStrong" numberOfLines={1} style={{ flex: 1 }}>
+                    {course.title}
+                  </Text>
+                  <VetCourseTypeBadge type={course.type} />
+                </View>
+                <Caption numberOfLines={1}>{course.organizingBody}</Caption>
+                <Caption>{formatCourseDateRange(course.startDate, course.endDate)}</Caption>
+              </View>
             </View>
+          </Card>
+
+          <View style={{ rowGap: theme.spacing.md }}>
+            <Text variant="bodyStrong">{t('registration.participantData')}</Text>
+            <FormField
+              control={control}
+              name="fullName"
+              label={t('registration.fullName')}
+              placeholder={t('registration.fullNamePlaceholder')}
+            />
+            <FormField
+              control={control}
+              name="phone"
+              label={t('registration.phone')}
+              placeholder={t('registration.phonePlaceholder')}
+              keyboardType="phone-pad"
+            />
+            <FormField
+              control={control}
+              name="email"
+              label={t('registration.email')}
+              placeholder={t('registration.emailPlaceholder')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <Controller
+              control={control}
+              name="governorate"
+              render={({ field: { value }, fieldState }) => (
+                <Select<string>
+                  label={t('registration.governorate')}
+                  placeholder={t('registration.governoratePlaceholder')}
+                  value={value || null}
+                  options={IRAQ_GOVERNORATES.map((g) => ({ value: g, label: g }))}
+                  onChange={(v) => setValue('governorate', v ?? '', { shouldValidate: true })}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+            <FormField
+              control={control}
+              name="specialty"
+              label={t('registration.specialty')}
+              placeholder={t('registration.specialtyPlaceholder')}
+            />
+            <FormField
+              control={control}
+              name="notes"
+              label={t('registration.notes')}
+              placeholder={t('registration.notesPlaceholder')}
+              multiline
+              numberOfLines={3}
+            />
           </View>
-        </Card>
 
-        <View style={{ rowGap: theme.spacing.md }}>
-          <Text variant="bodyStrong">{t('registration.participantData')}</Text>
-          <FormField
-            control={control}
-            name="fullName"
-            label={t('registration.fullName')}
-            placeholder={t('registration.fullNamePlaceholder')}
-          />
-          <FormField
-            control={control}
-            name="phone"
-            label={t('registration.phone')}
-            placeholder={t('registration.phonePlaceholder')}
-            keyboardType="phone-pad"
-          />
-          <FormField
-            control={control}
-            name="email"
-            label={t('registration.email')}
-            placeholder={t('registration.emailPlaceholder')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <Controller
-            control={control}
-            name="governorate"
-            render={({ field: { value }, fieldState }) => (
-              <Select<string>
-                label={t('registration.governorate')}
-                placeholder={t('registration.governoratePlaceholder')}
-                value={value || null}
-                options={IRAQ_GOVERNORATES.map((g) => ({ value: g, label: g }))}
-                onChange={(v) => setValue('governorate', v ?? '', { shouldValidate: true })}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
-          <FormField
-            control={control}
-            name="specialty"
-            label={t('registration.specialty')}
-            placeholder={t('registration.specialtyPlaceholder')}
-          />
-          <FormField
-            control={control}
-            name="notes"
-            label={t('registration.notes')}
-            placeholder={t('registration.notesPlaceholder')}
-            multiline
-            numberOfLines={3}
+          <View
+            style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.sm }}
+          >
+            <Icon name="shield-checkmark-outline" size="iconSm" color="textMuted" />
+            <Caption color="textSecondary" style={{ flex: 1 }}>
+              {t('registration.termsNotice')}
+            </Caption>
+          </View>
+
+          {register.isError ? (
+            <Alert tone="danger" message={apiErrorMessage(register.error)} />
+          ) : null}
+        </ScrollView>
+
+        <View style={{ padding: theme.screenPadding }}>
+          <Button
+            label={register.isPending ? t('registration.confirming') : t('registration.confirm')}
+            fullWidth
+            loading={register.isPending}
+            disabled={register.isPending}
+            onPress={handleSubmit(onSubmit)}
           />
         </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', columnGap: theme.spacing.sm }}>
-          <Icon name="shield-checkmark-outline" size="iconSm" color="textMuted" />
-          <Caption color="textSecondary" style={{ flex: 1 }}>
-            {t('registration.termsNotice')}
-          </Caption>
-        </View>
-
-        {register.isError ? <Alert tone="danger" message={apiErrorMessage(register.error)} /> : null}
-      </ScrollView>
-
-      <View style={{ padding: theme.screenPadding }}>
-        <Button
-          label={register.isPending ? t('registration.confirming') : t('registration.confirm')}
-          fullWidth
-          loading={register.isPending}
-          disabled={register.isPending}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </View>
-    </SafeAreaScreen>
+      </SafeAreaScreen>
+    </NoAutofill>
   );
 }

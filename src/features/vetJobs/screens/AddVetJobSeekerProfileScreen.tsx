@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { Button } from '@/components/actions';
 import { Chip } from '@/components/content';
 import { Alert, Loading, useToast } from '@/components/feedback';
-import { FormField, Select } from '@/components/forms';
+import { FormField, NoAutofill, Select } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { FileUploader, ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -182,144 +182,150 @@ export default function AddVetJobSeekerProfileScreen() {
   }
 
   return (
-    <SafeAreaScreen>
-      <AppHeader title={isEdit ? t('seeker.editProfile') : t('seekers.addProfile')} showBack />
+    <NoAutofill>
+      <SafeAreaScreen>
+        <AppHeader title={isEdit ? t('seeker.editProfile') : t('seekers.addProfile')} showBack />
 
-      <ScrollView
-        contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
-        keyboardShouldPersistTaps="handled"
-      >
-        {isEdit && existing.data?.status === 'REJECTED' && existing.data.rejectionReason ? (
-          <Alert tone="danger" message={existing.data.rejectionReason} />
-        ) : null}
+        <ScrollView
+          contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {isEdit && existing.data?.status === 'REJECTED' && existing.data.rejectionReason ? (
+            <Alert tone="danger" message={existing.data.rejectionReason} />
+          ) : null}
 
-        <>
-          <Text variant="subtitle" weight="bold">
-            {t('form.personalInfoTitle')}
-          </Text>
-          <FormField
-            control={control}
-            name="specialty"
-            label={t('form.specialty')}
-            placeholder={t('form.specialtyPlaceholder')}
-          />
-          <FormField
-            control={control}
-            name="qualifications"
-            label={t('form.qualifications')}
-            placeholder={t('form.qualificationsPlaceholder')}
-          />
-          <FormField
-            control={control}
-            name="skills"
-            label={t('form.skills')}
-            placeholder={t('form.skillsPlaceholder')}
-            multiline
-            numberOfLines={3}
-          />
-        </>
+          <>
+            <Text variant="subtitle" weight="bold">
+              {t('form.personalInfoTitle')}
+            </Text>
+            <FormField
+              control={control}
+              name="specialty"
+              label={t('form.specialty')}
+              placeholder={t('form.specialtyPlaceholder')}
+            />
+            <FormField
+              control={control}
+              name="qualifications"
+              label={t('form.qualifications')}
+              placeholder={t('form.qualificationsPlaceholder')}
+            />
+            <FormField
+              control={control}
+              name="skills"
+              label={t('form.skills')}
+              placeholder={t('form.skillsPlaceholder')}
+              multiline
+              numberOfLines={3}
+            />
+          </>
 
-        <>
-          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
-            {t('form.professionalInfoTitle')}
-          </Text>
-          <FormField
-            control={control}
-            name="headline"
-            label={t('form.headline')}
-            placeholder={t('form.headlinePlaceholder')}
-            multiline
-            numberOfLines={4}
-          />
-          <FormField
-            control={control}
-            name="experienceYears"
-            label={t('form.experienceYears')}
-            keyboardType="number-pad"
-          />
-          <View style={{ rowGap: theme.spacing.xs }}>
-            <Label>{t('form.employmentTypePreference')}</Label>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-              {VET_JOB_EMPLOYMENT_TYPES.map((v) => (
-                <Chip
-                  key={v}
-                  label={t(`employmentType.${v}`)}
-                  selected={watch('preferredEmploymentTypes').includes(v)}
-                  onPress={() => togglePreference(v)}
-                />
-              ))}
+          <>
+            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+              {t('form.professionalInfoTitle')}
+            </Text>
+            <FormField
+              control={control}
+              name="headline"
+              label={t('form.headline')}
+              placeholder={t('form.headlinePlaceholder')}
+              multiline
+              numberOfLines={4}
+            />
+            <FormField
+              control={control}
+              name="experienceYears"
+              label={t('form.experienceYears')}
+              keyboardType="number-pad"
+            />
+            <View style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t('form.employmentTypePreference')}</Label>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                {VET_JOB_EMPLOYMENT_TYPES.map((v) => (
+                  <Chip
+                    key={v}
+                    label={t(`employmentType.${v}`)}
+                    selected={watch('preferredEmploymentTypes').includes(v)}
+                    onPress={() => togglePreference(v)}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
-          <Controller
-            control={control}
-            name="governorate"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Select<string>
-                label={t('form.governorate')}
-                value={value || null}
-                options={IRAQ_GOVERNORATES.map((g) => ({ value: g, label: g }))}
-                onChange={onChange}
-                error={fieldState.error?.message}
+            <Controller
+              control={control}
+              name="governorate"
+              render={({ field: { value, onChange }, fieldState }) => (
+                <Select<string>
+                  label={t('form.governorate')}
+                  value={value || null}
+                  options={IRAQ_GOVERNORATES.map((g) => ({ value: g, label: g }))}
+                  onChange={onChange}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </>
+
+          <>
+            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+              {t('form.cvStepTitle')}
+            </Text>
+            <FormField
+              control={control}
+              name="phone"
+              label={t('form.phone')}
+              keyboardType="phone-pad"
+            />
+            <FormField
+              control={control}
+              name="email"
+              label={t('form.offerContactEmail')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <View style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t('form.cv')}</Label>
+              <FileUploader
+                provider={attachmentProvider}
+                onChange={(r) => setCvStorageKey(r?.storageKey ?? null)}
               />
-            )}
+              <Caption>{t('form.cvHint')}</Caption>
+            </View>
+
+            <View style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t('form.photo')}</Label>
+              <ImageUploader
+                value={null}
+                provider={attachmentProvider}
+                shape="square"
+                size={120}
+                onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
+              />
+              <Caption>{t('form.photoHint')}</Caption>
+            </View>
+
+            {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
+            <Alert tone="info" message={t('form.seekerReviewNote')} />
+          </>
+        </ScrollView>
+
+        <View
+          style={{
+            padding: theme.screenPadding,
+            flexDirection: 'row',
+            columnGap: theme.spacing.sm,
+          }}
+        >
+          <Button
+            label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
+            fullWidth
+            loading={submitting}
+            disabled={submitting}
+            onPress={handleSubmit(onSubmit)}
           />
-        </>
-
-        <>
-          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
-            {t('form.cvStepTitle')}
-          </Text>
-          <FormField
-            control={control}
-            name="phone"
-            label={t('form.phone')}
-            keyboardType="phone-pad"
-          />
-          <FormField
-            control={control}
-            name="email"
-            label={t('form.offerContactEmail')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <View style={{ rowGap: theme.spacing.xs }}>
-            <Label>{t('form.cv')}</Label>
-            <FileUploader
-              provider={attachmentProvider}
-              onChange={(r) => setCvStorageKey(r?.storageKey ?? null)}
-            />
-            <Caption>{t('form.cvHint')}</Caption>
-          </View>
-
-          <View style={{ rowGap: theme.spacing.xs }}>
-            <Label>{t('form.photo')}</Label>
-            <ImageUploader
-              value={null}
-              provider={attachmentProvider}
-              shape="square"
-              size={120}
-              onChange={(r) => setPhotoStorageKey(r?.storageKey ?? null)}
-            />
-            <Caption>{t('form.photoHint')}</Caption>
-          </View>
-
-          {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
-          <Alert tone="info" message={t('form.seekerReviewNote')} />
-        </>
-      </ScrollView>
-
-      <View
-        style={{ padding: theme.screenPadding, flexDirection: 'row', columnGap: theme.spacing.sm }}
-      >
-        <Button
-          label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
-          fullWidth
-          loading={submitting}
-          disabled={submitting}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </View>
-    </SafeAreaScreen>
+        </View>
+      </SafeAreaScreen>
+    </NoAutofill>
   );
 }

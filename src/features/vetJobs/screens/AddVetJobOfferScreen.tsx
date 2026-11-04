@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 import { Button } from '@/components/actions';
 import { Alert, Loading, useToast } from '@/components/feedback';
-import { FormField, Select, Switch } from '@/components/forms';
+import { FormField, NoAutofill, Select, Switch } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -216,208 +216,214 @@ export default function AddVetJobOfferScreen() {
   }
 
   return (
-    <SafeAreaScreen>
-      <AppHeader title={isEdit ? t('offer.editOffer') : t('offers.addOffer')} showBack />
+    <NoAutofill>
+      <SafeAreaScreen>
+        <AppHeader title={isEdit ? t('offer.editOffer') : t('offers.addOffer')} showBack />
 
-      <ScrollView
-        contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
-        keyboardShouldPersistTaps="handled"
-      >
-        {isEdit && (existing.data as VetJobOffer | undefined)?.status === 'REJECTED' ? (
-          <Alert
-            tone="danger"
-            message={(existing.data as VetJobOffer | undefined)?.rejectionReason ?? ''}
-          />
-        ) : null}
-
-        <>
-          <Text variant="subtitle" weight="bold">
-            {t('form.offerStep1Title')}
-          </Text>
-          <FormField
-            control={control}
-            name="organizationName"
-            label={t('form.offerOrganizationName')}
-            placeholder={t('form.offerOrganizationNamePlaceholder')}
-          />
-          <Controller
-            control={control}
-            name="governorate"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Select<string>
-                label={t('form.offerGovernorate')}
-                placeholder={t('form.offerGovernoratePlaceholder')}
-                value={value || null}
-                options={IRAQ_GOVERNORATES.map((g) => ({ value: g, label: g }))}
-                onChange={onChange}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
-          <FormField control={control} name="district" label={t('form.offerDistrict')} />
-
-          <View style={{ rowGap: theme.spacing.xs }}>
-            <Label>{t('form.offerImage')}</Label>
-            <ImageUploader
-              key={imageFieldKey}
-              value={existingImageUrl}
-              provider={attachmentProvider}
-              shape="square"
-              size={120}
-              replaceable
-              onChange={(r) => {
-                if (r) setImageStorageKey(r.storageKey);
-              }}
-              onRemove={() => {
-                setImageStorageKey(null);
-                setImageUploading(false);
-                setImageFieldKey((k) => k + 1);
-              }}
-              onBusyChange={setImageUploading}
-            />
-            <Caption>{t('form.offerImageHint')}</Caption>
-          </View>
-        </>
-
-        <>
-          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
-            {t('form.offerStep2Title')}
-          </Text>
-          <Label>{t('form.offerSalary')}</Label>
-          <Controller
-            control={control}
-            name="salaryNegotiable"
-            render={({ field: { value, onChange } }) => (
-              <Switch
-                label={t('form.offerSalaryNegotiable')}
-                value={value}
-                onValueChange={onChange}
-              />
-            )}
-          />
-          {!watch('salaryNegotiable') ? (
-            <FormField
-              control={control}
-              name="salaryAmount"
-              label={t('form.offerSalaryAmount')}
-              keyboardType="decimal-pad"
+        <ScrollView
+          contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {isEdit && (existing.data as VetJobOffer | undefined)?.status === 'REJECTED' ? (
+            <Alert
+              tone="danger"
+              message={(existing.data as VetJobOffer | undefined)?.rejectionReason ?? ''}
             />
           ) : null}
-          <FormField
-            control={control}
-            name="benefits"
-            label={t('form.offerBenefits')}
-            placeholder={t('form.offerBenefitsPlaceholder')}
-            multiline
-            numberOfLines={4}
-          />
-        </>
 
-        <>
-          <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
-            {t('form.offerStep3Title')}
-          </Text>
-          <FormField
-            control={control}
-            name="title"
-            label={t('form.offerTitle')}
-            placeholder={t('form.offerTitlePlaceholder')}
-          />
-          <Controller
-            control={control}
-            name="employmentType"
-            render={({ field: { value, onChange }, fieldState }) => (
-              <Select<VetJobEmploymentType>
-                label={t('form.offerEmploymentType')}
-                value={value}
-                options={VET_JOB_EMPLOYMENT_TYPES.map((v) => ({
-                  value: v,
-                  label: t(`employmentType.${v}`),
-                }))}
-                onChange={(v) => setValue('employmentType', v, { shouldValidate: true })}
-                error={fieldState.error?.message}
+          <>
+            <Text variant="subtitle" weight="bold">
+              {t('form.offerStep1Title')}
+            </Text>
+            <FormField
+              control={control}
+              name="organizationName"
+              label={t('form.offerOrganizationName')}
+              placeholder={t('form.offerOrganizationNamePlaceholder')}
+            />
+            <Controller
+              control={control}
+              name="governorate"
+              render={({ field: { value, onChange }, fieldState }) => (
+                <Select<string>
+                  label={t('form.offerGovernorate')}
+                  placeholder={t('form.offerGovernoratePlaceholder')}
+                  value={value || null}
+                  options={IRAQ_GOVERNORATES.map((g) => ({ value: g, label: g }))}
+                  onChange={onChange}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+            <FormField control={control} name="district" label={t('form.offerDistrict')} />
+
+            <View style={{ rowGap: theme.spacing.xs }}>
+              <Label>{t('form.offerImage')}</Label>
+              <ImageUploader
+                key={imageFieldKey}
+                value={existingImageUrl}
+                provider={attachmentProvider}
+                shape="square"
+                size={120}
+                replaceable
+                onChange={(r) => {
+                  if (r) setImageStorageKey(r.storageKey);
+                }}
+                onRemove={() => {
+                  setImageStorageKey(null);
+                  setImageUploading(false);
+                  setImageFieldKey((k) => k + 1);
+                }}
+                onBusyChange={setImageUploading}
               />
-            )}
-          />
-          <FormField
-            control={control}
-            name="experienceYearsRequired"
-            label={t('form.offerExperienceYears')}
-            keyboardType="number-pad"
-          />
-          <FormField
-            control={control}
-            name="qualifications"
-            label={t('form.offerQualifications')}
-          />
-          <FormField
-            control={control}
-            name="description"
-            label={t('form.offerDescription')}
-            placeholder={t('form.offerDescriptionPlaceholder')}
-            multiline
-            numberOfLines={4}
-          />
-          <FormField
-            control={control}
-            name="responsibilities"
-            label={t('form.offerResponsibilities')}
-            placeholder={t('form.offerResponsibilitiesPlaceholder')}
-            multiline
-            numberOfLines={3}
-          />
-          <FormField
-            control={control}
-            name="requirements"
-            label={t('form.offerRequirements')}
-            placeholder={t('form.offerRequirementsPlaceholder')}
-            multiline
-            numberOfLines={3}
-          />
-          <FormField
-            control={control}
-            name="contactPhone"
-            label={t('form.offerContactPhone')}
-            keyboardType="phone-pad"
-          />
-          <FormField
-            control={control}
-            name="contactEmail"
-            label={t('form.offerContactEmail')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <Controller
-            control={control}
-            name="applicationDeadline"
-            render={({ field: { value, onChange } }) => (
-              <DateField
-                label={t('form.offerApplicationDeadline')}
-                value={value}
-                onChange={onChange}
-                placeholder={t('form.offerApplicationDeadline')}
-                minimumDate={new Date()}
-                accessibilityLabel={t('form.offerApplicationDeadline')}
+              <Caption>{t('form.offerImageHint')}</Caption>
+            </View>
+          </>
+
+          <>
+            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+              {t('form.offerStep2Title')}
+            </Text>
+            <Label>{t('form.offerSalary')}</Label>
+            <Controller
+              control={control}
+              name="salaryNegotiable"
+              render={({ field: { value, onChange } }) => (
+                <Switch
+                  label={t('form.offerSalaryNegotiable')}
+                  value={value}
+                  onValueChange={onChange}
+                />
+              )}
+            />
+            {!watch('salaryNegotiable') ? (
+              <FormField
+                control={control}
+                name="salaryAmount"
+                label={t('form.offerSalaryAmount')}
+                keyboardType="decimal-pad"
               />
-            )}
+            ) : null}
+            <FormField
+              control={control}
+              name="benefits"
+              label={t('form.offerBenefits')}
+              placeholder={t('form.offerBenefitsPlaceholder')}
+              multiline
+              numberOfLines={4}
+            />
+          </>
+
+          <>
+            <Text variant="subtitle" weight="bold" style={{ marginTop: theme.spacing.sm }}>
+              {t('form.offerStep3Title')}
+            </Text>
+            <FormField
+              control={control}
+              name="title"
+              label={t('form.offerTitle')}
+              placeholder={t('form.offerTitlePlaceholder')}
+            />
+            <Controller
+              control={control}
+              name="employmentType"
+              render={({ field: { value, onChange }, fieldState }) => (
+                <Select<VetJobEmploymentType>
+                  label={t('form.offerEmploymentType')}
+                  value={value}
+                  options={VET_JOB_EMPLOYMENT_TYPES.map((v) => ({
+                    value: v,
+                    label: t(`employmentType.${v}`),
+                  }))}
+                  onChange={(v) => setValue('employmentType', v, { shouldValidate: true })}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+            <FormField
+              control={control}
+              name="experienceYearsRequired"
+              label={t('form.offerExperienceYears')}
+              keyboardType="number-pad"
+            />
+            <FormField
+              control={control}
+              name="qualifications"
+              label={t('form.offerQualifications')}
+            />
+            <FormField
+              control={control}
+              name="description"
+              label={t('form.offerDescription')}
+              placeholder={t('form.offerDescriptionPlaceholder')}
+              multiline
+              numberOfLines={4}
+            />
+            <FormField
+              control={control}
+              name="responsibilities"
+              label={t('form.offerResponsibilities')}
+              placeholder={t('form.offerResponsibilitiesPlaceholder')}
+              multiline
+              numberOfLines={3}
+            />
+            <FormField
+              control={control}
+              name="requirements"
+              label={t('form.offerRequirements')}
+              placeholder={t('form.offerRequirementsPlaceholder')}
+              multiline
+              numberOfLines={3}
+            />
+            <FormField
+              control={control}
+              name="contactPhone"
+              label={t('form.offerContactPhone')}
+              keyboardType="phone-pad"
+            />
+            <FormField
+              control={control}
+              name="contactEmail"
+              label={t('form.offerContactEmail')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <Controller
+              control={control}
+              name="applicationDeadline"
+              render={({ field: { value, onChange } }) => (
+                <DateField
+                  label={t('form.offerApplicationDeadline')}
+                  value={value}
+                  onChange={onChange}
+                  placeholder={t('form.offerApplicationDeadline')}
+                  minimumDate={new Date()}
+                  accessibilityLabel={t('form.offerApplicationDeadline')}
+                />
+              )}
+            />
+
+            {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
+            <Alert tone="info" message={t('form.offerReviewNote')} />
+          </>
+        </ScrollView>
+
+        <View
+          style={{
+            padding: theme.screenPadding,
+            flexDirection: 'row',
+            columnGap: theme.spacing.sm,
+          }}
+        >
+          <Button
+            label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
+            fullWidth
+            loading={submitting}
+            disabled={submitting || imageUploading}
+            onPress={handleSubmit(onSubmit)}
           />
-
-          {submitError ? <Alert tone="danger" message={apiErrorMessage(submitError)} /> : null}
-          <Alert tone="info" message={t('form.offerReviewNote')} />
-        </>
-      </ScrollView>
-
-      <View
-        style={{ padding: theme.screenPadding, flexDirection: 'row', columnGap: theme.spacing.sm }}
-      >
-        <Button
-          label={submitting ? t('form.submitting') : isEdit ? t('form.save') : t('form.submit')}
-          fullWidth
-          loading={submitting}
-          disabled={submitting || imageUploading}
-          onPress={handleSubmit(onSubmit)}
-        />
-      </View>
-    </SafeAreaScreen>
+        </View>
+      </SafeAreaScreen>
+    </NoAutofill>
   );
 }

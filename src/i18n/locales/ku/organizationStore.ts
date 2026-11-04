@@ -13,6 +13,7 @@ const organizationStore: KuNamespace<'organizationStore'> = {
 
   addToCart: {
     cta: 'زیادکردن بۆ سەبەتە',
+    shop: 'بازاڕکردن',
     added: 'بەرهەمەکە زیادکرا بۆ سەبەتە',
     viewCart: 'بینینی سەبەتە',
     quantity: 'بڕ',
@@ -102,6 +103,8 @@ const organizationStore: KuNamespace<'organizationStore'> = {
     cancelNotAllowed: 'فرۆشگاکە داواکارییەکەی قبوڵ کردووە — بۆ هەڵوەشاندنەوە پەیوەندی پێوە بکە.',
     notFound: 'داواکارییەکە نەدۆزرایەوە',
     callCustomer: 'پەیوەندی بە کڕیارەوە',
+    messageCustomer: 'ناردنی نامە بۆ کڕیار',
+    messageStore: 'ناردنی نامە بۆ فرۆشگا',
     openStore: 'سەردانی فرۆشگا',
     status: {
       PENDING: 'چاوەڕێی پشتڕاستکردنەوە',

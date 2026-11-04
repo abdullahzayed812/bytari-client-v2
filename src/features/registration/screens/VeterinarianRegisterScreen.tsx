@@ -26,6 +26,7 @@ import {
   GenderRadioGroup,
   GovernorateSelect,
   TermsAndConditionsModal,
+  VET_ACCOUNT_RESPONSIBILITY_CLAUSE,
 } from '../components';
 import { devVeterinarianDefaults } from '../data/devDefaults';
 import {
@@ -434,6 +435,8 @@ export default function VeterinarianRegisterScreen() {
           name="terms"
           render={({ field: { value, onChange }, fieldState }) => (
             <View style={{ rowGap: theme.spacing.xs }}>
+              {/* Ticking the box below accepts this clause explicitly. */}
+              <Alert tone="warning" message={VET_ACCOUNT_RESPONSIBILITY_CLAUSE} />
               <Checkbox
                 label={t('petOwner.termsPrefix')}
                 checked={value === true}
