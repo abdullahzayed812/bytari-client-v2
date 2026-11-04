@@ -1,8 +1,7 @@
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 
-import { Button } from '@/components/actions';
 import { Icon } from '@/components/content';
 import { Caption, Text } from '@/components/typography';
 import { useTheme } from '@/theme';
@@ -32,6 +31,9 @@ export function PublicVeterinaryOfficeProductCard({
   const { t: tStore } = useTranslation('organizationStore');
   // Products without a price cannot be ordered (same rule as the product page).
   const orderable = product.price != null;
+  // The all-products grid is 3 across on phones (~100px cards): the "تسوق"
+  // pill then gets tighter padding, a smaller icon and font so the label fits.
+  const compact = width < 140;
 
   return (
     <Pressable
@@ -71,7 +73,9 @@ export function PublicVeterinaryOfficeProductCard({
         )}
       </View>
 
-      <View style={{ padding: theme.spacing.md, rowGap: theme.spacing.xs }}>
+      <View
+        style={{ padding: compact ? theme.spacing.sm : theme.spacing.md, rowGap: theme.spacing.xs }}
+      >
         <Text variant="bodyMedium" numberOfLines={2}>
           {product.name}
         </Text>
@@ -85,16 +89,51 @@ export function PublicVeterinaryOfficeProductCard({
             : t('product.noPrice')}
         </Text>
         {onAddToCart ? (
-          <Button
-            label={tStore('addToCart.shop')}
-            size="sm"
-            fullWidth
-            loading={adding}
-            disabled={!orderable || adding}
-            leftIcon="bag-add-outline"
-            onPress={onAddToCart}
+          // Compact pill, same as the Pet Owner Store grid card. The label has
+          // a flex width: sized by its own measured width, some Android
+          // devices measure Arabic text too narrow and cut it to "…".
+          <Pressable
+            accessibilityRole="button"
             accessibilityLabel={`${tStore('addToCart.cta')} — ${product.name}`}
-          />
+            accessibilityState={{ disabled: !orderable, busy: Boolean(adding) }}
+            disabled={!orderable || adding}
+            onPress={onAddToCart}
+            hitSlop={4}
+            style={({ pressed }) => ({
+              minHeight: compact ? 30 : 34,
+              marginTop: theme.spacing.xs,
+              borderRadius: theme.radius.pill,
+              backgroundColor: pressed ? theme.colors.primaryPressed : theme.colors.primary,
+              flexDirection: 'row',
+              alignItems: 'center',
+              columnGap: compact ? 2 : theme.spacing.xs,
+              paddingHorizontal: compact ? theme.spacing.xs : theme.spacing.md,
+              opacity: orderable ? 1 : 0.45,
+            })}
+          >
+            {adding ? (
+              <ActivityIndicator size="small" color={theme.colors.onPrimary} style={{ flex: 1 }} />
+            ) : (
+              <>
+                <Icon name="bag-add-outline" size={compact ? 13 : 16} color="onPrimary" />
+                <Text
+                  variant="label"
+                  numberOfLines={1}
+                  // Safety net on very narrow cards: shrink a little rather than "…".
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                  style={{
+                    flex: 1,
+                    textAlign: 'center',
+                    color: theme.colors.onPrimary,
+                    ...(compact ? { fontSize: 12, lineHeight: 16 } : null),
+                  }}
+                >
+                  {tStore('addToCart.shop')}
+                </Text>
+              </>
+            )}
+          </Pressable>
         ) : null}
       </View>
     </Pressable>
