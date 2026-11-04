@@ -5,7 +5,7 @@ import { FlatList, useWindowDimensions, View, type LayoutChangeEvent } from 'rea
 
 import { Button } from '@/components/actions';
 import { Chip, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading } from '@/components/feedback';
+import { Alert, EmptyState, ErrorState, Loading } from '@/components/feedback';
 import { SearchInput } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
@@ -13,7 +13,7 @@ import { BottomSheet } from '@/components/overlays';
 import { Caption, Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
-import { useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
+import { useOrgStoreAvailability, useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
 import { useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
@@ -47,8 +47,10 @@ export function officeProductColumns(gridWidth: number): number {
 export default function PublicVeterinaryOfficeProductsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('veterinaryOffices');
+  const { t: tStore } = useTranslation('organizationStore');
   const { officeId } = useLocalSearchParams<{ officeId: string }>();
   const quickAdd = useOrgStoreQuickAdd(officeId ?? '');
+  const { ordersEnabled } = useOrgStoreAvailability(officeId);
 
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch);
@@ -96,6 +98,9 @@ export default function PublicVeterinaryOfficeProductsScreen() {
           rowGap: theme.spacing.md,
         }}
       >
+        {!ordersEnabled ? (
+          <Alert tone="info" message={tStore('availability.ordersPaused')} />
+        ) : null}
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
           <Button
             label={
@@ -171,7 +176,7 @@ export default function PublicVeterinaryOfficeProductsScreen() {
               onPress={() =>
                 router.push(Routes.veterinaryOfficeProductDetail(officeId as string, item.id))
               }
-              onAddToCart={officeId ? () => quickAdd.add(item.id) : undefined}
+              onAddToCart={officeId && ordersEnabled ? () => quickAdd.add(item.id) : undefined}
               adding={quickAdd.isAdding(item.id)}
             />
           )}

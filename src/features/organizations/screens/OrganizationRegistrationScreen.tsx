@@ -110,7 +110,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
   const [termsError, setTermsError] = useState<string | null>(null);
 
   const schema = useMemo(
-    () => buildRegistrationSchema(t, { phoneRequired: isClinic }),
+    () => buildRegistrationSchema(t, { phoneRequired: isClinic, specialtyRequired: isClinic }),
     [t, isClinic],
   );
   const { control, handleSubmit } = useForm<RegistrationFormValues>({
@@ -129,6 +129,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
       instagramUrl: '',
       whatsapp: '',
       licenseNumber: '',
+      specialty: '',
       ...(devDataEnabled ? devRegistrationDefaults(isClinic) : null),
     },
     mode: 'onTouched',
@@ -163,6 +164,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
       instagramUrl: values.instagramUrl?.trim() ? values.instagramUrl.trim() : null,
       whatsapp: values.whatsapp?.trim() ? values.whatsapp.trim() : null,
       licenseNumber: values.licenseNumber.trim(),
+      ...(isClinic ? { specialty: values.specialty?.trim() ?? '' } : null),
     };
 
     create.mutate(
@@ -270,6 +272,17 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
             numberOfLines={3}
             serverError={serverFields.description}
           />
+          {isClinic ? (
+            <FormField
+              control={control}
+              name="specialty"
+              label={t('registration.fields.specialty')}
+              placeholder={t('registration.fields.specialtyPlaceholder')}
+              leftIcon="ribbon-outline"
+              required
+              serverError={serverFields['details.specialty']}
+            />
+          ) : null}
           <LocalImagePicker
             label={t('registration.fields.logo')}
             edit={{ aspects: ['1:1'], defaultAspect: '1:1', defaultMaxDimension: 1280 }}
@@ -442,6 +455,7 @@ export function OrganizationRegistrationScreen({ orgType }: Props) {
               accessibilityLabel={t('registration.submit')}
             />
           </View>
+          {isClinic ? <Caption>{t('registration.clinic.storeNote')}</Caption> : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaScreen>

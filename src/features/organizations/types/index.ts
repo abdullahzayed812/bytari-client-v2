@@ -151,6 +151,12 @@ export interface OrganizationDetails extends OrganizationProfile {
    */
   licenseNumber?: string | null;
   licenseDocumentUrls?: string[];
+  /** CLINIC only — "تخصص العيادة" (null for clinics registered before it existed). */
+  specialty?: string | null;
+  /** CLINIC only — Admin store switch (false hides the store; data is kept). */
+  storeEnabled?: boolean;
+  /** CLINIC / VETERINARY_OFFICE only — the seller's "receive new orders" switch. */
+  ordersEnabled?: boolean;
   /**
    * Raw R2 storage keys backing {@link OrganizationProfile.galleryUrls} —
    * owner/admin-only. The gallery removal endpoint is keyed by `storageKey`,
@@ -184,6 +190,14 @@ export interface PublicOrganization extends OrganizationProfile {
   rating: number | null;
   reviewsCount: number;
   createdAt: string;
+  /**
+   * Single-organization view only (`GET /organizations/discover/:id`).
+   * CLINIC: specialty + Admin store switch; CLINIC / VETERINARY_OFFICE:
+   * whether the store takes new orders right now.
+   */
+  specialty?: string | null;
+  storeEnabled?: boolean;
+  ordersEnabled?: boolean;
 }
 
 export type DiscoverSort = 'default' | 'nearest' | 'top_rated';
@@ -340,6 +354,8 @@ export interface CreateOrganizationDetailsInput {
   tiktokUrl?: string | null;
   /** CLINIC / VETERINARY_OFFICE only. */
   licenseNumber?: string | null;
+  /** CLINIC only — required when registering a clinic. */
+  specialty?: string | null;
 }
 
 export interface CreateOrganizationInput {
@@ -370,6 +386,8 @@ export interface UpdateOrganizationInput {
   tiktokUrl?: string | null;
   /** CLINIC / VETERINARY_OFFICE only. */
   licenseNumber?: string | null;
+  /** CLINIC only — required when registering a clinic. */
+  specialty?: string | null;
 }
 
 /** Identify the target by exactly one of `userId` or `email` (the email must belong to an existing account). */

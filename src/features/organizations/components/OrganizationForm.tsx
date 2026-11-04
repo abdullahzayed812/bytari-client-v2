@@ -206,7 +206,11 @@ function EditForm({
   t,
   theme,
 }: EditProps & Ctx) {
-  const schema = useMemo(() => buildEditOrganizationSchema(t), [t]);
+  const isClinic = orgType === 'CLINIC';
+  const schema = useMemo(
+    () => buildEditOrganizationSchema(t, { specialtyRequired: isClinic }),
+    [t, isClinic],
+  );
   const { control, handleSubmit } = useForm<EditOrganizationFormValues>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -239,6 +243,18 @@ function EditForm({
         numberOfLines={4}
         serverError={serverFields.description}
       />
+
+      {isClinic ? (
+        <FormField
+          control={control}
+          name="specialty"
+          label={t('registration.fields.specialty')}
+          placeholder={t('registration.fields.specialtyPlaceholder')}
+          leftIcon="ribbon-outline"
+          required
+          serverError={serverFields.specialty}
+        />
+      ) : null}
 
       {hasProfileFields ? (
         <>

@@ -14,7 +14,7 @@ import { orgCapabilities, useOrganization } from '@/features/organizations';
 import { useCapabilities, useDebouncedValue } from '@/hooks';
 import { useTheme } from '@/theme';
 
-import { OrgStoreOrderCard } from '../components';
+import { OrderAvailabilityCard, OrgStoreOrderCard } from '../components';
 import {
   useIncomingOrgStoreOrders,
   useIncomingOrgStoreOrdersSummary,
@@ -112,6 +112,7 @@ export function StoreIncomingOrdersContent({
           paddingBottom: theme.spacing.sm,
         }}
       >
+        <OrderAvailabilityCard organizationId={orgId} canManage={caps.canManageStoreOrders} />
         <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
           {stat(t('incoming.stats.pending'), summary.data?.pendingCount)}
           {stat(t('incoming.stats.active'), summary.data?.activeCount)}

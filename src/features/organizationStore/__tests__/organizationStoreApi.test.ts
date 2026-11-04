@@ -114,3 +114,16 @@ describe('organizationStoreService — order messaging', () => {
     expect(post).toHaveBeenLastCalledWith('/organizations/org1/store-orders/o1/conversation');
   });
 });
+
+describe('organizationStoreService — receive-orders switch', () => {
+  it('reads and updates the order settings of one store', async () => {
+    get.mockResolvedValue({ ordersEnabled: true });
+    patch.mockResolvedValue({ ordersEnabled: false });
+    await organizationStoreService.getOrderSettings('org1');
+    expect(get).toHaveBeenCalledWith('/organizations/org1/store-orders/settings');
+    await organizationStoreService.updateOrderSettings('org1', false);
+    expect(patch).toHaveBeenCalledWith('/organizations/org1/store-orders/settings', {
+      ordersEnabled: false,
+    });
+  });
+});

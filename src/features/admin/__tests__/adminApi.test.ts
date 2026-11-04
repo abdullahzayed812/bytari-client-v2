@@ -6,6 +6,7 @@ const requestEnvelope = jest.spyOn(apiClient, 'requestEnvelope');
 const get = jest.spyOn(apiClient, 'get');
 const post = jest.spyOn(apiClient, 'post');
 const del = jest.spyOn(apiClient, 'delete');
+const patch = jest.spyOn(apiClient, 'patch');
 
 beforeEach(() => {
   requestEnvelope.mockReset().mockResolvedValue({
@@ -15,6 +16,7 @@ beforeEach(() => {
   get.mockReset().mockResolvedValue({});
   post.mockReset().mockResolvedValue({});
   del.mockReset().mockResolvedValue({});
+  patch.mockReset().mockResolvedValue({});
 });
 afterAll(() => jest.restoreAllMocks());
 
@@ -142,5 +144,12 @@ describe('adminApi — maps 1:1 to the backend admin surface', () => {
     );
     await adminApi.deleteAnimal('an1');
     expect(del).toHaveBeenCalledWith('/admin/animals/an1');
+  });
+});
+
+describe('adminApi — clinic store switch', () => {
+  it('setClinicStoreEnabled → PATCH /admin/organizations/:id/store', async () => {
+    await adminApi.setClinicStoreEnabled('o1', false);
+    expect(patch).toHaveBeenCalledWith('/admin/organizations/o1/store', { enabled: false });
   });
 });

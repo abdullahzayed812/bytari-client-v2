@@ -62,6 +62,7 @@ export default {
     following: 'متابَع',
     infoTitle: 'معلومات العيادة',
     specialty: 'التخصص',
+    about: 'نبذة عن العيادة',
     location: 'الموقع',
     workingHours: 'ساعات العمل',
     doctors: 'الأطباء',
@@ -266,6 +267,9 @@ export default {
       websitePlaceholder: 'موقع العيادة الإلكتروني',
       licenseNumberPlaceholder: 'رقم ترخيص العيادة البيطرية',
       imagesTitle: 'صور العيادة',
+      // Exact client copy.
+      storeNote:
+        'ملاحظة: إضافة المنتجات وتفعيل المتجر الخاص بالعيادات متاح لعيادات (Pet Animal) حالياً فقط.',
       vetApprovalRequired:
         'تسجيل عيادة يتطلب أن تكون حالتك كطبيب بيطري «معتمَد». قدّم طلب الاعتماد أولاً من صفحة البيطري.',
     },
@@ -311,12 +315,15 @@ export default {
       whatsappPlaceholder: 'رقم تواصل واتساب',
       licenseNumber: 'رقم الترخيص',
       licenseImages: 'صور الترخيص',
+      specialty: 'تخصص العيادة',
+      specialtyPlaceholder: 'مثال: حيوانات أليفة، دواجن، مواشي',
     },
     errors: {
       addressRequired: 'العنوان مطلوب.',
       countryRequired: 'يرجى اختيار الدولة.',
       phoneRequired: 'رقم الهاتف مطلوب.',
       licenseNumberRequired: 'رقم الترخيص مطلوب.',
+      specialtyRequired: 'تخصص العيادة مطلوب.',
       licenseImagesRequired: 'يرجى إضافة صورة واحدة على الأقل لترخيص المؤسسة.',
       invalidEmail: 'أدخل بريداً إلكترونياً صحيحاً.',
       invalidUrl: 'أدخل رابطاً صحيحاً.',

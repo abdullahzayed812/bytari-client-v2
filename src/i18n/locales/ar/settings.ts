@@ -21,6 +21,8 @@ export default {
     title: 'الخصوصية والأمان',
     securityTitle: 'الأمان',
     privacyTitle: 'الخصوصية',
+    policyLink: 'سياسة الخصوصية',
+    policyLinkHint: 'كيف نجمع بياناتك ونستخدمها ونحميها',
     changePasswordHint: 'غيّر كلمة المرور الخاصة بحسابك',
     signOutAll: 'تسجيل الخروج من جميع الأجهزة',
     signOutAllHint: 'إنهاء جميع الجلسات النشطة بما فيها هذا الجهاز',

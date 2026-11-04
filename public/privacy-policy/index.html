@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سياسة الخصوصية | بيطري (Baytari)</title>
+<meta name="description" content="سياسة الخصوصية لتطبيق ومنصة بيطري (Baytari): البيانات التي نجمعها، وكيف نستخدمها ونشاركها ونحميها، وحقوقك في التحكم بها." />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#059669" />
+<style>
+  :root {
+    --brand: #059669;
+    --brand-dark: #047857;
+    --brand-soft: #ecfdf5;
+    --text: #0f172a;
+    --muted: #475569;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    font-family: 'Cairo', 'Segoe UI', Tahoma, 'Noto Naskh Arabic', Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.9;
+    font-size: 1.0625rem;
+  }
+  a { color: var(--brand-dark); }
+  a:focus-visible, button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  .skip {
+    position: absolute; inset-inline-start: 1rem; top: -4rem;
+    background: var(--brand-dark); color: #fff; padding: .6rem 1rem; border-radius: .5rem; z-index: 10;
+  }
+  .skip:focus { top: 1rem; }
+  header.site {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 1.25rem; }
+  header.site .wrap {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px;
+  }
+  .brand { font-weight: 800; font-size: 1.35rem; color: var(--brand-dark); text-decoration: none; }
+  .brand small { display: block; font-weight: 500; font-size: .8rem; color: var(--muted); }
+  nav.top a { margin-inline-start: 1rem; text-decoration: none; font-weight: 600; }
+  .hero { background: linear-gradient(180deg, var(--brand-soft), var(--bg)); padding: 2.5rem 0 1.5rem; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.4; margin: 0 0 .75rem; }
+  .meta { color: var(--muted); font-size: .95rem; }
+  main { padding: 1rem 0 3rem; }
+  .toc, section.card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 1rem;
+    padding: 1.25rem 1.5rem; margin: 1.25rem 0;
+  }
+  .toc h2 { font-size: 1.15rem; margin: 0 0 .5rem; }
+  .toc ol { margin: 0; padding-inline-start: 1.4rem; columns: 2; column-gap: 2rem; }
+  @media (max-width: 640px) { .toc ol { columns: 1; } nav.top { display: none; } }
+  section.card h2 {
+    font-size: 1.3rem; margin: 0 0 .75rem; color: var(--brand-dark);
+    scroll-margin-top: 1rem;
+  }
+  section.card h3 { font-size: 1.05rem; margin: 1.1rem 0 .35rem; }
+  ul { padding-inline-start: 1.3rem; margin: .35rem 0; }
+  li { margin: .25rem 0; }
+  .note {
+    background: var(--brand-soft); border-inline-start: 4px solid var(--brand);
+    padding: .75rem 1rem; border-radius: .5rem; margin: .75rem 0;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .97rem; }
+  th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: start; vertical-align: top; }
+  th { background: var(--bg); }
+  .table-scroll { overflow-x: auto; }
+  /* Phones: each row becomes a labelled card instead of a cramped grid. */
+  @media (max-width: 640px) {
+    table, tbody, tr, td { display: block; width: 100%; }
+    caption { display: block; width: 100%; }
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    tr { border: 1px solid var(--border); border-radius: .75rem; margin-bottom: .75rem; overflow: hidden; }
+    td { border: 0; border-bottom: 1px solid var(--border); }
+    td:last-child { border-bottom: 0; }
+    td[data-label]::before {
+      content: attr(data-label); display: block; font-weight: 700; color: var(--muted); font-size: .85rem;
+    }
+    td:first-child { background: var(--brand-soft); font-weight: 700; }
+    td:first-child::before { display: none; }
+  }
+  footer { border-top: 1px solid var(--border); background: var(--surface); padding: 1.5rem 0; color: var(--muted); font-size: .95rem; }
+  bdi { unicode-bidi: isolate; }
+  .lang-switch a { font-weight: 700; }
+  .en { direction: ltr; text-align: left; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+  .en .toc ol { padding-inline-start: 1.4rem; }
+  .yes { color: #047857; font-weight: 700; }
+  .no { color: #b91c1c; font-weight: 700; }
+</style>
+</head>
+<body>
+<a class="skip" href="#content">تخطَّ إلى المحتوى</a>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="/landing">بيطري <small>Baytari</small></a>
+    <nav class="top" aria-label="روابط الموقع">
+      <a href="/landing">الرئيسية</a>
+      <a href="/contact">تواصل معنا</a>
+      <a href="#en" lang="en">English</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>سياسة الخصوصية</h1>
+    <p>توضح هذه السياسة البيانات التي يجمعها تطبيق <strong>بيطري (<bdi>Baytari</bdi>)</strong> وكيف نستخدمها ونشاركها ونحميها، والخيارات المتاحة لك. تنطبق على تطبيق بيطري على أندرويد (<bdi dir="ltr">com.petcare.baytari</bdi>) و iOS، وعلى الموقع <bdi>baytari.com</bdi>.</p>
+    <p class="meta">تاريخ السريان وآخر تحديث: <time datetime="2026-11-04">2026-11-4</time></p>
+    <p class="lang-switch"><a href="#en" lang="en" hreflang="en">Read this policy in English</a></p>
+  </div>
+</div>
+
+<main id="content">
+<div class="wrap" lang="ar" dir="rtl">
+  <nav class="toc" aria-labelledby="toc-title">
+    <h2 id="toc-title">محتويات السياسة</h2>
+    <ol>
+      <li><a href="#who">من نحن</a></li>
+      <li><a href="#collect">البيانات التي نجمعها</a></li>
+      <li><a href="#permissions">أذونات الجهاز</a></li>
+      <li><a href="#use">كيف نستخدم البيانات</a></li>
+      <li><a href="#share">من يمكنه رؤية بياناتك ومع من نشاركها</a></li>
+      <li><a href="#security">حماية البيانات</a></li>
+      <li><a href="#retention">مدة الاحتفاظ بالبيانات</a></li>
+      <li><a href="#rights">حقوقك وخياراتك</a></li>
+      <li><a href="#children">الأطفال</a></li>
+      <li><a href="#changes">التعديلات على هذه السياسة</a></li>
+      <li><a href="#contact">التواصل معنا</a></li>
+    </ol>
+  </nav>
+
+  <section class="card" id="who" aria-labelledby="h-who">
+    <h2 id="h-who">1. من نحن</h2>
+    <p>بيطري (<bdi>Baytari</bdi>) منصة بيطرية في العراق تجمع أصحاب الحيوانات والأطباء البيطريين والعيادات والمكاتب البيطرية والحقول. نحن الجهة المسؤولة عن البيانات التي تُجمع عبر التطبيق والموقع. للتواصل بشأن الخصوصية: <a href="mailto:info@baytari.com"><bdi>info@baytari.com</bdi></a>.</p>
+  </section>
+
+  <section class="card" id="collect" aria-labelledby="h-collect">
+    <h2 id="h-collect">2. البيانات التي نجمعها</h2>
+    <p>نجمع فقط البيانات التي تقدمها أنت أثناء استخدام الخدمة، وبعض البيانات التقنية اللازمة لتشغيلها:</p>
+    <div class="table-scroll">
+      <table>
+        <caption class="meta" style="text-align:start;margin-bottom:.4rem">أنواع البيانات والغرض منها</caption>
+        <thead><tr><th scope="col">نوع البيانات</th><th scope="col">أمثلة</th><th scope="col">الغرض</th><th scope="col">إلزامي؟</th></tr></thead>
+        <tbody>
+          <tr><td data-label="نوع البيانات">معلومات شخصية</td><td data-label="أمثلة">الاسم، البريد الإلكتروني، رقم الهاتف، الجنس، الدولة والمحافظة، رقم واتساب، النبذة، التخصص</td><td data-label="الغرض">إنشاء الحساب وإدارته، التواصل معك</td><td data-label="إلزامي؟">الاسم والبريد والهاتف إلزامية، والباقي اختياري</td></tr>
+          <tr><td data-label="نوع البيانات">بيانات الدخول</td><td data-label="أمثلة">كلمة المرور (تُحفظ مُجزّأة بخوارزمية Argon2id ولا يمكن استرجاعها)</td><td data-label="الغرض">تأمين الدخول إلى حسابك</td><td data-label="إلزامي؟">نعم</td></tr>
+          <tr><td data-label="نوع البيانات">وثائق التحقق</td><td data-label="أمثلة">صورة الترخيص أو الهوية، أو هوية الطالب (للأطباء البيطريين وطلاب الطب البيطري فقط)</td><td data-label="الغرض">التحقق من صفة الطبيب أو الطالب قبل تفعيل الحساب</td><td data-label="إلزامي؟">للأطباء والطلاب فقط</td></tr>
+          <tr><td data-label="نوع البيانات">الصور والفيديو</td><td data-label="أمثلة">صورة الملف الشخصي، صور الحيوانات والعيادات والحقول والمنتجات، المرفقات في المحادثات</td><td data-label="الغرض">عرضها داخل الخدمة</td><td data-label="إلزامي؟">اختياري</td></tr>
+          <tr><td data-label="نوع البيانات">الملفات والمستندات</td><td data-label="أمثلة">الملفات المرفقة في المحادثات، وثائق ترخيص المنشآت</td><td data-label="الغرض">تشغيل المحادثات ومراجعة طلبات المنشآت</td><td data-label="إلزامي؟">اختياري / لتسجيل المنشأة</td></tr>
+          <tr><td data-label="نوع البيانات">الرسائل</td><td data-label="أمثلة">نصوص المحادثات، أسئلتك للمساعد البيطري الذكي</td><td data-label="الغرض">إيصال الرسائل، توليد ردود المساعد الذكي، الدعم</td><td data-label="إلزامي؟">اختياري</td></tr>
+          <tr><td data-label="نوع البيانات">بيانات الحيوانات والصحة البيطرية</td><td data-label="أمثلة">النوع، السلالة، العمر، الوزن، السجلات الطبية، اللقاحات، التذكيرات، المواعيد</td><td data-label="الغرض">إدارة رعاية حيوانك ومشاركتها مع العيادة التي تختارها</td><td data-label="إلزامي؟">اختياري</td></tr>
+          <tr><td data-label="نوع البيانات">بيانات المنشآت</td><td data-label="أمثلة">بيانات العيادة أو المكتب أو الحقل: العنوان، الموقع، ساعات العمل، الخدمات، رقم الترخيص، بيانات تشغيل الحقل، المنتجات والطلبات</td><td data-label="الغرض">تشغيل صفحة المنشأة وإدارتها</td><td data-label="إلزامي؟">لأصحاب المنشآت فقط</td></tr>
+          <tr><td data-label="نوع البيانات">الطلبات من المتاجر</td><td data-label="أمثلة">اسم المستلم، الهاتف، المدينة، العنوان، المنتجات</td><td data-label="الغرض">تنفيذ الطلب وتوصيله (الدفع عند الاستلام فقط، ولا نجمع بيانات بطاقات مصرفية)</td><td data-label="إلزامي؟">عند الطلب فقط</td></tr>
+          <tr><td data-label="نوع البيانات">الموقع</td><td data-label="أمثلة">موقعك الحالي، عند طلب ترتيب العيادات حسب الأقرب فقط</td><td data-label="الغرض">حساب المسافة إلى العيادات، ولا يُحفظ في حسابك</td><td data-label="إلزامي؟">اختياري</td></tr>
+          <tr><td data-label="نوع البيانات">معرّفات الجهاز</td><td data-label="أمثلة">رمز الإشعارات الخاص بجهازك، ونوع النظام</td><td data-label="الغرض">إرسال الإشعارات</td><td data-label="إلزامي؟">اختياري (إذا سمحت بالإشعارات)</td></tr>
+          <tr><td data-label="نوع البيانات">سجلات الأمان</td><td data-label="أمثلة">وقت العمليات المهمة، عنوان IP، معلومات المتصفح أو الجهاز</td><td data-label="الغرض">الأمان ومنع إساءة الاستخدام</td><td data-label="إلزامي؟">نعم</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>لا نستخدم أدوات تحليلات أو تتبّع خارجية، ولا نجمع جهات الاتصال أو سجل المكالمات أو الرسائل النصية من جهازك.</p>
+  </section>
+
+  <section class="card" id="permissions" aria-labelledby="h-permissions">
+    <h2 id="h-permissions">3. أذونات الجهاز</h2>
+    <p>يطلب التطبيق الأذونات التالية عند استخدام الميزة المرتبطة بها فقط، ويمكنك رفضها أو إلغاؤها من إعدادات جهازك في أي وقت دون أن يتوقف باقي التطبيق.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th scope="col">الإذن</th><th scope="col">متى ولماذا</th></tr></thead>
+        <tbody>
+          <tr><td data-label="الإذن">الكاميرا</td><td data-label="متى ولماذا">لالتقاط صور أو فيديو لحيواناتك وملفك والمرفقات، ولمسح رمز QR للانضمام إلى حقل أو فتح ملف حيوان.</td></tr>
+          <tr><td data-label="الإذن">الميكروفون</td><td data-label="متى ولماذا">فقط عند تسجيل فيديو بالكاميرا لإرساله في محادثة، لتسجيل صوت الفيديو. لا يسجّل التطبيق الصوت في أي وقت آخر.</td></tr>
+          <tr><td data-label="الإذن">الصور والوسائط</td><td data-label="متى ولماذا">لاختيار صور أو فيديو أو ملفات من جهازك ورفعها.</td></tr>
+          <tr><td data-label="الإذن">الموقع الدقيق والتقريبي (أثناء استخدام التطبيق فقط)</td><td data-label="متى ولماذا">لترتيب العيادات حسب الأقرب إليك عندما تطلب ذلك. لا نصل إلى موقعك في الخلفية.</td></tr>
+          <tr><td data-label="الإذن">الإشعارات</td><td data-label="متى ولماذا">لإعلامك بالرسائل والمواعيد والتذكيرات وحالة الطلبات والموافقات.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="use" aria-labelledby="h-use">
+    <h2 id="h-use">4. كيف نستخدم البيانات</h2>
+    <ul>
+      <li>تشغيل الخدمة: إنشاء حسابك، والتحقق من بريدك الإلكتروني، وربطك بالعيادات والأطباء والمكاتب، وإدارة المواعيد والسجلات والتذكيرات، وتنفيذ الطلبات.</li>
+      <li>مراجعة طلبات الأطباء البيطريين والعيادات والمكاتب والحقول قبل تفعيلها.</li>
+      <li>التواصل: إرسال الإشعارات والرسائل المتعلقة بحسابك ونشاطك، والرد على استفساراتك.</li>
+      <li>توليد ردود المساعد البيطري الذكي على أسئلتك.</li>
+      <li>الأمان: حماية الحسابات ومنع الاحتيال وإساءة الاستخدام ومراجعة المخالفات.</li>
+    </ul>
+    <p class="note">لا نبيع بياناتك، ولا نستخدمها للإعلانات المخصصة، ولا نشاركها مع شبكات إعلانية. الإعلانات الظاهرة داخل التطبيق تديرها إدارة بيطري نفسها.</p>
+  </section>
+
+  <section class="card" id="share" aria-labelledby="h-share">
+    <h2 id="h-share">5. من يمكنه رؤية بياناتك ومع من نشاركها</h2>
+    <h3>داخل المنصة</h3>
+    <ul>
+      <li><strong>المعلومات العامة:</strong> صفحات العيادات والمكاتب، والمنشورات التي تنشرها بنفسك (مثل إعلانات التبنّي أو الحيوانات المفقودة أو الوظائف)، والتقييمات التي تكتبها، تكون ظاهرة لمستخدمي المنصة.</li>
+      <li><strong>العيادات:</strong> العيادة التي تتعامل معها (مثلاً عند تزويدها برمز حيوانك) تطّلع على بيانات الحيوان اللازمة لعلاجه.</li>
+      <li><strong>المتاجر:</strong> عند الطلب من متجر عيادة أو مكتب، يحصل البائع على بيانات التوصيل والطلب.</li>
+      <li><strong>المحادثات:</strong> يرى الطرف الآخر رسائلك ومرفقاتك واسمك.</li>
+      <li><strong>إدارة بيطري:</strong> يمكن للإدارة والمشرفين المخوّلين الاطلاع على البيانات والمحادثات عند الحاجة لتقديم الدعم أو مراجعة الطلبات والشكاوى ومخالفات الاستخدام.</li>
+    </ul>
+    <h3>مزوّدو خدمات يعملون لصالحنا</h3>
+    <p>يعالج هؤلاء البيانات نيابةً عنا ولغرض تشغيل الخدمة فقط:</p>
+    <ul>
+      <li>مزوّد استضافة الخوادم التي تعمل عليها المنصة وقاعدة بياناتها.</li>
+      <li><bdi>Cloudflare R2</bdi>: لتخزين الصور والملفات المرفوعة (<a href="https://www.cloudflare.com/privacypolicy/" lang="en">سياسة الخصوصية</a>).</li>
+      <li><bdi>Google Firebase Cloud Messaging</bdi>: لإيصال الإشعارات، و <bdi>Google Drive</bdi> لحفظ النسخ الاحتياطية (<a href="https://policies.google.com/privacy" lang="en">سياسة خصوصية Google</a>).</li>
+      <li>مزوّد البريد الإلكتروني: لإرسال رسائل التحقق والإشعارات إلى بريدك.</li>
+      <li>مزوّد خدمة الذكاء الاصطناعي: تُرسل إليه نصوص أسئلتك للمساعد البيطري الذكي لتوليد الرد فقط.</li>
+    </ul>
+    <h3>المتطلبات القانونية</h3>
+    <p>قد نفصح عن بيانات محددة إذا طلبت ذلك جهة رسمية مختصة وفق القوانين النافذة في جمهورية العراق.</p>
+  </section>
+
+  <section class="card" id="security" aria-labelledby="h-security">
+    <h2 id="h-security">6. حماية البيانات</h2>
+    <ul>
+      <li>تُنقل جميع البيانات بين جهازك وخوادمنا عبر اتصال مشفّر (HTTPS).</li>
+      <li>تُحفظ كلمات المرور مُجزّأة ولا يطّلع عليها أحد.</li>
+      <li>يقتصر الوصول إلى البيانات داخل المنصة على أصحاب الصلاحية حسب دورهم (مالك المنشأة، الموظفون المخوّلون، الإدارة).</li>
+      <li>نأخذ نسخة احتياطية يومية من قاعدة البيانات لحمايتها من الفقدان.</li>
+    </ul>
+    <p>لا توجد وسيلة نقل أو تخزين آمنة بالكامل، لكننا نعمل على حماية بياناتك باستمرار.</p>
+  </section>
+
+  <section class="card" id="retention" aria-labelledby="h-retention">
+    <h2 id="h-retention">7. مدة الاحتفاظ بالبيانات</h2>
+    <ul>
+      <li>نحتفظ ببيانات حسابك ما دام حسابك قائماً، وبالقدر اللازم لتقديم الخدمة.</li>
+      <li>تُحفظ النسخ الاحتياطية لقاعدة البيانات لمدة 30 يوماً ثم تُزال تلقائياً.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="rights" aria-labelledby="h-rights">
+    <h2 id="h-rights">8. حقوقك وخياراتك</h2>
+    <ul>
+      <li>عرض بيانات ملفك الشخصي وبيانات حيواناتك وتعديلها من داخل التطبيق.</li>
+      <li>تغيير كلمة المرور، وتسجيل الخروج من جميع الأجهزة من «الخصوصية والأمان».</li>
+      <li>إيقاف الإشعارات من إعدادات التطبيق أو الجهاز.</li>
+      <li>إلغاء أذونات الجهاز في أي وقت من إعدادات جهازك.</li>
+      <li>طلب نسخة من بياناتك أو تصحيحها عبر التواصل معنا.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="children" aria-labelledby="h-children">
+    <h2 id="h-children">9. الأطفال</h2>
+    <p>بيطري مخصص لأصحاب الحيوانات والمربّين والمهنيين البيطريين، وليس موجّهاً للأطفال، ولا نجمع عن قصد بيانات أطفال. إذا علمت أن طفلاً قدّم لنا بيانات شخصية فتواصل معنا.</p>
+  </section>
+
+  <section class="card" id="changes" aria-labelledby="h-changes">
+    <h2 id="h-changes">10. التعديلات على هذه السياسة</h2>
+    <p>قد نحدّث هذه السياسة عند تغيّر الخدمة أو المتطلبات القانونية. ننشر النسخة المحدّثة على هذه الصفحة مع تاريخ آخر تحديث في أعلاها.</p>
+  </section>
+
+  <section class="card" id="contact" aria-labelledby="h-contact">
+    <h2 id="h-contact">11. التواصل معنا</h2>
+    <ul>
+      <li>المنصة: بيطري (<bdi>Baytari</bdi>)</li>
+      <li>البريد الإلكتروني: <a href="mailto:info@baytari.com"><bdi>info@baytari.com</bdi></a></li>
+      <li>الهاتف: <a href="tel:+9647777564666"><bdi dir="ltr">+964 777 756 4666</bdi></a></li>
+      <li>الموقع: <a href="https://baytari.com"><bdi>baytari.com</bdi></a></li>
+    </ul>
+  </section>
+</div>
+
+<div class="wrap en" id="en" lang="en" dir="ltr">
+  <section class="card" aria-labelledby="en-title">
+    <h2 id="en-title" style="font-size:1.6rem">Privacy Policy (English)</h2>
+    <p class="meta">Effective date and last updated: <time datetime="2026-11-04">November 4, 2026</time>. The Arabic version above and this English version have the same content.</p>
+    <p>This policy explains what data the <strong>Baytari (بيطري)</strong> app collects, how we use, share and protect it, and the choices you have. It applies to the Baytari Android app (<code>com.petcare.baytari</code>), the iOS app, and the website baytari.com.</p>
+
+    <h3>1. Who we are</h3>
+    <p>Baytari is a veterinary platform in Iraq that connects pet and livestock owners, veterinarians, clinics, veterinary offices and farms. We are responsible for the data collected through the app and website. Privacy contact: <a href="mailto:info@baytari.com">info@baytari.com</a>.</p>
+
+    <h3>2. Data we collect</h3>
+    <ul>
+      <li><strong>Personal info:</strong> name, email, phone number, gender, country and governorate; optionally WhatsApp number, bio and specialty. Used to create and manage your account and to contact you.</li>
+      <li><strong>Login data:</strong> your password, stored only as an Argon2id hash that cannot be reversed.</li>
+      <li><strong>Verification documents</strong> (veterinarians and veterinary students only): license or ID photo, or student ID. Reviewed by Baytari before the account is approved.</li>
+      <li><strong>Photos and videos:</strong> profile photo; photos of animals, clinics, farms and products; chat attachments.</li>
+      <li><strong>Files and documents:</strong> files attached in chats; organization license documents.</li>
+      <li><strong>Messages:</strong> chat messages and the questions you send to the AI veterinary assistant.</li>
+      <li><strong>Animal and veterinary health data:</strong> species, breed, age, weight, medical records, vaccinations, reminders and appointments.</li>
+      <li><strong>Organization data</strong> (owners of clinics, offices and farms): address, location, working hours, services, license number, farm operations data, products and orders.</li>
+      <li><strong>Store orders:</strong> recipient name, phone, city, address and items. Payment is cash on delivery only; we never collect card details.</li>
+      <li><strong>Location:</strong> your current location, only when you ask to sort clinics by nearest. It is used to compute distance and is not saved to your account.</li>
+      <li><strong>Device identifiers:</strong> your device’s push-notification token and OS type, if you allow notifications.</li>
+      <li><strong>Security logs:</strong> time of important actions, IP address and browser/device information.</li>
+    </ul>
+    <p>We do not use third-party analytics or tracking tools, and we do not collect your contacts, call log or SMS.</p>
+
+    <h3>3. Device permissions</h3>
+    <ul>
+      <li><strong>Camera:</strong> to take photos or videos of your animals, profile and attachments, and to scan QR codes (join a farm, open an animal record).</li>
+      <li><strong>Microphone:</strong> only when you record a video with the camera to send in a chat, to capture the video’s sound. The app never records audio otherwise.</li>
+      <li><strong>Photos and media:</strong> to choose photos, videos or files to upload.</li>
+      <li><strong>Precise and approximate location (while using the app only):</strong> to sort clinics by distance when you request it. We never access location in the background.</li>
+      <li><strong>Notifications:</strong> for messages, appointments, reminders, order updates and approvals.</li>
+    </ul>
+    <p>Permissions are requested only when you use the related feature and can be denied or revoked at any time in your device settings.</p>
+
+    <h3>4. How we use data</h3>
+    <ul>
+      <li>App functionality: account creation, email verification, connecting you with clinics, veterinarians and offices, managing appointments, records and reminders, and fulfilling orders.</li>
+      <li>Reviewing veterinarian, clinic, office and farm applications before activation.</li>
+      <li>Communications: notifications and messages about your account and activity, and answering your requests.</li>
+      <li>Generating answers from the AI veterinary assistant.</li>
+      <li>Security: protecting accounts and preventing fraud and abuse.</li>
+    </ul>
+    <p>We do not sell your data, do not use it for personalized advertising, and do not share it with ad networks. In-app promotions are managed by Baytari itself.</p>
+
+    <h3>5. Who can see your data and who we share it with</h3>
+    <ul>
+      <li><strong>Public content:</strong> clinic and office pages, listings you publish (e.g. adoption, lost animals, jobs) and reviews you write are visible to platform users.</li>
+      <li><strong>Clinics</strong> you work with (e.g. by giving them your animal’s code) can see the animal data needed for its care.</li>
+      <li><strong>Stores</strong> receive delivery and order details when you order from them.</li>
+      <li><strong>Chat participants</strong> see your messages, attachments and name.</li>
+      <li><strong>Baytari administrators</strong> and authorized supervisors may access data and conversations when needed for support, reviewing applications and complaints, or policy violations.</li>
+      <li><strong>Service providers</strong> processing data on our behalf only to run the service: our server hosting provider; Cloudflare R2 (file storage, <a href="https://www.cloudflare.com/privacypolicy/">privacy policy</a>); Google Firebase Cloud Messaging (notifications) and Google Drive (backups) (<a href="https://policies.google.com/privacy">Google privacy policy</a>); our email provider (verification and notification emails); and an AI service provider that receives the text of your assistant questions to generate replies.</li>
+      <li><strong>Legal requirements:</strong> we may disclose specific data when required by a competent authority under the laws of the Republic of Iraq.</li>
+    </ul>
+
+    <h3>6. Data security</h3>
+    <ul>
+      <li>All data between your device and our servers is encrypted in transit (HTTPS).</li>
+      <li>Passwords are stored hashed and are never visible to anyone.</li>
+      <li>Access inside the platform is limited by role (organization owner, authorized staff, administrators).</li>
+      <li>The database is backed up daily to protect against loss.</li>
+    </ul>
+    <p>No method of transmission or storage is completely secure, but we continuously work to protect your data.</p>
+
+    <h3>7. Data retention</h3>
+    <ul>
+      <li>We keep your account data while your account exists, as needed to provide the service.</li>
+      <li>Database backups are kept for 30 days and then removed automatically.</li>
+    </ul>
+
+    <h3>8. Your rights and choices</h3>
+    <ul>
+      <li>View and edit your profile and your animals’ data in the app.</li>
+      <li>Change your password and sign out of all devices from “Privacy &amp; Security”.</li>
+      <li>Turn off notifications in the app or device settings.</li>
+      <li>Revoke device permissions at any time in your device settings.</li>
+      <li>Request a copy or correction of your data by contacting us.</li>
+    </ul>
+
+    <h3>9. Children</h3>
+    <p>Baytari is intended for animal owners, breeders and veterinary professionals. It is not directed to children and we do not knowingly collect children’s data. If you believe a child has given us personal data, please contact us.</p>
+
+    <h3>10. Changes to this policy</h3>
+    <p>We may update this policy when the service or legal requirements change. The updated version is published on this page with its last-updated date.</p>
+
+    <h3>11. Contact us</h3>
+    <ul>
+      <li>Baytari (بيطري)</li>
+      <li>Email: <a href="mailto:info@baytari.com">info@baytari.com</a></li>
+      <li>Phone: <a href="tel:+9647777564666">+964 777 756 4666</a></li>
+      <li>Website: <a href="https://baytari.com">baytari.com</a></li>
+    </ul>
+  </section>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>جميع الحقوق محفوظة © 2026 بيطري (<bdi>Baytari</bdi>)</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -29,6 +29,8 @@ export default function OrganizationStoreCartScreen() {
   const cart = q.data;
   const busy = updateItem.isPending || removeItem.isPending || clear.isPending;
   const hasUnavailable = cart?.items.some((i) => !i.available) ?? false;
+  // The seller paused new orders — the cart is kept, checkout waits (server-enforced too).
+  const ordersPaused = store.data?.ordersEnabled === false;
   const onError = (e: unknown) =>
     toast.show({ tone: 'danger', message: orgStoreErrorMessage(e, t) });
   const browse = () => router.push(Routes.veterinaryOfficeProducts(orgId));
@@ -107,6 +109,7 @@ export default function OrganizationStoreCartScreen() {
             }}
           >
             {hasUnavailable ? <Alert tone="warning" message={t('cart.hasUnavailable')} /> : null}
+            {ordersPaused ? <Alert tone="info" message={t('availability.ordersPaused')} /> : null}
             <OrgStorePriceSummary
               subtotalAmount={cart.subtotalAmount}
               deliveryFee={cart.deliveryFee}
@@ -116,7 +119,7 @@ export default function OrganizationStoreCartScreen() {
             <Button
               label={t('cart.checkout')}
               fullWidth
-              disabled={hasUnavailable || busy}
+              disabled={hasUnavailable || busy || ordersPaused}
               onPress={() => router.push(Routes.orgStoreCheckout(orgId))}
             />
           </View>

@@ -22,6 +22,8 @@ const STORE_ERROR_CODES = [
   'PRODUCT_NOT_PURCHASABLE',
   'STORE_CART_CURRENCY_MISMATCH',
   'ORDER_INVALID_TRANSITION',
+  'STORE_DISABLED',
+  'STORE_ORDERS_DISABLED',
 ] as const;
 
 /** Store-specific error copy first, then the app-wide mapping. */

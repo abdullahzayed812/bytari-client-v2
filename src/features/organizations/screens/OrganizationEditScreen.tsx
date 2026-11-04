@@ -159,6 +159,7 @@ export default function OrganizationEditScreen() {
     instagramUrl: org.details.instagramUrl ?? '',
     tiktokUrl: org.details.tiktokUrl ?? '',
     licenseNumber: org.details.licenseNumber ?? '',
+    specialty: org.details.specialty ?? '',
   };
 
   const onSubmit = (values: EditOrganizationFormValues) => {
@@ -185,6 +186,8 @@ export default function OrganizationEditScreen() {
       // Locked after approval (server-enforced too) — never sent then.
       if (isLicensable && !licenseLocked) payload.licenseNumber = clearable(values.licenseNumber);
     }
+    if (org.type === 'CLINIC' && values.specialty?.trim())
+      payload.specialty = values.specialty.trim();
     update.mutate(payload, {
       onSuccess: () => {
         toast.show({ tone: 'success', message: t('form.editSuccess') });

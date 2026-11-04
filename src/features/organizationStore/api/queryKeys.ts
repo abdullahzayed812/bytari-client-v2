@@ -30,6 +30,8 @@ export const orgStoreKeys = {
         search: filter.search ?? null,
       },
     ] as const,
+  sellerSettings: (organizationId: string) =>
+    [...orgStoreKeys.seller(organizationId), 'settings'] as const,
   sellerSummary: (organizationId: string) =>
     [...orgStoreKeys.seller(organizationId), 'summary'] as const,
   sellerOrder: (organizationId: string, orderId: string) =>

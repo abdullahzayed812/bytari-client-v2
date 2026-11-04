@@ -10,7 +10,7 @@ import { Routes } from '@/constants/routes';
 import { QuantityStepper } from '@/features/veterinarianStore/components/QuantityStepper';
 import { useTheme } from '@/theme';
 
-import { useOrgStoreCartMutations } from '../hooks';
+import { useOrgStoreAvailability, useOrgStoreCartMutations } from '../hooks';
 import { orgStoreErrorMessage } from '../utils';
 
 interface Props {
@@ -28,7 +28,10 @@ export function OrgStoreAddToCart({ organizationId, productId, hasPrice }: Props
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const { addItem } = useOrgStoreCartMutations(organizationId);
+  const { ordersEnabled } = useOrgStoreAvailability(organizationId);
 
+  // The seller paused new orders (or the Admin turned the store off).
+  if (!ordersEnabled) return <Alert tone="info" message={t('availability.ordersPaused')} />;
   if (!hasPrice) return <Alert tone="info" message={t('addToCart.noPrice')} />;
 
   const onAdd = () => {

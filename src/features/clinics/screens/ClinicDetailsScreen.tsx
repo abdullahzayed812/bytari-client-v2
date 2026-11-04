@@ -5,7 +5,7 @@ import { FlatList, Linking, Pressable, View } from 'react-native';
 
 import { Button, IconButton } from '@/components/actions';
 import { Card, Chip, Divider, Icon, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { Alert, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -105,8 +105,13 @@ export default function ClinicDetailsScreen() {
   // Clinic Store — the clinic's public product catalogue (preview strip).
   const { t: tStore } = useTranslation('organizationStore');
   const { t: tOffice } = useTranslation('veterinaryOffices');
+  // Store availability (Admin store switch / seller's "receive orders" switch).
+  const storeEnabled = q.data?.storeEnabled !== false;
+  const ordersEnabled = storeEnabled && q.data?.ordersEnabled !== false;
   const products = usePublicVeterinaryOfficeProducts(organizationId, {
     pageSize: PRODUCT_PREVIEW_COUNT,
+    // A store the Admin turned off is hidden — don't even ask for its products.
+    enabled: Boolean(q.data) && storeEnabled,
   });
   const productPreview = products.products.slice(0, PRODUCT_PREVIEW_COUNT);
 
@@ -249,11 +254,23 @@ export default function ClinicDetailsScreen() {
             </Heading>
 
             <View style={{ marginTop: theme.spacing.xl, rowGap: theme.spacing.md }}>
-              {org.description ? (
+              {org.specialty ? (
                 <>
                   <InfoRow
                     icon="paw-outline"
                     label={t('clinicDetail.specialty')}
+                    value={org.specialty}
+                  />
+                  <Divider spacing="md" />
+                </>
+              ) : null}
+              {org.description ? (
+                <>
+                  <InfoRow
+                    icon={org.specialty ? 'document-text-outline' : 'paw-outline'}
+                    // Clinics registered before "تخصص العيادة" existed kept
+                    // their specialty in the description.
+                    label={t(org.specialty ? 'clinicDetail.about' : 'clinicDetail.specialty')}
                     value={org.description}
                   />
                   <Divider spacing="md" />
@@ -373,47 +390,56 @@ export default function ClinicDetailsScreen() {
           </Card>
         </Section>
 
-        {/* --- Clinic Store ------------------------------------------- */}
-        <Section>
-          <Row justify="space-between" align="center" gap="sm">
-            <Text variant="bodyStrong" style={{ flex: 1 }}>
-              {tStore('common.storeKind.CLINIC')}
-            </Text>
-            <OrgStoreCartButton organizationId={org.id} />
-            {productPreview.length > 0 ? (
-              <Text
-                variant="label"
-                color="primary"
-                onPress={() => router.push(Routes.veterinaryOfficeProducts(org.id))}
-              >
-                {tOffice('detail.viewAllProducts')}
+        {/* --- Clinic Store (hidden while the Admin has it turned off) --- */}
+        {storeEnabled ? (
+          <Section>
+            <Row justify="space-between" align="center" gap="sm">
+              <Text variant="bodyStrong" style={{ flex: 1 }}>
+                {tStore('common.storeKind.CLINIC')}
               </Text>
+              <OrgStoreCartButton organizationId={org.id} />
+              {productPreview.length > 0 ? (
+                <Text
+                  variant="label"
+                  color="primary"
+                  onPress={() => router.push(Routes.veterinaryOfficeProducts(org.id))}
+                >
+                  {tOffice('detail.viewAllProducts')}
+                </Text>
+              ) : null}
+            </Row>
+            {products.isLoading ? (
+              <Loading />
+            ) : productPreview.length === 0 ? (
+              <EmptyState icon="cube-outline" title={tOffice('detail.noProducts')} />
+            ) : (
+              <FlatList
+                data={productPreview}
+                keyExtractor={(p) => p.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginTop: theme.spacing.md }}
+                ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
+                renderItem={({ item }) => (
+                  <PublicVeterinaryOfficeProductCard
+                    product={item}
+                    width={PRODUCT_CARD_WIDTH}
+                    onPress={() =>
+                      router.push(Routes.veterinaryOfficeProductDetail(org.id, item.id))
+                    }
+                    onAddToCart={ordersEnabled ? () => quickAdd.add(item.id) : undefined}
+                    adding={quickAdd.isAdding(item.id)}
+                  />
+                )}
+              />
+            )}
+            {!ordersEnabled ? (
+              <View style={{ marginTop: theme.spacing.md }}>
+                <Alert tone="info" message={tStore('availability.ordersPaused')} />
+              </View>
             ) : null}
-          </Row>
-          {products.isLoading ? (
-            <Loading />
-          ) : productPreview.length === 0 ? (
-            <EmptyState icon="cube-outline" title={tOffice('detail.noProducts')} />
-          ) : (
-            <FlatList
-              data={productPreview}
-              keyExtractor={(p) => p.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={{ marginTop: theme.spacing.md }}
-              ItemSeparatorComponent={() => <View style={{ width: theme.spacing.md }} />}
-              renderItem={({ item }) => (
-                <PublicVeterinaryOfficeProductCard
-                  product={item}
-                  width={PRODUCT_CARD_WIDTH}
-                  onPress={() => router.push(Routes.veterinaryOfficeProductDetail(org.id, item.id))}
-                  onAddToCart={() => quickAdd.add(item.id)}
-                  adding={quickAdd.isAdding(item.id)}
-                />
-              )}
-            />
-          )}
-        </Section>
+          </Section>
+        ) : null}
 
         {hasContact ? (
           <Section>

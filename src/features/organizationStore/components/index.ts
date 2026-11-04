@@ -6,3 +6,4 @@ export { OrgStoreAddToCart } from './OrgStoreAddToCart';
 export { OrgStoreOrderCard } from './OrgStoreOrderCard';
 export { OrgStoreOrderTimeline } from './OrgStoreOrderTimeline';
 export { OrgStoreOrderDetailsBody } from './OrgStoreOrderDetailsBody';
+export { OrderAvailabilityCard } from './OrderAvailabilityCard';

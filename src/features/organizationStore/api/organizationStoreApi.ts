@@ -131,6 +131,22 @@ export const organizationStoreService = {
   getIncomingOrder(organizationId: string, orderId: string): Promise<OrgStoreOrder> {
     return apiClient.get<OrgStoreOrder>(`/organizations/${organizationId}/store-orders/${orderId}`);
   },
+  /** "استقبال الطلبات" — whether the store takes new orders (`store.order.read`). */
+  getOrderSettings(organizationId: string): Promise<{ ordersEnabled: boolean }> {
+    return apiClient.get<{ ordersEnabled: boolean }>(
+      `/organizations/${organizationId}/store-orders/settings`,
+    );
+  },
+  /** Pause / resume new orders (`store.order.manage`); existing orders are untouched. */
+  updateOrderSettings(
+    organizationId: string,
+    ordersEnabled: boolean,
+  ): Promise<{ ordersEnabled: boolean }> {
+    return apiClient.patch<{ ordersEnabled: boolean }>(
+      `/organizations/${organizationId}/store-orders/settings`,
+      { ordersEnabled },
+    );
+  },
   /** The store opens its chat with THIS order's customer (`store.order.read`). */
   openIncomingOrderConversation(organizationId: string, orderId: string): Promise<Conversation> {
     return apiClient.post<Conversation>(

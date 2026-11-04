@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/actions';
 import { Badge, Card, Icon } from '@/components/content';
 import { ConfirmationDialog, ErrorState, Loading, useToast } from '@/components/feedback';
+import { Switch } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
@@ -32,6 +33,7 @@ import {
   useAdminOrganization,
   useAdminOrganizationMembers,
   useOrgDecisionMutation,
+  useSetClinicStoreMutation,
   useSetFarmSubscriptionMutation,
 } from '../hooks';
 import type { AdminTermsAcceptance, OrganizationStatus, OrgStatusAction } from '../types';
@@ -64,6 +66,7 @@ export default function AdminOrganizationDetailScreen() {
   const decide = useOrgDecisionMutation(organizationId);
   const caps = useCapabilities();
   const setSubscription = useSetFarmSubscriptionMutation(organizationId);
+  const setStore = useSetClinicStoreMutation(organizationId);
   const [pending, setPending] = useState<Pending>(null);
   const [subscriptionDialog, setSubscriptionDialog] = useState(false);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
@@ -245,6 +248,12 @@ export default function AdminOrganizationDetailScreen() {
                     <Row label={t('orgs.detail.facebook')} value={d.facebookUrl} />
                   ) : null}
                   {d.tiktokUrl ? <Row label={t('orgs.detail.tiktok')} value={d.tiktokUrl} /> : null}
+                  {org.type === 'CLINIC' ? (
+                    <Row
+                      label={t('orgs.detail.specialty')}
+                      value={d.specialty?.trim() ? d.specialty : notProvided}
+                    />
+                  ) : null}
                   <Row label={t('orgs.detail.address')} value={d.address ?? notProvided} />
                   {d.country ? <Row label={t('orgs.detail.country')} value={d.country} /> : null}
                   {d.latitude != null && d.longitude != null ? (
@@ -259,6 +268,35 @@ export default function AdminOrganizationDetailScreen() {
                   {d.services && d.services.length > 0 ? (
                     <Row label={t('orgs.detail.services')} value={d.services.join('، ')} />
                   ) : null}
+                </View>
+              </Card>
+            </Section>
+          ) : null}
+
+          {org.type === 'CLINIC' ? (
+            <Section spacing="lg">
+              <Label>{t('orgs.detail.storeSection')}</Label>
+              <Card variant="outlined" padding="md">
+                <View style={{ rowGap: theme.spacing.sm }}>
+                  <Switch
+                    label={t('orgs.detail.storeEnabled')}
+                    value={d?.storeEnabled !== false}
+                    disabled={setStore.isPending || !caps.can(Permission.ORGANIZATION_ADMIN_MANAGE)}
+                    onValueChange={(enabled) =>
+                      setStore.mutate(enabled, {
+                        onSuccess: () =>
+                          done(t(enabled ? 'orgs.toast.storeEnabled' : 'orgs.toast.storeDisabled')),
+                        onError: fail,
+                      })
+                    }
+                  />
+                  <Caption>
+                    {t(
+                      d?.storeEnabled !== false
+                        ? 'orgs.detail.storeEnabledHint'
+                        : 'orgs.detail.storeDisabledHint',
+                    )}
+                  </Caption>
                 </View>
               </Card>
             </Section>

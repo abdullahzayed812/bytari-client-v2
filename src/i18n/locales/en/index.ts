@@ -1185,6 +1185,18 @@ export const en: TranslationResources = {
       contactClinic: 'Contact the clinic',
     },
     cartButton: { a11y: 'Cart ({{count}})' },
+    availability: {
+      ordersPaused:
+        'This store is not accepting new orders right now. You can still browse the products and come back later.',
+    },
+    orderSettings: {
+      title: 'Receive new orders',
+      onHint: 'Customers can add products to the cart and place new orders.',
+      offHint:
+        'New orders are paused: customers see that ordering is unavailable. Existing orders stay visible and you can keep managing them.',
+      enabled: 'New orders turned on',
+      disabled: 'New orders paused',
+    },
     addToCart: {
       cta: 'Add to cart',
       shop: 'Shop',
@@ -1351,6 +1363,8 @@ export const en: TranslationResources = {
       STORE_CART_CURRENCY_MISMATCH:
         'Your cart holds products in another currency. Finish that order first or empty the cart.',
       ORDER_INVALID_TRANSITION: 'The order status cannot change that way.',
+      STORE_DISABLED: 'This clinic’s store is not available right now.',
+      STORE_ORDERS_DISABLED: 'This store is not accepting new orders right now.',
     },
   },
   veterinarianStore: {
@@ -2803,6 +2817,7 @@ export const en: TranslationResources = {
       following: 'Following',
       infoTitle: 'Clinic information',
       specialty: 'Specialty',
+      about: 'About the clinic',
       location: 'Location',
       workingHours: 'Working hours',
       doctors: 'Doctors',
@@ -3009,6 +3024,8 @@ export const en: TranslationResources = {
         websitePlaceholder: 'Clinic website',
         licenseNumberPlaceholder: 'Veterinary clinic license number',
         imagesTitle: 'Clinic photos',
+        storeNote:
+          'Note: adding products and activating the clinic store is currently available to (Pet Animal) clinics only.',
         vetApprovalRequired:
           'Registering a clinic requires your veterinarian status to be “Approved”. Submit your approval request first from the Veterinarian page.',
       },
@@ -3052,6 +3069,8 @@ export const en: TranslationResources = {
         instagramPlaceholder: 'Instagram page link',
         whatsapp: 'WhatsApp number',
         whatsappPlaceholder: 'WhatsApp contact number',
+        specialty: 'Clinic specialty',
+        specialtyPlaceholder: 'e.g. pets, poultry, livestock',
         licenseNumber: 'License number',
         licenseImages: 'License photos',
       },
@@ -3060,6 +3079,7 @@ export const en: TranslationResources = {
         countryRequired: 'Please choose a country.',
         phoneRequired: 'Phone number is required.',
         licenseNumberRequired: 'License number is required.',
+        specialtyRequired: 'Clinic specialty is required.',
         licenseImagesRequired: 'Please add at least one license photo.',
         invalidEmail: 'Enter a valid email address.',
         invalidUrl: 'Enter a valid link.',
@@ -5911,6 +5931,8 @@ export const en: TranslationResources = {
       title: 'Privacy & security',
       securityTitle: 'Security',
       privacyTitle: 'Privacy',
+      policyLink: 'Privacy policy',
+      policyLinkHint: 'How we collect, use and protect your data',
       changePasswordHint: 'Change your account password',
       signOutAll: 'Sign out of all devices',
       signOutAllHint: 'End every active session, including this device',
@@ -7832,6 +7854,12 @@ export const en: TranslationResources = {
         workingHours: 'Working hours',
         services: 'Services',
         registrationSection: 'Registration',
+        specialty: 'Clinic specialty',
+        storeSection: 'Clinic store',
+        storeEnabled: 'Store enabled',
+        storeEnabledHint: 'The store is visible to customers and they can shop from it.',
+        storeDisabledHint:
+          'The store is off: the clinic’s products and orders are hidden from customers and no data is deleted. You can turn it back on at any time.',
         licenseNumber: 'License number',
         decidedAtLabel: 'Last decision date',
         notProvided: 'Not provided',
@@ -7847,6 +7875,8 @@ export const en: TranslationResources = {
         approved: 'Organization approved',
         rejected: 'Organization rejected',
         statusChanged: 'Organization status updated',
+        storeEnabled: 'Clinic store enabled',
+        storeDisabled: 'Clinic store disabled',
         deleted: 'Organization deleted',
         purged: 'Organization permanently deleted',
       },

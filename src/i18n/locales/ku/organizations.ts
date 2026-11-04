@@ -69,6 +69,7 @@ const organizations: KuNamespace<'organizations'> = {
     following: 'شوێنی دەکەویت',
     infoTitle: 'زانیاری کلینیک',
     specialty: 'پسپۆڕی',
+    about: 'دەربارەی کلینیک',
     location: 'شوێن',
     workingHours: 'کاتژمێرەکانی کار',
     doctors: 'پزیشکان',
@@ -275,6 +276,8 @@ const organizations: KuNamespace<'organizations'> = {
       websitePlaceholder: 'ماڵپەڕی کلینیک',
       licenseNumberPlaceholder: 'ژمارەی مۆڵەتی کلینیکی ڤێتێرنەری',
       imagesTitle: 'وێنەکانی کلینیک',
+      storeNote:
+        'تێبینی: زیادکردنی بەرهەم و چالاککردنی فرۆشگای کلینیک لە ئێستادا تەنها بۆ کلینیکەکانی (Pet Animal) بەردەستە.',
       vetApprovalRequired:
         'تۆمارکردنی کلینیک پێویستی بەوەیە دۆخت وەک پزیشکی ڤێتێرنەری «پەسەندکراو» بێت. سەرەتا لە پەڕەی ڤێتێرنەرییەوە داواکاری پەسەندکردن پێشکەش بکە.',
     },
@@ -318,6 +321,8 @@ const organizations: KuNamespace<'organizations'> = {
       instagramPlaceholder: 'بەستەری پەڕەی ئینستاگرام',
       whatsapp: 'ژمارەی واتسئاپ',
       whatsappPlaceholder: 'ژمارەی پەیوەندی واتسئاپ',
+      specialty: 'پسپۆڕیی کلینیک',
+      specialtyPlaceholder: 'نموونە: ئاژەڵی ماڵی، باڵندە، ئاژەڵداری',
       licenseNumber: 'ژمارەی مۆڵەت',
       licenseImages: 'وێنەکانی مۆڵەت',
     },
@@ -325,6 +330,7 @@ const organizations: KuNamespace<'organizations'> = {
       addressRequired: 'ناونیشان پێویستە.',
       countryRequired: 'تکایە وڵات هەڵبژێرە.',
       phoneRequired: 'ژمارەی تەلەفۆن پێویستە.',
+      specialtyRequired: 'پسپۆڕیی کلینیک پێویستە.',
       licenseNumberRequired: 'ژمارەی مۆڵەت پێویستە.',
       licenseImagesRequired: 'تکایە لانیکەم یەک وێنەی مۆڵەتی دامەزراوە زیاد بکە.',
       invalidEmail: 'ئیمەیڵێکی دروست بنووسە.',

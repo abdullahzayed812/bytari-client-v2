@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 
 import { Card, Icon, type IconName } from '@/components/content';
 import { ConfirmationDialog } from '@/components/feedback';
@@ -11,6 +11,7 @@ import { Caption, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useLogoutAllMutation } from '@/features/auth';
 import { useAuth } from '@/hooks';
+import { shareUrlFor } from '@/lib/share';
 import { useTheme } from '@/theme';
 
 /**
@@ -66,6 +67,12 @@ export default function PrivacySecurityScreen() {
         <Text variant="bodyStrong" style={{ marginTop: theme.spacing.md }}>
           {t('privacy.privacyTitle')}
         </Text>
+        <ActionRow
+          icon="document-lock-outline"
+          label={t('privacy.policyLink')}
+          hint={t('privacy.policyLinkHint')}
+          onPress={() => void Linking.openURL(shareUrlFor('/privacy-policy'))}
+        />
         <InfoCard
           icon="eye-outline"
           title={t('privacy.visibleTitle')}

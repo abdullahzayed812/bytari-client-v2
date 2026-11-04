@@ -7,14 +7,19 @@ import { Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { useTheme } from '@/theme';
 
-import { useOrgStoreCart } from '../hooks';
+import { useOrgStoreAvailability, useOrgStoreCart } from '../hooks';
 
 /** Header cart icon for one clinic / office store, with the live item count. */
 export function OrgStoreCartButton({ organizationId }: { organizationId: string }) {
   const theme = useTheme();
   const { t } = useTranslation('organizationStore');
-  const cart = useOrgStoreCart(organizationId);
+  const { storeEnabled, isLoading } = useOrgStoreAvailability(organizationId);
+  // Wait for the store's availability so a disabled store is never asked for its cart.
+  const cart = useOrgStoreCart(organizationId, { enabled: storeEnabled && !isLoading });
   const count = cart.data?.itemCount ?? 0;
+
+  // A clinic store the Admin turned off has no entry point.
+  if (!storeEnabled) return null;
 
   return (
     <View>

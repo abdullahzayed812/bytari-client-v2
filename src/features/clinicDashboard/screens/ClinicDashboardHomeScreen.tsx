@@ -60,11 +60,14 @@ export default function ClinicDashboardHomeScreen() {
   // An expired subscription locks every member (the operational gate shows
   // the expired screen); kept here for a cached profile that just expired.
   const isExpired = org.data?.details.subscriptionStatus === 'EXPIRED';
+  // The Admin turned this clinic's store off: its store entry points are hidden
+  // (products + orders are kept server-side and come back when it is re-enabled).
+  const storeOn = org.data?.details.storeEnabled !== false;
   const recent = useOrganizationAnimals(orgId, { enabled: Boolean(perms?.canViewAnimals) });
   const unread = useConversationUnreadSummary(orgId, { enabled: Boolean(orgId) && isActive });
   // Clinic Store — the incoming-orders badge (`store.order.read` only).
   const orderSummary = useIncomingOrgStoreOrdersSummary(orgId, {
-    enabled: Boolean(perms?.canViewStoreOrders) && isActive && !isExpired,
+    enabled: Boolean(perms?.canViewStoreOrders) && isActive && !isExpired && storeOn,
   });
   const newOrders = orderSummary.data?.newCount ?? 0;
   const unreadMessages = unread.data?.unreadMessages ?? 0;
@@ -428,7 +431,7 @@ export default function ClinicDashboardHomeScreen() {
                 />
               ) : null}
               {/* --- Clinic Store: products + incoming orders --- */}
-              {perms?.canViewProducts ? (
+              {perms?.canViewProducts && storeOn ? (
                 <QuickTile
                   icon="cube-outline"
                   tone={TONES.violet}
@@ -436,7 +439,7 @@ export default function ClinicDashboardHomeScreen() {
                   onPress={() => go(Routes.organizationOfficeProducts(orgId))}
                 />
               ) : null}
-              {perms?.canViewStoreOrders ? (
+              {perms?.canViewStoreOrders && storeOn ? (
                 <QuickTile
                   icon="receipt-outline"
                   tone={TONES.amber}
@@ -446,7 +449,7 @@ export default function ClinicDashboardHomeScreen() {
                   onPress={() => go(Routes.orgStoreIncomingOrders(orgId))}
                 />
               ) : null}
-              {perms?.canAssignSupervisors ? (
+              {perms?.canAssignSupervisors && storeOn ? (
                 <QuickTile
                   icon="shield-checkmark-outline"
                   tone={TONES.mint}

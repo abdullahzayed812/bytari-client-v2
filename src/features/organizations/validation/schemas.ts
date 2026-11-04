@@ -42,7 +42,10 @@ export type CreateOrganizationFormValues = z.infer<
  * `LICENSABLE_ORG_TYPES`), not a schema concern — the screen only puts
  * applicable keys into the `PATCH` payload.
  */
-export function buildEditOrganizationSchema(t: OrgTFn) {
+export function buildEditOrganizationSchema(
+  t: OrgTFn,
+  options: { specialtyRequired?: boolean } = {},
+) {
   const optionalUrl = z
     .string()
     .trim()
@@ -79,6 +82,14 @@ export function buildEditOrganizationSchema(t: OrgTFn) {
       .max(100, t('form.errors.tooLong'))
       .optional()
       .or(z.literal('')),
+    // CLINIC: required (may be changed, never cleared — server-enforced too).
+    specialty: options.specialtyRequired
+      ? z
+          .string()
+          .trim()
+          .min(1, t('registration.errors.specialtyRequired'))
+          .max(120, t('form.errors.tooLong'))
+      : z.string().trim().max(120, t('form.errors.tooLong')).optional().or(z.literal('')),
   });
 }
 
@@ -110,7 +121,10 @@ export type MemberIdentifierFormValues = z.infer<ReturnType<typeof buildMemberId
  * otherwise. License photos / gallery photos are plain local state, validated
  * separately (they are files, not form-field text).
  */
-export function buildRegistrationSchema(t: OrgTFn, options: { phoneRequired: boolean }) {
+export function buildRegistrationSchema(
+  t: OrgTFn,
+  options: { phoneRequired: boolean; specialtyRequired?: boolean },
+) {
   const optionalUrl = z
     .string()
     .trim()
@@ -147,6 +161,10 @@ export function buildRegistrationSchema(t: OrgTFn, options: { phoneRequired: boo
       .trim()
       .min(1, t('registration.errors.licenseNumberRequired'))
       .max(120),
+    // "تخصص العيادة" — required for a clinic, absent for an office.
+    specialty: options.specialtyRequired
+      ? z.string().trim().min(1, t('registration.errors.specialtyRequired')).max(120)
+      : z.string().trim().max(120).optional().or(z.literal('')),
   });
 }
 

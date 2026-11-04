@@ -134,3 +134,16 @@ export function useOrgDecisionMutation(
     },
   });
 }
+
+/** Admin clinic store switch ("تفعيل / إيقاف المتجر"). */
+export function useSetClinicStoreMutation(organizationId: string) {
+  const qc = useQueryClient();
+  return useMutation<Organization, unknown, boolean>({
+    mutationKey: ['admin', 'organizations', organizationId, 'store'],
+    mutationFn: (enabled) => adminApi.setClinicStoreEnabled(organizationId, enabled),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.organizations.detail(organizationId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.organizations.lists() });
+    },
+  });
+}

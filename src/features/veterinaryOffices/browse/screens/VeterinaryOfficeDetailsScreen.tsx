@@ -5,7 +5,7 @@ import { FlatList, Linking, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/actions';
 import { Card, Chip, Icon, type IconName } from '@/components/content';
-import { EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
+import { Alert, EmptyState, ErrorState, Loading, useToast } from '@/components/feedback';
 import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Caption, Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
@@ -21,7 +21,7 @@ import {
   useUnlikeOrganization,
 } from '@/features/organizations';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
-import { useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
+import { useOrgStoreAvailability, useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
@@ -115,6 +115,8 @@ export default function VeterinaryOfficeDetailsScreen() {
   const like = useLikeOrganization(officeId ?? '');
   const unlike = useUnlikeOrganization(officeId ?? '');
   const quickAdd = useOrgStoreQuickAdd(officeId ?? '');
+  const { ordersEnabled } = useOrgStoreAvailability(officeId);
+  const { t: tStore } = useTranslation('organizationStore');
   const startConversation = useStartConversation();
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
@@ -412,12 +414,17 @@ export default function VeterinaryOfficeDetailsScreen() {
                   onPress={() =>
                     router.push(Routes.veterinaryOfficeProductDetail(officeId as string, item.id))
                   }
-                  onAddToCart={officeId ? () => quickAdd.add(item.id) : undefined}
+                  onAddToCart={officeId && ordersEnabled ? () => quickAdd.add(item.id) : undefined}
                   adding={quickAdd.isAdding(item.id)}
                 />
               )}
             />
           )}
+          {!ordersEnabled ? (
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Alert tone="info" message={tStore('availability.ordersPaused')} />
+            </View>
+          ) : null}
         </Section>
 
         {socialLinks.length > 0 ? (

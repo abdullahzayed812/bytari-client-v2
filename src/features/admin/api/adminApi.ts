@@ -192,6 +192,13 @@ export const adminApi = {
       .then((e) => e.data);
   },
 
+  /** Clinic store on / off — products and orders are kept either way. */
+  setClinicStoreEnabled(organizationId: string, enabled: boolean): Promise<Organization> {
+    return apiClient.patch<Organization>(`/admin/organizations/${organizationId}/store`, {
+      enabled,
+    });
+  },
+
   approveOrganization(organizationId: string): Promise<Organization> {
     return apiClient.post<Organization>(`/admin/organizations/${organizationId}/approve`);
   },

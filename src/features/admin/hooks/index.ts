@@ -15,6 +15,7 @@ export {
   useAdminOrganization,
   useAdminOrganizationMembers,
   useOrgDecisionMutation,
+  useSetClinicStoreMutation,
   type AdminOrgsParams,
 } from './useAdminOrganizations';
 export {
