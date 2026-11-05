@@ -32,6 +32,10 @@ import type {
   OrgListFilter,
   OrgStatusAction,
   Paginated,
+  PoultrySupervisionLinkInput,
+  PoultrySupervisionListParams,
+  PoultrySupervisionSection,
+  PoultrySupervisionSummary,
   PendingVetApplication,
   RoleKey,
   SendBroadcastInput,
@@ -244,6 +248,46 @@ export const adminApi = {
       renewal: f.renewal,
       search: f.search,
     });
+  },
+
+  // --- poultry supervisors management (ADMIN only) --------------
+  poultrySupervisionSummary(governorate?: string): Promise<PoultrySupervisionSummary> {
+    return apiClient
+      .requestEnvelope<PoultrySupervisionSummary>({
+        method: 'GET',
+        url: '/admin/poultry-supervisors/summary',
+        params: { governorate },
+      })
+      .then((e) => e.data);
+  },
+  listPoultrySupervision<T>(
+    section: PoultrySupervisionSection,
+    f: PoultrySupervisionListParams,
+  ): Promise<Paginated<T>> {
+    return listPaged<T>(`/admin/poultry-supervisors/${section}`, f.page, f.pageSize, {
+      search: f.search,
+      governorate: f.governorate,
+      link: section === 'veterinarians' ? f.link : undefined,
+    });
+  },
+  linkPoultrySupervisor(
+    input: PoultrySupervisionLinkInput & { organizationId: string },
+  ): Promise<{ membershipId: string }> {
+    return apiClient.post<{ membershipId: string }>('/admin/poultry-supervisors/links', input);
+  },
+  replacePoultrySupervisor(
+    membershipId: string,
+    input: PoultrySupervisionLinkInput,
+  ): Promise<{ membershipId: string }> {
+    return apiClient.put<{ membershipId: string }>(
+      `/admin/poultry-supervisors/links/${membershipId}/replace`,
+      input,
+    );
+  },
+  unlinkPoultrySupervisor(membershipId: string): Promise<{ success: boolean }> {
+    return apiClient.delete<{ success: boolean }>(
+      `/admin/poultry-supervisors/links/${membershipId}`,
+    );
   },
 
   listFarmRenewalRequests(organizationId: string): Promise<AdminFarmRenewalRequest[]> {

@@ -10,13 +10,21 @@ import { Label } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import {
   useAdminDeleteEggOffer,
+  useAdminDeleteHatcheryOffer,
   useAdminDeletePoultryOffer,
   useAdminEggOffers,
+  useAdminHatcheryOffers,
   useAdminPoultryOffers,
   useModerateEggOffer,
+  useModerateHatcheryOffer,
   useModeratePoultryOffer,
 } from '@/features/poultryMarket';
-import type { EggOffer, MarketModerationStatus, PoultryOffer } from '@/features/poultryMarket';
+import type {
+  EggOffer,
+  HatcheryOffer,
+  MarketModerationStatus,
+  PoultryOffer,
+} from '@/features/poultryMarket';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -31,11 +39,14 @@ import {
   useAdminSearch,
 } from '../components';
 
-type Offer = PoultryOffer | EggOffer;
-type Kind = 'poultry' | 'egg';
+type Offer = PoultryOffer | EggOffer | HatcheryOffer;
+type Kind = 'poultry' | 'egg' | 'hatchery';
+
+const isKind = (v: unknown): v is Kind => v === 'poultry' || v === 'egg' || v === 'hatchery';
 
 /**
- * `/admin/market-offers/[kind]` — poultry / egg advertisement moderation:
+ * `/admin/market-offers/[kind]` — poultry / egg / hatchery (عروض المفاقس)
+ * advertisement moderation:
  * approve / reject PENDING ads (only approved ads are public), view all,
  * delete any. Defaults to the PENDING queue.
  */
@@ -48,12 +59,13 @@ export default function AdminMarketOffersScreen() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [detail, setDetail] = useState<Offer | null>(null);
   const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
-  const [kind, setKind] = useState<Kind>(params.kind === 'egg' ? 'egg' : 'poultry');
+  const [kind, setKind] = useState<Kind>(isKind(params.kind) ? params.kind : 'poultry');
 
   const [moderation, setModeration] = useState<MarketModerationStatus | undefined>('PENDING');
   const [rejecting, setRejecting] = useState<string | null>(null);
 
   const isEgg = kind === 'egg';
+  const isHatchery = kind === 'hatchery';
   // Offer id / location / phone / notes / seller — kept when switching kind or moderation tab.
   const { raw: rawSearch, setRaw: setRawSearch, search } = useAdminSearch();
   const poultryQuery = useAdminPoultryOffers({
@@ -68,11 +80,19 @@ export default function AdminMarketOffersScreen() {
     moderationStatus: moderation,
     search,
   });
+  const hatcheryQuery = useAdminHatcheryOffers({
+    page: 1,
+    pageSize: 20,
+    moderationStatus: moderation,
+    search,
+  });
   const deletePoultry = useAdminDeletePoultryOffer();
   const deleteEgg = useAdminDeleteEggOffer();
   const moderatePoultry = useModeratePoultryOffer();
   const moderateEgg = useModerateEggOffer();
-  const moderate = isEgg ? moderateEgg : moderatePoultry;
+  const deleteHatchery = useAdminDeleteHatcheryOffer();
+  const moderateHatchery = useModerateHatcheryOffer();
+  const moderate = isHatchery ? moderateHatchery : isEgg ? moderateEgg : moderatePoultry;
 
   const onApprove = (offerId: string) =>
     moderate.mutate(
@@ -96,9 +116,13 @@ export default function AdminMarketOffersScreen() {
     );
   };
 
-  const query = isEgg ? eggQuery : poultryQuery;
-  const del = isEgg ? deleteEgg : deletePoultry;
-  const offers: Offer[] = isEgg ? eggQuery.offers : poultryQuery.offers;
+  const query = isHatchery ? hatcheryQuery : isEgg ? eggQuery : poultryQuery;
+  const del = isHatchery ? deleteHatchery : isEgg ? deleteEgg : deletePoultry;
+  const offers: Offer[] = isHatchery
+    ? hatcheryQuery.offers
+    : isEgg
+      ? eggQuery.offers
+      : poultryQuery.offers;
 
   const onDelete = () => {
     if (!pendingDelete) return;
@@ -147,15 +171,45 @@ export default function AdminMarketOffersScreen() {
             },
             { label: tm('poultryMarket.weightLabel'), value: o.weightKg },
           ]
-        : [
-            { label: tm('eggMarket.fieldEggType'), value: tm(`eggMarket.eggType.${o.eggType}`) },
-            { label: tm('eggMarket.sellUnitLabel'), value: tm(`eggMarket.sellUnit.${o.sellUnit}`) },
-            { label: tm('eggMarket.fieldQuantity'), value: String(o.quantity) },
-            {
-              label: t('marketOffers.detail.totalPrice'),
-              value: `${o.pricePerUnit} ${tm('poultryMarket.currency')}`,
-            },
-          ];
+        : 'chickType' in o
+          ? [
+              {
+                label: tm('hatcheryMarket.fieldChickType'),
+                value: tm(`hatcheryMarket.chickType.${o.chickType}`),
+              },
+              { label: tm('hatcheryMarket.breedLabel'), value: o.breed },
+              {
+                label: tm('hatcheryMarket.ageLabel'),
+                value: tm('hatcheryMarket.ageValue', { days: o.chickAgeDays }),
+              },
+              {
+                label: tm('hatcheryMarket.productionDateLabel'),
+                value: formatDate(o.productionDate),
+              },
+              {
+                label: tm('hatcheryMarket.quantityLabel'),
+                value: o.quantity != null ? String(o.quantity) : null,
+              },
+              {
+                label: tm('hatcheryMarket.pricePerChickLabel'),
+                value:
+                  o.pricePerChick != null
+                    ? `${o.pricePerChick} ${tm('poultryMarket.currency')}`
+                    : null,
+              },
+            ]
+          : [
+              { label: tm('eggMarket.fieldEggType'), value: tm(`eggMarket.eggType.${o.eggType}`) },
+              {
+                label: tm('eggMarket.sellUnitLabel'),
+                value: tm(`eggMarket.sellUnit.${o.sellUnit}`),
+              },
+              { label: tm('eggMarket.fieldQuantity'), value: String(o.quantity) },
+              {
+                label: t('marketOffers.detail.totalPrice'),
+                value: `${o.pricePerUnit} ${tm('poultryMarket.currency')}`,
+              },
+            ];
     return [
       { label: t('marketOffers.detail.seller'), value: seller },
       { label: t('marketOffers.detail.sellerAccount'), value: o.seller?.email ?? null },
@@ -207,6 +261,7 @@ export default function AdminMarketOffersScreen() {
               options={[
                 { value: 'poultry', label: t('marketOffers.tab.poultry') },
                 { value: 'egg', label: t('marketOffers.tab.egg') },
+                { value: 'hatchery', label: t('marketOffers.tab.hatchery') },
               ]}
             />
             <FilterChips<MarketModerationStatus>
@@ -226,7 +281,11 @@ export default function AdminMarketOffersScreen() {
             title={
               'birdType' in o
                 ? `${tm(`poultryMarket.birdType.${o.birdType}`)} · ${o.quantity}`
-                : `${tm(`eggMarket.eggType.${o.eggType}`)} · ${o.quantity}`
+                : 'chickType' in o
+                  ? [tm(`hatcheryMarket.chickType.${o.chickType}`), o.breed]
+                      .filter(Boolean)
+                      .join(' · ')
+                  : `${tm(`eggMarket.eggType.${o.eggType}`)} · ${o.quantity}`
             }
             subtitle={[
               o.seller?.displayName ??
@@ -235,11 +294,23 @@ export default function AdminMarketOffersScreen() {
             ]
               .filter(Boolean)
               .join(' — ')}
-            meta={`${'price' in o ? o.price : o.pricePerUnit} ${tm('poultryMarket.currency')} · ${formatDate(o.createdAt)}`}
+            meta={
+              'chickType' in o
+                ? [
+                    tm('hatcheryMarket.ageValue', { days: o.chickAgeDays }),
+                    formatDate(o.productionDate),
+                    o.pricePerChick != null
+                      ? `${o.pricePerChick} ${tm('poultryMarket.currency')}`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')
+                : `${'price' in o ? o.price : o.pricePerUnit} ${tm('poultryMarket.currency')} · ${formatDate(o.createdAt)}`
+            }
             onPress={() => setDetail(o)}
             image={{
               uri: o.imageUrls[0] ?? null,
-              fallbackIcon: isEgg ? 'egg-outline' : 'nutrition-outline',
+              fallbackIcon: isEgg || isHatchery ? 'egg-outline' : 'nutrition-outline',
               onPress:
                 o.imageUrls.length > 0
                   ? () => setViewer({ images: o.imageUrls, index: 0 })

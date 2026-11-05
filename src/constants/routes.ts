@@ -126,6 +126,9 @@ export const Routes = {
   eggMarket: '/(app)/poultry/egg-market',
   eggMarketCreate: '/(app)/poultry/egg-market/create',
   eggMarketOffer: (offerId: string) => `/(app)/poultry/egg-market/${offerId}` as const,
+  hatcheryMarket: '/(app)/poultry/hatchery-market',
+  hatcheryMarketCreate: '/(app)/poultry/hatchery-market/create',
+  hatcheryMarketOffer: (offerId: string) => `/(app)/poultry/hatchery-market/${offerId}` as const,
   traderRegister: '/(app)/poultry/trader-register',
   poultryExchangeRates: '/(app)/poultry/exchange-rates',
   poultryExchangeRatesEntry: '/(app)/poultry/exchange-rates/entry',
@@ -597,7 +600,9 @@ export const Routes = {
   /** Trader registration applications (approve / reject / suspend) — one list screen, inline actions. */
   adminTraderApplications: '/(app)/admin/traders',
   /** Market offer moderation — one screen parametrized by kind (poultry | egg). */
-  adminMarketOffers: (kind: 'poultry' | 'egg') => `/(app)/admin/market-offers/${kind}` as const,
+  adminMarketOffers: (kind: 'poultry' | 'egg' | 'hatchery') =>
+    `/(app)/admin/market-offers/${kind}` as const,
+  adminPoultrySupervisors: '/(app)/admin/poultry-supervisors',
 
   // Advertisements — Admin/Supervisor management (Management Centre → Ads)
   /** Placement picker — choose which app section's ads to manage. */

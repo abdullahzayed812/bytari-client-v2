@@ -1,4 +1,8 @@
-import type { ListEggOffersFilter, ListPoultryOffersFilter } from '../types';
+import type {
+  ListEggOffersFilter,
+  ListHatcheryOffersFilter,
+  ListPoultryOffersFilter,
+} from '../types';
 
 /** Poultry Markets query keys. Trader status/profile is a per-USER concept — no organizationId anywhere. */
 export const poultryMarketKeys = {
@@ -24,6 +28,16 @@ export const poultryMarketKeys = {
     detail: (offerId: string) => ['market', 'egg-offers', 'detail', offerId] as const,
     adminList: (filter: Omit<ListEggOffersFilter, 'page'>) =>
       ['market', 'egg-offers', 'admin', 'list', filter] as const,
+  },
+
+  hatcheryOffers: {
+    all: ['market', 'hatchery-offers'] as const,
+    list: (filter: Omit<ListHatcheryOffersFilter, 'page'>) =>
+      ['market', 'hatchery-offers', 'list', filter] as const,
+    mine: ['market', 'hatchery-offers', 'mine'] as const,
+    detail: (offerId: string) => ['market', 'hatchery-offers', 'detail', offerId] as const,
+    adminList: (filter: Omit<ListHatcheryOffersFilter, 'page'>) =>
+      ['market', 'hatchery-offers', 'admin', 'list', filter] as const,
   },
 
   exchangeRates: {

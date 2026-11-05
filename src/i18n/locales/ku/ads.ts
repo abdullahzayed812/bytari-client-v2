@@ -16,6 +16,7 @@ const ads: KuNamespace<'ads'> = {
     SEMINARS: 'سیمینارەکان',
     POULTRY_MARKET: 'بازاڕی پەلەوەر',
     EGG_MARKET: 'بازاڕی هێلکە',
+    HATCHERY_MARKET: 'پێشنیارەکانی جوجکەخانە',
     EXCHANGE_RATES: 'نرخەکانی بۆرسە',
     TRADER_REGISTRATION: 'تۆمارکردنی بازرگانان (بازاڕ و بۆرسەکان)',
     SHEEP_FARMS: 'کێڵگەکانی مەڕ',

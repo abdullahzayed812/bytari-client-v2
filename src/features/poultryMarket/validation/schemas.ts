@@ -3,8 +3,17 @@ import { z } from 'zod';
 
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
+import { isValidIsoDate } from '@/utils';
 
-import { BIRD_TYPES, EGG_TYPES, PRICING_METHODS, SELL_UNITS, TRADER_TYPES } from '../types';
+import {
+  BIRD_TYPES,
+  CHICK_TYPES,
+  EGG_TYPES,
+  MAX_CHICK_AGE_DAYS,
+  PRICING_METHODS,
+  SELL_UNITS,
+  TRADER_TYPES,
+} from '../types';
 
 export type MarketTFn = TFunction<'poultryMarket'>;
 
@@ -86,6 +95,40 @@ export function buildEggOfferSchema(t: MarketTFn) {
   });
 }
 export type EggOfferFormValues = z.infer<ReturnType<typeof buildEggOfferSchema>>;
+
+// --- hatchery offer ("عروض المفاقس") ----------------------------
+
+export function buildHatcheryOfferSchema(t: MarketTFn) {
+  return z.object({
+    chickType: z.enum(CHICK_TYPES),
+    breed: z.string().trim().max(160).optional().or(z.literal('')),
+    chickAgeDays: z
+      .string()
+      .trim()
+      .min(1, t('hatcheryMarket.errors.ageRequired'))
+      .regex(/^\d{1,3}$/, t('hatcheryMarket.errors.ageInvalid'))
+      .refine((v) => Number(v) <= MAX_CHICK_AGE_DAYS, t('hatcheryMarket.errors.ageInvalid')),
+    productionDate: z
+      .string()
+      .trim()
+      .min(1, t('hatcheryMarket.errors.dateRequired'))
+      .refine(isValidIsoDate, t('hatcheryMarket.errors.dateInvalid')),
+    quantity: z
+      .string()
+      .trim()
+      .regex(/^\d{1,9}$/)
+      .refine((v) => Number(v) >= 1)
+      .optional()
+      .or(z.literal('')),
+    pricePerChick: moneySchema.optional().or(z.literal('')),
+    governorate: z.string().min(1, t('register.errors.governorateRequired')),
+    district: z.string().trim().max(120).optional().or(z.literal('')),
+    phone: phoneLike,
+    whatsapp: phoneLike.optional().or(z.literal('')),
+    notes: z.string().trim().max(2000).optional().or(z.literal('')),
+  });
+}
+export type HatcheryOfferFormValues = z.infer<ReturnType<typeof buildHatcheryOfferSchema>>;
 
 // --- errors ---------------------------------------------------
 

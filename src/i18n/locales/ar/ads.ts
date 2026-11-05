@@ -13,6 +13,7 @@ export default {
     SEMINARS: 'الندوات',
     POULTRY_MARKET: 'سوق الدواجن',
     EGG_MARKET: 'سوق البيض',
+    HATCHERY_MARKET: 'عروض المفاقس',
     EXCHANGE_RATES: 'أسعار الصرف',
     TRADER_REGISTRATION: 'تسجيل التجار (السوق وبورصات الدواجن)',
     SHEEP_FARMS: 'مزارع الأغنام',

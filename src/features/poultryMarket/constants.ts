@@ -1,6 +1,6 @@
 import type { IconName } from '@/components/content';
 
-import type { BirdType, EggType, PricingMethod, SellUnit, TraderType } from './types';
+import type { BirdType, ChickType, EggType, PricingMethod, SellUnit, TraderType } from './types';
 
 /** Bird type → line icon + ordered list for the poultry-market tile pickers/filters. */
 export const BIRD_TYPE_ICON: Record<BirdType, IconName> = {
@@ -46,5 +46,16 @@ export const TRADER_TYPE_ORDER: readonly TraderType[] = [
   'WHOLESALE',
   'INDIVIDUAL',
   'EXPORTER',
+  'OTHER',
+];
+
+/** Hatchery chick type ("عروض المفاقس") — ordered list for the tile picker / filter chips. */
+export const CHICK_TYPE_ORDER: readonly ChickType[] = [
+  'BROILER',
+  'LAYER',
+  'BALADI',
+  'TURKEY',
+  'DUCK',
+  'QUAIL',
   'OTHER',
 ];

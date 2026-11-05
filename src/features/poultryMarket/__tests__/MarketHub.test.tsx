@@ -164,7 +164,7 @@ describe('Markets & Exchanges — no eligible account (initial access screen)', 
 });
 
 describe('Markets & Exchanges — with access', () => {
-  it('an eligible merchant: the ad, "add a poultry farm" under it, the markets grid and statistics', async () => {
+  it('an eligible merchant: the ad, "add a poultry farm" under it, the markets grid, hatchery offers and statistics', async () => {
     mockAccess(access(eligibleMerchant));
     renderWithProviders(<PoultryMarketHubScreen />);
 
@@ -176,12 +176,15 @@ describe('Markets & Exchanges — with access', () => {
       'سوق البيض',
       'بورصة الدواجن',
       'بورصة البيض',
+      'عروض المفاقس',
       'إحصائية الدواجن',
     ]) {
       expect(screen.getByText(title)).toBeOnTheScreen();
     }
     fireEvent.press(screen.getByText('سوق البيض'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/egg-market');
+    fireEvent.press(screen.getByText('عروض المفاقس'));
+    expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/hatchery-market');
     fireEvent.press(screen.getByText('بورصة الدواجن'));
     expect(routerMock.push).toHaveBeenCalledWith('/(app)/poultry/exchange-rates');
     fireEvent.press(screen.getByText('إحصائية الدواجن'));

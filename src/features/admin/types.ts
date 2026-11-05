@@ -639,6 +639,7 @@ export type AdminDashboardCardId =
   | 'homeSections'
   | 'featuredOrganizations'
   | 'notificationVideos'
+  | 'poultrySupervisors'
   | 'books'
   | 'magazines'
   | 'adoption'
@@ -709,4 +710,98 @@ export interface NotificationVideoLink {
   /** `null` = this notification carries no video. */
   url: string | null;
   updatedAt: string | null;
+}
+
+// --- poultry supervisors management (`/admin/poultry-supervisors/*`, ADMIN only) ---
+
+/** A farm ↔ vet link = an ACTIVE VETERINARIAN / SUPERVISOR membership of an approved vet in a live poultry farm. */
+export type PoultrySupervisingRole = 'VETERINARIAN' | 'SUPERVISOR';
+/** "نوع التعاقد / الإشراف" on the admin link form. */
+export const SUPERVISION_TYPES = ['WEEKLY', 'RESIDENT', 'EMERGENCY'] as const;
+export type SupervisionType = (typeof SUPERVISION_TYPES)[number];
+
+export interface PoultrySupervisionVeterinarian {
+  /** Veterinarian ID (the user id). */
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  whatsapp: string | null;
+  governorate: string | null;
+  specialization: string | null;
+  status: string;
+  avatarUrl: string | null;
+  createdAt: string;
+}
+
+export interface PoultrySupervisionFarm {
+  organizationId: string;
+  name: string;
+  status: OrganizationStatus;
+  governorate: string | null;
+  location: string | null;
+  address: string | null;
+  ownerUserId: string;
+  ownerName: string;
+  ownerPhone: string | null;
+  contactPhone: string | null;
+  capacity: number | null;
+  productionType: string | null;
+  currentBirdCount: number | null;
+  subscriptionStartDate: string | null;
+  subscriptionEndDate: string | null;
+  subscriptionStatus: FarmSubscriptionStatus;
+  imageUrl: string | null;
+  createdAt: string;
+}
+
+export interface PoultrySupervisionLinkInfo {
+  membershipId: string;
+  role: PoultrySupervisingRole;
+  /** When the vet was assigned to the farm in this role. */
+  assignedAt: string;
+  supervisionType: SupervisionType | null;
+  notes: string | null;
+}
+
+/** "الحقول المرتبطة" row — newest assignment first. */
+export interface PoultrySupervisionLinkedFarm {
+  farm: PoultrySupervisionFarm;
+  links: (PoultrySupervisionLinkInfo & { veterinarian: PoultrySupervisionVeterinarian })[];
+}
+
+/** "الأطباء" row — the vet and the poultry farms they currently supervise. */
+export interface PoultrySupervisionVeterinarianRow {
+  veterinarian: PoultrySupervisionVeterinarian;
+  links: (PoultrySupervisionLinkInfo & {
+    farm: { organizationId: string; name: string; governorate: string | null };
+  })[];
+}
+
+export interface PoultrySupervisionSummary {
+  linkedFarms: number;
+  unlinkedFarms: number;
+  linkedVeterinarians: number;
+  unlinkedVeterinarians: number;
+}
+
+export type PoultrySupervisionSection = 'linked-farms' | 'unlinked-farms' | 'veterinarians';
+export type VeterinarianLinkState = 'linked' | 'unlinked';
+
+export interface PoultrySupervisionListParams {
+  page: number;
+  pageSize: number;
+  search?: string;
+  governorate?: string;
+  /** `veterinarians` section only. */
+  link?: VeterinarianLinkState;
+}
+
+export interface PoultrySupervisionLinkInput {
+  veterinarianUserId: string;
+  supervisionType: SupervisionType;
+  /** `YYYY-M-D` / `YYYY-MM-DD`, not in the future. */
+  startDate: string;
+  notes?: string;
 }

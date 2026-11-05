@@ -33,7 +33,7 @@ import type { MarketAccess } from '../types';
  *    per pending / expired / suspended account and its renewal path;
  *  - otherwise → the markets: the TRADER_REGISTRATION ad, the poultry farm
  *    card (eligible farm owners) or "add a farm", the 2×2 markets/bourses
- *    grid and statistics.
+ *    grid, "عروض المفاقس" (hatchery offers) and statistics.
  * The backend refuses every market API the same way — hiding a card is never
  * the enforcement.
  */
@@ -157,6 +157,12 @@ export default function PoultryMarketHubScreen() {
             onPress={() => router.push(Routes.eggExchangeRates)}
           />
         </View>
+        <MarketWideCard
+          icon="egg-outline"
+          title={t('access.card.hatcheryOffersTitle')}
+          subtitle={t('access.card.hatcheryOffersSubtitle')}
+          onPress={() => router.push(Routes.hatcheryMarket)}
+        />
         <MarketWideCard
           icon="pie-chart-outline"
           title={t('access.card.statisticsTitle')}

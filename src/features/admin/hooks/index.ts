@@ -57,3 +57,11 @@ export {
   useNotificationVideoLinks,
   useSaveNotificationVideoLink,
 } from './useNotificationVideoLinks';
+export {
+  useLinkPoultrySupervisor,
+  usePoultrySupervisionOptions,
+  usePoultrySupervisionPage,
+  usePoultrySupervisionSummary,
+  useReplacePoultrySupervisor,
+  useUnlinkPoultrySupervisor,
+} from './useAdminPoultrySupervisors';

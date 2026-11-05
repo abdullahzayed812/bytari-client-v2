@@ -94,4 +94,13 @@ export const adminKeys = {
     all: ['admin', 'dashboard'] as const,
     summary: () => [...adminKeys.dashboard.all, 'summary'] as const,
   },
+  poultrySupervisors: {
+    all: ['admin', 'poultry-supervisors'] as const,
+    summary: (governorate: string | undefined) =>
+      [...adminKeys.poultrySupervisors.all, 'summary', governorate ?? ''] as const,
+    list: (section: string, params: Record<string, unknown>) =>
+      [...adminKeys.poultrySupervisors.all, section, params] as const,
+    options: (kind: 'farms' | 'vets') =>
+      [...adminKeys.poultrySupervisors.all, 'options', kind] as const,
+  },
 };

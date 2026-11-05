@@ -7,6 +7,9 @@ import type {
   EggOffer,
   EggRateEntry,
   EggRateEntryInput,
+  HatcheryOffer,
+  CreateHatcheryOfferInput,
+  ListHatcheryOffersFilter,
   ListEggOffersFilter,
   ListPoultryOffersFilter,
   MarketAccess,
@@ -253,6 +256,80 @@ export const poultryMarketApi = {
     },
     reject(offerId: string, reason: string): Promise<unknown> {
       return apiClient.post(`/admin/egg-offers/${offerId}/reject`, { reason });
+    },
+  },
+
+  hatcheryOffers: {
+    requestUploadUrl(input: {
+      filename: string;
+      mimeType: string;
+      size: number;
+    }): Promise<UploadUrlResult> {
+      return apiClient.post<UploadUrlResult>('/hatchery-offers/upload-url', input);
+    },
+    async list(filter: ListHatcheryOffersFilter): Promise<Paginated<HatcheryOffer>> {
+      const envelope = await apiClient.requestEnvelope<HatcheryOffer[]>({
+        method: 'GET',
+        url: '/hatchery-offers',
+        params: {
+          page: filter.page,
+          pageSize: filter.pageSize,
+          chickType: filter.chickType,
+          governorate: filter.governorate,
+        },
+      });
+      return {
+        items: envelope.data,
+        meta: readMeta(envelope.meta, filter.page, filter.pageSize, envelope.data.length),
+      };
+    },
+    async listMine(page: number, pageSize: number): Promise<Paginated<HatcheryOffer>> {
+      const envelope = await apiClient.requestEnvelope<HatcheryOffer[]>({
+        method: 'GET',
+        url: '/hatchery-offers/mine',
+        params: { page, pageSize },
+      });
+      return {
+        items: envelope.data,
+        meta: readMeta(envelope.meta, page, pageSize, envelope.data.length),
+      };
+    },
+    get(offerId: string): Promise<HatcheryOffer> {
+      return apiClient.get<HatcheryOffer>(`/hatchery-offers/${offerId}`);
+    },
+    create(input: CreateHatcheryOfferInput): Promise<HatcheryOffer> {
+      return apiClient.post<HatcheryOffer>('/hatchery-offers', input);
+    },
+    remove(offerId: string): Promise<{ success: boolean }> {
+      return apiClient.delete<{ success: boolean }>(`/hatchery-offers/${offerId}`);
+    },
+    async adminList(filter: ListHatcheryOffersFilter): Promise<Paginated<HatcheryOffer>> {
+      const envelope = await apiClient.requestEnvelope<HatcheryOffer[]>({
+        method: 'GET',
+        url: '/admin/hatchery-offers',
+        params: {
+          page: filter.page,
+          pageSize: filter.pageSize,
+          chickType: filter.chickType,
+          governorate: filter.governorate,
+          status: filter.status,
+          moderationStatus: filter.moderationStatus,
+          search: filter.search,
+        },
+      });
+      return {
+        items: envelope.data,
+        meta: readMeta(envelope.meta, filter.page, filter.pageSize, envelope.data.length),
+      };
+    },
+    adminRemove(offerId: string): Promise<{ success: boolean }> {
+      return apiClient.delete<{ success: boolean }>(`/admin/hatchery-offers/${offerId}`);
+    },
+    approve(offerId: string): Promise<unknown> {
+      return apiClient.post(`/admin/hatchery-offers/${offerId}/approve`);
+    },
+    reject(offerId: string, reason: string): Promise<unknown> {
+      return apiClient.post(`/admin/hatchery-offers/${offerId}/reject`, { reason });
     },
   },
 

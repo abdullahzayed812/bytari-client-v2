@@ -73,6 +73,16 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
       c.can('market.offer.admin.read'),
   },
   {
+    // "إدارة مشرفي الدواجن" — linked / unlinked vets ↔ poultry farms. ADMIN
+    // only: the server checks the ADMIN role itself (no permission key).
+    id: 'poultrySupervisors',
+    icon: 'git-network-outline',
+    tint: dashboardTint(3),
+    palette: { bg: '#ecfdf5', border: '#c9f2df', accent: '#059669' },
+    route: Routes.adminPoultrySupervisors,
+    show: (c) => c.isAdmin,
+  },
+  {
     id: 'poultry',
     icon: 'person-outline',
     tint: dashboardTint(0),

@@ -8,7 +8,7 @@ import { AdminHubScreen } from '../components/AdminHubScreen';
 
 /**
  * Route `/admin/poultry-market-hub` — "سوق الدواجن" in Admin management:
- * trader registrations, poultry / egg advertisement moderation, the poultry
+ * trader registrations, poultry / egg / hatchery advertisement moderation, the poultry
  * and egg exchange-rate boards, and poultry farms. Each entry is shown only to
  * a caller holding its permission (the backend enforces the same keys).
  */
@@ -46,6 +46,13 @@ export default function AdminPoultryMarketHubScreen() {
       icon: 'egg-outline' as const,
       route: Routes.adminMarketOffers('egg'),
       count: counts.eggOffers ?? 0,
+    },
+    canOffers && {
+      key: 'hatcheryOffers',
+      label: ta('hubs.poultryMarket.hatcheryOffers'),
+      icon: 'egg-outline' as const,
+      route: Routes.adminMarketOffers('hatchery'),
+      count: counts.hatcheryOffers ?? 0,
     },
     canRates && {
       key: 'poultryRates',

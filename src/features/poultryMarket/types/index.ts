@@ -254,6 +254,78 @@ export interface ListEggOffersFilter {
   search?: string;
 }
 
+// --- hatchery offers ("عروض المفاقس") -------------------------------
+
+export const CHICK_TYPES = [
+  'BROILER',
+  'LAYER',
+  'BALADI',
+  'TURKEY',
+  'DUCK',
+  'QUAIL',
+  'OTHER',
+] as const;
+export type ChickType = (typeof CHICK_TYPES)[number];
+
+export const HATCHERY_OFFER_STATUSES = ['ACTIVE', 'REMOVED'] as const;
+export type HatcheryOfferStatus = (typeof HATCHERY_OFFER_STATUSES)[number];
+
+export const MAX_HATCHERY_OFFER_IMAGES = 4;
+/** Mirrors the server CHECK `chick_age_days BETWEEN 0 AND 365`. */
+export const MAX_CHICK_AGE_DAYS = 365;
+
+export interface HatcheryOffer {
+  id: string;
+  traderUserId: string;
+  chickType: ChickType;
+  breed: string | null;
+  chickAgeDays: number;
+  /** Production / listing day — `YYYY-MM-DD`. */
+  productionDate: string;
+  quantity: number | null;
+  pricePerChick: string | null;
+  governorate: string;
+  district: string | null;
+  phone: string;
+  whatsapp: string | null;
+  notes: string | null;
+  imageUrls: string[];
+  status: HatcheryOfferStatus;
+  /** New offers are PENDING until a moderator approves them; only APPROVED are public. */
+  moderationStatus?: MarketModerationStatus;
+  rejectionReason?: string | null;
+  /** Admin ad list only — who is selling. */
+  seller?: MarketOfferSeller | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateHatcheryOfferInput {
+  chickType: ChickType;
+  breed?: string;
+  chickAgeDays: number;
+  productionDate: string;
+  quantity?: number;
+  pricePerChick?: string;
+  governorate: string;
+  district?: string;
+  phone: string;
+  whatsapp?: string;
+  notes?: string;
+  galleryKeys?: string[];
+}
+
+export interface ListHatcheryOffersFilter {
+  page: number;
+  pageSize: number;
+  chickType?: ChickType;
+  governorate?: string;
+  status?: HatcheryOfferStatus;
+  moderationStatus?: MarketModerationStatus;
+  /** Admin listing only — offer / seller search. */
+  search?: string;
+}
+
 // --- exchange rates ("bourse") -------------------------------------
 
 export type Trend = 'UP' | 'DOWN' | 'FLAT';
