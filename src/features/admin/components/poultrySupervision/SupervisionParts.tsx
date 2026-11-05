@@ -136,24 +136,28 @@ export function SegmentTabs<T extends string>({
             accessibilityState={{ selected }}
             accessibilityLabel={o.label}
             onPress={() => onChange(o.value)}
+            // Icon ABOVE the label and up to two lines of text: three Arabic
+            // labels never fit side by side with inline icons on a phone, and
+            // a one-line label was cut to "الحقول غير ال…".
             style={{
               flex: 1,
-              flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              columnGap: 6,
-              paddingVertical: 9,
-              paddingHorizontal: 6,
+              rowGap: 4,
+              minHeight: 58,
+              paddingVertical: 8,
+              paddingHorizontal: 4,
               borderRadius: theme.radius.lg,
               backgroundColor: selected ? theme.colors.primaryPressed : 'transparent',
             }}
           >
-            <Icon name={o.icon} size="iconXs" color={selected ? 'onPrimary' : 'textMuted'} />
+            <Icon name={o.icon} size="iconSm" color={selected ? 'onPrimary' : 'textMuted'} />
             <Text
               variant={selected ? 'bodyStrong' : 'bodyMedium'}
               color={selected ? 'textInverse' : 'textSecondary'}
-              numberOfLines={1}
-              style={{ fontSize: 13 }}
+              numberOfLines={2}
+              align="center"
+              style={{ fontSize: 13, alignSelf: 'stretch' }}
             >
               {o.label}
             </Text>
