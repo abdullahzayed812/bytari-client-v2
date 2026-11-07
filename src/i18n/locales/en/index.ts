@@ -2093,6 +2093,7 @@ export const en: TranslationResources = {
       deleteAnnouncement: 'Delete announcement',
       deleteConfirmTitle: 'Delete the announcement',
       deleteConfirmBody: 'This announcement will be permanently deleted.',
+      deleted: 'Announcement deleted',
       form: {
         type: 'Announcement type',
         title: 'Title',

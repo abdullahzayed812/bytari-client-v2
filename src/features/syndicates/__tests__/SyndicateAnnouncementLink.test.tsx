@@ -26,6 +26,10 @@ describe('Syndicate announcement — external link', () => {
   beforeEach(() => {
     open.mockReset().mockResolvedValue(true);
     setSearchParams({ id: 'an1' });
+    // Viewer with no management rights (the details screen asks `my-access`).
+    jest
+      .spyOn(syndicatesApi, 'getMyAccess')
+      .mockResolvedValue({ canManageAnnouncements: false } as never);
   });
 
   it('shows the link and opens it in the browser', async () => {

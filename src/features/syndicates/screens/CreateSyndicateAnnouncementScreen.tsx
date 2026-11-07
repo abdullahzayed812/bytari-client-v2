@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 import { Button } from '@/components/actions';
 import { Chip } from '@/components/content';
-import { Alert, useToast } from '@/components/feedback';
+import { Alert, EmptyState, Loading, useToast } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageUploader } from '@/components/media';
@@ -18,8 +18,18 @@ import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { isHttpUrl, normalizeLink } from '@/utils';
 
-import { useCreateSyndicateAnnouncement, useSyndicateMediaProvider } from '../hooks';
-import { SYNDICATE_ANNOUNCEMENT_TYPES, type SyndicateAnnouncementType } from '../types';
+import {
+  useCreateSyndicateAnnouncement,
+  useMySyndicateAccess,
+  useSyndicateAnnouncement,
+  useSyndicateMediaProvider,
+  useUpdateSyndicateAnnouncement,
+} from '../hooks';
+import {
+  SYNDICATE_ANNOUNCEMENT_TYPES,
+  type SyndicateAnnouncement,
+  type SyndicateAnnouncementType,
+} from '../types';
 
 interface FormValues {
   type: SyndicateAnnouncementType;
@@ -28,15 +38,63 @@ interface FormValues {
   linkUrl: string;
 }
 
-/** Route `/(app)/syndicates/[organizationId]/announcements/new` — "إضافة إعلان" (supervisor/admin only). */
+/**
+ * Route `/(app)/syndicates/[organizationId]/announcements/new` — "إضافة إعلان",
+ * and `/(app)/syndicates/[organizationId]/announcements/[announcementId]/edit` —
+ * "تعديل الإعلان". Offered to the ADMIN (any syndicate) or a holder of
+ * `syndicate.announcement.manage` for THIS syndicate; the server re-checks
+ * every write (and 404s an announcement of another syndicate).
+ */
 export default function CreateSyndicateAnnouncementScreen() {
+  const { t } = useTranslation('syndicates');
+  const { organizationId, announcementId } = useLocalSearchParams<{
+    organizationId: string;
+    announcementId?: string;
+  }>();
+  const existing = useSyndicateAnnouncement(announcementId);
+  const access = useMySyndicateAccess(announcementId ? organizationId : undefined);
+
+  if (!announcementId) return <AnnouncementForm organizationId={organizationId} />;
+
+  const ready = existing.data && access.data;
+  const allowed =
+    ready &&
+    existing.data!.organizationId === organizationId &&
+    access.data!.canManageAnnouncements;
+
+  return existing.isLoading || access.isLoading ? (
+    <SafeAreaScreen>
+      <AppHeader title={t('announcements.editAnnouncement')} showBack />
+      <Loading fill />
+    </SafeAreaScreen>
+  ) : allowed ? (
+    <AnnouncementForm organizationId={organizationId} existing={existing.data!} />
+  ) : (
+    <SafeAreaScreen>
+      <AppHeader title={t('announcements.editAnnouncement')} showBack />
+      <EmptyState icon="megaphone-outline" title={t('announcements.notFound')} />
+    </SafeAreaScreen>
+  );
+}
+
+function AnnouncementForm({
+  organizationId,
+  existing,
+}: {
+  organizationId: string;
+  existing?: SyndicateAnnouncement;
+}) {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
   const toast = useToast();
-  const { organizationId } = useLocalSearchParams<{ organizationId: string }>();
   const create = useCreateSyndicateAnnouncement(organizationId);
+  const update = useUpdateSyndicateAnnouncement(organizationId);
+  const mutation = existing ? update : create;
   const imageProvider = useSyndicateMediaProvider('ANNOUNCEMENT_IMAGE');
-  const [imageStorageKey, setImageStorageKey] = useState<string | null>(null);
+  // `undefined` = image untouched (edit keeps the current one); `null` = removed.
+  const [imageStorageKey, setImageStorageKey] = useState<string | null | undefined>(
+    existing ? undefined : null,
+  );
 
   const schema = useMemo(
     () =>
@@ -54,32 +112,55 @@ export default function CreateSyndicateAnnouncementScreen() {
   );
   const { control, handleSubmit, setValue, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    // Pre-filled so a test submission needs no typing — every field stays editable.
-    defaultValues: {
-      type: 'ANNOUNCEMENT',
-      title: 'اجتماع الهيئة العامة العادي',
-      body: 'ندعو الأعضاء الكرام لحضور الاجتماع العام في الموعد المحدد لمناقشة جدول الأعمال.',
-      linkUrl: '',
-    },
+    defaultValues: existing
+      ? {
+          type: existing.type,
+          title: existing.title,
+          body: existing.body,
+          linkUrl: existing.linkUrl ?? '',
+        }
+      : {
+          // Pre-filled so a test submission needs no typing — every field stays editable.
+          type: 'ANNOUNCEMENT',
+          title: 'اجتماع الهيئة العامة العادي',
+          body: 'ندعو الأعضاء الكرام لحضور الاجتماع العام في الموعد المحدد لمناقشة جدول الأعمال.',
+          linkUrl: '',
+        },
     mode: 'onTouched',
   });
 
   const onSubmit = (values: FormValues): void => {
-    create.mutate(
-      { ...values, linkUrl: normalizeLink(values.linkUrl), imageStorageKey },
-      {
-        onSuccess: () => {
-          toast.show({ message: t('announcements.form.created'), tone: 'success' });
-          router.back();
-        },
-        onError: (e) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+    const input = {
+      ...values,
+      linkUrl: normalizeLink(values.linkUrl),
+      ...(imageStorageKey !== undefined ? { imageStorageKey } : {}),
+    };
+    const handlers = {
+      onSuccess: () => {
+        toast.show({
+          message: t(existing ? 'announcements.form.saved' : 'announcements.form.created'),
+          tone: 'success',
+        });
+        router.back();
       },
-    );
+      onError: (e: unknown) => toast.show({ message: apiErrorMessage(e), tone: 'danger' }),
+    };
+    if (existing) update.mutate({ id: existing.id, input }, handlers);
+    else create.mutate(input, handlers);
   };
+
+  const submitLabel = mutation.isPending
+    ? t('announcements.form.submitting')
+    : existing
+      ? t('announcements.form.save')
+      : t('announcements.form.submit');
 
   return (
     <SafeAreaScreen>
-      <AppHeader title={t('announcements.addAnnouncement')} showBack />
+      <AppHeader
+        title={existing ? t('announcements.editAnnouncement') : t('announcements.addAnnouncement')}
+        showBack
+      />
       <ScrollView
         contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.md }}
         keyboardShouldPersistTaps="handled"
@@ -126,7 +207,7 @@ export default function CreateSyndicateAnnouncementScreen() {
         <View style={{ rowGap: theme.spacing.xs }}>
           <Label>{t('announcements.form.image')}</Label>
           <ImageUploader
-            value={null}
+            value={imageStorageKey === null ? null : (existing?.imageUrl ?? null)}
             provider={imageProvider}
             shape="square"
             size={140}
@@ -135,17 +216,17 @@ export default function CreateSyndicateAnnouncementScreen() {
           <Caption>{t('announcements.form.imageHint')}</Caption>
         </View>
 
-        {create.isError ? <Alert tone="danger" message={apiErrorMessage(create.error)} /> : null}
+        {mutation.isError ? (
+          <Alert tone="danger" message={apiErrorMessage(mutation.error)} />
+        ) : null}
       </ScrollView>
 
       <View style={{ padding: theme.screenPadding }}>
         <Button
-          label={
-            create.isPending ? t('announcements.form.submitting') : t('announcements.form.submit')
-          }
+          label={submitLabel}
           fullWidth
-          loading={create.isPending}
-          disabled={create.isPending}
+          loading={mutation.isPending}
+          disabled={mutation.isPending}
           onPress={handleSubmit(onSubmit)}
         />
       </View>

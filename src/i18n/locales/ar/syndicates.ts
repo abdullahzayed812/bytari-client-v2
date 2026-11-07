@@ -72,6 +72,7 @@ export default {
     deleteAnnouncement: 'حذف الإعلان',
     deleteConfirmTitle: 'حذف الإعلان',
     deleteConfirmBody: 'سيتم حذف هذا الإعلان نهائياً.',
+    deleted: 'تم حذف الإعلان',
     form: {
       type: 'نوع الإعلان',
       title: 'العنوان',

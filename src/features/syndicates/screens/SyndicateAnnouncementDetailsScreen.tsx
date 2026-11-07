@@ -1,23 +1,34 @@
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
 
-import { TextButton } from '@/components/actions';
+import { Button, TextButton } from '@/components/actions';
 import { Icon } from '@/components/content';
-import { EmptyState, Loading, useToast } from '@/components/feedback';
+import { ConfirmationDialog, EmptyState, Loading, useToast } from '@/components/feedback';
 import { SafeAreaScreen } from '@/components/layout';
 import { ImageViewer } from '@/components/media';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
+import { Routes } from '@/constants/routes';
+import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 import { formatDate, openWebsite, websiteUrl } from '@/utils';
 
 import { SyndicateAnnouncementTypeBadge } from '../components';
-import { useSyndicateAnnouncement } from '../hooks';
+import {
+  useDeleteSyndicateAnnouncement,
+  useMySyndicateAccess,
+  useSyndicateAnnouncement,
+} from '../hooks';
 
-/** Route `/(app)/syndicates/announcements/[id]` — announcement detail. */
+/**
+ * Route `/(app)/syndicates/announcements/[id]` — announcement detail. Edit /
+ * Delete are shown to the ADMIN (any syndicate) or a holder of
+ * `syndicate.announcement.manage` for the announcement's OWN syndicate
+ * (`my-access` of `announcement.organizationId`); the server re-checks both.
+ */
 export default function SyndicateAnnouncementDetailsScreen() {
   const theme = useTheme();
   const { t } = useTranslation('syndicates');
@@ -26,6 +37,25 @@ export default function SyndicateAnnouncementDetailsScreen() {
   const announcement = q.data;
   const [viewerOpen, setViewerOpen] = useState(false);
   const toast = useToast();
+  const access = useMySyndicateAccess(announcement?.organizationId);
+  const canManage = Boolean(access.data?.canManageAnnouncements);
+  const remove = useDeleteSyndicateAnnouncement(announcement?.organizationId ?? '');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const onDelete = (): void => {
+    if (!announcement) return;
+    remove.mutate(announcement.id, {
+      onSuccess: () => {
+        setConfirmDelete(false);
+        toast.show({ message: t('announcements.deleted'), tone: 'success' });
+        router.back();
+      },
+      onError: (e) => {
+        setConfirmDelete(false);
+        toast.show({ message: apiErrorMessage(e), tone: 'danger' });
+      },
+    });
+  };
   // Only a re-validated http(s) URL is ever rendered as a link (never raw HTML).
   const link = websiteUrl(announcement?.linkUrl);
 
@@ -94,7 +124,50 @@ export default function SyndicateAnnouncementDetailsScreen() {
                 </Caption>
               </View>
             ) : null}
+
+            {canManage ? (
+              <View style={{ flexDirection: 'row', columnGap: theme.spacing.sm }}>
+                <View style={{ flex: 1 }}>
+                  <Button
+                    label={t('announcements.editAnnouncement')}
+                    variant="outline"
+                    leftIcon="create-outline"
+                    fullWidth
+                    wrapLabel
+                    onPress={() =>
+                      router.push(
+                        Routes.syndicateAnnouncementEdit(
+                          announcement.organizationId,
+                          announcement.id,
+                        ),
+                      )
+                    }
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Button
+                    label={t('announcements.deleteAnnouncement')}
+                    variant="danger"
+                    leftIcon="trash-outline"
+                    fullWidth
+                    wrapLabel
+                    onPress={() => setConfirmDelete(true)}
+                  />
+                </View>
+              </View>
+            ) : null}
           </View>
+
+          <ConfirmationDialog
+            visible={confirmDelete}
+            title={t('announcements.deleteConfirmTitle')}
+            message={t('announcements.deleteConfirmBody')}
+            confirmLabel={t('announcements.deleteAnnouncement')}
+            destructive
+            loading={remove.isPending}
+            onConfirm={onDelete}
+            onCancel={() => setConfirmDelete(false)}
+          />
 
           <ImageViewer
             visible={viewerOpen}

@@ -76,6 +76,7 @@ const syndicates: KuNamespace<'syndicates'> = {
     deleteAnnouncement: 'سڕینەوەی ڕاگەیاندن',
     deleteConfirmTitle: 'سڕینەوەی ڕاگەیاندن',
     deleteConfirmBody: 'ئەم ڕاگەیاندنە بە یەکجاری دەسڕدرێتەوە.',
+    deleted: 'ڕاگەیاندنەکە سڕایەوە',
     form: {
       type: 'جۆری ڕاگەیاندن',
       title: 'ناونیشان',

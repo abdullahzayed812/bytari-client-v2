@@ -211,8 +211,12 @@ export function useDeleteSyndicateAnnouncement(organizationId: string) {
   const qc = useQueryClient();
   return useMutation<unknown, ApiError, string>({
     mutationFn: (id) => syndicatesApi.deleteAnnouncement(organizationId, id),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: syndicateKeys.announcementList(organizationId) }),
+    onSuccess: (_r, id) => {
+      // Drop the deleted detail (no refetch → no 404 flash) and refresh every
+      // list that may show it (this syndicate's list + the home carousels).
+      qc.removeQueries({ queryKey: syndicateKeys.announcement(id) });
+      return qc.invalidateQueries({ queryKey: syndicateKeys.announcements() });
+    },
   });
 }
 
