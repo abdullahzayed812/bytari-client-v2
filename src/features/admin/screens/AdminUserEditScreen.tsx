@@ -8,14 +8,17 @@ import { Alert, ErrorState, Loading, useToast } from '@/components/feedback';
 import { FormField } from '@/components/forms';
 import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
+import { Permission } from '@/constants/permissions';
 import {
   CountrySelect,
   GenderRadioGroup,
   GovernorateSelect,
 } from '@/features/registration/components';
+import { useCapabilities } from '@/hooks';
 import { apiErrorMessage, fieldErrors } from '@/lib/apiError';
 import { useTheme } from '@/theme';
 
+import { VetIdentityDocumentsEditor } from '../components';
 import { useAdminUser, useUpdateUserMutation } from '../hooks';
 import type { AdminUpdateUserInput, AdminUserDetail, Gender } from '../types';
 
@@ -75,6 +78,8 @@ export default function AdminUserEditScreen() {
   const toast = useToast();
   const q = useAdminUser(userId);
   const update = useUpdateUserMutation(userId);
+  const caps = useCapabilities();
+  const canReplaceDocuments = caps.can(Permission.VETERINARIAN_DOCUMENT_MANAGE);
 
   const { control, handleSubmit, reset } = useForm<FormValues>({
     defaultValues: q.data ? toForm(q.data) : undefined,
@@ -173,6 +178,13 @@ export default function AdminUserEditScreen() {
             disabled={update.isPending}
             onPress={handleSubmit(onSubmit)}
           />
+          {canReplaceDocuments && q.data.veterinarianApplication ? (
+            <VetIdentityDocumentsEditor
+              userId={userId}
+              subType={q.data.veterinarianApplication.subType}
+              documents={q.data.veterinarianApplication.documents}
+            />
+          ) : null}
         </Section>
       )}
     </ScrollScreen>

@@ -68,6 +68,13 @@ export interface AdminFeaturedOrganization {
   };
 }
 
+/** Add-form picker row (`/admin/home-sections/featured-organizations/candidates`). */
+export interface FeaturedCandidate {
+  id: string;
+  name: string;
+  type: 'CLINIC' | 'VETERINARY_OFFICE';
+}
+
 export interface CreateFeaturedOrganizationInput {
   organizationId: string;
   placement: FeaturedPlacement;

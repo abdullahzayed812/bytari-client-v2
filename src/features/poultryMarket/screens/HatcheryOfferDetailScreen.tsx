@@ -203,6 +203,7 @@ function HatcheryOfferDetailContent() {
                   label={t('actions.call')}
                   variant="primary"
                   fullWidth
+                  wrapLabel
                   leftIcon="call-outline"
                   onPress={() => void openPhone(offer.phone)}
                 />
@@ -212,6 +213,7 @@ function HatcheryOfferDetailContent() {
                   label={t('actions.whatsapp')}
                   variant="primary"
                   fullWidth
+                  wrapLabel
                   leftIcon="logo-whatsapp"
                   onPress={() =>
                     void Linking.openURL(
@@ -227,6 +229,7 @@ function HatcheryOfferDetailContent() {
                   label={t('actions.delete')}
                   variant="danger"
                   fullWidth
+                  wrapLabel
                   leftIcon="trash-outline"
                   onPress={() => setConfirmDelete(true)}
                 />

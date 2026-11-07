@@ -8,6 +8,7 @@ import {
   FEATURED_TYPE_BY_PLACEMENT,
   type AdminFeaturedOrganization,
   type CreateFeaturedOrganizationInput,
+  type FeaturedCandidate,
   type FeaturedPlacement,
   type UpdateFeaturedOrganizationInput,
 } from '../types';
@@ -32,6 +33,19 @@ export function useAdminFeaturedOrganizations() {
   return useQuery<AdminFeaturedOrganization[], ApiError>({
     queryKey: homeSectionKeys.adminFeatured(),
     queryFn: () => homeSectionsApi.adminListFeatured(),
+  });
+}
+
+/** Add-form picker: ACTIVE clinics / offices for one placement, searchable. */
+export function useFeaturedCandidates(
+  placement: FeaturedPlacement,
+  search: string,
+  enabled = true,
+) {
+  return useQuery<FeaturedCandidate[], ApiError>({
+    queryKey: homeSectionKeys.featuredCandidates(placement, search.trim()),
+    queryFn: () => homeSectionsApi.featuredCandidates(placement, search.trim() || undefined),
+    enabled,
   });
 }
 

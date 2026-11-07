@@ -135,7 +135,8 @@ export interface PoultryOffer {
   pricingMethod: PricingMethod;
   /** Decimal string (backend `numeric`). Never a JS float. */
   price: string;
-  ageWeeks: number | null;
+  /** Bird age in days. */
+  ageDays: number | null;
   weightKg: string | null;
   governorate: string;
   district: string | null;
@@ -170,7 +171,7 @@ export interface CreatePoultryOfferInput {
   quantity: number;
   pricingMethod: PricingMethod;
   price: string;
-  ageWeeks?: number;
+  ageDays?: number;
   weightKg?: string;
   governorate: string;
   district?: string;

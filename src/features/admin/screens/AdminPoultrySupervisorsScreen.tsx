@@ -45,8 +45,10 @@ import type {
 const ALL = '__all__';
 
 /**
- * `/admin/poultry-supervisors` — "إدارة ارتباط الأطباء بالحقول" (ADMIN only;
- * the server refuses everyone else). Laid out after the reference HTML:
+ * `/admin/poultry-supervisors` — "إدارة ارتباط الأطباء بالحقول" (ADMIN or a
+ * POULTRY_SUPERVISION supervisor — `poultry_supervision.manage`; the server
+ * refuses everyone else). Opening the FULL vet / farm profile is offered to
+ * the main ADMIN only. Laid out after the reference HTML:
  * 2×2 tappable counters (per governorate), the one-vet-per-farm banner,
  * segmented tabs (linked farms / unlinked farms / vets), search + governorate
  * + reset, "ربط طبيب بحقل", cards, numbered pagination (10 / 20 / 50) and the
@@ -56,7 +58,7 @@ const ALL = '__all__';
 export default function AdminPoultrySupervisorsScreen() {
   const caps = useCapabilities();
   const { t } = useTranslation('admin');
-  if (!caps.isAdmin) {
+  if (!caps.isAdmin && !caps.can('poultry_supervision.manage')) {
     return (
       <SafeAreaScreen>
         <AppHeader title={t('poultrySupervisors.title')} showBack />
@@ -71,6 +73,8 @@ type FarmLinks = PoultrySupervisionLinkedFarm['links'];
 type VetLinks = PoultrySupervisionVeterinarianRow['links'];
 
 function SupervisorsContent() {
+  const caps = useCapabilities();
+  const isMainAdmin = caps.isAdmin;
   const theme = useTheme();
   const { t } = useTranslation('admin');
   const toast = useToast();
@@ -459,22 +463,30 @@ function SupervisorsContent() {
           setFarmProfile(null);
           setLinkForm({ mode: 'link', farmId });
         }}
-        onOpenFullFile={() => {
-          const id = farmProfile?.farm.organizationId;
-          setFarmProfile(null);
-          if (id) router.push(Routes.adminFarm(id));
-        }}
+        onOpenFullFile={
+          isMainAdmin
+            ? () => {
+                const id = farmProfile?.farm.organizationId;
+                setFarmProfile(null);
+                if (id) router.push(Routes.adminFarm(id));
+              }
+            : undefined
+        }
       />
 
       <VetProfileModal
         vet={vetProfile?.vet ?? null}
         links={vetProfile?.links ?? []}
         onClose={() => setVetProfile(null)}
-        onOpenFullProfile={() => {
-          const id = vetProfile?.vet.userId;
-          setVetProfile(null);
-          if (id) router.push(Routes.adminUser(id));
-        }}
+        onOpenFullProfile={
+          isMainAdmin
+            ? () => {
+                const id = vetProfile?.vet.userId;
+                setVetProfile(null);
+                if (id) router.push(Routes.adminUser(id));
+              }
+            : undefined
+        }
       />
 
       <ManageLinkModal

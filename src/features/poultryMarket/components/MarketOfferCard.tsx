@@ -29,6 +29,9 @@ export interface MarketOfferCardProps {
   onPressDelete: () => void;
 }
 
+/** Half the row (minus the gap); grows to the full row when it is alone on it. */
+const ACTION_CELL = { flexGrow: 1, flexBasis: '45%', minWidth: 120 } as const;
+
 /** Shared poultry/egg market offer card — one shape, kind-specific `lines`. */
 export function MarketOfferCard({
   title,
@@ -90,6 +93,12 @@ export function MarketOfferCard({
         </View>
       </View>
 
+      {/*
+        Two buttons per row (a lone last button takes the full row), so every
+        label — Delete / Call / WhatsApp / Details, in Arabic, Kurdish or
+        English — fits without being cut; `wrapLabel` is the safety net on very
+        narrow screens or large font scales (wraps instead of an ellipsis).
+      */}
       <View
         style={{
           flexDirection: 'row',
@@ -100,39 +109,43 @@ export function MarketOfferCard({
         }}
       >
         {canDelete ? (
-          <View style={{ flex: 1, minWidth: 80 }}>
+          <View style={ACTION_CELL}>
             <Button
               label={t('actions.delete')}
               variant="danger"
               fullWidth
+              wrapLabel
               leftIcon="trash-outline"
               onPress={onPressDelete}
             />
           </View>
         ) : null}
-        <View style={{ flex: 1, minWidth: 80 }}>
+        <View style={ACTION_CELL}>
           <Button
             label={t('actions.call')}
             variant="primary"
             fullWidth
+            wrapLabel
             leftIcon="call-outline"
             onPress={onPressCall}
           />
         </View>
-        <View style={{ flex: 1, minWidth: 80 }}>
+        <View style={ACTION_CELL}>
           <Button
             label={t('actions.whatsapp')}
             variant="primary"
             fullWidth
+            wrapLabel
             leftIcon="logo-whatsapp"
             onPress={onPressWhatsapp}
           />
         </View>
-        <View style={{ flex: 1, minWidth: 80 }}>
+        <View style={ACTION_CELL}>
           <Button
             label={t('actions.details')}
             variant="outline"
             fullWidth
+            wrapLabel
             onPress={onPressDetails}
           />
         </View>

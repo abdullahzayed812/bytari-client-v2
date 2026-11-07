@@ -39,7 +39,7 @@ const EMPTY: PoultryOfferFormValues = {
   quantity: '',
   pricingMethod: 'PER_KG',
   price: '',
-  ageWeeks: '',
+  ageDays: '',
   weightKg: '',
   governorate: '',
   district: '',
@@ -132,7 +132,7 @@ function CreatePoultryOfferContent() {
           quantity: Number(values.quantity),
           pricingMethod: values.pricingMethod,
           price: values.price.trim(),
-          ageWeeks: values.ageWeeks?.trim() ? Number(values.ageWeeks) : undefined,
+          ageDays: values.ageDays?.trim() ? Number(values.ageDays) : undefined,
           weightKg: values.weightKg?.trim() || undefined,
           governorate: values.governorate,
           district: values.district?.trim() || undefined,
@@ -230,10 +230,10 @@ function CreatePoultryOfferContent() {
         <View style={{ flex: 1 }}>
           <FormField
             control={control}
-            name="ageWeeks"
-            label={t('poultryMarket.fieldAgeWeeks')}
+            name="ageDays"
+            label={t('poultryMarket.fieldAgeDays')}
             keyboardType="number-pad"
-            serverError={serverFields.ageWeeks}
+            serverError={serverFields.ageDays}
           />
         </View>
         <View style={{ flex: 1 }}>

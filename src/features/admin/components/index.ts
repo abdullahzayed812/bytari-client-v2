@@ -27,6 +27,10 @@ export {
   deleteBlockedReason,
   type DeleteUserDialogProps,
 } from './DeleteUserDialog';
+export {
+  VetIdentityDocumentsEditor,
+  type VetIdentityDocumentsEditorProps,
+} from './VetIdentityDocumentsEditor';
 export { AdminSearchBar, useAdminSearch, type AdminSearchBarProps } from './AdminSearchBar';
 export {
   AdminUserLink,

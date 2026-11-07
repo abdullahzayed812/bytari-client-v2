@@ -26,6 +26,8 @@ export const Permission = {
   VETERINARIAN_READ: 'veterinarian.read',
   VETERINARIAN_APPROVE: 'veterinarian.approve',
   VETERINARIAN_REJECT: 'veterinarian.reject',
+  /** Replace a vet's identity / licence document — ADMIN only. */
+  VETERINARIAN_DOCUMENT_MANAGE: 'veterinarian.document.manage',
   // system supervisors
   SUPERVISOR_READ: 'supervisor.read',
   SUPERVISOR_ASSIGN: 'supervisor.assign',
@@ -84,6 +86,8 @@ export const Permission = {
   ADVERTISEMENT_MANAGE: 'advertisement.manage',
   /** Home-page section images — ADMIN only (no base role holds it). */
   HOME_SECTION_MANAGE: 'home_section.manage',
+  FEATURED_ORGANIZATION_MANAGE: 'featured_organization.manage',
+  POULTRY_SUPERVISION_MANAGE: 'poultry_supervision.manage',
 } as const;
 
 export type PermissionKey = (typeof Permission)[keyof typeof Permission] | (string & {});

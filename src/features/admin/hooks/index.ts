@@ -7,6 +7,7 @@ export {
   useUpdateUserMutation,
   useUserPasswordMutations,
   useMessageUserMutation,
+  useReplaceVetDocumentMutation,
   type AdminUsersParams,
 } from './useAdminUsers';
 export { useAdminVetApplications, useVetDecisionMutation } from './useAdminVetApplications';

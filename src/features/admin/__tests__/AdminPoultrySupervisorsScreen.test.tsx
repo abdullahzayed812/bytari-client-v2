@@ -135,7 +135,7 @@ afterAll(() => {
 });
 
 describe('Admin — vet ↔ poultry farm links (إدارة ارتباط الأطباء بالحقول)', () => {
-  it('the dashboard card is ADMIN-only', () => {
+  it('the dashboard card is shown to ADMIN and to holders of poultry_supervision.manage only', () => {
     jest
       .spyOn(adminApi, 'getDashboardSummary')
       .mockResolvedValue({ cards: [], recentActivity: [], pendingTasks: [] });
@@ -146,16 +146,51 @@ describe('Admin — vet ↔ poultry farm links (إدارة ارتباط الأط
     expect(screen.queryByText('إدارة مشرفي الدواجن')).toBeNull();
     unmount();
 
+    useAuthStore.setState({
+      session: session({
+        isAdmin: false,
+        permissions: ['poultry_supervision.manage', 'dashboard.admin.read'],
+        supervisorDomains: ['POULTRY_SUPERVISION'],
+      }),
+    });
+    const sup = renderWithProviders(<ManagementScreen />);
+    expect(screen.getByText('إدارة مشرفي الدواجن')).toBeOnTheScreen();
+    sup.unmount();
+
     admin();
     renderWithProviders(<ManagementScreen />);
     fireEvent.press(screen.getByText('إدارة مشرفي الدواجن'));
     expect(expoRouter.router.push).toHaveBeenCalledWith('/(app)/admin/poultry-supervisors');
   });
 
-  it('a non-admin sees the admin-only notice and nothing is requested', () => {
+  it('an authorized supervisor manages links but gets no full vet / farm profile actions', async () => {
+    useAuthStore.setState({
+      session: session({
+        isAdmin: false,
+        permissions: ['poultry_supervision.manage'],
+        supervisorDomains: ['POULTRY_SUPERVISION'],
+      }),
+    });
+    renderWithProviders(<AdminPoultrySupervisorsScreen />);
+    fireEvent.press(await screen.findByLabelText('حقل الرافدين للدواجن'));
+    expect(await screen.findByText('الطاقة الاستيعابية')).toBeOnTheScreen();
+    expect(screen.queryByText('فتح ملف الحقل الكامل')).toBeNull();
+    // Manage-link stays available.
+    expect(screen.getAllByText('إدارة الارتباط').length).toBeGreaterThan(0);
+    fireEvent.press(screen.getAllByText('إغلاق').at(-1)!);
+
+    fireEvent.press(screen.getByLabelText('أطباء غير مرتبطين'));
+    expect(await screen.findByText('سامر العاني')).toBeOnTheScreen();
+    fireEvent.press(screen.getAllByLabelText('سامر العاني')[0]!);
+    expect(await screen.findByText('تواصل مع الطبيب')).toBeOnTheScreen();
+    expect(screen.queryByText('فتح ملف الطبيب الكامل')).toBeNull();
+    expect(expoRouter.router.push).not.toHaveBeenCalled();
+  });
+
+  it('a user without the permission sees the restricted notice and nothing is requested', () => {
     useAuthStore.setState({ session: session({ isAdmin: false }) });
     renderWithProviders(<AdminPoultrySupervisorsScreen />);
-    expect(screen.getByText('هذا القسم متاح لمدير النظام فقط')).toBeOnTheScreen();
+    expect(screen.getByText('هذا القسم متاح لمدير النظام أو المشرف المخوّل فقط')).toBeOnTheScreen();
     expect(list).not.toHaveBeenCalled();
     expect(summary).not.toHaveBeenCalled();
   });

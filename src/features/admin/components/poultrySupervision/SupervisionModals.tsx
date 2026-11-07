@@ -414,7 +414,8 @@ export function FarmProfileModal({
   onOpenVet: (vet: PoultrySupervisionVeterinarian) => void;
   onManage: () => void;
   onLink: () => void;
-  onOpenFullFile: () => void;
+  /** "فتح ملف الحقل الكامل" — passed for the main ADMIN only (omitted → hidden). */
+  onOpenFullFile?: () => void;
 }) {
   const theme = useTheme();
   const { t } = useTranslation('admin');
@@ -499,12 +500,14 @@ export function FarmProfileModal({
           ) : (
             <Alert tone="warning" message={t('poultrySupervisors.noVetLinked')} />
           )}
-          <Button
-            label={t('poultrySupervisors.openFarmFile')}
-            variant="ghost"
-            leftIcon="open-outline"
-            onPress={onOpenFullFile}
-          />
+          {onOpenFullFile ? (
+            <Button
+              label={t('poultrySupervisors.openFarmFile')}
+              variant="ghost"
+              leftIcon="open-outline"
+              onPress={onOpenFullFile}
+            />
+          ) : null}
           <Footer>
             <Grow>
               <Button
@@ -543,7 +546,8 @@ export function VetProfileModal({
   vet: PoultrySupervisionVeterinarian | null;
   links: VetLink[];
   onClose: () => void;
-  onOpenFullProfile: () => void;
+  /** "فتح الملف الكامل للطبيب" — passed for the main ADMIN only (omitted → hidden). */
+  onOpenFullProfile?: () => void;
 }) {
   const theme = useTheme();
   const { t } = useTranslation('admin');
@@ -595,12 +599,14 @@ export function VetProfileModal({
               <Alert tone="info" message={t('poultrySupervisors.noFarmLinked')} />
             )}
           </View>
-          <Button
-            label={t('poultrySupervisors.openVetProfile')}
-            variant="ghost"
-            leftIcon="open-outline"
-            onPress={onOpenFullProfile}
-          />
+          {onOpenFullProfile ? (
+            <Button
+              label={t('poultrySupervisors.openVetProfile')}
+              variant="ghost"
+              leftIcon="open-outline"
+              onPress={onOpenFullProfile}
+            />
+          ) : null}
           <Footer>
             <Grow>
               <Button

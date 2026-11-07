@@ -56,7 +56,9 @@ export type SupervisorDomain =
   | 'SYNDICATE'
   | 'TRADERS'
   | 'REPORTS'
-  | 'NOTIFICATIONS';
+  | 'NOTIFICATIONS'
+  | 'POULTRY_SUPERVISION'
+  | 'FEATURED_CLINICS';
 
 // --- user DTO ---------------------------------------------------------
 /**

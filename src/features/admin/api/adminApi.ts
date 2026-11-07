@@ -37,6 +37,8 @@ import type {
   PoultrySupervisionSection,
   PoultrySupervisionSummary,
   PendingVetApplication,
+  VetApplicationDocument,
+  VetApplicationDocumentKind,
   RoleKey,
   SendBroadcastInput,
   SendBroadcastResult,
@@ -105,6 +107,29 @@ export const adminApi = {
 
   getUser(userId: string): Promise<AdminUserDetail> {
     return apiClient.get<AdminUserDetail>(`/admin/users/${userId}`);
+  },
+
+  /** Presigned PUT for a REPLACEMENT identity / licence document of `userId` (ADMIN only). */
+  requestVetDocumentUploadUrl(
+    userId: string,
+    input: { kind: VetApplicationDocumentKind; filename: string; mimeType: string; size: number },
+  ): Promise<PresignedUpload> {
+    return apiClient.post<PresignedUpload>(
+      `/admin/veterinarians/${userId}/documents/upload-url`,
+      input,
+    );
+  },
+
+  /** Swap the `kind` document for the uploaded object — returns the refreshed list (signed URLs). */
+  replaceVetDocument(
+    userId: string,
+    kind: VetApplicationDocumentKind,
+    body: { storageKey: string; filename: string; mimeType: string },
+  ): Promise<VetApplicationDocument[]> {
+    return apiClient.put<VetApplicationDocument[]>(
+      `/admin/veterinarians/${userId}/documents/${kind}`,
+      body,
+    );
   },
 
   updateUser(userId: string, body: AdminUpdateUserInput): Promise<AdminUser> {

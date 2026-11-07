@@ -16,6 +16,11 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   fullWidth?: boolean;
   leftIcon?: IconName;
   rightIcon?: IconName;
+  /**
+   * Let the label wrap onto more lines (centered) instead of being cut with an
+   * ellipsis — for buttons whose full label must always stay readable.
+   */
+  wrapLabel?: boolean;
 }
 
 function palette(theme: Theme, variant: ButtonVariant) {
@@ -55,6 +60,7 @@ export function Button({
   fullWidth = false,
   leftIcon,
   rightIcon,
+  wrapLabel = false,
   accessibilityLabel,
   ...rest
 }: ButtonProps) {
@@ -104,9 +110,10 @@ export function Button({
           ) : null}
           <Text
             variant={size === 'sm' ? 'label' : 'bodyMedium'}
-            // Shrinks (ellipsis) inside a narrow button instead of overflowing it.
-            style={{ color: colors.fg, flexShrink: 1 }}
-            numberOfLines={1}
+            // Shrinks (ellipsis) inside a narrow button instead of overflowing it —
+            // unless `wrapLabel`, which keeps the whole label on wrapped lines.
+            style={[{ color: colors.fg, flexShrink: 1 }, wrapLabel && { textAlign: 'center' }]}
+            numberOfLines={wrapLabel ? undefined : 1}
           >
             {label}
           </Text>

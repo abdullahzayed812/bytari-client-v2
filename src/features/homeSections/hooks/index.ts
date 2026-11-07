@@ -6,6 +6,7 @@ export {
 } from './useAdminHomeSections';
 export {
   useAdminFeaturedOrganizations,
+  useFeaturedCandidates,
   useFeaturedOrganizationMutations,
   useFeaturedOrganizations,
 } from './useFeaturedOrganizations';

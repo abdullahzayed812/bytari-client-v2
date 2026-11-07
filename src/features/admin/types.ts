@@ -245,6 +245,8 @@ export const SUPERVISOR_DOMAINS: readonly SupervisorDomain[] = [
   'VETERINARIAN_STORE',
   'REPORTS',
   'NOTIFICATIONS',
+  'POULTRY_SUPERVISION',
+  'FEATURED_CLINICS',
   'STORE',
 ];
 

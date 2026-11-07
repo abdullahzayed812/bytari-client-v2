@@ -59,10 +59,12 @@ export function buildPoultryOfferSchema(t: MarketTFn) {
       .regex(/^\d{1,9}$/),
     pricingMethod: z.enum(PRICING_METHODS),
     price: moneySchema,
-    ageWeeks: z
+    /** Bird age in DAYS (server max 3650). */
+    ageDays: z
       .string()
       .trim()
-      .regex(/^\d{1,3}$/)
+      .regex(/^\d{1,4}$/)
+      .refine((v) => Number(v) <= 3650)
       .optional()
       .or(z.literal('')),
     weightKg: weightSchema,

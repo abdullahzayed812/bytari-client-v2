@@ -73,14 +73,14 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
       c.can('market.offer.admin.read'),
   },
   {
-    // "إدارة مشرفي الدواجن" — linked / unlinked vets ↔ poultry farms. ADMIN
-    // only: the server checks the ADMIN role itself (no permission key).
+    // "إدارة مشرفي الدواجن" — linked / unlinked vets ↔ poultry farms. ADMIN or
+    // a POULTRY_SUPERVISION supervisor (`poultry_supervision.manage`).
     id: 'poultrySupervisors',
     icon: 'git-network-outline',
     tint: dashboardTint(3),
     palette: { bg: '#ecfdf5', border: '#c9f2df', accent: '#059669' },
     route: Routes.adminPoultrySupervisors,
-    show: (c) => c.isAdmin,
+    show: (c) => c.isAdmin || c.can('poultry_supervision.manage'),
   },
   {
     id: 'poultry',
@@ -285,7 +285,8 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     tint: dashboardTint(2),
     palette: { bg: '#fff8eb', border: '#fdecc8', accent: '#f59e0b' },
     route: Routes.adminFeaturedOrganizations,
-    show: (c) => c.isAdmin || c.can('home_section.manage'),
+    // ADMIN, a FEATURED_CLINICS supervisor, or a legacy `home_section.manage` holder.
+    show: (c) => c.isAdmin || c.can('featured_organization.manage') || c.can('home_section.manage'),
   },
   {
     id: 'broadcasts',

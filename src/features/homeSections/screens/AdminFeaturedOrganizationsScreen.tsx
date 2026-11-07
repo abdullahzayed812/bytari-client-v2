@@ -16,7 +16,6 @@ import { SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { BottomSheet } from '@/components/overlays';
 import { Caption, Label, Text } from '@/components/typography';
-import { useAdminOrganizations } from '@/features/admin/hooks';
 import { useDebouncedValue } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -28,7 +27,11 @@ import {
   toLocalIsoDate,
 } from '@/utils/localDate';
 
-import { useAdminFeaturedOrganizations, useFeaturedOrganizationMutations } from '../hooks';
+import {
+  useAdminFeaturedOrganizations,
+  useFeaturedCandidates,
+  useFeaturedOrganizationMutations,
+} from '../hooks';
 import {
   FEATURED_TYPE_BY_PLACEMENT,
   type AdminFeaturedOrganization,
@@ -67,7 +70,8 @@ interface FormState {
  * on which home page, from / until when, and whether the entry is switched
  * on. Each entry shows its derived state (active / scheduled / expired /
  * disabled) and warns when the organization itself is currently hidden.
- * `home_section.manage` (ADMIN) is enforced by the backend on every call.
+ * `featured_organization.manage` (ADMIN or a FEATURED_CLINICS supervisor; legacy
+ * `home_section.manage` too) is enforced by the backend on every call.
  */
 export default function AdminFeaturedOrganizationsScreen() {
   const theme = useTheme();
@@ -310,13 +314,8 @@ function FeaturedForm({
   const orgType: FeaturableType = FEATURED_TYPE_BY_PLACEMENT[form.placement];
   const [rawSearch, setRawSearch] = useState('');
   const search = useDebouncedValue(rawSearch, 300);
-  const orgs = useAdminOrganizations({
-    type: orgType,
-    status: 'ACTIVE',
-    search,
-    pageSize: 10,
-    enabled: entry === null,
-  });
+  const candidates = useFeaturedCandidates(form.placement, search, entry === null);
+  const orgs = { isLoading: candidates.isLoading, organizations: candidates.data ?? [] };
 
   const startValid = isValidIsoDate(form.startsOn);
   const endValid = isValidIsoDate(form.endsOn);

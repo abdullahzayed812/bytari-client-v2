@@ -167,7 +167,7 @@ export default function AdminMarketOffersScreen() {
             },
             {
               label: tm('poultryMarket.ageLabel'),
-              value: o.ageWeeks != null ? `${o.ageWeeks} ${tm('poultryMarket.unitWeek')}` : null,
+              value: o.ageDays != null ? `${o.ageDays} ${tm('poultryMarket.unitDay')}` : null,
             },
             { label: tm('poultryMarket.weightLabel'), value: o.weightKg },
           ]

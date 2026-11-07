@@ -11,6 +11,8 @@ import { useMemo } from 'react';
 import { AppConfig } from '@/constants/config';
 import { useAuth } from '@/hooks';
 import { ApiError } from '@/services/api';
+import { FileUploadService } from '@/services/files/fileUploadService';
+import type { LocalFile } from '@/services/files/types';
 
 import { adminApi, adminKeys } from '../api';
 import type {
@@ -21,6 +23,8 @@ import type {
   Paginated,
   RoleKey,
   UserStatusAction,
+  VetApplicationDocument,
+  VetApplicationDocumentKind,
   VeterinarianStatus,
   UserStatus,
 } from '../types';
@@ -147,6 +151,41 @@ export function useUserPasswordMutations(userId: string) {
     mutationFn: () => adminApi.sendUserPasswordReset(userId),
   });
   return { setPassword, sendReset };
+}
+
+/**
+ * Admin: replace one identity / licence document of a veterinarian — presigned
+ * upload to private storage (`/admin/veterinarians/:id/documents/upload-url`),
+ * then `PUT …/documents/:kind` swaps it in. Refreshes the user detail.
+ */
+export function useReplaceVetDocumentMutation(userId: string) {
+  const qc = useQueryClient();
+  return useMutation<
+    VetApplicationDocument[],
+    ApiError,
+    { kind: VetApplicationDocumentKind; file: LocalFile }
+  >({
+    mutationKey: ['admin', 'users', userId, 'vet-document'],
+    mutationFn: async ({ kind, file }) => {
+      const result = await new FileUploadService({
+        requestUpload: (f) =>
+          adminApi.requestVetDocumentUploadUrl(userId, {
+            kind,
+            filename: f.name,
+            mimeType: f.mimeType,
+            size: f.size ?? 0,
+          }),
+      }).upload(file);
+      return adminApi.replaceVetDocument(userId, kind, {
+        storageKey: result.storageKey,
+        filename: file.name,
+        mimeType: file.mimeType,
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.users.detail(userId) });
+    },
+  });
 }
 
 /** "مراسلة المستخدم" — opens a support thread through the existing support chat. */

@@ -123,12 +123,12 @@ function PoultryOfferDetailContent() {
                 label={t(`poultryMarket.pricingMethod.${offer.pricingMethod}`)}
                 value={`${offer.price} ${t('poultryMarket.currency')}`}
               />
-              {offer.ageWeeks != null ? (
+              {offer.ageDays != null ? (
                 <>
                   <Divider spacing="sm" />
                   <Field
                     label={t('poultryMarket.ageLabel')}
-                    value={`${offer.ageWeeks} ${t('poultryMarket.unitWeek')}`}
+                    value={`${offer.ageDays} ${t('poultryMarket.unitDay')}`}
                   />
                 </>
               ) : null}
@@ -177,6 +177,7 @@ function PoultryOfferDetailContent() {
                   label={t('actions.call')}
                   variant="primary"
                   fullWidth
+                  wrapLabel
                   leftIcon="call-outline"
                   onPress={() => void openPhone(offer.phone)}
                 />
@@ -186,6 +187,7 @@ function PoultryOfferDetailContent() {
                   label={t('actions.whatsapp')}
                   variant="primary"
                   fullWidth
+                  wrapLabel
                   leftIcon="logo-whatsapp"
                   onPress={() =>
                     void Linking.openURL(
@@ -201,6 +203,7 @@ function PoultryOfferDetailContent() {
                   label={t('actions.delete')}
                   variant="danger"
                   fullWidth
+                  wrapLabel
                   leftIcon="trash-outline"
                   onPress={() => setConfirmDelete(true)}
                 />

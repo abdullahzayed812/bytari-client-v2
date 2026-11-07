@@ -160,11 +160,11 @@ function PoultryMarketContent() {
                   value: `${item.price} ${t('poultryMarket.currency')}`,
                   accent: true,
                 },
-                ...(item.ageWeeks != null
+                ...(item.ageDays != null
                   ? [
                       {
                         label: t('poultryMarket.ageLabel'),
-                        value: `${item.ageWeeks} ${t('poultryMarket.unitWeek')}`,
+                        value: `${item.ageDays} ${t('poultryMarket.unitDay')}`,
                       },
                     ]
                   : []),

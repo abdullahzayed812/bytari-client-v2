@@ -27,7 +27,7 @@ import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
 
-import { DeleteUserDialog, ReasonPromptDialog } from '../components';
+import { DeleteUserDialog, ReasonPromptDialog, VetIdentityDocumentsEditor } from '../components';
 import {
   useAdminUser,
   useDeleteUserMutation,
@@ -338,6 +338,13 @@ export default function AdminUserDetailScreen() {
                       </View>
                     );
                   })()}
+                  {caps.can(Permission.VETERINARIAN_DOCUMENT_MANAGE) ? (
+                    <VetIdentityDocumentsEditor
+                      userId={userId}
+                      subType={q.data.veterinarianApplication.subType}
+                      documents={q.data.veterinarianApplication.documents}
+                    />
+                  ) : null}
                 </View>
               </Card>
             </Section>

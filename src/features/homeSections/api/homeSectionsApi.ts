@@ -5,6 +5,7 @@ import type { PresignedUpload } from '@/services/files/types';
 import type {
   AdminFeaturedOrganization,
   CreateFeaturedOrganizationInput,
+  FeaturedCandidate,
   FeaturedPlacement,
   HomeSectionImage,
   HomeSectionKey,
@@ -13,7 +14,8 @@ import type {
 
 /**
  * `GET /home-sections` (any signed-in user) + `/admin/home-sections*`
- * (`home_section.manage`, ADMIN only) — see
+ * (images: `home_section.manage`, ADMIN only; featured entries:
+ * `featured_organization.manage`, ADMIN or a FEATURED_CLINICS supervisor) — see
  * `server/src/modules/home-sections/presentation/home-section.routes.ts`.
  * Images use the shared presigned-R2 flow; storage secrets never reach the app.
  */
@@ -56,6 +58,18 @@ export const homeSectionsApi = {
   adminListFeatured(): Promise<AdminFeaturedOrganization[]> {
     return apiClient.get<AdminFeaturedOrganization[]>(
       '/admin/home-sections/featured-organizations',
+    );
+  },
+
+  /** ACTIVE organizations of the placement's type for the add form (featured permission only). */
+  featuredCandidates(
+    placement: FeaturedPlacement,
+    search?: string,
+    limit = 10,
+  ): Promise<FeaturedCandidate[]> {
+    return apiClient.get<FeaturedCandidate[]>(
+      '/admin/home-sections/featured-organizations/candidates',
+      { placement, limit, ...(search ? { search } : {}) },
     );
   },
 
