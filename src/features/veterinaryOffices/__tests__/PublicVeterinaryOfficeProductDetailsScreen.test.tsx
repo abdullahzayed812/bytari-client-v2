@@ -99,7 +99,9 @@ describe('PublicVeterinaryOfficeProductDetailsScreen', () => {
     await waitFor(() => expect(screen.getByText('أنتي بيك')).toBeOnTheScreen());
     await waitFor(() => expect(screen.getByText('تواصل مع المكتب أو الشركة')).toBeOnTheScreen());
     expect(screen.getByText('مراسلة')).toBeOnTheScreen();
-    expect(screen.getByText('اتصال')).toBeOnTheScreen();
+    // The heading renders before the office query resolves (it falls back to the office
+    // wording); the call button only appears once the office's phone has loaded.
+    expect(await screen.findByText('اتصال')).toBeOnTheScreen();
     // The WhatsApp button is currently disabled in the screen.
     expect(screen.queryByText('تواصل واتساب')).toBeNull();
   });
