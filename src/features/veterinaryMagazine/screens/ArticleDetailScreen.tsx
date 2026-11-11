@@ -21,6 +21,7 @@ import {
   useToggleContentBookmark,
   useToggleContentLike,
 } from '@/features/content';
+import { ReportLink } from '@/features/safety';
 import { apiErrorMessage } from '@/lib/apiError';
 import { physicalRow } from '@/lib/rtl';
 import { shareText } from '@/lib/share';
@@ -310,6 +311,9 @@ export default function ArticleDetailScreen() {
                       <Text variant="body" style={{ marginTop: 4 }}>
                         {c.body}
                       </Text>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <ReportLink targetType="CONTENT_COMMENT" targetId={c.id} />
+                      </View>
                     </Card>
                   ))
                 )}

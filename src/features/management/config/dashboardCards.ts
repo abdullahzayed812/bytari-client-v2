@@ -194,6 +194,15 @@ export const DASHBOARD_CARD_DEFS: DashboardCardDef[] = [
     show: (c) => c.isAdmin || c.isSupervisorOf('CONTENT') || c.can('content.read'),
   },
   {
+    // "البلاغات" — user reports (Play UGC / AI-content policies).
+    id: 'reports',
+    icon: 'flag-outline',
+    tint: dashboardTint(1),
+    palette: { bg: '#fef0f0', border: '#fdd8d8', accent: '#ef4444' },
+    route: Routes.adminReports,
+    show: (c) => c.isAdmin || c.can('content_report.admin.manage'),
+  },
+  {
     id: 'chats',
     icon: 'chatbox-ellipses-outline',
     tint: dashboardTint(6),

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Platform, View } from 'react-native';
 
-import { IconButton } from '@/components/actions';
+import { IconButton, TextButton } from '@/components/actions';
 import {
   ConfirmationDialog,
   EmptyState,
@@ -14,7 +14,9 @@ import {
 } from '@/components/feedback';
 import { SafeAreaScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
+import { BottomSheet } from '@/components/overlays';
 import { Routes } from '@/constants/routes';
+import { openReport, useBlockedUserIds, useBlockUser, useUnblockUser } from '@/features/safety';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -31,7 +33,7 @@ import {
   useSendMessage,
   useSetClinicChatActive,
 } from '../hooks';
-import type { OutgoingAttachment } from '../types';
+import type { ChatMessage, OutgoingAttachment } from '../types';
 
 /**
  * Route `/chat/[conversationId]`. A message thread. Live via the existing
@@ -42,6 +44,7 @@ import type { OutgoingAttachment } from '../types';
 export default function ConversationThreadScreen() {
   const theme = useTheme();
   const { t } = useTranslation('chat');
+  const { t: ts } = useTranslation('globalChat');
   const toast = useToast();
   const { user } = useAuth();
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>();
@@ -56,6 +59,12 @@ export default function ConversationThreadScreen() {
 
   const [sendError, setSendError] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  // Report / block (Play UGC policy) — long-press a counterpart's message.
+  const [menuMessage, setMenuMessage] = useState<ChatMessage | null>(null);
+  const [confirmBlockUserId, setConfirmBlockUserId] = useState<string | null>(null);
+  const blockedIds = useBlockedUserIds();
+  const block = useBlockUser();
+  const unblock = useUnblockUser();
   const listRef = useRef<FlatList>(null);
   const lastMarkedRef = useRef<string | null>(null);
 
@@ -90,6 +99,11 @@ export default function ConversationThreadScreen() {
       markRead.mutate(newest.id);
     }
   }, [msgQ.messages, user?.id, markRead]);
+
+  const blockedCounterpart = msgQ.messages.some(
+    (m) => m.senderUserId !== user?.id && blockedIds.has(m.senderUserId),
+  );
+  const menuSenderBlocked = menuMessage ? blockedIds.has(menuMessage.senderUserId) : false;
 
   const notFound =
     conversationQ.error instanceof ApiError &&
@@ -193,6 +207,7 @@ export default function ConversationThreadScreen() {
                 message={item}
                 currentUserId={user?.id ?? null}
                 onDelete={(mid) => setConfirmDeleteId(mid)}
+                onOpenMenu={setMenuMessage}
               />
             )}
             ListEmptyComponent={
@@ -214,13 +229,86 @@ export default function ConversationThreadScreen() {
         )}
 
         <MessageComposer
-          disabledReason={paused ? t('thread.clinicChatPaused') : null}
+          disabledReason={
+            paused
+              ? t('thread.clinicChatPaused')
+              : blockedCounterpart
+                ? ts('safety.blockedNotice')
+                : null
+          }
           conversationId={id}
           sending={send.isPending}
           error={sendError}
           onSend={onSend}
         />
       </KeyboardAvoidingView>
+
+      <BottomSheet
+        visible={menuMessage !== null}
+        onClose={() => setMenuMessage(null)}
+        title={ts('safety.menuTitle')}
+      >
+        <View style={{ rowGap: theme.spacing.sm }}>
+          <TextButton
+            label={ts('safety.reportMessage')}
+            icon="flag-outline"
+            tone="danger"
+            onPress={() => {
+              const m = menuMessage;
+              setMenuMessage(null);
+              if (m) openReport('MESSAGE', m.id);
+            }}
+          />
+          <TextButton
+            label={ts('safety.reportUser')}
+            icon="person-remove-outline"
+            tone="danger"
+            onPress={() => {
+              const m = menuMessage;
+              setMenuMessage(null);
+              if (m) openReport('USER', m.senderUserId);
+            }}
+          />
+          <TextButton
+            label={menuSenderBlocked ? ts('safety.unblockUser') : ts('safety.blockUser')}
+            icon="ban-outline"
+            tone={menuSenderBlocked ? 'primary' : 'danger'}
+            onPress={() => {
+              const m = menuMessage;
+              setMenuMessage(null);
+              if (!m) return;
+              if (menuSenderBlocked) {
+                unblock.mutate(m.senderUserId, {
+                  onSuccess: () => toast.show({ tone: 'success', message: ts('safety.unblocked') }),
+                  onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                });
+              } else {
+                setConfirmBlockUserId(m.senderUserId);
+              }
+            }}
+          />
+        </View>
+      </BottomSheet>
+
+      <ConfirmationDialog
+        visible={confirmBlockUserId !== null}
+        title={ts('safety.blockConfirmTitle')}
+        message={ts('safety.blockConfirmBody')}
+        confirmLabel={ts('safety.blockUser')}
+        cancelLabel={t('common.cancel')}
+        destructive
+        loading={block.isPending}
+        onConfirm={() => {
+          const uid = confirmBlockUserId;
+          setConfirmBlockUserId(null);
+          if (uid)
+            block.mutate(uid, {
+              onSuccess: () => toast.show({ tone: 'success', message: ts('safety.blocked') }),
+              onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+            });
+        }}
+        onCancel={() => setConfirmBlockUserId(null)}
+      />
 
       <ConfirmationDialog
         visible={confirmDeleteId !== null}

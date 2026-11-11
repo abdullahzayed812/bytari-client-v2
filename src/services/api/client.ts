@@ -202,6 +202,11 @@ export class ApiClient {
   delete<T>(url: string, options?: RequestOptions): Promise<T> {
     return this.request<T>({ method: 'DELETE', url }, options);
   }
+
+  /** `DELETE` with a JSON body (e.g. `DELETE /users/me` carries the password). */
+  deleteWithBody<T>(url: string, body: unknown, options?: RequestOptions): Promise<T> {
+    return this.request<T>({ method: 'DELETE', url, data: body }, options);
+  }
 }
 
 /** Process-wide API client. Feature modules import this, never axios directly. */

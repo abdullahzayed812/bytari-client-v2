@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Bytari",
+    "name": "بيطري",
     "slug": "bytari-mobile",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "bytari",
@@ -23,7 +23,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -46,7 +50,8 @@
         "expo-image-picker",
         {
           "photosPermission": "يستخدم بيطري صور جهازك لإضافة صور لحيواناتك وملفك الشخصي.",
-          "cameraPermission": "يستخدم بيطري الكاميرا لالتقاط صور لحيواناتك وملفك الشخصي."
+          "cameraPermission": "يستخدم بيطري الكاميرا لالتقاط صور لحيواناتك وملفك الشخصي.",
+          "microphonePermission": false
         }
       ],
       [
@@ -70,6 +75,16 @@
         {
           "cameraPermission": "يستخدم بيطري الكاميرا لمسح رمز QR الخاص بالمزرعة للانضمام إليها.",
           "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.0.0"
+          }
         }
       ]
     ],

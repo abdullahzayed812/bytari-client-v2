@@ -57,8 +57,7 @@ export default function SyndicateInquiryScreen() {
   );
   const { control, handleSubmit, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    // Pre-filled so a test submission needs no typing — the field stays editable.
-    defaultValues: { message: 'أرغب بالاستفسار عن متطلبات تجديد الهوية النقابية.' },
+    defaultValues: { message: '' },
     mode: 'onTouched',
   });
 

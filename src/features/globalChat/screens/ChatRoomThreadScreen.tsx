@@ -29,6 +29,7 @@ import {
 } from '@/features/chat/hooks';
 import type { OutgoingAttachment } from '@/features/chat/types';
 import { useOrganization } from '@/features/organizations/hooks';
+import { useBlockedUserIds, useBlockUser, useUnblockUser } from '@/features/safety';
 import { useAuth, useCapabilities } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
@@ -74,6 +75,11 @@ export default function ChatRoomThreadScreen() {
   const [sendError, setSendError] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [menuMessageId, setMenuMessageId] = useState<string | null>(null);
+  const [confirmBlockUserId, setConfirmBlockUserId] = useState<string | null>(null);
+  // Blocked users' room messages are hidden from the blocker (Play UGC policy).
+  const blockedIds = useBlockedUserIds();
+  const block = useBlockUser();
+  const unblock = useUnblockUser();
   const listRef = useRef<FlatList>(null);
   const lastMarkedRef = useRef<string | null>(null);
 
@@ -137,6 +143,12 @@ export default function ChatRoomThreadScreen() {
   const room = roomQ.data;
   const menuMessage = msgQ.messages.find((m) => m.id === menuMessageId) ?? null;
   const menuIsPinned = menuMessage != null && room.pinnedMessage?.id === menuMessage.id;
+  const menuIsOthers = menuMessage != null && menuMessage.senderUserId !== user?.id;
+  const menuSenderBlocked = menuMessage != null && blockedIds.has(menuMessage.senderUserId);
+  const visibleMessages =
+    blockedIds.size > 0
+      ? msgQ.newestFirst.filter((m) => !blockedIds.has(m.senderUserId))
+      : msgQ.newestFirst;
 
   const onSend = (body: string, attachment?: OutgoingAttachment): void => {
     setSendError(null);
@@ -206,8 +218,8 @@ export default function ChatRoomThreadScreen() {
             ref={listRef}
             // Newest-first + `inverted`: the newest message sits at the bottom and
             // older pages (onEndReached) load at the top without scroll jumps.
-            inverted={msgQ.newestFirst.length > 0}
-            data={msgQ.newestFirst}
+            inverted={visibleMessages.length > 0}
+            data={visibleMessages}
             keyExtractor={(m) => m.id}
             renderItem={({ item }) => (
               <RoomMessageBubble
@@ -264,6 +276,27 @@ export default function ChatRoomThreadScreen() {
                 });
             }}
           />
+          {menuIsOthers ? (
+            <TextButton
+              label={menuSenderBlocked ? t('safety.unblockUser') : t('safety.blockUser')}
+              icon="ban-outline"
+              tone={menuSenderBlocked ? 'primary' : 'danger'}
+              onPress={() => {
+                const uid = menuMessage?.senderUserId;
+                closeMenu();
+                if (!uid) return;
+                if (menuSenderBlocked) {
+                  unblock.mutate(uid, {
+                    onSuccess: () =>
+                      toast.show({ tone: 'success', message: t('safety.unblocked') }),
+                    onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+                  });
+                } else {
+                  setConfirmBlockUserId(uid);
+                }
+              }}
+            />
+          ) : null}
           {canModerate ? (
             <TextButton
               label={menuIsPinned ? t('thread.unpinMessage') : t('thread.pinMessage')}
@@ -304,6 +337,26 @@ export default function ChatRoomThreadScreen() {
           ) : null}
         </View>
       </BottomSheet>
+
+      <ConfirmationDialog
+        visible={confirmBlockUserId !== null}
+        title={t('safety.blockConfirmTitle')}
+        message={t('safety.blockConfirmBody')}
+        confirmLabel={t('safety.blockUser')}
+        cancelLabel={t('common.cancel', { defaultValue: 'إلغاء' })}
+        destructive
+        loading={block.isPending}
+        onConfirm={() => {
+          const uid = confirmBlockUserId;
+          setConfirmBlockUserId(null);
+          if (uid)
+            block.mutate(uid, {
+              onSuccess: () => toast.show({ tone: 'success', message: t('safety.blocked') }),
+              onError: (e) => toast.show({ tone: 'danger', message: apiErrorMessage(e) }),
+            });
+        }}
+        onCancel={() => setConfirmBlockUserId(null)}
+      />
 
       <ConfirmationDialog
         visible={confirmDeleteId !== null}

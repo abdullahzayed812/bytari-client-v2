@@ -51,23 +51,23 @@ interface FormValues {
   applicationDeadline: string | null;
 }
 
-/** Pre-filled so a test submission needs no typing — every field stays editable. */
+/** Empty starting values — every field is typed / chosen by the publisher. */
 const EMPTY: FormValues = {
-  organizationName: 'مركز الحياة البيطري',
-  governorate: 'بغداد',
-  district: 'الكرادة',
-  salaryAmount: '750000',
+  organizationName: '',
+  governorate: '',
+  district: '',
+  salaryAmount: '',
   salaryNegotiable: false,
-  benefits: 'تأمين صحي\nمكافأة سنوية',
-  title: 'طبيب بيطري عام',
-  employmentType: 'FULL_TIME',
-  experienceYearsRequired: '2',
-  qualifications: 'بكالوريوس طب بيطري',
-  description: 'مطلوب طبيب بيطري عام للعمل في عيادتنا ضمن فريق متكامل.',
-  responsibilities: 'الكشف على الحيوانات\nمتابعة الحالات المرضية',
-  requirements: 'خبرة لا تقل عن سنتين\nإجازة مزاولة سارية',
-  contactPhone: '07701234567',
-  contactEmail: 'jobs@example.com',
+  benefits: '',
+  title: '',
+  employmentType: null,
+  experienceYearsRequired: '',
+  qualifications: '',
+  description: '',
+  responsibilities: '',
+  requirements: '',
+  contactPhone: '',
+  contactEmail: '',
   applicationDeadline: null,
 };
 

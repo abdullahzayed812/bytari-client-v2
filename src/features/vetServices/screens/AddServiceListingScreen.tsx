@@ -38,28 +38,25 @@ export default function AddServiceListingScreen() {
   const imageProvider = useVetServiceImageProvider();
   const create = useCreateServiceListing();
 
-  // Sample starter values — the form opens pre-filled so it's one review away
-  // from publishing; every field stays editable and terms must still be accepted.
-  const [title, setTitle] = useState('كشف بيطري منزلي للقطط والكلاب');
-  const [description, setDescription] = useState(
-    'خدمة فحص وكشف بيطري شامل في المنزل مع تقرير مبدئي وخطة علاج.',
-  );
-  const [serviceType, setServiceType] = useState<VetServiceType | null>('EXAMINATION');
-  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>('CAT');
-  const [specialty, setSpecialty] = useState('طب الحيوانات الأليفة');
-  const [governorate, setGovernorate] = useState<string | null>('بغداد');
-  const [district, setDistrict] = useState('الكرادة');
-  const [priceAmount, setPriceAmount] = useState('25000');
-  const [priceType, setPriceType] = useState<VetServicePriceType>('APPROXIMATE');
-  const [locationMode, setLocationMode] = useState<VetServiceLocationMode>('CLINIC');
-  const [availability, setAvailability] = useState('يومياً من 9 صباحاً حتى 6 مساءً');
-  const [contactPhone, setContactPhone] = useState('07701234567');
-  const [contactWhatsapp, setContactWhatsapp] = useState('07701234567');
-  const [executionDuration, setExecutionDuration] = useState('٣٠–٤٥ دقيقة');
+  // Every field starts empty — the vet fills in their own service details.
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [serviceType, setServiceType] = useState<VetServiceType | null>(null);
+  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>(null);
+  const [specialty, setSpecialty] = useState('');
+  const [governorate, setGovernorate] = useState<string | null>(null);
+  const [district, setDistrict] = useState('');
+  const [priceAmount, setPriceAmount] = useState('');
+  // Optional on the server (column defaults apply when omitted); a chip can be
+  // tapped again to clear the choice.
+  const [priceType, setPriceType] = useState<VetServicePriceType | null>(null);
+  const [locationMode, setLocationMode] = useState<VetServiceLocationMode | null>(null);
+  const [availability, setAvailability] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactWhatsapp, setContactWhatsapp] = useState('');
+  const [executionDuration, setExecutionDuration] = useState('');
   const [arrivalTime, setArrivalTime] = useState('');
-  const [detailsText, setDetailsText] = useState(
-    'فحص سريري كامل\nقياس الحرارة والوزن\nتقرير مبدئي وخطة علاج',
-  );
+  const [detailsText, setDetailsText] = useState('');
   const [imageKeys, setImageKeys] = useState<string[]>([]);
   const [imagesBusy, setImagesBusy] = useState(false);
   const [showArrival, setShowArrival] = useState(false);
@@ -103,8 +100,8 @@ export default function AddServiceListingScreen() {
       governorate,
       district: district.trim() || undefined,
       priceAmount: priceAmount.trim() || undefined,
-      priceType,
-      locationMode,
+      priceType: priceType ?? undefined,
+      locationMode: locationMode ?? undefined,
       availability: availability.trim() || undefined,
       contactPhone: contactPhone.trim() || undefined,
       contactWhatsapp: contactWhatsapp.trim() || undefined,
@@ -209,7 +206,7 @@ export default function AddServiceListingScreen() {
                 key={v}
                 label={t(`priceType.${v}`)}
                 selected={priceType === v}
-                onPress={() => setPriceType(v)}
+                onPress={() => setPriceType((cur) => (cur === v ? null : v))}
               />
             ))}
           </View>
@@ -222,7 +219,7 @@ export default function AddServiceListingScreen() {
                 key={v}
                 label={t(`locationMode.${v}`)}
                 selected={locationMode === v}
-                onPress={() => setLocationMode(v)}
+                onPress={() => setLocationMode((cur) => (cur === v ? null : v))}
               />
             ))}
           </View>

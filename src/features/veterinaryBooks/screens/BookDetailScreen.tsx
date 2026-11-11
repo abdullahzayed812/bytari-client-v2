@@ -21,6 +21,7 @@ import {
   useToggleContentBookmark,
   useToggleContentLike,
 } from '@/features/content';
+import { ReportLink } from '@/features/safety';
 import { apiErrorMessage } from '@/lib/apiError';
 import { isRTL, physicalRow } from '@/lib/rtl';
 import { shareText } from '@/lib/share';
@@ -849,6 +850,9 @@ export default function BookDetailScreen() {
                           >
                             {c.body}
                           </Text>
+                          <View style={{ alignItems: 'flex-end' }}>
+                            <ReportLink targetType="CONTENT_COMMENT" targetId={c.id} />
+                          </View>
                         </View>
                       );
                     })}

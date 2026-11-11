@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 import { useToast } from '@/components/feedback';
 import { Routes } from '@/constants/routes';
-import { useAuthStore } from '@/features/auth/store';
 import { farmOpsApi } from '@/features/farmShared';
 import { OrgFormLayout } from '@/features/organizations';
 import { useOrganizationTerms } from '@/features/organizations/hooks/useOrganizationTerms';
@@ -31,17 +30,10 @@ export default function CattleFarmCreateScreen() {
   const { t } = useTranslation('sheepCattleFarm');
   const terms = useOrganizationTerms('CATTLE_FARM');
   const toast = useToast();
-  const user = useAuthStore((s) => s.user);
   const create = useCreateCattleFarm();
   const inFlight = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
-
-  const defaults: Partial<CreateCattleFarmFormValues> = {
-    contactName: user ? `${user.firstName} ${user.lastName}`.trim() : '',
-    contactPhone: user?.phone ?? '',
-    contactEmail: user?.email ?? '',
-  };
 
   const onSubmit = (values: CreateCattleFarmFormValues, image: LocalFile | null): void => {
     if (inFlight.current || create.isPending) return;
@@ -105,7 +97,6 @@ export default function CattleFarmCreateScreen() {
   return (
     <OrgFormLayout title={t('create.cattleTitle')}>
       <CattleFarmForm
-        defaultValues={defaults}
         submitting={create.isPending}
         formError={formError}
         serverFields={serverFields}

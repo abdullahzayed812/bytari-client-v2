@@ -15,6 +15,7 @@ export {
   useResetPasswordMutation,
   useLogoutMutation,
   useLogoutAllMutation,
+  useDeleteAccountMutation,
   useChangePasswordMutation,
 } from './hooks/useAuthMutations';
 export { useVeterinarianStatus, type VeterinarianStatusInfo } from './hooks/useVeterinarianStatus';

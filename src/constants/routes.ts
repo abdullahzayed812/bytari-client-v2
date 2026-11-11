@@ -288,6 +288,10 @@ export const Routes = {
   settingsPrivacy: '/(app)/settings/privacy',
   /** "تغيير كلمة المرور". */
   settingsChangePassword: '/(app)/settings/change-password',
+  /** "حذف الحساب" (Play account-deletion requirement). */
+  settingsDeleteAccount: '/(app)/settings/delete-account',
+  /** "المستخدمون المحظورون". */
+  settingsBlockedUsers: '/(app)/settings/blocked-users',
   contact: '/(app)/contact',
 
   // Veterinary Services marketplace ("الخدمات")
@@ -563,6 +567,8 @@ export const Routes = {
     `/(app)/admin/editorial/${kind}/${itemId}` as const,
   /** Clinic / office / store review moderation. */
   adminOrganizationReviews: '/(app)/admin/organization-reviews',
+  /** "البلاغات" — content-report moderation queue. */
+  adminReports: '/(app)/admin/reports',
   /** Veterinary Services listing moderation queue (approve / reject). */
   adminVetServiceListings: '/(app)/admin/vet-service-listings',
   /** Veterinary Services pet-owner request moderation queue (approve / reject). */

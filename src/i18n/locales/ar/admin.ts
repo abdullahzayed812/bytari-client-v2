@@ -167,6 +167,11 @@ export default {
         subtitle: 'إدارة الأسواق والمحال',
         unit: 'تاجر معتمد',
       },
+      reports: {
+        title: 'البلاغات',
+        subtitle: 'بلاغات المستخدمين عن المحتوى والحسابات',
+        unit: 'بلاغ مفتوح',
+      },
       poultrySupervisors: {
         title: 'إدارة مشرفي الدواجن',
         subtitle: 'الأطباء والحقول المرتبطة وغير المرتبطة',
@@ -955,6 +960,29 @@ export default {
     deleteBody: 'سيُحذف التقييم نهائياً ويُسجَّل الإجراء في سجل التدقيق.',
     reasonLabel: 'سبب الحذف (اختياري)',
     deleted: 'تم حذف التقييم.',
+  },
+
+  reports: {
+    title: 'البلاغات',
+    empty: 'لا توجد بلاغات',
+    status: { PENDING: 'جديدة', REVIEWED: 'تمت معالجتها', DISMISSED: 'مرفوضة' },
+    target: {
+      MESSAGE: 'رسالة محادثة',
+      ROOM: 'غرفة دردشة',
+      USER: 'مستخدم',
+      ANIMAL_PUBLICATION: 'إعلان (تبنٍّ / تزاوج / مفقود)',
+      ORGANIZATION: 'صفحة منشأة',
+      ORGANIZATION_REVIEW: 'تقييم',
+      CONTENT_COMMENT: 'تعليق',
+      AI_MESSAGE: 'رد المساعد الذكي',
+    },
+    targetGone: 'المحتوى المُبلَّغ عنه لم يعد موجوداً',
+    reporter: 'المُبلِّغ',
+    author: 'صاحب المحتوى',
+    markReviewed: 'تمت المعالجة',
+    dismiss: 'رفض البلاغ',
+    updated: 'تم تحديث البلاغ.',
+    hint: 'عالج المحتوى من القسم المختص (حذف الرسالة أو الإعلان أو إيقاف الحساب) ثم علّم البلاغ كمُعالَج.',
   },
 
   vets: {

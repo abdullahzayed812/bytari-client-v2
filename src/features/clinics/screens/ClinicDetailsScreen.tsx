@@ -22,6 +22,7 @@ import {
 } from '@/features/organizations';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
 import { useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
+import { ReportLink } from '@/features/safety';
 import {
   PublicVeterinaryOfficeProductCard,
   usePublicVeterinaryOfficeProducts,
@@ -541,6 +542,9 @@ export default function ClinicDetailsScreen() {
             />
           </Section>
         ) : null}
+        <View style={{ alignItems: 'center', paddingBottom: theme.spacing.lg }}>
+          <ReportLink targetType="ORGANIZATION" targetId={org.id} />
+        </View>
       </View>
 
       <ReviewModal

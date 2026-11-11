@@ -29,19 +29,19 @@ export interface SheepFarmFormProps {
 }
 
 /**
- * Starter values — the form opens pre-filled so it's one review away from
- * submit. Screen-level `defaultValues` (the signed-in user's contact info)
- * still take precedence, and the user must actively accept the terms.
+ * Empty starting values — the user types every detail. Only the production
+ * type keeps a selection, because the tile picker (same as `PoultryFarmForm`)
+ * always has one tile chosen. The user must still actively accept the terms.
  */
 const DEFAULTS: CreateSheepFarmFormValues = {
-  name: 'مزرعة الأغنام النموذجية',
-  location: 'بغداد',
-  governorate: 'بغداد',
+  name: '',
+  location: '',
+  governorate: '',
   sheepProductionType: 'MEAT',
-  description: 'مزرعة لتربية الأغنام لإنتاج اللحوم.',
-  address: 'حي الجامعة، شارع 14',
-  capacity: '500',
-  currentSheepCount: '320',
+  description: '',
+  address: '',
+  capacity: '',
+  currentSheepCount: '',
   contactName: '',
   contactPhone: '',
   contactEmail: '',

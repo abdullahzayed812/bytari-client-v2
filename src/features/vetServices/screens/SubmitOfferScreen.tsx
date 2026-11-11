@@ -31,16 +31,16 @@ export default function SubmitOfferScreen() {
   const imageProvider = useVetServiceImageProvider();
   const create = useCreateOffer(id);
 
-  // Sample starter values — pre-filled so the offer is one review away from
-  // sending; every field stays editable and terms must still be accepted.
-  const [proposedAmount, setProposedAmount] = useState('20000');
+  // Fields start empty. `executionDate` only seeds the date picker and is sent
+  // only when the vet turns the execution-date switch on.
+  const [proposedAmount, setProposedAmount] = useState('');
   const [hasExecDate, setHasExecDate] = useState(false);
   const [executionDate, setExecutionDate] = useState<Date>(
     new Date(Date.now() + 24 * 60 * 60 * 1000),
   );
-  const [expectedDuration, setExpectedDuration] = useState('٣٠–٤٥ دقيقة');
+  const [expectedDuration, setExpectedDuration] = useState('');
   const [includesFieldVisit, setIncludesFieldVisit] = useState(false);
-  const [details, setDetails] = useState('أقوم بزيارة منزلية مع فحص شامل وتقرير مبدئي وخطة علاج.');
+  const [details, setDetails] = useState('');
   const [imageKeys, setImageKeys] = useState<string[]>([]);
   const [imagesBusy, setImagesBusy] = useState(false);
   const [accepted, setAccepted] = useState(false);

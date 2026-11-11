@@ -55,6 +55,14 @@ export function useLogoutAllMutation(): UseMutationResult<void, unknown, void> {
   return useMutation({ mutationKey: ['auth', 'logout-all'], mutationFn: () => logoutAll() });
 }
 
+export function useDeleteAccountMutation(): UseMutationResult<void, unknown, string> {
+  const deleteAccount = useAuthStore((s) => s.deleteAccount);
+  return useMutation({
+    mutationKey: ['auth', 'delete-account'],
+    mutationFn: (password: string) => deleteAccount(password),
+  });
+}
+
 /** Forgot password step 1 — no session involved, so it bypasses the store. */
 export function useForgotPasswordMutation(): UseMutationResult<
   PasswordResetRequestResult,

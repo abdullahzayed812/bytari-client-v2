@@ -18,7 +18,7 @@ import { DateTimeField } from '@/features/clinicAppointments';
 import { DateField } from '@/features/vetJobs';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
-import { compareIsoDates, toLocalIsoDate } from '@/utils';
+import { compareIsoDates } from '@/utils';
 
 import {
   useCreateVetCourse,
@@ -55,32 +55,29 @@ interface FormValues {
   topics: string;
 }
 
-/** `YYYY-MM-DD`, `n` days from today — used only to seed the default form values below. */
-function daysFromNow(n: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  return toLocalIsoDate(d);
-}
-
-/** Pre-filled so a test submission needs no typing — every field stays editable. */
+/**
+ * Empty starting values — the organiser types / picks every detail. `type`
+ * keeps "COURSE" only as the selector's base choice (the route's `?type=`
+ * overrides it for seminars).
+ */
 const EMPTY: FormValues = {
   type: 'COURSE',
-  title: 'أساسيات التغذية في الحيوانات الأليفة',
-  description: 'دورة تدريبية شاملة حول أساسيات التغذية السليمة للحيوانات الأليفة.',
-  organizingBody: 'جمعية الأطباء البيطريين العراقية',
-  instructorName: 'د. أحمد علي البياتي',
-  instructorSpecialty: 'التغذية والتغذية السريرية',
-  startDate: daysFromNow(14),
-  endDate: daysFromNow(16),
-  startTime: '09:00',
-  endTime: '17:00',
-  timezoneNote: 'بتوقيت بغداد',
-  locationMode: 'ONLINE',
-  locationDetails: 'أونلاين عبر Zoom',
-  registrationDeadline: daysFromNow(10),
-  capacity: '50',
+  title: '',
+  description: '',
+  organizingBody: '',
+  instructorName: '',
+  instructorSpecialty: '',
+  startDate: null,
+  endDate: null,
+  startTime: '',
+  endTime: '',
+  timezoneNote: '',
+  locationMode: null,
+  locationDetails: '',
+  registrationDeadline: null,
+  capacity: '',
   price: '',
-  topics: 'المفاهيم الأساسية في تغذية الحيوانات\nالاحتياجات الغذائية حسب العمر',
+  topics: '',
 };
 
 function linesToList(text: string): string[] {
@@ -136,8 +133,15 @@ export default function CreateVeterinaryCourseScreen() {
           organizingBody: z.string().trim().min(1, t('form.errors.organizingBody')),
           instructorName: z.string().trim().min(1, t('form.errors.instructorName')),
           instructorSpecialty: z.string().trim(),
-          startDate: z.string({ message: t('form.errors.required') }).nullable(),
-          endDate: z.string({ message: t('form.errors.required') }).nullable(),
+          // Nullable so the pickers can start empty; both dates are required.
+          startDate: z
+            .string({ message: t('form.errors.required') })
+            .nullable()
+            .refine((v) => v !== null, t('form.errors.required')),
+          endDate: z
+            .string({ message: t('form.errors.required') })
+            .nullable()
+            .refine((v) => v !== null, t('form.errors.required')),
           startTime: z.string().trim(),
           endTime: z.string().trim(),
           timezoneNote: z.string().trim(),

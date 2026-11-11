@@ -22,6 +22,7 @@ import {
 } from '@/features/organizations';
 import { OrgStoreCartButton } from '@/features/organizationStore/components';
 import { useOrgStoreAvailability, useOrgStoreQuickAdd } from '@/features/organizationStore/hooks';
+import { ReportLink } from '@/features/safety';
 import { apiErrorMessage } from '@/lib/apiError';
 import { mapsUrl } from '@/lib/maps';
 import { shareText, shareUrlFor } from '@/lib/share';
@@ -465,6 +466,9 @@ export default function VeterinaryOfficeDetailsScreen() {
             />
           </Row>
         </Section>
+        <View style={{ alignItems: 'center', paddingBottom: theme.spacing.lg }}>
+          <ReportLink targetType="ORGANIZATION" targetId={org.id} />
+        </View>
       </View>
 
       <ReviewModal

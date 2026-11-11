@@ -120,10 +120,11 @@ function AnnouncementForm({
           linkUrl: existing.linkUrl ?? '',
         }
       : {
-          // Pre-filled so a test submission needs no typing — every field stays editable.
+          // Text fields start empty; `type` keeps the base "إعلان" category
+          // because the type selector always needs one chip selected.
           type: 'ANNOUNCEMENT',
-          title: 'اجتماع الهيئة العامة العادي',
-          body: 'ندعو الأعضاء الكرام لحضور الاجتماع العام في الموعد المحدد لمناقشة جدول الأعمال.',
+          title: '',
+          body: '',
           linkUrl: '',
         },
     mode: 'onTouched',

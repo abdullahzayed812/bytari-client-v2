@@ -120,6 +120,15 @@ export const authApi = {
     return apiClient.post<ChangePasswordResult>('/auth/change-password', input);
   },
 
+  /**
+   * `DELETE /users/me` (bearer, `{ password }`) — permanent self-service
+   * account deletion. 400 `INVALID_CURRENT_PASSWORD`; 409
+   * `USER_DELETE_BLOCKED` (`details[0].rule`: OWNS_ORGANIZATIONS | ADMIN_ACCOUNT).
+   */
+  deleteAccount(password: string): Promise<{ id: string; deleted: true }> {
+    return apiClient.deleteWithBody<{ id: string; deleted: true }>('/users/me', { password });
+  },
+
   /** `POST /auth/logout-all` (bearer) → `{ success, revokedSessions }`. */
   logoutAll(): Promise<LogoutAllResult> {
     return apiClient.post<LogoutAllResult>('/auth/logout-all');

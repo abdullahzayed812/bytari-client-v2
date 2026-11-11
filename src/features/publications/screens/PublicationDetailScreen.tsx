@@ -9,6 +9,7 @@ import { Row, ScrollScreen, Section } from '@/components/layout';
 import { Heading, Text } from '@/components/typography';
 import { Routes } from '@/constants/routes';
 import { ImageCarousel } from '@/features/organizations';
+import { ReportLink } from '@/features/safety';
 import { apiErrorMessage } from '@/lib/apiError';
 import { ApiError } from '@/services/api';
 import { useTheme } from '@/theme';
@@ -473,6 +474,9 @@ export default function PublicationDetailScreen() {
               onPress={onContactOwner}
             />
           </Row>
+          <View style={{ alignItems: 'center', marginTop: theme.spacing.md }}>
+            <ReportLink targetType="ANIMAL_PUBLICATION" targetId={pub.id} />
+          </View>
         </Section>
       </View>
     </ScrollScreen>

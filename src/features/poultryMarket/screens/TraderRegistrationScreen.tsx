@@ -11,7 +11,6 @@ import { ScrollScreen, Section } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Label } from '@/components/typography';
 import { IRAQ_GOVERNORATES } from '@/constants/governorates';
-import { useAuthStore } from '@/features/auth/store';
 import { SubscriptionTrialCard } from '@/features/subscriptions';
 import { useAuth } from '@/hooks';
 import { fieldErrors } from '@/lib/apiError';
@@ -28,18 +27,18 @@ import {
 } from '../validation/schemas';
 
 /**
- * Starter values — the form opens pre-filled so registration is one review
- * away. The signed-in user's phone still takes precedence, and the user must
- * actively accept the terms.
+ * Empty starting values — the trader types every detail. Only the trader type
+ * keeps a selection because its tile picker always has one tile chosen. The
+ * user must still actively accept the terms.
  */
 const DEFAULTS: RegisterTraderFormValues = {
-  displayName: 'تاجر الدواجن النموذجي',
+  displayName: '',
   traderType: 'WHOLESALE',
-  governorate: 'بغداد',
-  district: 'الكرادة',
-  phone: '07701234567',
-  whatsapp: '07701234567',
-  bio: 'تاجر دواجن بالجملة في بغداد.',
+  governorate: '',
+  district: '',
+  phone: '',
+  whatsapp: '',
+  bio: '',
   termsAccepted: false as unknown as true,
 };
 
@@ -49,7 +48,6 @@ export default function TraderRegistrationScreen() {
   const { t } = useTranslation('poultryMarket');
   const toast = useToast();
   const { refreshSession } = useAuth();
-  const user = useAuthStore((s) => s.user);
   const trader = useTraderStatus();
   const register = useRegisterTrader();
 
@@ -58,14 +56,9 @@ export default function TraderRegistrationScreen() {
   const [serverFields, setServerFields] = useState<Record<string, string>>({});
   const inFlight = useRef(false);
 
-  const defaults: RegisterTraderFormValues = {
-    ...DEFAULTS,
-    phone: user?.phone ?? DEFAULTS.phone,
-  };
-
   const { control, handleSubmit } = useForm<RegisterTraderFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: defaults,
+    defaultValues: DEFAULTS,
     mode: 'onTouched',
   });
 

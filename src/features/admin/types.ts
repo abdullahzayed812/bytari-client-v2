@@ -646,7 +646,8 @@ export type AdminDashboardCardId =
   | 'magazines'
   | 'adoption'
   | 'mating'
-  | 'lostAnimals';
+  | 'lostAnimals'
+  | 'reports';
 
 export interface AdminDashboardCardCount {
   id: AdminDashboardCardId;

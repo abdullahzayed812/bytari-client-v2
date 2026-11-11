@@ -15,6 +15,8 @@ export interface MessageBubbleProps {
   currentUserId: string | null;
   /** Long-press a own, non-deleted message to delete it. */
   onDelete?: (messageId: string) => void;
+  /** Long-press a counterpart's message → report / block options. */
+  onOpenMenu?: (message: ChatMessage) => void;
 }
 
 /**
@@ -23,7 +25,12 @@ export interface MessageBubbleProps {
  * shows a placeholder, never the original body. Bodies render as plain RN
  * `<Text>` — no markup execution (§35 / privacy).
  */
-export function MessageBubble({ message, currentUserId, onDelete }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  currentUserId,
+  onDelete,
+  onOpenMenu,
+}: MessageBubbleProps) {
   const theme = useTheme();
   const { t } = useTranslation('chat');
   const mine = message.senderUserId === currentUserId;
@@ -41,7 +48,17 @@ export function MessageBubble({ message, currentUserId, onDelete }: MessageBubbl
 
   return (
     <Pressable
-      onLongPress={mine && !deleted && onDelete ? () => onDelete(message.id) : undefined}
+      onLongPress={
+        deleted
+          ? undefined
+          : mine
+            ? onDelete
+              ? () => onDelete(message.id)
+              : undefined
+            : onOpenMenu
+              ? () => onOpenMenu(message)
+              : undefined
+      }
       accessibilityRole="text"
       accessibilityLabel={
         deleted

@@ -15,6 +15,17 @@ import { useTheme } from '@/theme';
 import { useSubmitReport } from '../hooks';
 import { REPORT_REASONS, type ReportReason, type ReportTargetType } from '../types';
 
+const TITLE_KEY = {
+  MESSAGE: 'report.titleMessage',
+  ROOM: 'report.titleRoom',
+  USER: 'report.titleUser',
+  ANIMAL_PUBLICATION: 'report.titleListing',
+  ORGANIZATION: 'report.titleOrganization',
+  ORGANIZATION_REVIEW: 'report.titleReview',
+  CONTENT_COMMENT: 'report.titleComment',
+  AI_MESSAGE: 'report.titleAiAnswer',
+} as const satisfies Record<ReportTargetType, string>;
+
 /** Route `/(app)/global-chat/report` — "الإبلاغ عن الرسالة" / "الإبلاغ عن الغرفة". */
 export default function ReportContentScreen() {
   const theme = useTheme();
@@ -45,10 +56,7 @@ export default function ReportContentScreen() {
 
   return (
     <SafeAreaScreen>
-      <AppHeader
-        title={targetType === 'ROOM' ? t('report.titleRoom') : t('report.titleMessage')}
-        showBack
-      />
+      <AppHeader title={t(TITLE_KEY[targetType] ?? TITLE_KEY.MESSAGE)} showBack />
       <ScrollView
         contentContainerStyle={{ padding: theme.screenPadding, rowGap: theme.spacing.lg }}
         keyboardShouldPersistTaps="handled"

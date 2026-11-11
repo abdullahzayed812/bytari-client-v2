@@ -6,6 +6,7 @@ import { Icon } from '@/components/content';
 import { ImageThumbnailRow, ImageViewer } from '@/components/media';
 import { Caption, LinkifiedText, Text } from '@/components/typography';
 import { AdminUserLink } from '@/features/admin/components/AdminUserLink';
+import { ReportLink } from '@/features/safety';
 import { UserName } from '@/features/users/components';
 import { useTheme } from '@/theme';
 import { formatDate } from '@/utils';
@@ -104,6 +105,13 @@ export function MessageBubble({ message, currentUserId, linkSender = false }: Me
         {formatDate(message.createdAt)}
       </Caption>
 
+      {/* Play AI-generated-content policy: users can flag an AI answer. */}
+      {message.source === 'AI' && !message.deletedAt && !linkSender ? (
+        <View style={{ alignSelf: 'flex-start' }}>
+          <AiReportLink messageId={message.id} />
+        </View>
+      ) : null}
+
       <ImageViewer
         visible={viewerIndex !== null}
         images={images}
@@ -111,5 +119,12 @@ export function MessageBubble({ message, currentUserId, linkSender = false }: Me
         onClose={() => setViewerIndex(null)}
       />
     </View>
+  );
+}
+
+function AiReportLink({ messageId }: { messageId: string }) {
+  const { t } = useTranslation('globalChat');
+  return (
+    <ReportLink targetType="AI_MESSAGE" targetId={messageId} label={t('safety.reportAnswer')} />
   );
 }

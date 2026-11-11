@@ -22,6 +22,7 @@ import { useTheme } from '@/theme';
  * what other users can see — it mirrors the server: the public user directory
  * (`GET /users/:id`) exposes only name / avatar / specialization / verification
  * status; email, phone, WhatsApp and bio are only ever returned to their owner.
+ * Account: blocked users and permanent account deletion (Play policy).
  */
 export default function PrivacySecurityScreen() {
   const theme = useTheme();
@@ -84,6 +85,23 @@ export default function PrivacySecurityScreen() {
           body={t('privacy.hiddenBody')}
         />
         <Caption color="textMuted">{t('privacy.contactShared')}</Caption>
+
+        <Text variant="bodyStrong" style={{ marginTop: theme.spacing.md }}>
+          {t('privacy.accountTitle')}
+        </Text>
+        <ActionRow
+          icon="ban-outline"
+          label={t('privacy.blockedUsers')}
+          hint={t('privacy.blockedUsersHint')}
+          onPress={() => router.push(Routes.settingsBlockedUsers)}
+        />
+        <ActionRow
+          icon="trash-outline"
+          label={t('privacy.deleteAccount')}
+          hint={t('privacy.deleteAccountHint')}
+          danger
+          onPress={() => router.push(Routes.settingsDeleteAccount)}
+        />
       </View>
 
       <ConfirmationDialog

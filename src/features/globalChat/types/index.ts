@@ -68,7 +68,17 @@ export interface Paginated<T> {
 
 // --- content reporting ("الإبلاغ عن الرسالة") -------------------------
 
-export const REPORT_TARGET_TYPES = ['MESSAGE', 'ROOM'] as const;
+/** Mirrors `server/src/modules/reports/domain/report.types.ts`. */
+export const REPORT_TARGET_TYPES = [
+  'MESSAGE',
+  'ROOM',
+  'USER',
+  'ANIMAL_PUBLICATION',
+  'ORGANIZATION',
+  'ORGANIZATION_REVIEW',
+  'CONTENT_COMMENT',
+  'AI_MESSAGE',
+] as const;
 export type ReportTargetType = (typeof REPORT_TARGET_TYPES)[number];
 
 export const REPORT_REASONS = [

@@ -15,6 +15,7 @@ import {
 import { Row, SafeAreaScreen } from '@/components/layout';
 import { AppHeader } from '@/components/navigation';
 import { Caption, Heading, Text } from '@/components/typography';
+import { ReportLink } from '@/features/safety';
 import { useAuth } from '@/hooks';
 import { apiErrorMessage } from '@/lib/apiError';
 import { useTheme } from '@/theme';
@@ -63,7 +64,12 @@ export default function OrganizationReviewsScreen() {
           <RatingStars value={item.rating} size="sm" />
         </Row>
         {item.comment ? <Text style={{ marginTop: theme.spacing.sm }}>{item.comment}</Text> : null}
-        <Caption style={{ marginTop: theme.spacing.xs }}>{formatDate(item.updatedAt)}</Caption>
+        <Row justify="space-between" align="center" style={{ marginTop: theme.spacing.xs }}>
+          <Caption>{formatDate(item.updatedAt)}</Caption>
+          {!isMine && item.id ? (
+            <ReportLink targetType="ORGANIZATION_REVIEW" targetId={item.id} />
+          ) : null}
+        </Row>
       </Card>
     );
   };

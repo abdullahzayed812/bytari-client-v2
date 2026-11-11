@@ -217,11 +217,8 @@ function RespondDialog({
   const { t: tc } = useTranslation('common');
   const toast = useToast();
   const respond = useRespondToSyndicateSubmission(organizationId);
-  // Pre-filled so a test response needs no typing — the field stays editable.
   const { control, handleSubmit, reset } = useForm<{ responseText: string }>({
-    defaultValues: {
-      responseText: 'شكراً لتواصلكم، تم استلام طلبكم وسيتم الرد عليه في أقرب وقت ممكن.',
-    },
+    defaultValues: { responseText: '' },
   });
 
   const onSubmit = (values: { responseText: string }): void => {

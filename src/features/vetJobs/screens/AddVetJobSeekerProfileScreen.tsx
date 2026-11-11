@@ -44,18 +44,18 @@ interface FormValues {
   email: string;
 }
 
-/** Pre-filled so a test submission needs no typing — every field stays editable. */
+/** Empty starting values — every field is typed / chosen by the job seeker. */
 const EMPTY: FormValues = {
-  specialty: 'طب وجراحة الحيوانات الصغيرة',
-  qualifications: 'بكالوريوس طب بيطري',
-  skills: 'الجراحة\nالتشخيص بالأشعة',
-  headline: 'طبيب بيطري بخبرة في طب وجراحة الحيوانات الصغيرة.',
-  experienceYears: '3',
-  preferredEmploymentTypes: ['FULL_TIME'],
-  governorate: 'بغداد',
-  district: 'الكرادة',
-  phone: '07709876543',
-  email: 'vet@example.com',
+  specialty: '',
+  qualifications: '',
+  skills: '',
+  headline: '',
+  experienceYears: '',
+  preferredEmploymentTypes: [],
+  governorate: '',
+  district: '',
+  phone: '',
+  email: '',
 };
 
 function linesToList(text: string): string[] {

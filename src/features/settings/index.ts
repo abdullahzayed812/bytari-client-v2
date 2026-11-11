@@ -12,4 +12,6 @@ export {
   AboutScreen,
   PrivacySecurityScreen,
   ChangePasswordScreen,
+  DeleteAccountScreen,
+  BlockedUsersScreen,
 } from './screens';

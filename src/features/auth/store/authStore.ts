@@ -52,6 +52,8 @@ interface AuthState {
   resendVerification: (email: string) => Promise<ResendVerificationResult>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
+  /** Permanently delete the own account (password re-checked server-side), then clear the local session. */
+  deleteAccount: (password: string) => Promise<void>;
   /** Change the own password; stores the fresh token pair the server returns (other devices are signed out). */
   changePassword: (input: ChangePasswordInput) => Promise<void>;
   /** Re-pull `/auth/me` (after vet approval, role change, resume). */
@@ -221,6 +223,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
       } catch (error) {
         log.warn('logout-all failed — clearing locally anyway', { reason: describe(error) });
       }
+      await teardown();
+    },
+
+    deleteAccount: async (password) => {
+      // The server call first: a wrong password / blocked deletion must leave
+      // the session (and the push registration) untouched.
+      await authApi.deleteAccount(password);
+      await runLogoutTasks();
       await teardown();
     },
 

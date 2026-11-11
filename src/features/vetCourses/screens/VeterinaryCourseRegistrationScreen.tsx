@@ -34,13 +34,13 @@ interface FormValues {
   notes: string;
 }
 
-/** Pre-filled so a test submission needs no typing — every field stays editable. */
+/** Empty starting values — the participant types their own details. */
 const EMPTY: FormValues = {
-  fullName: 'د. سارة محمد',
-  phone: '07701112244',
-  email: 'participant@example.com',
-  governorate: 'بغداد',
-  specialty: 'طب عام',
+  fullName: '',
+  phone: '',
+  email: '',
+  governorate: '',
+  specialty: '',
   notes: '',
 };
 
