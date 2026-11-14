@@ -135,6 +135,7 @@ const vetServices: KuNamespace<'vetServices'> = {
   validation: {
     required: 'ئەم خانەیە پێویستە',
     terms: 'سەرەتا دەبێت ڕەزامەندی لەسەر مەرج و ڕێساکان بدەیت.',
+    positiveInteger: 'ژمارەیەکی تەواو لە سفر گەورەتر بنووسە.',
   },
 
   actions: {

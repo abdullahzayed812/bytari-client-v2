@@ -134,6 +134,7 @@ const vetServices = {
   validation: {
     required: 'هذا الحقل مطلوب',
     terms: 'يجب الموافقة على الشروط والأحكام أولاً.',
+    positiveInteger: 'أدخل عدداً صحيحاً أكبر من صفر.',
   },
 
   actions: {

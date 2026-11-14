@@ -25,15 +25,18 @@ import {
   DocumentUploadTile,
   GenderRadioGroup,
   GovernorateSelect,
+  PhoneNumberField,
   TermsAndConditionsModal,
   VET_ACCOUNT_RESPONSIBILITY_CLAUSE,
 } from '../components';
+import { DEFAULT_CALLING_CODE } from '../data/callingCodes';
 import { devVeterinarianDefaults } from '../data/devDefaults';
 import {
   uploadRegistrationAvatar,
   uploadRegistrationDocument,
   useSubmitVeterinarianApplication,
 } from '../hooks';
+import { toInternationalPhone } from '../lib/phone';
 import { buildVeterinarianSchema, type VeterinarianFormValues } from '../validation/schemas';
 
 type SubmitStage = 'form' | 'apply-error';
@@ -117,6 +120,7 @@ export default function VeterinarianRegisterScreen() {
             firstName: '',
             lastName: '',
             email: '',
+            phoneCountry: DEFAULT_CALLING_CODE,
             phone: '',
             password: '',
             confirmPassword: '',
@@ -173,7 +177,8 @@ export default function VeterinarianRegisterScreen() {
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         password: values.password,
-        phone: values.phone.trim(),
+        // One international string (+9647701234567) — what the API validates and stores.
+        phone: toInternationalPhone(values.phoneCountry, values.phone),
         gender: values.gender,
         country: values.country,
         governorate: values.governorate.trim(),
@@ -299,16 +304,11 @@ export default function VeterinarianRegisterScreen() {
         {/* Verification itself is unchanged (verify-email step after sign-up). */}
         <Alert tone="info" message={tAuth('register.emailConfirmNotice')} />
 
-        <FormField
+        <PhoneNumberField
           control={control}
-          name="phone"
+          countryName="phoneCountry"
+          phoneName="phone"
           label={tAuth('register.phoneLabel')}
-          placeholder={tAuth('register.phonePlaceholder')}
-          keyboardType="phone-pad"
-          autoComplete="tel"
-          textContentType="telephoneNumber"
-          returnKeyType="next"
-          leftIcon="phone-portrait-outline"
           serverError={serverFields.phone}
           editable={stage !== 'apply-error'}
         />

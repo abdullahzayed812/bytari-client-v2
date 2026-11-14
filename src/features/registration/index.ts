@@ -34,4 +34,11 @@ export {
   type RegistrationTFn,
 } from './validation/schemas';
 export { COUNTRIES, countryDisplayName } from './data/countries';
+export {
+  CALLING_CODES,
+  DEFAULT_CALLING_CODE,
+  callingCodeFor,
+  type CallingCodeOption,
+} from './data/callingCodes';
+export { isValidNationalNumber, toInternationalPhone } from './lib/phone';
 export type { DocumentRef, CountryOption, RegistrationOutcome } from './types';

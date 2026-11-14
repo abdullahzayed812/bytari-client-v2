@@ -31,6 +31,8 @@ export interface DevPersonalDefaults {
   firstName: string;
   lastName: string;
   email: string;
+  phoneCountry: string;
+  /** National number — the calling code is `phoneCountry`. */
   phone: string;
   password: string;
   confirmPassword: string;
@@ -45,7 +47,8 @@ function devPersonalDefaults(emailPrefix: string): DevPersonalDefaults {
   return {
     ...DEV_NAMES[gender],
     email: devEmail(emailPrefix),
-    phone: '+9647701234567',
+    phoneCountry: 'IQ',
+    phone: '7701234567',
     password: DEV_PASSWORD,
     confirmPassword: DEV_PASSWORD,
     country: 'IQ',

@@ -10,7 +10,8 @@ const BASE = {
   firstName: 'ريم',
   lastName: 'أحمد',
   email: 'reem@example.com',
-  phone: '+9647701234567',
+  phoneCountry: 'IQ',
+  phone: '07701234567',
   password: '1234567890',
   confirmPassword: '1234567890',
   country: 'IQ',
@@ -49,6 +50,25 @@ describe('buildPetOwnerSchema', () => {
   it('requires a phone number', () => {
     expect(schema.safeParse({ ...BASE, phone: '' }).success).toBe(false);
     expect(schema.safeParse({ ...BASE, phone: 'abc' }).success).toBe(false);
+  });
+
+  it('validates the national number against the chosen calling code', () => {
+    // Separators allowed, trunk 0 optional.
+    expect(schema.safeParse({ ...BASE, phone: '770 123-4567' }).success).toBe(true);
+    // Too short once the trunk 0 is dropped.
+    expect(schema.safeParse({ ...BASE, phone: '012345' }).success).toBe(false);
+    // The calling code belongs in phoneCountry, not the number.
+    expect(schema.safeParse({ ...BASE, phone: '+9647701234567' }).success).toBe(false);
+    // > 15 digits with the dial code (E.164).
+    expect(schema.safeParse({ ...BASE, phone: '7701234567890' }).success).toBe(false);
+    expect(schema.safeParse({ ...BASE, phoneCountry: 'US', phone: '2025550123' }).success).toBe(
+      true,
+    );
+  });
+
+  it('requires a known calling code', () => {
+    expect(schema.safeParse({ ...BASE, phoneCountry: '' }).success).toBe(false);
+    expect(schema.safeParse({ ...BASE, phoneCountry: 'XX' }).success).toBe(false);
   });
 
   it('requires a governorate', () => {

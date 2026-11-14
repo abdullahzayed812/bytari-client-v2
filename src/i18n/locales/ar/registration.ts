@@ -1,4 +1,9 @@
 export default {
+  phoneField: {
+    countryCodeLabel: 'رمز الدولة',
+    placeholder: '7xx xxx xxxx',
+    hint: 'أدخل رقمك بدون رمز الدولة.',
+  },
   welcome: {
     title: 'مرحباً بك في بيطري',
     subtitle: 'رعاية بيطرية موثوقة لحيواناتك، في مكان واحد.',
@@ -121,6 +126,7 @@ export default {
     emailInvalid: 'صيغة البريد الإلكتروني غير صحيحة.',
     phoneInvalid: 'رقم الهاتف غير صحيح.',
     phoneRequired: 'رقم الهاتف مطلوب.',
+    phoneCountryRequired: 'يرجى اختيار رمز الدولة.',
     governorateRequired: 'يرجى اختيار المحافظة.',
     specializationTooLong: 'التخصص طويل جداً.',
     passwordTooShort: 'كلمة المرور 10 أحرف على الأقل.',

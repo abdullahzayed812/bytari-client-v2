@@ -37,27 +37,26 @@ export default function AddServiceRequestScreen() {
   const imageProvider = useVetServiceImageProvider();
   const create = useCreateServiceRequest();
 
-  // Sample starter values — the form opens pre-filled so it's one review away
-  // from submitting; every field stays editable and terms must still be accepted.
-  const [title, setTitle] = useState('كشف بيطري لقطة مريضة');
-  const [description, setDescription] = useState(
-    'قطة عمرها سنة تعاني من فقدان الشهية والخمول منذ يومين، أحتاج كشفاً وتشخيصاً.',
-  );
-  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>('CAT');
-  const [serviceType, setServiceType] = useState<VetServiceType | null>('EXAMINATION');
-  const [animalCount, setAnimalCount] = useState('1');
-  const [animalAge, setAnimalAge] = useState('سنة واحدة');
-  const [governorate, setGovernorate] = useState<string | null>('بغداد');
-  const [district, setDistrict] = useState('الكرادة');
-  const [detailedAddress, setDetailedAddress] = useState('حي الكرادة، قرب ساحة الفردوس');
+  // Every user-entered field starts empty. Only the business defaults stay
+  // preset: no field visit, no preferred date (its picker seeds tomorrow once
+  // toggled on), NORMAL urgency, and terms unaccepted.
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [animalType, setAnimalType] = useState<VetServiceAnimalType | null>(null);
+  const [serviceType, setServiceType] = useState<VetServiceType | null>(null);
+  const [animalCount, setAnimalCount] = useState('');
+  const [animalAge, setAnimalAge] = useState('');
+  const [governorate, setGovernorate] = useState<string | null>(null);
+  const [district, setDistrict] = useState('');
+  const [detailedAddress, setDetailedAddress] = useState('');
   const [needsFieldVisit, setNeedsFieldVisit] = useState(false);
   const [hasPreferredDate, setHasPreferredDate] = useState(false);
   const [preferredDate, setPreferredDate] = useState<Date>(
     new Date(Date.now() + 24 * 60 * 60 * 1000),
   );
-  const [budgetAmount, setBudgetAmount] = useState('20000');
+  const [budgetAmount, setBudgetAmount] = useState('');
   const [urgency, setUrgency] = useState<VetServiceUrgency>('NORMAL');
-  const [extraNotes, setExtraNotes] = useState('يفضّل زيارة منزلية في المساء.');
+  const [extraNotes, setExtraNotes] = useState('');
   const [imageKeys, setImageKeys] = useState<string[]>([]);
   const [imagesBusy, setImagesBusy] = useState(false);
   const [accepted, setAccepted] = useState(false);
@@ -65,6 +64,8 @@ export default function AddServiceRequestScreen() {
 
   const serverFields = create.error ? fieldErrors(create.error) : {};
   const missing = (v: string | null) => submitted && !v;
+  // Optional, but when given it must be a positive whole number (server: int > 0).
+  const animalCountInvalid = animalCount.trim() !== '' && !/^[1-9][0-9]*$/.test(animalCount.trim());
 
   const onSubmit = () => {
     setSubmitted(true);
@@ -74,6 +75,7 @@ export default function AddServiceRequestScreen() {
       !animalType ||
       !serviceType ||
       !governorate ||
+      animalCountInvalid ||
       !accepted
     )
       return;
@@ -156,6 +158,11 @@ export default function AddServiceRequestScreen() {
             onChangeText={setAnimalCount}
             keyboardType="numeric"
             maxLength={5}
+            error={
+              submitted && animalCountInvalid
+                ? t('validation.positiveInteger')
+                : serverFields.animalCount
+            }
           />
         </View>
         <View style={{ flex: 1 }}>

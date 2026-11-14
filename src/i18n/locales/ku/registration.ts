@@ -1,6 +1,11 @@
 import type { KuNamespace } from './types';
 
 const registration: KuNamespace<'registration'> = {
+  phoneField: {
+    countryCodeLabel: 'کۆدی وڵات',
+    placeholder: '7xx xxx xxxx',
+    hint: 'ژمارەکەت بەبێ کۆدی وڵات بنووسە.',
+  },
   welcome: {
     title: 'بەخێربێیت بۆ بیتەری',
     subtitle: 'چاودێریی ڤێتێرنەریی متمانەپێکراو بۆ ئاژەڵەکانت، لە یەک شوێندا.',
@@ -125,6 +130,7 @@ const registration: KuNamespace<'registration'> = {
     emailInvalid: 'شێوازی ئیمەیڵەکە هەڵەیە.',
     phoneInvalid: 'ژمارەی تەلەفۆن هەڵەیە.',
     phoneRequired: 'ژمارەی تەلەفۆن پێویستە.',
+    phoneCountryRequired: 'تکایە کۆدی وڵات هەڵبژێرە.',
     governorateRequired: 'تکایە پارێزگا هەڵبژێرە.',
     specializationTooLong: 'پسپۆڕییەکە زۆر درێژە.',
     passwordTooShort: 'وشەی نهێنی لانیکەم ١٠ پیتە.',

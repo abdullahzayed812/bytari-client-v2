@@ -23,10 +23,13 @@ import {
   CountrySelect,
   GenderRadioGroup,
   GovernorateSelect,
+  PhoneNumberField,
   TermsAndConditionsModal,
 } from '../components';
+import { DEFAULT_CALLING_CODE } from '../data/callingCodes';
 import { devPetOwnerDefaults } from '../data/devDefaults';
 import { uploadRegistrationAvatar } from '../hooks';
+import { toInternationalPhone } from '../lib/phone';
 import { buildPetOwnerSchema, type PetOwnerFormValues } from '../validation/schemas';
 
 /**
@@ -74,6 +77,7 @@ export default function PetOwnerRegisterScreen() {
           firstName: '',
           lastName: '',
           email: emailParam ?? '',
+          phoneCountry: DEFAULT_CALLING_CODE,
           phone: '',
           password: '',
           confirmPassword: '',
@@ -105,7 +109,8 @@ export default function PetOwnerRegisterScreen() {
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         password: values.password,
-        phone: values.phone.trim(),
+        // One international string (+9647701234567) — what the API validates and stores.
+        phone: toInternationalPhone(values.phoneCountry, values.phone),
         gender: values.gender,
         country: values.country,
         governorate: values.governorate.trim(),
@@ -196,16 +201,11 @@ export default function PetOwnerRegisterScreen() {
         {/* Verification itself is unchanged (verify-email step after sign-up). */}
         <Alert tone="info" message={tAuth('register.emailConfirmNotice')} />
 
-        <FormField
+        <PhoneNumberField
           control={control}
-          name="phone"
+          countryName="phoneCountry"
+          phoneName="phone"
           label={tAuth('register.phoneLabel')}
-          placeholder={tAuth('register.phonePlaceholder')}
-          keyboardType="phone-pad"
-          autoComplete="tel"
-          textContentType="telephoneNumber"
-          returnKeyType="next"
-          leftIcon="phone-portrait-outline"
           serverError={serverFields.phone}
         />
 

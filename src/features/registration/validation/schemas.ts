@@ -3,11 +3,19 @@ import { z } from 'zod';
 
 import { governoratesFor } from '@/constants/governorates';
 
+import { callingCodeFor } from '../data/callingCodes';
+import { isNationalNumberFormat, isValidNationalNumber } from '../lib/phone';
+
 /**
  * Registration-flow validation. Personal-info fields mirror the existing
  * `auth` register schema exactly (`server/src/modules/auth/auth.schemas.ts`):
  *
  *   firstName/lastName(1–100) · email · phone (required) · password(≥10, ≤128)
+ *
+ * The phone is collected as two fields — `phoneCountry` (ISO code of the
+ * calling code, default IQ/+964) and `phone` (the national number) — and
+ * joined into ONE international string (`toInternationalPhone`) on submit,
+ * which is what the backend's `phoneSchema` validates and stores.
  *
  * plus the fields this flow requires: `country` (2-letter ISO), the
  * `governorate` inside it (fixed list where one exists — see
@@ -17,8 +25,6 @@ import { governoratesFor } from '@/constants/governorates';
  * backend's own rule (§ veterinarian.apply contract).
  */
 export type RegistrationTFn = TFunction<'registration'>;
-
-const PHONE_RE = /^\+?[0-9][0-9\s\-()]{5,23}$/;
 
 /**
  * A document picked LOCALLY (`LocalImageUploader`, not yet uploaded — see
@@ -32,6 +38,24 @@ const localFileSchema = z.object({
   mimeType: z.string().min(1),
   size: z.number().optional(),
 });
+
+/** National number must fit the chosen calling code (≥ 6 significant digits, ≤ 15 with the dial code). */
+function checkPhone(
+  values: { phoneCountry: string; phone: string },
+  ctx: z.RefinementCtx,
+  t: RegistrationTFn,
+): void {
+  const phone = values.phone.trim();
+  // Empty / non-digit input already carries its own field-level message.
+  if (!phone || !isNationalNumberFormat(phone) || !callingCodeFor(values.phoneCountry)) return;
+  if (!isValidNationalNumber(values.phoneCountry, phone)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: t('errors.phoneInvalid'),
+      path: ['phone'],
+    });
+  }
+}
 
 /** Governorate must belong to the selected country's list, when that country has one. */
 function checkGovernorate(
@@ -59,11 +83,15 @@ function buildPersonalShape(t: RegistrationTFn) {
       .min(1, t('errors.emailRequired'))
       .email(t('errors.emailInvalid'))
       .max(254),
+    phoneCountry: z
+      .string()
+      .refine((code) => Boolean(callingCodeFor(code)), t('errors.phoneCountryRequired')),
+    /** National number only — the calling code lives in `phoneCountry`. */
     phone: z
       .string()
       .trim()
       .min(1, t('errors.phoneRequired'))
-      .regex(PHONE_RE, t('errors.phoneInvalid')),
+      .refine(isNationalNumberFormat, t('errors.phoneInvalid')),
     password: z
       .string()
       .min(10, t('errors.passwordTooShort'))
@@ -83,6 +111,7 @@ function buildPersonalShape(t: RegistrationTFn) {
 export function buildPetOwnerSchema(t: RegistrationTFn) {
   return z.object(buildPersonalShape(t)).superRefine((values, ctx) => {
     checkGovernorate(values, ctx, t);
+    checkPhone(values, ctx, t);
     if (values.password !== values.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -123,6 +152,7 @@ export function buildVeterinarianSchema(t: RegistrationTFn) {
     })
     .superRefine((values, ctx) => {
       checkGovernorate(values, ctx, t);
+      checkPhone(values, ctx, t);
       if (values.password !== values.confirmPassword) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

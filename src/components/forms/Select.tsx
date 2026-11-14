@@ -33,6 +33,8 @@ export interface SelectProps<T extends string> {
   required?: boolean;
   /** Force the in-sheet search on/off; defaults to on for long lists. */
   searchable?: boolean;
+  /** Text shown in the closed trigger for the selected option (defaults to its `label`), e.g. a compact `+964`. */
+  valueLabel?: (option: SelectOption<T>) => string;
 }
 
 /**
@@ -49,6 +51,7 @@ export function Select<T extends string>({
   disabled,
   required,
   searchable,
+  valueLabel,
 }: SelectProps<T>) {
   const theme = useTheme();
   const { t } = useTranslation('common');
@@ -59,7 +62,12 @@ export function Select<T extends string>({
   const visibleOptions = useMemo(() => {
     const q = normalize(query);
     if (!showSearch || !q) return options;
-    return options.filter((o) => normalize(o.label).includes(q) || normalize(o.value).includes(q));
+    return options.filter(
+      (o) =>
+        normalize(o.label).includes(q) ||
+        normalize(o.value).includes(q) ||
+        (o.description ? normalize(o.description).includes(q) : false),
+    );
   }, [options, query, showSearch]);
 
   const close = () => {
@@ -95,7 +103,7 @@ export function Select<T extends string>({
         }}
       >
         <Text variant="body" color={selected ? 'textPrimary' : 'textMuted'}>
-          {selected?.label ?? placeholder ?? '—'}
+          {selected ? (valueLabel ? valueLabel(selected) : selected.label) : (placeholder ?? '—')}
         </Text>
         <Icon name="chevron-down" size="iconSm" color="textMuted" />
       </Pressable>

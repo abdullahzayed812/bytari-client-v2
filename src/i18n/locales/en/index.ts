@@ -8966,6 +8966,11 @@ export const en: TranslationResources = {
   },
 
   registration: {
+    phoneField: {
+      countryCodeLabel: 'Country code',
+      placeholder: '7xx xxx xxxx',
+      hint: 'Enter your number without the country code.',
+    },
     welcome: {
       title: 'Welcome to Bytari',
       subtitle: 'Trusted veterinary care for your animals, all in one place.',
@@ -9089,6 +9094,7 @@ export const en: TranslationResources = {
       emailInvalid: 'Enter a valid email address.',
       phoneInvalid: 'Enter a valid phone number.',
       phoneRequired: 'Phone number is required.',
+      phoneCountryRequired: 'Please choose a country code.',
       governorateRequired: 'Please choose a governorate.',
       specializationTooLong: 'Specialization is too long.',
       passwordTooShort: 'Password must be at least 10 characters.',
@@ -9225,6 +9231,7 @@ export const en: TranslationResources = {
     validation: {
       required: 'This field is required',
       terms: 'You must agree to the Terms & Conditions first.',
+      positiveInteger: 'Enter a whole number greater than zero.',
     },
     actions: {
       contactOtherParty: 'Contact',
